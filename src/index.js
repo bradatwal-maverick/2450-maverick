@@ -79,7 +79,7 @@ if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(
 // ---- Mav's announcements: auto-posted when a voted idea is marked Done, or posted by hand in admin ----
 async function announcements(env) {
   const out = [];
-  for (const { name } of (await env.DATA.list({ prefix: "ann:" })).keys) { const a = await env.DATA.get(name, "json"); if (a) out.push({ id: name, ...a }); }
+  for (const { name } of await klist(env, "ann:")) { const a = await env.DATA.get(name, "json"); if (a) out.push({ id: name, ...a }); }
   return out.sort((a, b) => b.at.localeCompare(a.at));
 }
 async function annBanner(env) {
@@ -102,7 +102,7 @@ ${await annBanner(env)}<div class="home"><p class="big" aria-label="${R.brand}">
 
 async function listEvents(env, prefix) {
   const today = todayISO(), out = [];
-  const { keys } = await env.DATA.list({ prefix });
+  const keys = await klist(env, prefix);
   for (const k of keys) {
     const date = k.name.split(":")[2];
     if (date < today) continue;
@@ -301,8 +301,17 @@ document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return
 const LOCALS_GOAL = 15000;
 // Free gift for subscribers: Maverick Digital's guide to AI in everyday life. Set the URL once the article is live.
 const GIFT_URL = "";
+// Free Cloudflare plans allow 1,000 storage listings a day across the whole account, so page views use a
+// 10-minute memory cache and never crash if the daily allowance runs out (they show what they last knew).
+const LC = new Map();
+async function klist(env, prefix) {
+  const hit = LC.get(prefix);
+  if (hit && Date.now() - hit.at < 10 * 6e4) return hit.keys;
+  try { const keys = await listAll(env, prefix); LC.set(prefix, { at: Date.now(), keys }); return keys; }
+  catch (e) { return hit ? hit.keys : []; }
+}
 async function listAll(env, prefix) { const out = []; let cursor; do { const r = await env.DATA.list({ prefix, cursor }); out.push(...r.keys); cursor = r.list_complete ? null : r.cursor; } while (cursor); return out; }
-const localsCount = async env => { const emails = new Set(); for (const pre of ["sub:", "user:"]) for (const k of await listAll(env, pre)) emails.add(k.name.slice(pre.length)); return emails.size + (await listAll(env, "psub:")).length; };
+const localsCount = async env => { const emails = new Set(); for (const pre of ["sub:", "user:"]) for (const k of await klist(env, pre)) emails.add(k.name.slice(pre.length)); return emails.size + (await klist(env, "psub:")).length; };
 const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goal = LOCALS_GOAL.toLocaleString("en-AU"); return `<section id="join" class="rally">
 <h3 class="rallyh">🙏🏽 Help a brother out</h3>
 <p><b>${R.code} is free, for everyone, forever.</b> Our aim: ${goal} locals signed up, ${R.goalText}. That's when a few clearly labelled local ads can cover the costs. Nobody will ever pay to be listed.</p>
@@ -432,7 +441,7 @@ async function admin(req, env) {
 <ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>Community notices waiting</h2><ul>${await (async () => { let h = ""; for (const { name } of (await env.DATA.list({ prefix: "npending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) h += `${noticeItem(n).replace("</li>", "")}<span class="mute">from ${esc(n.contact)}</span><br>${btnB("approve", "Approve and alert", name)} ${btnB("delete", "Delete", name)}</li>`; } return h || "<li>None</li>"; })()}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
-const about = async env => { const n = (await env.DATA.list({ prefix: "sub:" })).keys.length + (await env.DATA.list({ prefix: "psub:" })).keys.length, locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Nobody pays to be here.</h1>
+const about = async env => { const n = await localsCount(env), locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Nobody pays to be here.</h1>
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
 <p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no fees to list your event, club or notice. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
 <h2>How we'll keep the lights on</h2><p>Our goal is to reach as many locals as a local weekly paper: about <b>15,000 people</b>. ${locals}</p>
@@ -643,7 +652,7 @@ sel.onchange=show;show();
 const GOAL = 30, STATUS = { open: "", building: "🔨 Being built", done: "✅ Done" };
 async function ideas(env) {
   const out = [];
-  for (const { name } of (await env.DATA.list({ prefix: "idea:" })).keys) { const i = await env.DATA.get(name, "json"); if (i) out.push({ id: name.slice(5), ...i }); }
+  for (const { name } of await klist(env, "idea:")) { const i = await env.DATA.get(name, "json"); if (i) out.push({ id: name.slice(5), ...i }); }
   return out.sort((a, b) => (a.status === "done") - (b.status === "done") || b.votes - a.votes);
 }
 const ideaItem = i => `<li class="idea"><button type="button" class="vote" data-id="${esc(i.id)}"${i.status === "done" ? " disabled" : ""}>👍 <b>${i.votes}</b></button>
@@ -701,7 +710,7 @@ const WHEN = { day: "On your birthday", week: "Your birthday week", month: "Your
 const offerItem = o => `<li><b>${esc(o.biz)}</b>: ${esc(o.offer)}<br><span class="mute">${esc(WHEN[o.when] || "")}${o.cond ? " · " + esc(o.cond) : ""} · Say <span class="say">&ldquo;Maverick&rdquo;</span> when you redeem</span></li>`;
 async function birthdayPage(env, msg = "") {
   const offers = [];
-  for (const { name } of (await env.DATA.list({ prefix: "bday:" })).keys) { const o = await env.DATA.get(name, "json"); if (o) offers.push(o); }
+  for (const { name } of await klist(env, "bday:")) { const o = await env.DATA.get(name, "json"); if (o) offers.push(o); }
   offers.sort((a, b) => a.biz.localeCompare(b.biz));
   return page(`Birthday deals in ${R.code}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🎂 Birthday deals</h1>
 <p>Pop in your birthday and see which local places will look after you on your big day.</p>${msg}
@@ -874,7 +883,7 @@ async function obitsWithin(env, days) {
   const o = await env.DATA.get("obits", "json"), t = todayISO();
   const lo = new Date(Date.now() + 11 * 3600e3 - days * 864e5).toISOString().slice(0, 10), hi = new Date(Date.now() + 11 * 3600e3 + 7 * 864e5).toISOString().slice(0, 10);
   const manual = [];
-  for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) manual.push({ name: n.name, passed: n.date, service: null, where: n.service || null, home: n.home, link: n.link }); }
+  for (const { name } of await klist(env, "rip:")) { const n = await env.DATA.get(name, "json"); if (n) manual.push({ name: n.name, passed: n.date, service: null, where: n.service || null, home: n.home, link: n.link }); }
   const seen = new Set();
   return [...manual, ...(o?.items || [])].filter(n => (n.passed && n.passed >= lo && n.passed <= t) || (n.service && n.service >= lo && n.service <= hi))
     .filter(n => !seen.has(n.name.toLowerCase()) && seen.add(n.name.toLowerCase()))
@@ -1133,6 +1142,7 @@ function accLine(id, st) {
 
 async function checkFields(env) {
   if (!R.fields) return;
+  const prev = await env.DATA.get("fields:state", "json"); if (prev && Date.now() - new Date(prev.checked) < 110 * 6e4) return; // every 2 hours
   try {
     const txt = (await (await fetch(R.fields.url, { headers: UA })).text()).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
     const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
@@ -1147,7 +1157,7 @@ async function fieldsBlock(env) {
   const st = await env.DATA.get("fields:state", "json"), a = await env.DATA.get("alert:fields", "json");
   return `${a ? `<p><b>Latest:</b> ${esc(a.body)} <span class="mute">(${esc(asOf(a.at))})</span></p>` : ""}
 ${R.fields.info}
-<p class="src">Info from <a href="${R.fields.url}" rel="noopener">${esc(R.fields.name)}</a>.${st?.changed ? ` <b>Council last changed it: ${esc(asOf(st.changed))}</b>.` : ""}${st?.checked ? ` We check it every 30 minutes (last check ${esc(asOf(st.checked))}).` : ""}</p>`;
+<p class="src">Info from <a href="${R.fields.url}" rel="noopener">${esc(R.fields.name)}</a>.${st?.changed ? ` <b>Council last changed it: ${esc(asOf(st.changed))}</b>.` : ""}${st?.checked ? ` We check it every 2 hours (last check ${esc(asOf(st.checked))}).` : ""}</p>`;
 }
 
 // ---- Web push: no paid service. Keys are made by the Worker on first use and kept in KV. ----
@@ -1372,7 +1382,7 @@ const NCATS = { lost: "🐾 Lost & found", volunteer: "🤝 Volunteers wanted", 
 const noticeItem = n => `<li class="idea"><div><span class="tagg">${NCATS[n.cat] || ""}</span> <b>${esc(n.title)}</b><br>${esc(n.body)}${n.reach ? `<br><span class="mute">Contact: ${esc(n.reach)}</span>` : ""}<br><small class="mute">${esc(n.who)} · posted ${esc(fmtDate(n.at.slice(0, 10)))}</small></div></li>`;
 async function noticesPage(env, msg = "") {
   const since = new Date(Date.now() - 30 * 864e5).toISOString(), list = [];
-  for (const { name } of (await env.DATA.list({ prefix: "notice:" })).keys) { const n = await env.DATA.get(name, "json"); if (n && n.at >= since) list.push(n); }
+  for (const { name } of await klist(env, "notice:")) { const n = await env.DATA.get(name, "json"); if (n && n.at >= since) list.push(n); }
   list.sort((a, b) => b.at.localeCompare(a.at));
   return page("Community notice board", `<p class="mute"><a href="/${R.code}">‹ ${R.code}</a></p><h1>📌 Community notice board</h1>
 <p>Real notices from real locals: lost pets, volunteers, clubs, classes, neighbours helping neighbours. <b>No buying, selling or ads.</b> Every notice is checked before it goes up and comes down after 30 days.</p>${msg}
@@ -1414,10 +1424,18 @@ export default {
   async scheduled(evt, env, ctx) {
     initRegion(env);
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(k => refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env)]));
+    const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
+    const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
+    try { return await route(req, env, ctx); }
+    catch (e) { console.log("page error", String(e)); return page("Back soon", `<h1>Back in a moment</h1><p>Something hiccuped on our end. Try again in a minute.</p><p><a href="/">Home</a></p>`); }
+  },
+};
+async function route(req, env, ctx) {
+  {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
@@ -1460,5 +1478,5 @@ export default {
     const m = p.match(/^\/(\d{4})\/?$/);
     if (m) return town(m[1], env, ctx);
     return page("Not found", `<h1>Not found</h1><p><a href="/">Back to ${R.code}</a></p>`);
-  },
-};
+  }
+}
