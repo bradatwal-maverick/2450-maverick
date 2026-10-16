@@ -3,7 +3,7 @@
 
 export const REGIONS = {
   "2450": {
-    code: "2450", brand: "2450 Maverick", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
+    code: "2450", brand: "The 2450 Gazette", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
     venues: [
       { name: "C.ex clubs (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
       { name: "C.ex clubs (free live music)", url: "https://cex.com.au/free-live/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
@@ -103,7 +103,7 @@ Every piece of information has an ⓘ Source button showing where it comes from 
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2481": {
-    code: "2481", brand: "2481 Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
+    code: "2481", brand: "The 2481 Gazette", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
     venues: [
       { name: "Beach Hotel Byron Bay", url: "https://www.beachhotel.com.au/whats-on", venue: "Beach Hotel" },
     ],
@@ -191,7 +191,7 @@ Every piece of information has an ⓘ Where from? button showing where it comes 
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2454": {
-    code: "2454", brand: "2454 Maverick", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
+    code: "2454", brand: "The 2454 Gazette", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
     venues: [
       { name: "C.ex Urunga (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Urunga"] },
       { name: "Bellingen Growers Market", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-growers-market", venue: "Bellingen Growers Market", market: true },
