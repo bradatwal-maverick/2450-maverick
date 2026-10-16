@@ -32,6 +32,7 @@ function page(title, body, pc = "") {
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#1a73e8">
 <style>${CSS}</style></head><body><main>${body}</main>
 <footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
+2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
 Born and built in 2450, raised by the world. Powered by <a href="https://maverickdigital.com.ai">Maverick Digital</a></footer>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{})</script></body></html>`,
