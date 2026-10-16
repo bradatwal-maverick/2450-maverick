@@ -33,7 +33,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:var(--soft);border-color:transparent!important}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.fuel{padding-left:20px}.fuel li{margin:8px 0}h3{font-size:1rem;margin:14px 0 4px}.openl{list-style:none;padding:0}.openl li{display:flex;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}.openl .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:6px;background:#9aa0a6}.openl li.open .dot{background:#1e9e4a}.openl li.shut .dot{background:#d93025}.openl li.open .st{color:#1e9e4a;font-weight:bold}.openl li.shut .st{color:#d93025;font-weight:bold}.openl li.unk .st{color:var(--mute)}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.fuel{padding-left:20px}.fuel li{margin:8px 0}h3{font-size:1rem;margin:14px 0 4px}.openl{list-style:none;padding:0}.openl li{display:flex;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}.openl .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:6px;background:#9aa0a6}.openl li.open .dot{background:#1e9e4a}.openl li.shut .dot{background:#d93025}.openl li.open .st{color:#1e9e4a;font-weight:bold}.openl li.shut .st{color:#d93025;font-weight:bold}.openl li.unk .st{color:var(--mute)}#mavbtn{position:fixed;right:16px;bottom:16px;z-index:50;border-radius:24px;padding:12px 18px;background:var(--fg);color:var(--bg);box-shadow:0 4px 14px rgba(0,0,0,.2)}#mavp{position:fixed;right:12px;bottom:12px;left:12px;max-width:420px;margin-left:auto;z-index:51;background:var(--bg);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;max-height:75vh}#mavp[hidden]{display:none}.mavh{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:4px}.mavh button{margin-left:auto;background:none;color:var(--fg);font-size:1.3rem;padding:0 6px}#mavlog{overflow:auto;padding:10px 14px;flex:1}.mm{margin:6px 0;padding:8px 12px;border-radius:14px;max-width:85%}.mm.mav{background:var(--soft)}.mm.me{background:var(--fg);color:var(--bg);margin-left:auto}.mm.me a{color:var(--bg)}#mavchips{padding:0 12px}#mavchips label{cursor:pointer;font-size:.8rem}#mavf{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}#mavf input{flex:1;min-width:0}#mavmic{background:var(--soft);color:var(--fg);padding:8px 12px}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
@@ -51,6 +51,7 @@ function page(title, body, pc = "") {
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
 Born and built in 2450, raised by the world.<br><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></footer>
+${MAV_WIDGET}
 <script>(function(){var TW=${JSON.stringify(Object.entries(TOWNS).filter(([, t]) => t.live).map(([k, t]) => [k, t.lat, t.lon]))};var L=null;try{L=JSON.parse(localStorage.getItem("loc"))}catch(e){}document.querySelectorAll(".useloc").forEach(function(a){if(L)a.textContent="📍 Using your location (reset)";
 a.onclick=function(e){e.preventDefault();if(L){try{localStorage.removeItem("loc")}catch(_){}location.reload();return}if(!navigator.geolocation){a.textContent="Location not available on this device";return}a.textContent="📍 Finding you…";
 navigator.geolocation.getCurrentPosition(function(p){var la=+p.coords.latitude.toFixed(2),lo=+p.coords.longitude.toFixed(2);try{localStorage.setItem("loc",JSON.stringify([la,lo]))}catch(_){}
@@ -131,7 +132,7 @@ async function town(pc, env, ctx) {
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
-${ann}<p class="mute"><span id="date"></span> · <a href="#" class="useloc">📍 Use my location</a> · <a href="/me">🎤 Make this page yours</a></p>
+${ann}<p class="mute"><span id="date"></span> · <a href="#" class="useloc">📍 Use my location</a> · <a href="/me" class="openmav">💬 Make this page yours</a></p>
 ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div id="flow"><section id="today"><div class="tiles">
 <div class="tile"><span id="i-wx" class="ico">⛅</span><b id="t-temp">–</b><small id="t-sky">Weather</small></div>
@@ -685,8 +686,8 @@ async function lodgeRip(req, env) {
 
 // ---- My 2450: tell Mav (voice or text) and he sets up the page. Settings stay on the phone. ----
 const KEYS = { tools: "kid kids school son daughter children family cook cooking dinner recipe food fridge birthday", alerts: "fire fires flood drive driving commute roads traffic storm",
-  events: "events gig gigs music markets going out weekend things to do festival", news: "news headlines what's happening", fuel: "fuel petrol diesel car drive driving commute ute",
-  sea: "fish fishing boat tide tides surf surfing swell kayak", know: "council bins rubbish rates new to town moved mayor", council: "council rates development roadworks",
+  events: "events gig gigs music markets weekend things festival", news: "news headlines", fuel: "fuel petrol diesel car drive driving commute ute",
+  sea: "fish fishing boat tide tides surf surfing swell kayak", know: "council bins rubbish rates newcomer moved mayor", council: "council rates development roadworks",
   sport: "sport footy soccer netball cricket kids sport field rugby", holidays: "school holidays kids school family", surfcams: "surf surfing waves board", beaches: "beach beaches swim swimming patrol dog" };
 function mavGuess(text) {
   const t = " " + text.toLowerCase() + " ", score = {};
@@ -994,6 +995,75 @@ document.getElementById('osrc').innerHTML='Current as of '+new Date(j.asof).toLo
 document.querySelectorAll('#cats button').forEach(function(b){b.onclick=function(){load(b.dataset.c,b)}});
 var last;try{last=localStorage.getItem('opencat')}catch(_){}var lb=last&&document.querySelector('[data-c="'+last+'"]');if(lb)load(last,lb)})();</script>`, "2450");
 
+// ---- Mav chat: a helper on every page. Answers from the site's own info and changes settings (all stored on the phone). Nothing is logged. ----
+const MAV_KB = `Site: 2450 Maverick, a free local info site for the Coffs Harbour council area (2450 Coffs Harbour, 2452 Sawtell & Toormina, 2456 Woolgoolga). Never charges. A gift from Maverick Digital.
+Pages: /2450 /2452 /2456 area pages; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
+/school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
+Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; fuel=cheapest fuel near you;
+sea=tides & fishing; know=Know your area (mayor Cr Nikki Williams, deputy Cr George Cecato, council 02 6648 4000 incl. 24/7 urgent water/sewer/pollution/animal attacks, bins via Coffs Coast Waste Services app, bulky goods 1800 265 495, tip at Englands Road, council request form, NSW Ombudsman);
+council=council news; kids=Weekend for kids (free or under $50); sport=Sport & field closures with phone alerts; holidays=public holidays; surfcams=surf cams; beaches=beaches.
+Emergencies: 000. Tides are estimates, not for navigation.`;
+async function mavChat(req, env) {
+  let j = {}; try { j = await req.json(); } catch (e) {}
+  const msgs = (Array.isArray(j.messages) ? j.messages : []).slice(-6).map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content || "").slice(0, 500) }));
+  const last = msgs.filter(m => m.role === "user").pop()?.content || "";
+  const pc = /^\d{4}$/.test(j.pc) ? j.pc : "2450", ids = SECTIONS.map(x => x[0]);
+  const fallback = () => { const low = last.toLowerCase(), g = mavGuess(last), hit = [["open", "/open"], ["fridge", "/fridge"], ["dinner", "/fridge"], ["school", "/school"], ["birthday", "/birthday"], ["slang", "/genalpha"], ["idea", "/feedback"]].find(([k]) => low.includes(k));
+    if (/\b(move|put|show|hide|first|top|set up|setup|order|only)\b/.test(low)) return { reply: g.say, actions: [{ type: "order", ids: g.order }] };
+    return { reply: hit ? `Try this page: ${hit[1]}` : "I can rearrange your page, find what's open, check fuel, and point you to anything on 2450. What do you need?", actions: hit ? [{ type: "link", url: hit[1] }] : [] }; };
+  if (!last.trim()) return Response.json(fallback());
+  if (!env.AI) return Response.json(fallback());
+  try {
+    const r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", { max_tokens: 350, messages: [
+      { role: "system", content: `You are Mav, the friendly, down-to-earth Aussie helper on 2450 Maverick. Keep replies short (1-3 sentences), warm and practical. Only use facts below; if unsure, point to the right page or say to check the source. No medical, legal or financial advice beyond pointing to services; emergencies: call 000. Never ask for personal details beyond a first name.
+${MAV_KB}
+The person is viewing area ${pc}. Their current section order: ${JSON.stringify(j.order || ids)}; hidden: ${JSON.stringify(j.hidden || [])}; name: ${JSON.stringify(String(j.name || "").slice(0, 30))}.
+Reply with ONLY JSON: {"reply":"text","actions":[...]} where actions (optional) can be: {"type":"order","ids":[all section ids in new order]}, {"type":"hide","ids":[...]}, {"type":"show","ids":[...]}, {"type":"name","value":"First"}, {"type":"area","pc":"2450|2452|2456"}, {"type":"link","url":"/open"}, {"type":"fuel","value":"E10|U91|P95|P98|DL"}. Only use section ids: ${ids.join(", ")}.` },
+      ...msgs] });
+    const raw = String(r.response || ""), m = raw.match(/\{[\s\S]*\}/);
+    let out; try { out = JSON.parse(m[0]); } catch (e) { out = { reply: raw.replace(/[{}"]/g, "").slice(0, 400), actions: [] }; }
+    const acts = (Array.isArray(out.actions) ? out.actions : []).filter(a => a && typeof a === "object").map(a => {
+      if (a.type === "order") { const o = [...new Set((a.ids || []).filter(i => ids.includes(i)))]; ids.forEach(i => o.includes(i) || o.push(i)); return { type: "order", ids: o }; }
+      if (a.type === "hide" || a.type === "show") return { type: a.type, ids: (a.ids || []).filter(i => ids.includes(i) && i !== "today") };
+      if (a.type === "name") return { type: "name", value: String(a.value || "").replace(/[^\p{L} '-]/gu, "").slice(0, 30) };
+      if (a.type === "area" && ["2450", "2452", "2456"].includes(String(a.pc))) return { type: "area", pc: String(a.pc) };
+      if (a.type === "link" && /^\/[a-z0-9/#?=&-]*$/i.test(a.url || "")) return { type: "link", url: a.url };
+      if (a.type === "fuel" && FUELS[a.value]) return { type: "fuel", value: a.value };
+      return null; }).filter(Boolean).slice(0, 4);
+    return Response.json({ reply: String(out.reply || "Done!").slice(0, 500), actions: acts });
+  } catch (e) { return Response.json(fallback()); }
+}
+const MAV_WIDGET = `<button type="button" id="mavbtn" aria-label="Ask Mav">💬 Ask Mav</button>
+<div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>Mav</b><span class="mute"> · your 2450 helper</span><button type="button" id="mavx" aria-label="Close">×</button></div>
+<div id="mavlog"></div><div class="chips" id="mavchips"><label>Set up my page</label><label>What's open now?</label><label>Cheapest fuel</label><label>Bin info</label><label>Hide what I don't use</label></div>
+<form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Ask Mav anything…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
+<script>(function(){var P=document.getElementById('mavp'),B=document.getElementById('mavbtn'),LOG=document.getElementById('mavlog'),IN=document.getElementById('mavin'),H=[];
+function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function p(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+try{H=JSON.parse(sessionStorage.getItem('mavh')||'[]')}catch(e){}
+function e(x){return String(x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function draw(){if(!H.length)H=[{role:'assistant',content:'G\\u2019day'+(g('name')?' '+g('name'):'')+'! I\\u2019m Mav. Ask me anything about 2450, or tell me how you want your page set up.'}];
+LOG.innerHTML=H.map(function(m){return '<p class="mm '+(m.role=='user'?'me':'mav')+'">'+e(m.content).replace(/(\\/[a-z0-9]+)/g,'<a href="$1">$1</a>')+'</p>'}).join('');LOG.scrollTop=1e6;try{sessionStorage.setItem('mavh',JSON.stringify(H.slice(-12)))}catch(_){}}
+function open(){P.hidden=false;B.hidden=true;draw();IN.focus();try{sessionStorage.setItem('mavopen',1)}catch(_){}}
+B.onclick=open;document.getElementById('mavx').onclick=function(){P.hidden=true;B.hidden=false;try{sessionStorage.removeItem('mavopen')}catch(_){}};
+document.querySelectorAll('[href="/me"],.openmav').forEach(function(a){a.onclick=function(ev){ev.preventDefault();open()}});
+function order(){try{return JSON.parse(g('order')||'null')}catch(e){return null}}
+function apply(acts){var reload=false;(acts||[]).forEach(function(a){if(a.type=='order'){p('order',JSON.stringify(a.ids));reload=true}
+else if(a.type=='hide'){a.ids.forEach(function(i){p('hide_'+i,'1')});reload=true}else if(a.type=='show'){a.ids.forEach(function(i){p('hide_'+i,null)});reload=true}
+else if(a.type=='name'&&a.value){p('name',a.value);reload=true}else if(a.type=='fuel'){p('fuel',a.value);reload=true}
+else if(a.type=='area'){p('pc',a.pc);setTimeout(function(){location.href='/'+a.pc},900)}else if(a.type=='link'){setTimeout(function(){location.href=a.url},900)}});
+if(reload&&/^\\/\\d{4}\\/?$/.test(location.pathname))setTimeout(function(){location.reload()},900)}
+function send(t){t=t.trim();if(!t)return;H.push({role:'user',content:t});H.push({role:'assistant',content:'…'});draw();IN.value='';
+var hidden=[];document.querySelectorAll('#flow > section').forEach(function(s){if(g('hide_'+s.id))hidden.push(s.id)});
+var pc=(location.pathname.match(/^\\/(\\d{4})/)||[])[1]||g('pc')||'2450';
+fetch('/api/mav',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:H.slice(0,-1).slice(-6),pc:pc,order:order(),hidden:hidden,name:g('name')})})
+.then(function(r){return r.json()}).then(function(j){H[H.length-1]={role:'assistant',content:j.reply};draw();apply(j.actions)})
+.catch(function(){H[H.length-1]={role:'assistant',content:'Sorry, I dropped the ball. Try again?'};draw()})}
+document.getElementById('mavf').onsubmit=function(ev){ev.preventDefault();send(IN.value)};
+document.getElementById('mavchips').onclick=function(ev){if(ev.target.tagName=='LABEL')send(ev.target.textContent)};
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.getElementById('mavmic');if(!SR)mic.hidden=true;else mic.onclick=function(){var r=new SR();r.lang='en-AU';mic.textContent='👂';
+r.onresult=function(x){IN.value=Array.prototype.map.call(x.results,function(y){return y[0].transcript}).join(' ')};r.onend=function(){mic.textContent='🎤';if(IN.value)send(IN.value)};r.start()};
+try{if(sessionStorage.getItem('mavopen'))open()}catch(_){}})();</script>`;
+
 export default {
   async scheduled(evt, env, ctx) {
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
@@ -1010,6 +1080,7 @@ export default {
     if (p === "/api/fuel") return fuelApi(req, env);
     if (p === "/me") return mePage();
     if (p === "/mav" && req.method === "POST") return mav(req, env);
+    if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
     if (p === "/genalpha") return genAlpha();
     if (p === "/charter") return charter();
