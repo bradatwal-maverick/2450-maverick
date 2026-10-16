@@ -1956,11 +1956,17 @@ async function healthMail(env, ctx) {
 
 // ---- News in numbers: facts from named sources, side by side. No opinions, no captions; readers make up their own minds. ----
 const NUMBERS = [
-  { a: ["Australians killed by animals", "34", "a year on average (2001 to 2021), all animals, horses to sharks"], b: ["Americans killed by guns", "46,728", "in 2023 (about 128 a day)"],
+  { g: "Big tech watch", a: ["People using ChatGPT", "900 million", "every week (February 2026)"], b: ["People using Facebook, Instagram, WhatsApp or Messenger", "3.6 billion", "every day (June 2026)"],
+    src: [["OpenAI, via TechCrunch", "https://techcrunch.com/2026/02/27/chatgpt-reaches-900m-weekly-active-users"], ["Meta second quarter 2026 results", "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Second-Quarter-2026-Results/"]] },
+  { g: "Big tech watch", a: ["Australians using AI tools", "13.6 million", "58% of people 14+, in an average four weeks (Jan to Mar 2026)"], b: ["Kids' social media accounts shut down", "about 4.7 million", "under Australia's under-16 ban (reported January 2026)"],
+    src: [["Roy Morgan", "https://www.roymorgan.com/findings/10248-artificial-intelligence-ai-tools-usage-march-2026"], ["eSafety Commissioner, via Associated Press", "https://www.waff.com/2026/01/16/heres-how-many-social-media-accounts-platforms-removed-after-australia-banned-them-children"]] },
+  { g: "Big tech watch", a: ["Meta's revenue", "US$60.8 billion", "April to June 2026"], b: ["Meta's profit", "US$15.8 billion", "April to June 2026"],
+    src: [["Meta second quarter 2026 results", "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Second-Quarter-2026-Results/"]] },
+  { g: "Life and death", a: ["Australians killed by animals", "34", "a year on average (2001 to 2021), all animals, horses to sharks"], b: ["Americans killed by guns", "46,728", "in 2023 (about 128 a day)"],
     src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"], ["CDC data, via Johns Hopkins Bloomberg School of Public Health", "https://publichealth.jhu.edu/2025/new-report-highlights-us-2023-gun-deaths-suicide-by-firearm-at-record-levels-for-third-straight-year"]] },
-  { a: ["Australians killed by horses", "222", "2001 to 2021"], b: ["Australians killed by sharks", "39", "2001 to 2021"],
+  { g: "Life and death", a: ["Australians killed by horses", "222", "2001 to 2021"], b: ["Australians killed by sharks", "39", "2001 to 2021"],
     src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"]] },
-  { a: ["Australians killed by spiders", "0", "2001 to 2021"], b: ["Australians killed by bees", "45", "2001 to 2021, all from allergic reactions"],
+  { g: "Life and death", a: ["Australians killed by spiders", "0", "2001 to 2021"], b: ["Australians killed by bees", "45", "2001 to 2021, all from allergic reactions"],
     src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"]] },
 ];
 async function numbersBlock(env) {
@@ -1973,5 +1979,5 @@ async function numbersBlock(env) {
       fuel = pair({ a: ["Unleaded petrol near " + R.short + " today", avg.toFixed(1) + "c", "average a litre across " + u.length + " local servos, " + asOf(f.asof)], b: ["National average a year ago", "179.4c", "a litre, October 2025"],
         src: [["NSW FuelCheck", "https://www.fuelcheck.nsw.gov.au"], ["Australian Institute of Petroleum, via NT Treasury", "https://treasury.nt.gov.au/__data/assets/pdf_file/0004/1569010/Fuel-prices-2025-October.pdf"]] }); }
   } catch (e) {}
-  return `<section id="numbers"><h2>🔢 News in numbers</h2><p class="mute">Facts from the sources named, side by side. No opinions: make up your own mind.</p>${fuel}${NUMBERS.map(pair).join("")}</section>`;
+  return `<section id="numbers"><h2>🔢 News in numbers</h2><p class="mute">Facts from the sources named, side by side. No opinions: make up your own mind.</p>${fuel ? `<h3>Cost of living</h3>${fuel}` : ""}${[...new Set(NUMBERS.map(n => n.g))].map(g => `<h3>${esc(g)}</h3>${NUMBERS.filter(n => n.g === g).map(pair).join("")}`).join("")}</section>`;
 }
