@@ -145,6 +145,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>
 </div></section>
 <section id="tools"><h2>Handy tools</h2>
+<a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
 <a class="card" href="/coffs">🌊 <b>Why Coffs?</b> Fun facts: the spelling mistake, the moon island, where the mountains meet the sea →</a>
 <a class="card" href="/open">🟢 <b>Open now?</b> Pharmacies, mechanics, servos, cafés and more. Open ones first →</a>
@@ -208,7 +209,7 @@ var IDX=[["weather temperature rain wind forecast","Weather today","Today's weat
 ["fuel petrol diesel servo cheap","Fuel","Cheapest fuel: NSW FuelCheck for now.","#fuel"],["fire fires bushfire flood alert alerts emergency","Alerts","Fires Near Me for now. Emergencies: call 000.","#alerts"],
 ["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run report","Weather and traffic for your school run.","/school"],
 ["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],["sport field fields closure closed footy soccer netball","Sport & field closures","Field closures and fixtures.","#sport"],
-["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["coffs facts history name jetty muttonbird gumbaynggirr why fun","Why Coffs?","Fun facts about Coffs, every one sourced.","/coffs"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
+["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["coffs facts history name jetty muttonbird gumbaynggirr why fun","Why Coffs?","Fun facts about Coffs, every one sourced.","/coffs"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
 ["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
 ["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
 ["feedback idea suggestion contact","Make 2450 better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
@@ -321,6 +322,12 @@ async function admin(req, env) {
     const v = await env.DATA.get(k, "json"); if (v) act === "remove" ? await env.DATA.delete(k) : await env.DATA.put(k, JSON.stringify({ ...v, status: act }));
     if (v && act === "done" && v.status !== "done") await env.DATA.put(`ann:${new Date().toISOString()}`, JSON.stringify({ text: `You voted, we built it: ${v.text}`, votes: v.votes, link: String(f.get("link") || ""), at: new Date().toISOString() }));
   }
+  if (k.startsWith("npending:")) {
+    const v = await env.DATA.get(k, "json");
+    if (v && act === "approve") { await env.DATA.put("notice:" + k.slice(9), JSON.stringify({ ...v, at: new Date().toISOString() })); await sendAlert(env, "n_" + v.cat, "New notice: " + NCATS[v.cat].replace(/^\S+ /, ""), v.title, "/notices"); }
+    await env.DATA.delete(k);
+  }
+  if (k.startsWith("notice:") && act === "remove") await env.DATA.delete(k);
   if (k.startsWith("rpending:")) {
     if (act === "approve") { const v = await env.DATA.get(k); if (v) await env.DATA.put("rip:" + k.slice(9), v); }
     await env.DATA.delete(k);
@@ -362,7 +369,7 @@ async function admin(req, env) {
 <div class="row"><select name="topic"><option value="fields">Field closures</option><option value="alerts">General alert</option></select><button>Send alert</button></div></form>
 <h2>📣 Announce a new feature</h2><p class="mute">Marking a voted idea Done announces it automatically. Use this for anything else.</p>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="announce"><input name="text" maxlength="200" placeholder="e.g. Fuel prices are live!" style="width:100%" required><div class="row"><input name="link" placeholder="Link, e.g. /2450 (optional)"><button>Announce</button></div></form>
-<ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
+<ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>Community notices waiting</h2><ul>${await (async () => { let h = ""; for (const { name } of (await env.DATA.list({ prefix: "npending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) h += `${noticeItem(n).replace("</li>", "")}<span class="mute">from ${esc(n.contact)}</span><br>${btnB("approve", "Approve and alert", name)} ${btnB("delete", "Delete", name)}</li>`; } return h || "<li>None</li>"; })()}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
 const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
@@ -934,7 +941,7 @@ async function pushApi(req, env, p) {
     let j = {}; try { j = await req.json(); } catch (e) {}
     if (!j.sub?.endpoint || !/^https:\/\//.test(j.sub.endpoint)) return Response.json({ ok: false }, { status: 400 });
     const id = b64u(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(j.sub.endpoint))).slice(0, 22);
-    const topics = (j.topics || ["fields"]).filter(t => ["fields", "alerts"].includes(t));
+    const old = await env.DATA.get("psub:" + id, "json"), topics = [...new Set([...(old?.topics || []), ...(j.topics || ["fields"])])].filter(t => ["fields", "alerts", ...Object.keys(NCATS).map(k => "n_" + k)].includes(t));
     await env.DATA.put("psub:" + id, JSON.stringify({ sub: j.sub, topics, at: new Date().toISOString() }));
     return Response.json({ ok: true });
   }
@@ -1114,6 +1121,49 @@ L.push('','EMERGENCIES: call 000','Council (24/7 for urgent water, sewer, animal
 document.getElementById('hsprint').onclick=function(){var o=document.getElementById('hsout');o.textContent=sheet();window.print()};
 document.getElementById('hsshare').onclick=function(){var t=sheet();if(navigator.share)navigator.share({title:'House-sitter sheet',text:t}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){document.getElementById('hsshare').textContent='✓ Copied'})}})();</script>`, "2450");
 
+// ---- Community notice board: legit local notices only (no buy/swap/sell), approved in admin, 30 days, interest alerts by push ----
+const NCATS = { lost: "🐾 Lost & found", volunteer: "🤝 Volunteers wanted", groups: "👥 Clubs & groups", classes: "🎨 Classes & workshops", help: "🙋 Help a neighbour", news: "📣 Neighbourhood news" };
+const noticeItem = n => `<li class="idea"><div><span class="tagg">${NCATS[n.cat] || ""}</span> <b>${esc(n.title)}</b><br>${esc(n.body)}${n.reach ? `<br><span class="mute">Contact: ${esc(n.reach)}</span>` : ""}<br><small class="mute">${esc(n.who)} · posted ${esc(fmtDate(n.at.slice(0, 10)))}</small></div></li>`;
+async function noticesPage(env, msg = "") {
+  const since = new Date(Date.now() - 30 * 864e5).toISOString(), list = [];
+  for (const { name } of (await env.DATA.list({ prefix: "notice:" })).keys) { const n = await env.DATA.get(name, "json"); if (n && n.at >= since) list.push(n); }
+  list.sort((a, b) => b.at.localeCompare(a.at));
+  return page("Community notice board", `<p class="mute"><a href="/2450">‹ 2450</a></p><h1>📌 Community notice board</h1>
+<p>Real notices from real locals: lost pets, volunteers, clubs, classes, neighbours helping neighbours. <b>No buying, selling or ads.</b> Every notice is checked before it goes up and comes down after 30 days.</p>${msg}
+<div class="note">🔔 <b>Tell me when there's a notice about…</b><div class="chips" id="nint">${Object.entries(NCATS).map(([k, l]) => `<label><input type="checkbox" value="${k}"> ${l}</label>`).join("")}</div>
+<button type="button" id="nsub">Turn on notice alerts</button><br><small class="mute" id="nmsg"></small></div>
+<div class="pills" id="nf"><button type="button" class="on" data-c="">All</button>${Object.entries(NCATS).map(([k, l]) => `<button type="button" data-c="${k}">${l}</button>`).join("")}</div>
+<ul class="ideas" id="nlist">${list.map(n => noticeItem(n).replace('<li class="idea">', `<li class="idea" data-c="${n.cat}">`)).join("") || '<li class="mute">No notices yet. Be the first!</li>'}</ul>
+<h2>Post a notice (free)</h2><details><summary><b>Post a notice</b></summary><form method="post" action="/notices"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<label>Type *</label><select name="cat" required>${Object.entries(NCATS).map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select>
+<label>Headline *</label><input name="title" required maxlength="80" style="width:100%" placeholder="e.g. Lost: grey cat, Toormina">
+<label>Details *</label><textarea name="body" rows="4" required maxlength="500"></textarea>
+<label>Your name or group *</label><input name="who" required maxlength="60" style="width:100%">
+<label>How people can reach you (shown publicly, optional)</label><input name="reach" maxlength="100" style="width:100%" placeholder="e.g. 0400 000 000, or a club website">
+<label>Your email (to check it's legit, never shown) *</label><input type="email" name="contact" required style="width:100%">
+<p class="mute">No buying, selling, ads, politics or personal disputes. Notices that break the rules won't be posted. See <a href="/charter">our charter</a>.</p><p><button>Submit notice</button></p></form></details>
+<script>(function(){var nf=document.getElementById('nf');nf.onclick=function(e){var c=e.target.dataset.c;if(c===undefined)return;nf.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b===e.target)});
+document.querySelectorAll('#nlist li[data-c]').forEach(function(li){li.hidden=c&&li.dataset.c!==c})};
+var saved=[];try{saved=JSON.parse(localStorage.getItem('nint')||'[]')}catch(e){}document.querySelectorAll('#nint input').forEach(function(c){c.checked=saved.indexOf(c.value)>-1});
+function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');var r=atob(b+'==='.slice((b.length+3)%4)),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
+document.getElementById('nsub').onclick=function(){var b=this,m=document.getElementById('nmsg'),t=[].map.call(document.querySelectorAll('#nint input:checked'),function(c){return 'n_'+c.value});
+if(!t.length){m.textContent='Tick at least one.';return}if(!('serviceWorker'in navigator)||!('PushManager'in window)){m.textContent='On iPhone: Share, then Add to Home Screen, open 2450 from there and try again.';return}
+b.disabled=true;Notification.requestPermission().then(function(p){if(p!=='granted')throw 0;return Promise.all([navigator.serviceWorker.ready,fetch('/api/push/key').then(function(r){return r.json()})])})
+.then(function(x){return x[0].pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(x[1].key)})}).then(function(sub){return fetch('/api/push/sub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sub:sub,topics:t})})})
+.then(function(){try{localStorage.setItem('nint',JSON.stringify(t.map(function(x){return x.slice(2)})))}catch(e){}b.textContent='Alerts on ✓';m.textContent='We\\u2019ll let you know when a matching notice goes up.'})
+.catch(function(){b.disabled=false;m.textContent='Alerts weren\\u2019t allowed. You can turn them on in your phone\\u2019s settings.'})}})();</script>`, "2450");
+}
+async function lodgeNotice(req, env) {
+  const f = await req.formData();
+  if (f.get("website")) return noticesPage(env);
+  const cat = NCATS[f.get("cat")] ? f.get("cat") : null;
+  if (!cat || !f.get("title") || !f.get("body") || !f.get("who") || !f.get("contact")) return noticesPage(env, `<p class="note">Please fill in the required details.</p>`);
+  const n = { cat, title: String(f.get("title")).slice(0, 80), body: String(f.get("body")).slice(0, 500), who: String(f.get("who")).slice(0, 60), reach: String(f.get("reach") || "").slice(0, 100),
+    contact: String(f.get("contact")).slice(0, 120), at: new Date().toISOString() };
+  await env.DATA.put(`npending:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify(n));
+  return noticesPage(env, `<p class="note">Thanks! We'll check your notice and post it soon.</p>`);
+}
+
 export default {
   async scheduled(evt, env, ctx) {
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
@@ -1128,6 +1178,7 @@ export default {
     if (p === "/api/open") return openApi(req, env);
     if (p === "/coffs") return whyPage();
     if (p === "/home") return homePage();
+    if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
     if (p === "/about") return about();
     if (p === "/api/fuel") return fuelApi(req, env);
     if (p === "/me") return mePage();
