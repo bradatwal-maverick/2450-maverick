@@ -37,15 +37,15 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
-.rally{border:2px solid var(--accent);border-radius:12px;padding:14px;margin:18px 0}.bar{display:block;height:14px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--gold);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:6px 0 12px}.rallystrip{display:block;text-decoration:none;color:inherit;font-size:.9rem;margin:4px 0 12px}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
+.hdr{display:flex;gap:8px;align-items:center}.signin{font-weight:600}.gbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1f1f1f;text-decoration:none;font-weight:600}.rally{border:2px solid var(--accent);border-radius:12px;padding:14px;margin:18px 0}.bar{display:block;height:14px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--gold);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:6px 0 12px}.rallystrip{display:block;text-decoration:none;color:inherit;font-size:.9rem;margin:4px 0 12px}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
 
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="Everything on in your town, in one place. Free. Nobody pays to be here.">
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
-<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><a href="/me" id="my2450" class="my">⚙️ My 2450</a></header>
-<script>try{var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");if(n)document.getElementById("my2450").textContent="⚙️ "+n+"\u2019s 2450"}catch(e){}<\/script>
+<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><span class="hdr"><a href="/me" id="my2450" class="my">⚙️ My 2450</a> <a href="/signin" id="signin" class="my signin">👤 Sign in</a></span></header>
+<script>try{var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");if(n)document.getElementById("my2450").textContent="⚙️ "+n+"\u2019s 2450";if(/(?:^|; )m2450n=/.test(document.cookie)){var si=document.getElementById("signin");si.textContent="Sign out";si.href="/signout";si.classList.remove("signin")}else document.getElementById("signin").href="/signin?next="+encodeURIComponent(location.pathname)}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><a href="/towns">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
@@ -275,7 +275,8 @@ const LOCALS_GOAL = 15000;
 // Free gift for subscribers: Maverick Digital's guide to AI in everyday life. Set the URL once the article is live.
 const GIFT_URL = "";
 const GIFT_LINE = `🎁 <b>Free when you subscribe:</b> a guide from <a href="https://maverickdigital.com.ai" rel="noopener">Maverick Digital</a> on how AI can help in your everyday life. No sales pitch. We're not here to sell you AI, just to show you how to use it.`;
-const localsCount = async env => (await env.DATA.list({ prefix: "sub:" })).keys.length + (await env.DATA.list({ prefix: "psub:" })).keys.length;
+async function listAll(env, prefix) { const out = []; let cursor; do { const r = await env.DATA.list({ prefix, cursor }); out.push(...r.keys); cursor = r.list_complete ? null : r.cursor; } while (cursor); return out; }
+const localsCount = async env => { const emails = new Set(); for (const pre of ["sub:", "user:"]) for (const k of await listAll(env, pre)) emails.add(k.name.slice(pre.length)); return emails.size + (await listAll(env, "psub:")).length; };
 const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100); return `<section id="join" class="rally"><h2>Help a brother out 🙏</h2>
 <p>This brother's helping you, for free, forever. Now help this brother out: <b>just subscribe.</b></p>
 <p>Once 2450 reaches <b>${LOCALS_GOAL.toLocaleString("en-AU")} locals</b>, about as many as a local weekly paper, a few local ads can keep the lights on. Nobody ever pays to be listed. Every sign-up gets us closer.</p>
@@ -334,6 +335,14 @@ async function admin(req, env) {
   const f = await req.formData();
   if (f.get("key") !== env.ADMIN_KEY) return page("Admin", `<h1>Admin</h1><p>Wrong key.</p>${login}`);
   const act = f.get("act"), k = String(f.get("k") || "");
+  if (act === "export") {
+    const rows = new Map();
+    for (const { name } of await listAll(env, "user:")) { const u = await env.DATA.get(name, "json"); if (u) rows.set(u.email, { ...u, weekly: "no" }); }
+    for (const { name } of await listAll(env, "sub:")) { const v = await env.DATA.get(name, "json"); if (v) rows.set(v.email, { ...(rows.get(v.email) || { email: v.email, name: v.name || "", via: v.source || "email", first: v.at }), weekly: "yes", pc: v.pc }); }
+    const q = x => `"${String(x ?? "").replace(/"/g, '""')}"`;
+    const csv = ["email,name,signed_in_with,postcode,weekly_email,first_seen,last_seen,visits", ...[...rows.values()].map(r => [r.email, r.name, r.via, r.pc || "2450", r.weekly, r.first, r.last, r.visits].map(q).join(","))].join("\n");
+    return new Response(csv, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="2450-people-${todayISO()}.csv"` } });
+  }
   if (act === "alert" && f.get("text")) await sendAlert(env, String(f.get("topic")) === "alerts" ? "alerts" : "fields", String(f.get("topic")) === "alerts" ? "2450 alert" : "Field closure update", String(f.get("text")).slice(0, 160), String(f.get("topic")) === "alerts" ? "/2450#alerts" : "/2450#sport");
   if (act === "announce" && f.get("text")) { const l = String(f.get("link") || ""); await env.DATA.put(`ann:${new Date().toISOString()}`, JSON.stringify({ text: String(f.get("text")).slice(0, 200), link: /^\/|^https?:\/\//.test(l) ? l.slice(0, 300) : "", at: new Date().toISOString() })); }
   if (k.startsWith("ann:") && act === "remove") await env.DATA.delete(k);
@@ -387,6 +396,7 @@ async function admin(req, env) {
   for (const { name } of (await env.DATA.list({ prefix: "ipending:" })).keys) { const i = await env.DATA.get(name, "json"); if (i) il += `<li>${esc(i.text)}<br>${btnB("approve", "Approve for voting", name)} ${btnB("delete", "Delete", name)}</li>`; }
   const board = (await ideas(env)).map(i => `<li>👍 ${i.votes} · ${esc(i.text)} ${STATUS[i.status] || ""}<br>${btnB("building", "Building", "idea:" + i.id)} ${btnB("done", "Done", "idea:" + i.id)} ${btnB("open", "Reopen", "idea:" + i.id)} ${btnB("remove", "Remove", "idea:" + i.id)}</li>`).join("");
   return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p>
+<h2>👥 People</h2><p>${(await listAll(env, "user:")).length} signed in · ${(await listAll(env, "sub:")).length} on the weekly email · ${await localsCount(env)} locals in total.</p><form method="post"><input type="hidden" name="key" value="${esc(String(f.get("key")))}"><input type="hidden" name="act" value="export"><button>Download people (CSV)</button></form>
 <h2>🔔 Send a phone alert</h2><p class="mute">Goes to everyone who turned on alerts. ${(await env.DATA.list({ prefix: "psub:" })).keys.length} phones signed up.</p>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="alert"><input name="text" maxlength="160" placeholder="e.g. All Coffs fields closed tonight due to rain" style="width:100%" required>
 <div class="row"><select name="topic"><option value="fields">Field closures</option><option value="alerts">General alert</option></select><button>Send alert</button></div></form>
@@ -418,6 +428,74 @@ e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open('v1').then
 const cookie = (req, k) => (req.headers.get("cookie") || "").split(/;\s*/).map(c => c.split("=")).find(([n]) => n === k)?.[1];
 async function member(req, env) { const t = cookie(req, "m2450"); return t ? await env.DATA.get(`sess:${t}`) : null; }
 
+// ---- Sign in: Google (one tap for most locals) or email. Builds the 2450 people list.
+// Secrets on this Worker: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET. Google redirect URI: https://2450-maverick.live/auth/google/callback
+const safeNext = n => (typeof n === "string" && /^\/(?!\/)[\w\-\/?=&#.%]*$/.test(n) ? n : "/");
+function sessionHeaders(tok, name, next) {
+  const h = new Headers({ location: next });
+  h.append("set-cookie", `m2450=${tok}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`);
+  h.append("set-cookie", `m2450n=${encodeURIComponent(name || "Local")}; Path=/; Max-Age=31536000; Secure; SameSite=Lax`);
+  return h;
+}
+const signinPage = (env, next = "/", msg = "") => page("Sign in to 2450", `<h1>Sign in to your 2450</h1>
+<p>Free, forever. Sign in so your 2450 knows you on any phone, unlocks the fridge, and you're counted as one of the locals helping a brother out.</p>${msg}
+${env.GOOGLE_CLIENT_ID ? `<p><a class="gbtn" href="/auth/google?next=${encodeURIComponent(next)}"><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continue with Google</a></p><p class="mute">— or use your email —</p>` : ""}
+<form method="post" action="/unlock"><input type="hidden" name="next" value="${esc(next)}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
+<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from 2450 Maverick (Maverick Digital), plus the free AI guide. Unsubscribe any time.</label>
+<p><button>Sign me in</button></p></form><p class="mute">We only keep your name, email and photo (if you use Google). <a href="/privacy">Privacy</a></p>`);
+
+function startGoogle(url, env) {
+  if (!env.GOOGLE_CLIENT_ID) return Response.redirect(url.origin + "/signin", 302);
+  const state = crypto.randomUUID(), next = safeNext(url.searchParams.get("next") || "/");
+  const to = "https://accounts.google.com/o/oauth2/v2/auth?" + new URLSearchParams({ client_id: env.GOOGLE_CLIENT_ID, redirect_uri: `${url.origin}/auth/google/callback`, response_type: "code", scope: "openid email profile", state, prompt: "select_account" });
+  const h = new Headers({ location: to });
+  h.append("set-cookie", `g2450s=${state}.${encodeURIComponent(next)}; Path=/auth; Max-Age=600; HttpOnly; Secure; SameSite=Lax`);
+  return new Response(null, { status: 302, headers: h });
+}
+
+async function finishGoogle(req, url, env) {
+  const raw = cookie(req, "g2450s") || "", [state, nextEnc] = [raw.split(".")[0], raw.split(".").slice(1).join(".")], next = safeNext(decodeURIComponent(nextEnc || "%2F"));
+  const fail = msg => signinPage(env, next, `<p class="note">${msg}</p>`);
+  if (!state || state !== url.searchParams.get("state") || !url.searchParams.get("code")) return fail("That sign-in didn't go through. Please try again.");
+  const tr = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ code: url.searchParams.get("code"), client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET || "", redirect_uri: `${url.origin}/auth/google/callback`, grant_type: "authorization_code" }) });
+  const tj = await tr.json().catch(() => ({}));
+  if (!tj.id_token) return fail("Google didn't let that sign-in through. Please try again.");
+  let c; try { c = JSON.parse(atob(tj.id_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))); } catch { return fail("Something went wrong. Please try again."); }
+  const email = String(c.email || "").toLowerCase();
+  if (!email || c.email_verified === false || c.aud !== env.GOOGLE_CLIENT_ID) return fail("We couldn't confirm that Google account. Please try again.");
+  const name = String(c.given_name || c.name || "").slice(0, 40), now = new Date().toISOString();
+  const prev = await env.DATA.get(`user:${email}`, "json");
+  await env.DATA.put(`user:${email}`, JSON.stringify({ email, name, fullName: String(c.name || "").slice(0, 80), picture: c.picture || "", via: "google", first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
+  const tok = crypto.randomUUID();
+  await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
+  const subbed = await env.DATA.get(`sub:${email}`);
+  const h = sessionHeaders(tok, name, subbed ? next : `/welcome?next=${encodeURIComponent(next)}`);
+  h.append("set-cookie", "g2450s=; Path=/auth; Max-Age=0; Secure; SameSite=Lax");
+  return new Response(null, { status: 302, headers: h });
+}
+
+const welcomePage = (url) => { const next = safeNext(url.searchParams.get("next") || "/"); return page("Welcome to 2450", `<h1>You're in! 👋</h1>
+<p>Thanks for helping a brother out. You're now one of the locals.</p>
+<div class="rally"><p><b>One more tap?</b> Get "This week in 2450" (one short email a week) plus the free guide from Maverick Digital on how AI can help in your everyday life.</p>
+<form method="post" action="/optin"><input type="hidden" name="next" value="${esc(next)}"><button>Yes please</button> <a href="${esc(next)}" class="mute" style="margin-left:12px">Not now</a></form>
+<p class="mute">Unsubscribe any time. <a href="/privacy">Privacy</a></p></div>`); };
+
+async function optin(req, env) {
+  const f = await req.formData(), next = safeNext(String(f.get("next") || "/")), email = await member(req, env);
+  if (email) { const u = await env.DATA.get(`user:${email}`, "json"); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name: u?.name || "", pc: "2450", consent: true, source: "google", at: new Date().toISOString() })); }
+  return new Response(null, { status: 303, headers: { location: next } });
+}
+
+async function signout(req, env) {
+  const t = cookie(req, "m2450"); if (t) await env.DATA.delete(`sess:${t}`);
+  const h = new Headers({ location: "/" });
+  h.append("set-cookie", "m2450=; Path=/; Max-Age=0; Secure; SameSite=Lax");
+  h.append("set-cookie", "m2450n=; Path=/; Max-Age=0; Secure; SameSite=Lax");
+  return new Response(null, { status: 303, headers: h });
+}
+
 const FOODS = ["chicken","beef mince","sausages","steak","bacon","ham","fish","prawns","eggs","cheese","milk","cream","butter","yoghurt","tofu",
   "potatoes","onion","garlic","carrots","broccoli","spinach","capsicum","mushrooms","zucchini","tomatoes","lettuce","avocado","pumpkin","lemon",
   "rice","pasta","noodles","bread","wraps","tinned tomatoes","chickpeas","beans","coconut milk","curry paste","pesto"];
@@ -437,10 +515,9 @@ async function unlock(req, env) {
   const name = String(f.get("name") || "").slice(0, 40), tok = crypto.randomUUID();
   await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: "2450", consent: true, source: "fridge", at: new Date().toISOString() }));
   await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
-  const h = new Headers({ location: "/fridge" });
-  h.append("set-cookie", `m2450=${tok}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`);
-  if (name) h.append("set-cookie", `m2450n=${encodeURIComponent(name)}; Path=/; Max-Age=31536000; Secure; SameSite=Lax`);
-  return new Response(null, { status: 303, headers: h });
+  const prev = await env.DATA.get(`user:${email}`, "json"), now = new Date().toISOString();
+  await env.DATA.put(`user:${email}`, JSON.stringify({ ...(prev || {}), email, name: name || prev?.name || "", via: prev?.via || "email", first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
+  return new Response(null, { status: 303, headers: sessionHeaders(tok, name, f.get("next") ? safeNext(String(f.get("next"))) : "/fridge") });
 }
 
 const fridgePage = () => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
@@ -643,7 +720,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 M
 <li><b>Weekly email or fridge sign-up:</b> your email, first name if you give it, postcode and that you agreed to the email.</li>
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
 <li><b>Feedback:</b> your message, and your name and email only if you add them.</li>
-<li><b>Fridge login:</b> one cookie that keeps the fridge tool unlocked on your phone for up to a year.</li></ul>
+<li><b>Signing in:</b> your name, email and, if you use Google, your Google profile photo, plus when you first and last signed in. Google only tells us those basics, never your password. One cookie keeps you signed in on that phone for up to a year. Sign out any time.</li></ul>
 <p>We don't ask for anything about your family or personal life beyond the basic contact details needed to make the site work.</p>
 <h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details, and when we carry ads one day, advertisers will never get your personal details or use them to target you.</p>
 <h2>Who else is involved</h2><ul>
@@ -1202,6 +1279,12 @@ export default {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return town("2450", env, ctx, true);
     if (p === "/towns") return home(env);
+    if (p === "/signin") return signinPage(env, safeNext(url.searchParams.get("next") || "/"));
+    if (p === "/auth/google") return startGoogle(url, env);
+    if (p === "/auth/google/callback") return finishGoogle(req, url, env);
+    if (p === "/welcome") return welcomePage(url);
+    if (p === "/optin" && req.method === "POST") return optin(req, env);
+    if (p === "/signout") return signout(req, env);
     if (p === "/new") return newPage(env);
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/open") return openPage();
