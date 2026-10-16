@@ -10,7 +10,7 @@
   // Free daily AI allowance powers "Tell Mav" setup
   "ai": { "binding": "AI" },
   // Every 30 min: refresh news, fires, warnings, holidays and watch the council field page. Every 5 min: send queued phone alerts
-  "triggers": { "crons": [ "*/30 * * * *", "*/5 * * * *" ] },
+  "triggers": { "crons": [ "*/5 * * * *" ] },
   // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO, FUEL_KEY, FUEL_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
   // ---- Byron Bay: same engine, own town settings and own data. Deploy with: npx wrangler deploy --env byron
   "env": {
@@ -21,7 +21,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "b41681c8ad1c43fd98c48d1fe761c243" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
-      "triggers": { "crons": [ "*/30 * * * *", "*/5 * * * *" ] }
+      "triggers": { "crons": [ "*/5 * * * *" ] }
     },
     "bellingen": {
       "name": "2454-maverick",
@@ -30,7 +30,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "11b90efb8d4241b189a0aba5e024d7e0" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
-      "triggers": { "crons": [ "*/30 * * * *", "*/5 * * * *" ] }
+      "triggers": { "crons": [ "*/5 * * * *" ] }
     }
   }
 }

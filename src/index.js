@@ -1500,7 +1500,10 @@ async function lodgeNotice(req, env) {
 export default {
   async scheduled(evt, env, ctx) {
     initRegion(env);
-    if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
+    // One cron per Worker (the free plan allows 5 across the account): every 5 minutes for push alerts,
+    // and every half hour the rest of the work.
+    ctx.waitUntil(pushBatch(env));
+    if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
