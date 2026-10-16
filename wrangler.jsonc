@@ -11,7 +11,7 @@
   "ai": { "binding": "AI" },
   // Every 30 min: refresh news, fires, warnings, holidays and watch the council field page. Every 5 min: send queued phone alerts
   "triggers": { "crons": [ "*/5 * * * *" ] },
-  // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO, FUEL_KEY, FUEL_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+  // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO, FUEL_KEY, FUEL_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GRAVATAR_API_KEY
   // ---- Byron Bay: same engine, own town settings and own data. Deploy with: npx wrangler deploy --env byron
   "env": {
     "byron": {
