@@ -47,7 +47,7 @@ function page(title, body, pc = "") {
 <style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><a href="/me" id="my2450" class="my">⚙️ My 2450</a></header>
 <script>try{var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");if(n)document.getElementById("my2450").textContent="⚙️ "+n+"\u2019s 2450"}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
-<footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
+<footer><a href="/towns">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
 Born and built in 2450, raised by the world.<br><br><span class="aoc">2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.</span><br><br><a href="https://maverickdigital.com.ai" class="tagline">Global vision, local thinking – in action</a><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></footer>
@@ -120,7 +120,7 @@ const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { wee
 const costTag = e => e.cost == null ? "" : ` <span class="tagg">${e.cost === 0 ? "Free" : "$" + e.cost + (e.kids ? " per kid" : "")}</span>`;
 const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b> — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
 
-async function town(pc, env, ctx) {
+async function town(pc, env, ctx, isRoot = false) {
   const t = TOWNS[pc];
   if (!t || !t.live) return page(`${pc} — coming soon`, `<h1>${esc(pc)}${t ? " " + esc(t.name) : ""}</h1>
 <p>Not live yet. We cover the Coffs Harbour council area first (2450, 2452, 2456). Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/2450">See 2450 Coffs Harbour</a></p>`, pc);
@@ -134,8 +134,8 @@ async function town(pc, env, ctx) {
 
   const cc = clockChange(), ann = await annBanner(env), live = await liveBlocks(env, ctx, { lat: t.lat, lon: t.lon });
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  return page(`${pc} ${t.name} — what's on`, `
-<p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
+  return page(`${pc} ${t.name} — what's on`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='2450')location.replace('/'+sp)}catch(e){}</script>` : ""}
+<p class="mute towns">Town: ${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<b>${esc(k)} ${esc(v.name)}</b>` : `<a href="/${esc(k)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join(" · ")} · <a href="/towns">Other postcode</a></p><h1>${esc(t.name)} ${esc(pc)}</h1>
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
 ${ann}<p class="mute"><span id="date"></span> · <a href="#" class="useloc">📍 Use my location</a> · <a href="/me" class="openmav">💬 Make this page yours</a></p>
@@ -1183,7 +1183,8 @@ export default {
   },
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
-    if (p === "/") return home(env);
+    if (p === "/") return town("2450", env, ctx, true);
+    if (p === "/towns") return home(env);
     if (p === "/new") return newPage(env);
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/open") return openPage();
@@ -1214,6 +1215,6 @@ export default {
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "text/javascript" } });
     const m = p.match(/^\/(\d{4})\/?$/);
     if (m) return town(m[1], env, ctx);
-    return page("Not found", `<h1>Not found</h1><p><a href="/">Find your postcode</a></p>`);
+    return page("Not found", `<h1>Not found</h1><p><a href="/">Back to 2450</a></p>`);
   },
 };
