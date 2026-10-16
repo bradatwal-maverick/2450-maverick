@@ -12,8 +12,8 @@ const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<":
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
 
 const CSS = `
-:root{--bg:#fff;--fg:#202124;--mute:#5f6368;--link:#1a0dab;--line:#dadce0;--accent:#1a73e8}
-@media (prefers-color-scheme:dark){:root{--bg:#202124;--fg:#e8eaed;--mute:#9aa0a6;--link:#8ab4f8;--line:#3c4043;--accent:#8ab4f8}}
+:root{--bg:#fff;--fg:#0B1526;--mute:#5a6578;--link:#2b4a7a;--line:#e2e7ef;--accent:#2b4a7a;--soft:#eef2f8}
+@media (prefers-color-scheme:dark){:root{--bg:#0B1526;--fg:#e8edf2;--mute:#9aa6b4;--link:#9fb8e0;--line:#24324a;--accent:#7f9fd1;--soft:#13203a}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 Arial,Helvetica,sans-serif}
 main{max-width:640px;margin:0 auto;padding:16px}a{color:var(--link)}h1{font-size:1.6rem;margin:.2em 0}
 h2{font-size:1.1rem;margin:1.4em 0 .4em;border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -24,6 +24,15 @@ textarea{border-radius:8px;width:100%}button{cursor:pointer;background:var(--acc
 ul{padding-left:18px}li{margin:6px 0}footer{border-top:1px solid var(--line);margin-top:40px;padding:16px;text-align:center;color:var(--mute);font-size:.85rem}
 label{display:block;margin:10px 0 4px}.row{display:flex;gap:8px;flex-wrap:wrap}.row input{flex:1;min-width:160px}
 .hp{position:absolute;left:-9999px}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;max-width:640px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--fg);font-weight:bold;font-size:1.1rem}
+.badge{background:var(--accent);color:#fff;border-radius:8px;padding:2px 8px;font-weight:bold;letter-spacing:.5px}
+.wave{display:block;width:100%;height:28px;color:var(--soft)}
+.card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
+.tile{background:var(--soft);border-color:transparent!important}
+.md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
+.md svg{width:22px;height:22px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
 .note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
@@ -32,12 +41,13 @@ function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="Everything on in your town, in one place. Free. Nobody pays to be here.">
-<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#1a73e8">
-<style>${CSS}</style></head><body><main>${body}</main>
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
+<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/"><span class="badge">2450</span>Maverick</a><a href="/fridge">🧊 Fridge</a></header>
+<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
-Born and built in 2450, raised by the world. Powered by <a href="https://maverickdigital.com.ai">Maverick Digital</a></footer>
+Born and built in 2450, raised by the world.<br><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 20V5l9 9 9-9v15"/></svg>MAVERICK DIGITAL</a></footer>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{})</script></body></html>`,
     { headers: { "content-type": "text/html;charset=utf-8" } });
 }
@@ -46,7 +56,8 @@ const home = () => page("2450 Maverick — what's on in your town", `
 <div class="home"><p class="big">2450 Maverick</p><p class="mute">Everything on in your town, in one place. Free.</p>
 <form class="search" onsubmit="event.preventDefault();var p=this.pc.value.trim();try{localStorage.setItem('pc',p)}catch(e){};location='/'+p">
 <input name="pc" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Your postcode" required aria-label="Your postcode"><button>Go</button></form>
-<p id="mine"></p><p class="mute">Live now: <a href="/2450">2450 Coffs Harbour</a>. Coming soon: Sawtell, Bellingen, Woolgoolga.</p></div>
+<p id="mine"></p><p class="mute">Live now: <a href="/2450">2450 Coffs Harbour</a>. Coming soon: Sawtell, Bellingen, Woolgoolga.</p>
+<a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Tell us what you've got, get dinner ideas.</a></div>
 <script>try{var p=localStorage.getItem('pc');if(p)document.getElementById('mine').innerHTML='Your town: <a href="/'+p+'">'+p+'</a>'}catch(e){}</script>`);
 
 async function listEvents(env, prefix) {
@@ -90,7 +101,7 @@ async function town(pc, env) {
 
   const cc = clockChange();
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  const SECTIONS = [["today", "At a glance"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["council", "Council"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+  const SECTIONS = [["today", "At a glance"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["council", "Council"], ["sport", "Sport"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
   return page(`${pc} ${t.name} — what's on`, `
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
 <p class="mute" id="date"></p>
@@ -105,6 +116,8 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small>Moon</small></div>
 <div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>
 </div></section>
+<a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
+<a class="card" href="/school">🚸 <b>School run report</b> Weather and traffic for your school drop-off and pick-up →</a>
 <details class="pins mute"><summary>Customise this page</summary>${SECTIONS.map(([id, l]) => `<label><input type="checkbox" data-s="${id}" checked> ${esc(l)}</label>`).join("")}<br><small>Saved on your phone only.</small></details>
 ${soon("alerts", "Alerts", "Bushfires, road closures and floods near 2450, coming soon.", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", "Fires Near Me (NSW Rural Fire Service)")}
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
@@ -113,8 +126,9 @@ ${soon("fuel", "Fuel", "Cheapest petrol and diesel in 2450 today, coming soon.",
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
 ${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
+${soon("sport", "Sport", "Field closures, local games and fixtures, coming soon. Clubs will be able to post them here free.")}
 ${soon("holidays", "Holidays", "Public and school holiday dates, coming soon.", "https://education.nsw.gov.au/schooling/calendar", "NSW school calendar")}
-${soon("surfcams", "Surf cams", "Live surf cams for Coffs beaches, coming soon.")}
+${soon("surfcams", "Surf cams", "Check the waves live before you head down.", "https://www.coastalwatch.com", "Coastalwatch")}
 ${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}
 <h2>This week in ${esc(pc)}</h2><p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
 <script>
@@ -216,17 +230,121 @@ const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">
 <p>Big tech divided us. 2450 Maverick brings communities back together.</p><p><i>Born and built in 2450, raised by the world.</i><br>Brad, <a href="https://maverickdigital.com.ai">Maverick Digital</a></p>
 <h2>Your privacy</h2><p>Your postcode and the sections you show or hide are saved on your own phone, not with us. If you sign up for the weekly email we keep your email address and postcode only to send it, and you can unsubscribe any time.</p>`);
 
-const ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#1a73e8"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">2450</text></svg>`;
-const MANIFEST = JSON.stringify({ name: "2450 Maverick", short_name: "2450", start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#1a73e8",
+const ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">2450</text></svg>`;
+const MANIFEST = JSON.stringify({ name: "2450 Maverick", short_name: "2450", start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
   icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }] });
 const SW = `self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
 e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open('v1').then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request)))})`;
+
+
+// ---- What's in your fridge? (members only: unlock with email) ----
+const cookie = (req, k) => (req.headers.get("cookie") || "").split(/;\s*/).map(c => c.split("=")).find(([n]) => n === k)?.[1];
+async function member(req, env) { const t = cookie(req, "m2450"); return t ? await env.DATA.get(`sess:${t}`) : null; }
+
+const FOODS = ["chicken","beef mince","sausages","steak","bacon","ham","fish","prawns","eggs","cheese","milk","cream","butter","yoghurt","tofu",
+  "potatoes","onion","garlic","carrots","broccoli","spinach","capsicum","mushrooms","zucchini","tomatoes","lettuce","avocado","pumpkin","lemon",
+  "rice","pasta","noodles","bread","wraps","tinned tomatoes","chickpeas","beans","coconut milk","curry paste","pesto"];
+
+const unlockPage = (msg = "") => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
+<p>Tell us what you've got, how many you're feeding and what you like. Get dinner ideas in seconds, with links to the recipes.</p>
+<p><b>Free for 2450 members.</b> Pop in your email to unlock it (and get the weekly "This week in 2450" email).</p>${msg}
+<form method="post" action="/unlock"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
+<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from 2450 Maverick (Maverick Digital). Unsubscribe any time.</label>
+<p><button>Unlock the fridge</button></p></form>`);
+
+async function unlock(req, env) {
+  const f = await req.formData(), email = String(f.get("email") || "").trim().toLowerCase();
+  if (f.get("website")) return unlockPage();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !f.get("consent")) return unlockPage(`<p class="note">Please add your email and tick the box.</p>`);
+  const name = String(f.get("name") || "").slice(0, 40), tok = crypto.randomUUID();
+  await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: "2450", consent: true, source: "fridge", at: new Date().toISOString() }));
+  await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
+  return new Response(null, { status: 303, headers: { location: "/fridge", "set-cookie": `m2450=${tok}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax` } });
+}
+
+const fridgePage = () => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
+<form id="ff"><h2>1. Tick what you've got</h2><div class="chips">${FOODS.map(x => `<label><input type="checkbox" name="i" value="${x}">${x}</label>`).join("")}</div>
+<label>Anything else?</label><input name="extra" placeholder="e.g. leftover roast, feta" style="width:100%">
+<h2>2. About dinner</h2><div class="row">
+<div><label>How many?</label><select name="n"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+<div><label>Time</label><select name="t"><option value="20">Quick (20 min)</option><option value="40" selected>Normal (40 min)</option><option value="90">No rush</option></select></div>
+<div><label>Eating</label><select name="d"><option value="">Anything</option><option>vegetarian</option><option>vegan</option><option>gluten free</option><option>dairy free</option></select></div></div>
+<label>What do you like?</label><div class="chips">${["Aussie classic","Italian","Asian","Mexican","Indian","Healthy","Kid friendly"].map(x => `<label><input type="checkbox" name="c" value="${x}">${x}</label>`).join("")}</div>
+<p><button>Get dinner ideas</button></p></form><div id="out"></div>
+<p class="mute">Ideas link to recipes on other sites. Always check ingredients for allergies.</p>
+<script>
+var D=[["Chicken stir-fry",["chicken","noodles|rice","capsicum|broccoli|carrots"],"Asian",20,"meat"],["Fried rice",["rice","eggs","onion|carrots"],"Asian",20,"veg"],
+["Spaghetti bolognese",["beef mince","pasta","tinned tomatoes|tomatoes"],"Italian",40,"meat"],["Cheesy pasta bake",["pasta","cheese","tinned tomatoes|cream"],"Italian",40,"veg"],
+["Pesto pasta",["pasta","pesto"],"Italian",20,"veg"],["Frittata",["eggs","potatoes|zucchini|spinach","cheese|onion"],"Healthy",40,"veg"],
+["Omelette",["eggs","cheese|mushrooms|ham|spinach"],"Aussie classic",20,"veg"],["Bangers and mash",["sausages","potatoes"],"Aussie classic",40,"meat"],
+["Steak and salad",["steak","lettuce|tomatoes|avocado"],"Aussie classic",20,"meat"],["Chicken curry",["chicken","curry paste|coconut milk","rice"],"Indian",40,"meat"],
+["Chickpea curry",["chickpeas","coconut milk|tinned tomatoes","rice|onion"],"Indian",40,"vegan"],["Tacos",["beef mince|chicken|beans","wraps","avocado|lettuce|cheese"],"Mexican",20,"meat"],
+["Bean burritos",["beans","wraps","cheese|avocado"],"Mexican",20,"veg"],["Garlic prawns",["prawns","garlic","rice|pasta"],"Asian",20,"meat"],
+["Fish and veg tray bake",["fish","potatoes|pumpkin|zucchini","lemon"],"Healthy",40,"meat"],["Mushroom risotto",["rice","mushrooms","onion|cheese|butter"],"Italian",90,"veg"],
+["Pumpkin soup",["pumpkin","onion","cream|coconut milk"],"Healthy",40,"vegan"],["Carbonara",["pasta","bacon","eggs","cheese"],"Italian",20,"meat"],
+["Toasties",["bread","cheese","ham|tomatoes"],"Kid friendly",20,"veg"],["Chicken wraps",["chicken","wraps","lettuce|avocado|tomatoes"],"Kid friendly",20,"meat"],
+["Tofu noodle stir-fry",["tofu","noodles|rice","broccoli|capsicum|carrots"],"Asian",20,"vegan"],["Shepherd's pie",["beef mince","potatoes","carrots|onion"],"Aussie classic",90,"meat"],
+["Zucchini slice",["zucchini","eggs","cheese|bacon"],"Kid friendly",40,"veg"],["Roast veg salad",["pumpkin|potatoes","spinach|lettuce","cheese|chickpeas"],"Healthy",40,"veg"],
+["Chicken schnitzel",["chicken","eggs","bread"],"Aussie classic",40,"meat"],["Nachos",["beans|beef mince","cheese","tomatoes|avocado"],"Mexican",20,"veg"]];
+var veganBad=/eggs|cheese|milk|cream|butter|yoghurt|bacon|ham|chicken|beef|steak|sausages|fish|prawns/,glutenBad=/pasta|noodles|bread|wraps/,dairyBad=/cheese|milk|cream|butter|yoghurt/;
+document.getElementById('ff').onsubmit=function(e){e.preventDefault();var f=new FormData(this),have=f.getAll('i').concat(String(f.get('extra')||'').toLowerCase().split(/,\s*/).filter(Boolean)),
+likes=f.getAll('c'),n=f.get('n'),t=+f.get('t'),d=f.get('d');
+if(!have.length){document.getElementById('out').innerHTML='<p class="note">Tick at least one thing in your fridge.</p>';return}
+var res=D.map(function(r){var need=r[1],got=need.filter(function(g){return g.split('|').some(function(x){return have.some(function(h){return h.indexOf(x)>-1||x.indexOf(h)>-1})})}).length,
+all=need.join(' '),ok=!(d=='vegetarian'&&r[4]=='meat')&&!(d=='vegan'&&(r[4]!='vegan'&&veganBad.test(all)))&&!(d=='gluten free'&&glutenBad.test(all))&&!(d=='dairy free'&&dairyBad.test(all)&&!/\|/.test(all));
+var score=got/need.length+(likes.indexOf(r[2])>-1?.3:0)+(r[3]<=t?.1:-.3);return{r:r,got:got,need:need,score:score,ok:ok}})
+.filter(function(x){return x.ok&&x.got>0}).sort(function(a,b){return b.score-a.score}).slice(0,6);
+if(!res.length){document.getElementById('out').innerHTML='<p class="note">Slim pickings! Try ticking a few more items.</p>';return}
+var q=function(s){return encodeURIComponent(s)};
+document.getElementById('out').innerHTML='<h2>Dinner ideas for '+n+'</h2><ul class="recipes">'+res.map(function(x){var r=x.r,missing=x.need.length-x.got,term=r[0]+(d?' '+d:'');
+return '<li><b>'+r[0]+'</b> <span class="mute">· '+r[2]+' · ~'+r[3]+' min'+(missing?' · need '+missing+' more thing'+(missing>1?'s':''):' · you have it all!')+'</span><br><a href="https://www.taste.com.au/search-recipes/?q='+q(term)+'" rel="noopener">Recipes on taste.com.au</a> · <a href="https://www.google.com/search?q='+q(term+' recipe serves '+n)+'" rel="noopener">More on Google</a></li>'}).join('')+'</ul>';
+document.getElementById('out').scrollIntoView({behavior:'smooth'})};
+</script>`);
+
+// ---- School run report (school choice saved on the phone only; nothing about kids is stored by us) ----
+const SCHOOLS = ["Coffs Harbour Public School","Narranga Public School","Boambee Public School","Bonville Public School","Korora Public School",
+  "Coramba Public School","Nana Glen Public School","Upper Orara Public School","St Augustine's Primary School","Coffs Harbour High School",
+  "Orara High School","Coffs Harbour Senior College","Bishop Druitt College","John Paul College","Coffs Harbour Christian Community School"];
+const schoolPage = () => { const t = TOWNS["2450"]; return page("School run report", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p>
+<h1>🚸 School run report</h1><p>Pick your school once and this page becomes your morning and afternoon check before the school run.</p>
+<label>Your school</label><select id="sch" style="width:100%"><option value="">Choose…</option>${SCHOOLS.map(x => `<option>${esc(x)}</option>`).join("")}</select>
+<p class="mute">Saved on your phone only. We never ask for or store anything about your kids.</p>
+<div id="rep" hidden>
+<div class="tiles"><div class="tile"><span class="ico">🌅</span><b id="am">–</b><small>Drop-off weather</small></div>
+<div class="tile"><span class="ico">🏫</span><b id="pm">–</b><small>Pick-up weather</small></div>
+<div class="tile"><span class="ico">🚸</span><b>8–9:30am</b><small>School zone 40 km/h</small></div>
+<div class="tile"><span class="ico">🚸</span><b>2:30–4pm</b><small>School zone 40 km/h</small></div></div>
+<p id="tip" class="note"></p>
+<h2>On your route</h2><p class="mute">Crashes, roadworks and closures near <span id="sn"></span>, coming soon. For now: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a>.</p>
+<h2>School holidays</h2><p class="mute">Holiday and pupil-free day reminders, coming soon. For now: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW school calendar</a>.</p>
+<h2>Field closures &amp; weekend sport</h2><p class="mute">Wet-weather field closures and local junior sport fixtures, coming soon. Clubs will be able to post closures here free. For now: <a href="https://www.coffsharbour.nsw.gov.au" rel="noopener">Coffs Harbour City Council</a>.</p>
+<h2>Bell times</h2><p class="mute">Your school's own bell times, coming soon. Check the school newsletter or website for now.</p></div>
+<script>
+var sel=document.getElementById('sch');try{sel.value=localStorage.getItem('school')||''}catch(e){}
+function show(){var v=sel.value;try{v?localStorage.setItem('school',v):localStorage.removeItem('school')}catch(e){}
+document.getElementById('rep').hidden=!v;document.getElementById('sn').textContent=v;if(!v)return;
+fetch('https://api.open-meteo.com/v1/forecast?latitude=${t.lat}&longitude=${t.lon}&hourly=temperature_2m,precipitation_probability&forecast_days=1&timezone=Australia%2FSydney')
+.then(function(r){return r.json()}).then(function(d){var h=d.hourly,am=8,pm=15,ra=h.precipitation_probability[am],rp=h.precipitation_probability[pm];
+document.getElementById('am').textContent=Math.round(h.temperature_2m[am])+'° · '+ra+'% rain';document.getElementById('pm').textContent=Math.round(h.temperature_2m[pm])+'° · '+rp+'% rain';
+var hr=new Date().getHours(),day=new Date().getDay(),tip;
+if(day==0||day==6)tip='It’s the weekend. No school run today 🎉';
+else if(Math.max(ra,rp)>=50)tip='Rain likely'+(ra>=50?' at drop-off':' at pick-up')+'. Pack the umbrella and allow extra time, wet roads slow everyone down.';
+else if(h.temperature_2m[pm]>=30)tip='Hot pick-up. Hats and water bottles today.';
+else tip='Looks like a smooth run today. Watch the 40 km/h school zones.';
+document.getElementById('tip').textContent=(hr<10?'This morning: ':hr<16?'This arvo: ':'Tomorrow, check again in the morning. Today: ')+tip;
+}).catch(function(){document.getElementById('tip').textContent='Weather unavailable right now.'})}
+sel.onchange=show;show();
+</script>`, "2450"); };
 
 export default {
   async fetch(req, env) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home();
     if (p === "/about") return about();
+    if (p === "/school") return schoolPage();
+    if (p === "/fridge") return (await member(req, env)) ? fridgePage() : unlockPage();
+    if (p === "/unlock" && req.method === "POST") return unlock(req, env);
     if (p === "/admin") return admin(req, env);
     if (p === "/submit") return req.method === "POST" ? handleSubmit(req, env) : submitForm((url.searchParams.get("pc") || "2450").replace(/\D/g, "").slice(0, 4));
     if (p === "/subscribe" && req.method === "POST") return handleSubscribe(req, env);
