@@ -1,14 +1,20 @@
+
+// One engine, many towns: each Worker sets REGION (default 2450) and gets that town's settings from regions.js.
+import { REGIONS } from "./regions.js";
+import { GENERAL, buildCrossword } from "./crossword.js";
+function initRegion(env) {
+  if (R && R.code === (env.REGION || "2450")) return;
+  R = REGIONS[env.REGION] || REGIONS["2450"];
+  ({ towns: TOWNS, home: HOME, watch: WATCH, faves: FAVES, facts: FACTS, schools: SCHOOLS, mavKB: MAV_KB } = R);
+  UA = { "user-agent": `${R.domain} community site (Maverick Digital)` };
+  SECTIONS.find(x => x[0] === "know")[1] = `Know your ${R.code}`;
+}
 // 2450 Maverick — free local info, one page per postcode.
 // Born and built in 2450, raised by the world. Powered by Maverick Digital.
 
-const TOWNS = {
-  "2450": { name: "Coffs Harbour", lat: -30.3022, lon: 153.1189, mlat: -30.30, mlon: 153.15, live: true },
-  "2452": { name: "Sawtell & Toormina", lat: -30.3640, lon: 153.0960, mlat: -30.37, mlon: 153.12, live: true },
-  "2454": { name: "Bellingen", live: false },
-  "2456": { name: "Woolgoolga & Northern Beaches", lat: -30.1100, lon: 153.2000, mlat: -30.11, mlon: 153.22, live: true },
-};
 
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your 2450"], ["council", "Council"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["memory", "In memory"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -37,21 +43,21 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
-.hdr{display:flex;gap:8px;align-items:center}.signin{font-weight:600}.gbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1f1f1f;text-decoration:none;font-weight:600}.away{font-size:.8rem;color:var(--mute);background:var(--soft);border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap}.towns{margin:0 0 6px;font-size:.9rem}.towns select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-left:4px}.rally{background:var(--soft);border:0;border-radius:6px;padding:10px 14px;margin:28px 0 18px;font-size:.8rem;color:var(--mute)}.rally p{margin:5px 0}.rally b{color:var(--mute)}.rallyh{margin:0 0 2px;font-size:.85rem;font-weight:600;color:var(--mute)}.rally input,.rally button{font-size:.85rem}.bar{display:block;height:5px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--mute);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:2px 0 8px;font-size:.8rem}.rallystrip{display:block;text-decoration:none;font-size:.72rem;margin:0 0 8px;opacity:.8}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
+.hdr{display:flex;gap:8px;align-items:center}.signin{font-weight:600}.gbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1f1f1f;text-decoration:none;font-weight:600}.away{font-size:.8rem;color:var(--mute);background:var(--soft);border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap}.towns{margin:0 0 6px;font-size:.9rem}.towns select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-left:4px}.mast{font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:1.5rem;text-align:center;margin:4px 0 0;letter-spacing:.3px;border-top:3px double var(--fg);border-bottom:1px solid var(--fg);padding:6px 0}.edition{text-align:center;font-size:.75rem;color:var(--mute);margin:4px 0 10px;text-transform:uppercase;letter-spacing:1px}.cw{border-collapse:collapse;margin:10px auto}.cw td{width:min(34px,7.6vw);height:min(34px,7.6vw);border:1px solid var(--fg);position:relative;padding:0}.cw td.bk{border:0;background:transparent}.cw input{width:100%;height:100%;border:0;border-radius:0;text-align:center;font-size:1.1rem;text-transform:uppercase;padding:0;background:var(--bg)}.cw input.bad{color:#d93025}.cn{position:absolute;top:1px;left:2px;font-size:.55rem;color:var(--mute)}.cwl>div{flex:1;min-width:220px}.cwl ol{padding-left:0;list-style:none}.ghost{background:var(--soft);color:var(--fg)}.rally{background:var(--soft);border:0;border-radius:6px;padding:10px 14px;margin:28px 0 18px;font-size:.8rem;color:var(--mute)}.rally p{margin:5px 0}.rally b{color:var(--mute)}.rallyh{margin:0 0 2px;font-size:.85rem;font-weight:600;color:var(--mute)}.rally input,.rally button{font-size:.85rem}.bar{display:block;height:5px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--mute);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:2px 0 8px;font-size:.8rem}.rallystrip{display:block;text-decoration:none;font-size:.72rem;margin:0 0 8px;opacity:.8}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
 
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="Everything on in your town, in one place. Free. Nobody pays to be here.">
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
-<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><span class="hdr"><a href="/me" id="my2450" class="my">⚙️ My 2450</a> <a href="/signin" id="signin" class="my signin">👤 Sign in</a></span></header>
+<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><span class="hdr"><a href="/me" id="my2450" class="my">⚙️ My 2450</a> <a href="/signin" id="signin" class="my signin">👤 Sign in</a></span></header>
 <script>try{var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");if(n)document.getElementById("my2450").textContent="⚙️ "+n+"\u2019s 2450";if(/(?:^|; )m2450n=/.test(document.cookie)){var si=document.getElementById("signin");si.textContent="Sign out";si.href="/signout";si.classList.remove("signin")}else document.getElementById("signin").href="/signin?next="+encodeURIComponent(location.pathname)}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
-<footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
-<p>2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. 2450 Maverick brings communities back together.</p>
-<p class="aoc">2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present. <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
-<p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a><br><span class="tagline">Big tech skills, used for the community. Born and built in 2450, raised by the world.</span></p></footer>
-${MAV_WIDGET}
+<footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
+<p>${R.footer}</p>
+<p class="aoc">${R.ack} <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
+<p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a><br><span class="tagline">Big tech skills, used for the community. ${R.sign}</span></p></footer>
+${MAV_WIDGET()}
 <script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target)return;try{var u=new URL(a.href,location.href);if(/^https?:$/.test(u.protocol)&&u.host!==location.host){a.target="_blank";a.rel=((a.rel||"")+" noopener").trim()}}catch(_){}},true)</script>
 <script>(function(){var first=null,seen=false;try{seen=!!localStorage.getItem('src_hint')}catch(e){}
 document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=document.createElement('button');b.type='button';b.className='srcbtn';b.innerHTML='ⓘ <span>Where from?</span>';
@@ -85,11 +91,11 @@ const newPage = async env => { const list = await announcements(env); return pag
 <p>Every feature here was asked for by locals. <a href="/feedback">Suggest or vote for the next one</a>.</p>
 <ul class="ideas">${list.map(a => `<li class="idea"><div><b>${esc(a.text)}</b>${a.link ? ` <a href="${esc(a.link)}">Try it →</a>` : ""}<br><small class="mute">${esc(fmtDate(a.at.slice(0, 10)))}${a.votes ? ` · ${a.votes} locals voted for it` : ""}</small></div></li>`).join("") || '<li class="mute">Nothing yet. Watch this space!</li>'}</ul>`); };
 
-const home = async env => page("2450 Maverick — what's on in your town", `
-${await annBanner(env)}<div class="home"><p class="big" aria-label="2450 Maverick">2450<svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark" style="height:.85em;margin-left:.12em;vertical-align:-.02em"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></p><p class="mute">Everything on in your town, in one place. Free.</p>
+const home = async env => page(`${R.brand} — what's on in your town`, `
+${await annBanner(env)}<div class="home"><p class="big" aria-label="${R.brand}">${R.code}<svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark" style="height:.85em;margin-left:.12em;vertical-align:-.02em"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></p><p class="mute">Everything on in your town, in one place. Free.</p>
 <form class="search" onsubmit="event.preventDefault();var p=this.pc.value.trim();try{localStorage.setItem('pc',p)}catch(e){};location='/'+p">
 <input name="pc" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Your postcode" required aria-label="Your postcode"><button>Go</button></form>
-<p id="mine"></p><p class="mute">Live now: <a href="/2450">2450 Coffs Harbour</a> · <a href="/2452">2452 Sawtell &amp; Toormina</a> · <a href="/2456">2456 Woolgoolga</a>. Coming soon: Bellingen.</p>
+<p id="mine"></p><p class="mute">Live now: ${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<a href="/${k}">${k} ${esc(v.name)}</a>`).join(" · ")}. ${R.soon}</p>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Tell us what you've got, get dinner ideas.</a></div>
 <script>try{var p=localStorage.getItem('pc');if(p)document.getElementById('mine').innerHTML='Your town: <a href="/'+p+'">'+p+'</a>'}catch(e){}</script>`);
 
@@ -125,8 +131,19 @@ const SCHOOL_HOLS = [
 ];
 const schoolHols = () => { const t = todayISO(), list = SCHOOL_HOLS.filter(([, , end]) => end >= t).slice(0, 2);
   return list.length ? `<ul>${list.map(([name, start, end]) => `<li><b>${esc(name)} school holidays</b>: ${esc(fmtDate(start))} to ${esc(fmtDate(end))}${start <= t ? ` <span class="away">on now</span>` : away(start)}</li>`).join("")}</ul>` : ""; };
+// Coming up in the sky (Australia-wide). Yearly showers recur on their usual peak date; one-offs have a full date.
+const SKY = [
+  { name: "Eta Aquariid meteor shower peaks (best before dawn, one of the best from Australia)", md: "05-06" },
+  { name: "Orionid meteor shower peaks (look north-east after midnight)", md: "10-21" },
+  { name: "Leonid meteor shower peaks", md: "11-17" },
+  { name: "Geminid meteor shower peaks (the year's best, look north after 11pm)", md: "12-14" },
+  { name: "Total solar eclipse across Australia: total in Sydney, partial everywhere else", date: "2028-07-22" },
+  { name: "Halley's Comet returns (closest to the Sun)", date: "2061-07-28" },
+];
+const skyNext = () => { const t = todayISO(), y = +t.slice(0, 4);
+  return SKY.map(e => ({ ...e, d: e.date || (`${y}-${e.md}` >= t ? `${y}-${e.md}` : `${y + 1}-${e.md}`) })).filter(e => e.d >= t).sort((a, b) => a.d.localeCompare(b.d)); };
 // "How far away" note for upcoming dates, e.g. "in 12 days".
-const away = d => { const n = Math.round((new Date(d + "T00:00:00Z") - new Date(todayISO() + "T00:00:00Z")) / 864e5); return n < 0 ? "" : ` <span class="away">${n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`}</span>`; };
+const away = d => { const n = Math.round((new Date(d + "T00:00:00Z") - new Date(todayISO() + "T00:00:00Z")) / 864e5); return n < 0 ? "" : ` <span class="away">${n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n.toLocaleString("en-AU")} days`}</span>`; };
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
 const costTag = e => e.cost == null ? "" : ` <span class="tagg">${e.cost === 0 ? "Free" : "$" + e.cost + (e.kids ? " per kid" : "")}</span>`;
 const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b>${away(e.date)} — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
@@ -134,7 +151,7 @@ const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) 
 async function town(pc, env, ctx, isRoot = false) {
   const t = TOWNS[pc];
   if (!t || !t.live) return page(`${pc} — coming soon`, `<h1>${esc(pc)}${t ? " " + esc(t.name) : ""}</h1>
-<p>Not live yet. We cover the Coffs Harbour council area first (2450, 2452, 2456). Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/2450">See 2450 Coffs Harbour</a></p>`, pc);
+<p>Not live yet. ${R.coverage} Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/${R.code}">See ${R.code} ${R.place}</a></p>`, pc);
 
   // Local submissions first, then events from feeds.
   const local = await listEvents(env, `event:${pc}:`);
@@ -147,8 +164,9 @@ async function town(pc, env, ctx, isRoot = false) {
   const nLocals = await localsCount(env);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  return page(`${pc} ${t.name} — what's on`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='2450')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<p class="towns"><label for="pcsel">What's your postcode?</label> <select id="pcsel" onchange="try{localStorage.setItem('pc',this.value)}catch(e){}location='/'+this.value">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${esc(k)}"${k === pc ? " selected" : ""}>${esc(k)} ${esc(v.name)}</option>`).join("")}</select></p><h1>${esc(t.name)} ${esc(pc)}</h1>
+  return page(`The ${pc} Maverick Gazette: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
+<p class="towns"><label for="pcsel">What's your postcode?</label> <select id="pcsel" onchange="try{localStorage.setItem('pc',this.value)}catch(e){}location='/'+this.value">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${esc(k)}"${k === pc ? " selected" : ""}>${esc(k)} ${esc(v.name)}</option>`).join("")}</select></p><p class="mast">The ${esc(pc)} Maverick Gazette</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · Free, every day</p>
+<h1>${esc(t.name)} ${esc(pc)}</h1>
 ${rallyStrip(nLocals)}
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
@@ -161,13 +179,13 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">🌅</span><b id="t-rise">–</b><small id="t-set">Sunrise</small></div>
 <div class="tile"><span class="ico">🌊</span><b id="t-tide">–</b><small id="t-tide2">Next tide</small></div>
 <div class="tile"><span class="ico">🏄</span><b id="t-swell">–</b><small>Swell</small></div>
-<div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small>Moon</small></div>
+<div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
 <div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>
 </div></section>
 <section id="tools"><h2>Handy tools</h2>
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
-<a class="card" href="/coffs">🌊 <b>Why Coffs?</b> Fun facts: the spelling mistake, the moon island, where the mountains meet the sea →</a>
+<a class="card" href="/${R.why.slug}">🌊 <b>${R.why.title}</b> ${R.why.card} →</a>
 <a class="card" href="/open">🟢 <b>Open now?</b> Pharmacies, mechanics, servos, cafés and more. Open ones first →</a>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
@@ -178,61 +196,44 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 ${live.alerts}
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${live.news}
+${await memoryBlock(env)}
 ${fuelBlock(t)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
 <section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it. We tell you where it&rsquo;s from and how well the owner keeps it up to date.</p>
-<details open><summary><b>Who runs the place</b></summary><ul>
-<li>Mayor: <b>Cr Nikki Williams</b> · Deputy Mayor: <b>Cr George Cecato</b></li>
-<li>Councillors: Cath Fowler, Gurminder Saro, Jonathan Cassell, Julie Sechi, Les Oxford, Paul Amos, Tony Judge. <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">Contact them</a></li>
-<li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${accLine("councillors", W.councillors)}</details>
-<details><summary><b>Bins &amp; rubbish</b></summary><ul>
-<li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app (App Store or Google Play)</li>
-<li>Bulky goods (old couch, mattress): book a kerbside pick-up or get free tip vouchers on <a href="tel:1800265495">1800 265 495</a>. Vouchers are posted, so allow 2 weeks</li>
-<li>Tip: Englands Road Waste Management Facility</li>
-<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul>${accLine("bulky", W.bulky)}${accLine("wasteapp", W.wasteapp)}</details>
-<details><summary><b>Got a problem?</b></summary><ul>
-<li>Pothole, broken footpath, streetlight, overgrown block: <a href="https://forms.coffsharbour.nsw.gov.au/RunForm.aspx?formId=1366" rel="noopener">Council request form</a></li>
-<li>Pollution or environmental issue: <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">Report it</a></li>
-<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul>${accLine("envreport", W.envreport)}</details>
-<details><summary><b>Contact council</b></summary><ul>
-<li>📞 <a href="tel:0266484000">02 6648 4000</a>, weekdays 8:30am–4:30pm. Same number 24/7 for urgent water, sewer, pollution or animal attacks</li>
-<li>✉️ <a href="mailto:coffs.council@chcc.nsw.gov.au">coffs.council@chcc.nsw.gov.au</a></li>
-<li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul>${accLine("contact", W.contact)}</details>
-<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
-${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
+${R.know(W, accLine)}<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
+${soon("council", "Council", "Council news, public notices and road works, coming soon.", R.council.url, R.council.name)}
 ${await kidsBlock(local, feed, pc)}
-<section id="sport"><h2>Sport &amp; field closures</h2>
+${R.fields ? `<section id="sport"><h2>Sport &amp; field closures</h2>
 <div class="note">🔔 <b>Get field closure alerts</b> on your phone the moment we know. <button type="button" class="pushbtn" data-topic="fields">Turn on alerts</button><br><small class="mute pushmsg"></small></div>
 ${await fieldsBlock(env, ctx)}
-<p class="mute">Clubs: post games, fixtures and closures free via <a href="/submit?pc=${pc}">Add an event</a>.</p></section>
+<p class="mute">Clubs: post games, fixtures and closures free via <a href="/submit?pc=${pc}">Add an event</a>.</p></section>` : soon("sport", "Sport & field closures", "Field closures and local sport, coming soon. Clubs can post games and closures free via Add an event.")}
 ${live.holidays}
-${soon("surfcams", "Surf cams", "Check the waves live before you head down.", "https://www.coastalwatch.com", "Coastalwatch")}
+<section id="puzzles"><h2>🧩 Crossword</h2><p>Today&rsquo;s ${esc(R.short)} crossword: eight words, a few minutes, no sign-up. <a href="/crossword"><b>Play today&rsquo;s →</b></a></p></section>
+<section id="lotto"><h2>🎱 Lotto results</h2><details><summary>Tap to show</summary><p>Latest draws for Saturday Lotto, Oz Lotto, Powerball, Set for Life and the rest, straight from the official source: <a href="https://www.thelott.com/results" rel="noopener">The Lott results</a>.</p>
+<p class="mute">Play for fun. If it&rsquo;s stopped being fun, call Gambling Help on <a href="tel:1800858858">1800 858 858</a> (free, 24/7) or visit <a href="https://www.gambleaware.nsw.gov.au" rel="noopener">GambleAware</a>.</p></details></section>
+<section id="surfcams"><h2>Surf cams</h2><p class="mute">Coastalwatch charges for its live surf cam feed, so we can&rsquo;t show it here. Nobody pays to be on this site, and we don&rsquo;t pay to show other people&rsquo;s paid content either. Have a look on their site: <a href="https://www.coastalwatch.com" rel="noopener">Coastalwatch</a>.</p></section>
 ${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}</div>
 <p><a class="card" href="/me">🎤 <b>Make this page yours</b> Just tell Mav what you want to see →</a></p>
-${PUSH_JS}${rally(nLocals, pc)}
+${PUSH_JS()}${rally(nLocals, pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
-var IDX=[["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
+var IDX=[...${JSON.stringify(R.idx)},["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
 ["sunrise sunset moon","Sunrise, sunset and moon","See the tiles at the top of the page.","#today"],
 ["tide tides fishing fish swell waves boat","Tides & fishing","Next high and low tides, waves and swell. Modelled estimates, not for navigation.","#sea"],
 ["surf cam beach waves","Surf cams","Live cams via Coastalwatch.","#surfcams"],["beach patrol lifeguard swim","Beaches","Patrolled beaches via Beachsafe.","#beaches"],
 ["event events whats on what's on markets gig music things to do weekend","What's on","Local events, with locals' submissions first.","#events"],
 ["add event submit list my event","Add an event","List your event free, checked before it goes live.","/submit?pc=${pc}"],
-["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Nikki Williams, Deputy Mayor Cr George Cecato, plus 7 councillors.","#know"],
-["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? Get the free Coffs Coast Waste Services app.","#know"],
-["bulky couch mattress hard rubbish clean up tip voucher","Bulky goods","Book a pick-up or free tip vouchers: 1800 265 495.","#know"],
-["tip dump englands road","The tip","Englands Road Waste Management Facility.","#know"],["dumping illegal dumped","Illegal dumping","Report it online via the NSW EPA (Environment Protection Authority).","#know"],
+["dumping illegal dumped","Illegal dumping","Report it online via the NSW EPA (Environment Protection Authority).","#know"],
 ["pothole footpath streetlight report problem fix overgrown","Report a problem","Use the council request form.","#know"],
-["council phone contact email call hours after hours water sewer","Contact council","02 6648 4000 (urgent water, sewer, pollution, animal attacks 24/7).","#know"],
 ["complaint complain ombudsman unhappy","Complaints","Council first; then the NSW Ombudsman.","#know"],
 ["fuel petrol diesel servo cheap","Fuel","Cheapest fuel: NSW FuelCheck for now.","#fuel"],["fire fires bushfire flood alert alerts emergency","Alerts","Fires Near Me for now. Emergencies: call 000.","#alerts"],
 ["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run report","Weather and traffic for your school run.","/school"],
-["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],["sport field fields closure closed footy soccer netball","Sport & field closures","Field closures and fixtures.","#sport"],
-["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["coffs facts history name jetty muttonbird gumbaynggirr why fun","Why Coffs?","Fun facts about Coffs, every one sourced.","/coffs"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
+["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],
+["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
 ["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
 ["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
-["feedback idea suggestion contact","Make 2450 better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
+["feedback idea suggestion contact","Make ${R.code} better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
 var qs=document.getElementById('qs'),qr=document.getElementById('qs-res'),qv=document.getElementById('qs-saved');
 function esc2(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function saved(){try{return JSON.parse(localStorage.getItem('saved_q')||'[]')}catch(e){return[]}}
@@ -264,7 +265,7 @@ var W={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy
 var dirs=['N','NE','E','SE','S','SW','W','NW'],tm=function(s){return new Date(s).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'})};
 var age=((Date.now()-Date.UTC(2000,0,6,18,14))/864e5)%29.530588853,mi=Math.round(age/29.53*8)%8;
 var MN=[['🌑','New moon'],['🌒','Waxing crescent'],['🌓','First quarter'],['🌔','Waxing gibbous'],['🌕','Full moon'],['🌖','Waning gibbous'],['🌗','Last quarter'],['🌘','Waning crescent']];
-$('i-moon',MN[mi][0]);$('t-moon',MN[mi][1]);
+$('i-moon',MN[mi][0]);$('t-moon',MN[mi][1]);var tf=(14.765-age+29.530588853)%29.530588853,fd=Math.round(tf);$('t-moon2',(age>14&&age<15.5)?'Full moon tonight':fd<=1?'Full moon tomorrow':'Full moon in '+fd+' days');
 var LOC=null;try{LOC=JSON.parse(localStorage.getItem('loc'))}catch(e){};var LAT=LOC?LOC[0]:${t.lat},LON=LOC?LOC[1]:${t.lon};
 fetch('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&forecast_days=1&timezone=Australia%2FSydney')
 .then(function(r){return r.json()}).then(function(d){var c=d.current,y=d.daily,w=W[c.weather_code]||['🌡️',''];
@@ -290,25 +291,26 @@ async function listAll(env, prefix) { const out = []; let cursor; do { const r =
 const localsCount = async env => { const emails = new Set(); for (const pre of ["sub:", "user:"]) for (const k of await listAll(env, pre)) emails.add(k.name.slice(pre.length)); return emails.size + (await listAll(env, "psub:")).length; };
 const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goal = LOCALS_GOAL.toLocaleString("en-AU"); return `<section id="join" class="rally">
 <h3 class="rallyh">🙏🏽 Help a brother out</h3>
-<p><b>2450 is free, for everyone, forever.</b> Our aim: ${goal} locals signed up, about the reach of a local weekly paper. That's when a few clearly labelled local ads can cover the costs. Nobody will ever pay to be listed.</p>
+<p><b>${R.code} is free, for everyone, forever.</b> Our aim: ${goal} locals signed up, ${R.goalText}. That's when a few clearly labelled local ads can cover the costs. Nobody will ever pay to be listed.</p>
 <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${LOCALS_GOAL}" aria-valuenow="${n}" aria-label="Locals signed up"><span style="width:${Math.max(pct, 1).toFixed(1)}%"></span></div>
 <p class="barlab mute">${n.toLocaleString("en-AU")} of ${goal} locals</p>
-<p>If 2450 is useful to you, help us get there: get one short email a week with what's on, plus a free guide from Maverick Digital on using AI in everyday life.</p>${signup(pc)}
-<p class="mute"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'2450 Maverick',text:'Everything on in Coffs, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share 2450</a> · <a href="/about">How 2450 stays free</a></p></section>`; };
+<p>If ${R.code} is useful to you, help us get there: get one short email a week with what's on, plus a free guide from Maverick Digital on using AI in everyday life.</p>${signup(pc)}
+<p class="mute"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip mute" href="#join">Free for everyone · ${n.toLocaleString("en-AU")} of ${LOCALS_GOAL.toLocaleString("en-AU")} locals so far</a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <input type="email" name="email" placeholder="Your email" required aria-label="Your email"><button>Sign me up</button></form>
-<p class="mute">By signing up you agree to get the weekly email from 2450 Maverick (Maverick Digital). Unsubscribe any time. <a href="/privacy">Privacy</a></p>`;
+<p class="mute">By signing up you agree to get the weekly email from ${R.brand} (Maverick Digital). Unsubscribe any time. <a href="/privacy">Privacy</a></p>`;
 
 const submitForm = pc => page("Add an event — free", `<p class="mute"><a href="/${esc(pc)}">‹ Back to ${esc(pc)}</a></p>
 <h1>Add an event, free</h1><p>Nobody pays to be listed. Events are checked before they go live, usually within a day.</p>
+<p class="note">💸 <b>Affordable only:</b> we list events that cost <b>$50 or less per person</b>, so there&rsquo;s always something everyone can get to.</p>
 <form method="post" action="/submit"><input type="hidden" name="pc" value="${esc(pc)}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>What's on *</label><input name="title" required maxlength="120" style="width:100%">
 <div class="row"><div><label>Date *</label><input type="date" name="date" required min="${todayISO()}"></div><div><label>Time</label><input name="time" placeholder="7pm" maxlength="20"></div></div>
 <label>Where</label><input name="venue" maxlength="120" style="width:100%">
 <div class="row"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="kids"> Good for kids</label>
-<div><label>Cost per kid ($)</label><input type="number" name="cost" min="0" max="999" step="1" placeholder="0 = free" style="width:120px"></div></div>
+<div><label>Cost per person ($) *</label><input type="number" name="cost" min="0" max="50" step="1" required placeholder="0 = free" style="width:120px"></div></div>
 <label>Link (tickets or more info)</label><input type="url" name="link" maxlength="300" style="width:100%">
 <label>Short description</label><textarea name="desc" rows="3" maxlength="300"></textarea>
 <label>Your email (so we can check details, never shown) *</label><input type="email" name="contact" required style="width:100%">
@@ -317,8 +319,9 @@ const submitForm = pc => page("Add an event — free", `<p class="mute"><a href=
 async function handleSubmit(req, env) {
   const f = await req.formData();
   if (f.get("website")) return page("Thanks", "<h1>Thanks!</h1>");
-  const pc = String(f.get("pc") || "2450").slice(0, 4), date = String(f.get("date") || "");
+  const pc = String(f.get("pc") || R.code).slice(0, 4), date = String(f.get("date") || "");
   const link = String(f.get("link") || "");
+  if (Number(f.get("cost")) > 50) return page("Over $50", `<h1>Sorry, that one&rsquo;s over our limit</h1><p>We only list events that cost <b>$50 or less per person</b>, so ${R.code} stays affordable for everyone.</p><p><a href="/submit?pc=${esc(pc)}">Add a different event</a></p>`, pc);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !f.get("title")) return page("Missing details", `<h1>Missing details</h1><p><a href="/submit?pc=${esc(pc)}">Try again</a></p>`);
   const ev = { pc, date, title: String(f.get("title")).slice(0, 120), time: String(f.get("time") || "").slice(0, 20),
     venue: String(f.get("venue") || "").slice(0, 120), link: /^https?:\/\//.test(link) ? link.slice(0, 300) : "",
@@ -331,7 +334,7 @@ async function handleSubmit(req, env) {
 
 async function handleSubscribe(req, env) {
   const f = await req.formData();
-  const pc = String(f.get("pc") || "2450").slice(0, 4), email = String(f.get("email") || "").trim().toLowerCase();
+  const pc = String(f.get("pc") || R.code).slice(0, 4), email = String(f.get("email") || "").trim().toLowerCase();
   if (!f.get("website") && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
     await env.DATA.put(`sub:${email}`, JSON.stringify({ email, pc, consent: true, at: new Date().toISOString() }));
   return page("You're in", `<h1>You're in!</h1><p>Thanks for helping a brother out. Watch for "This week in ${esc(pc)}".</p>
@@ -350,10 +353,10 @@ async function admin(req, env) {
     for (const { name } of await listAll(env, "user:")) { const u = await env.DATA.get(name, "json"); if (u) rows.set(u.email, { ...u, weekly: "no" }); }
     for (const { name } of await listAll(env, "sub:")) { const v = await env.DATA.get(name, "json"); if (v) rows.set(v.email, { ...(rows.get(v.email) || { email: v.email, name: v.name || "", via: v.source || "email", first: v.at }), weekly: "yes", pc: v.pc }); }
     const q = x => `"${String(x ?? "").replace(/"/g, '""')}"`;
-    const csv = ["email,name,signed_in_with,postcode,weekly_email,first_seen,last_seen,visits", ...[...rows.values()].map(r => [r.email, r.name, r.via, r.pc || "2450", r.weekly, r.first, r.last, r.visits].map(q).join(","))].join("\n");
-    return new Response(csv, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="2450-people-${todayISO()}.csv"` } });
+    const csv = ["email,name,signed_in_with,postcode,weekly_email,first_seen,last_seen,visits", ...[...rows.values()].map(r => [r.email, r.name, r.via, r.pc || R.code, r.weekly, r.first, r.last, r.visits].map(q).join(","))].join("\n");
+    return new Response(csv, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${R.code}-people-${todayISO()}.csv"` } });
   }
-  if (act === "alert" && f.get("text")) await sendAlert(env, String(f.get("topic")) === "alerts" ? "alerts" : "fields", String(f.get("topic")) === "alerts" ? "2450 alert" : "Field closure update", String(f.get("text")).slice(0, 160), String(f.get("topic")) === "alerts" ? "/2450#alerts" : "/2450#sport");
+  if (act === "alert" && f.get("text")) await sendAlert(env, String(f.get("topic")) === "alerts" ? "alerts" : "fields", String(f.get("topic")) === "alerts" ? `${R.code} alert` : "Field closure update", String(f.get("text")).slice(0, 160), String(f.get("topic")) === "alerts" ? "/2450#alerts" : "/2450#sport");
   if (act === "announce" && f.get("text")) { const l = String(f.get("link") || ""); await env.DATA.put(`ann:${new Date().toISOString()}`, JSON.stringify({ text: String(f.get("text")).slice(0, 200), link: /^\/|^https?:\/\//.test(l) ? l.slice(0, 300) : "", at: new Date().toISOString() })); }
   if (k.startsWith("ann:") && act === "remove") await env.DATA.delete(k);
   if (k.startsWith("ipending:")) {
@@ -408,28 +411,28 @@ async function admin(req, env) {
   return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p>
 <h2>👥 People</h2><p>${(await listAll(env, "user:")).length} signed in · ${(await listAll(env, "sub:")).length} on the weekly email · ${await localsCount(env)} locals in total.</p><form method="post"><input type="hidden" name="key" value="${esc(String(f.get("key")))}"><input type="hidden" name="act" value="export"><button>Download people (CSV)</button></form>
 <h2>🔔 Send a phone alert</h2><p class="mute">Goes to everyone who turned on alerts. ${(await env.DATA.list({ prefix: "psub:" })).keys.length} phones signed up.</p>
-<form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="alert"><input name="text" maxlength="160" placeholder="e.g. All Coffs fields closed tonight due to rain" style="width:100%" required>
+<form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="alert"><input name="text" maxlength="160" placeholder="e.g. All fields closed tonight due to rain" style="width:100%" required>
 <div class="row"><select name="topic"><option value="fields">Field closures</option><option value="alerts">General alert</option></select><button>Send alert</button></div></form>
 <h2>📣 Announce a new feature</h2><p class="mute">Marking a voted idea Done announces it automatically. Use this for anything else.</p>
-<form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="announce"><input name="text" maxlength="200" placeholder="e.g. Fuel prices are live!" style="width:100%" required><div class="row"><input name="link" placeholder="Link, e.g. /2450 (optional)"><button>Announce</button></div></form>
+<form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="announce"><input name="text" maxlength="200" placeholder="e.g. Fuel prices are live!" style="width:100%" required><div class="row"><input name="link" placeholder="Link, e.g. /${R.code} (optional)"><button>Announce</button></div></form>
 <ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>Community notices waiting</h2><ul>${await (async () => { let h = ""; for (const { name } of (await env.DATA.list({ prefix: "npending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) h += `${noticeItem(n).replace("</li>", "")}<span class="mute">from ${esc(n.contact)}</span><br>${btnB("approve", "Approve and alert", name)} ${btnB("delete", "Delete", name)}</li>`; } return h || "<li>None</li>"; })()}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
-const about = async env => { const n = (await env.DATA.list({ prefix: "sub:" })).keys.length + (await env.DATA.list({ prefix: "psub:" })).keys.length, locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">‹ 2450</a></p><h1>Nobody pays to be here.</h1>
+const about = async env => { const n = (await env.DATA.list({ prefix: "sub:" })).keys.length + (await env.DATA.list({ prefix: "psub:" })).keys.length, locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Nobody pays to be here.</h1>
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
 <p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no fees to list your event, club or notice. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
 <h2>How we'll keep the lights on</h2><p>Our goal is to reach as many locals as a local weekly paper: about <b>15,000 people</b>. ${locals}</p>
 <p>When we get there, we'll offer a small number of advertising spots so local businesses can reach that audience. They'll be <b>selective</b> (local and relevant to you), <b>fairly priced</b> and <b>never packed in</b>: a few clearly labelled ads, never mixed into the listings, never using your personal details.</p>
 <p>We're not here to build an empire off our community. Just to make a fair living doing something genuinely useful for it.</p>
-<p><i>Global vision, local thinking.</i> 2450 Maverick is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
-<p>Big tech divided us. 2450 Maverick brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>Born and built in 2450, raised by the world.</i></p>
+<p><i>Global vision, local thinking.</i> ${R.brand} is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
+<p>Big tech divided us. ${R.brand} brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>${R.sign}</i></p>
 <h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`); };
 
-const ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">2450</text></svg>`;
-const MANIFEST = JSON.stringify({ name: "2450 Maverick", short_name: "2450", start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
+const ICON = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">${R.code}</text></svg>`;
+const MANIFEST = () => JSON.stringify({ name: R.brand, short_name: R.code, start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
   icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }] });
-const SW = `self.addEventListener('push',e=>{e.waitUntil(fetch('/api/alert').then(r=>r.json()).then(a=>self.registration.showNotification(a.title,{body:a.body,icon:'/icon.svg',data:a.url||'/2450'})))});
-self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow(e.notification.data||'/2450'))});
+const SW = () => `self.addEventListener('push',e=>{e.waitUntil(fetch('/api/alert').then(r=>r.json()).then(a=>self.registration.showNotification(a.title,{body:a.body,icon:'/icon.svg',data:a.url||'/${R.code}'})))});
+self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow(e.notification.data||'/${R.code}'))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
 e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open('v1').then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request)))})`;
 
@@ -447,12 +450,12 @@ function sessionHeaders(tok, name, next) {
   h.append("set-cookie", `m2450n=${encodeURIComponent(name || "Local")}; Path=/; Max-Age=31536000; Secure; SameSite=Lax`);
   return h;
 }
-const signinPage = (env, next = "/", msg = "") => page("Sign in to 2450", `<h1>Sign in to your 2450</h1>
-<p>Free, forever. Sign in so your 2450 knows you on any phone, unlocks the fridge, and you're counted as one of the locals helping a brother out.</p>${msg}
+const signinPage = (env, next = "/", msg = "") => page(`Sign in to ${R.code}`, `<h1>Sign in to your ${R.code}</h1>
+<p>Free, forever. Sign in so your ${R.code} knows you on any phone, unlocks the fridge, and you're counted as one of the locals helping a brother out.</p>${msg}
 ${env.GOOGLE_CLIENT_ID ? `<p><a class="gbtn" href="/auth/google?next=${encodeURIComponent(next)}"><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continue with Google</a></p><p class="mute">— or use your email —</p>` : ""}
 <form method="post" action="/unlock"><input type="hidden" name="next" value="${esc(next)}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
-<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from 2450 Maverick (Maverick Digital), plus the free AI guide. Unsubscribe any time.</label>
+<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from ${R.brand} (Maverick Digital), plus the free AI guide. Unsubscribe any time.</label>
 <p><button>Sign me in</button></p></form><p class="mute">We only keep your name, email and photo (if you use Google). <a href="/privacy">Privacy</a></p>`);
 
 function startGoogle(url, env) {
@@ -486,15 +489,15 @@ async function finishGoogle(req, url, env) {
   return new Response(null, { status: 302, headers: h });
 }
 
-const welcomePage = (url) => { const next = safeNext(url.searchParams.get("next") || "/"); return page("Welcome to 2450", `<h1>You're in! 👋</h1>
+const welcomePage = (url) => { const next = safeNext(url.searchParams.get("next") || "/"); return page(`Welcome to ${R.code}`, `<h1>You're in! 👋</h1>
 <p>Thanks for helping a brother out. You're now one of the locals.</p>
-<div class="rally"><p><b>One more tap?</b> Get "This week in 2450" (one short email a week) plus the free guide from Maverick Digital on how AI can help in your everyday life.</p>
+<div class="rally"><p><b>One more tap?</b> Get "This week in ${R.code}" (one short email a week) plus the free guide from Maverick Digital on how AI can help in your everyday life.</p>
 <form method="post" action="/optin"><input type="hidden" name="next" value="${esc(next)}"><button>Yes please</button> <a href="${esc(next)}" class="mute" style="margin-left:12px">Not now</a></form>
 <p class="mute">Unsubscribe any time. <a href="/privacy">Privacy</a></p></div>`); };
 
 async function optin(req, env) {
   const f = await req.formData(), next = safeNext(String(f.get("next") || "/")), email = await member(req, env);
-  if (email) { const u = await env.DATA.get(`user:${email}`, "json"); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name: u?.name || "", pc: "2450", consent: true, source: "google", at: new Date().toISOString() })); }
+  if (email) { const u = await env.DATA.get(`user:${email}`, "json"); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name: u?.name || "", pc: R.code, consent: true, source: "google", at: new Date().toISOString() })); }
   return new Response(null, { status: 303, headers: { location: next } });
 }
 
@@ -512,10 +515,10 @@ const FOODS = ["chicken","beef mince","sausages","steak","bacon","ham","fish","p
 
 const unlockPage = (msg = "") => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
 <p>Tell us what you've got, how many you're feeding and what you like. Get dinner ideas in seconds, with links to the recipes.</p>
-<p><b>Free for 2450 members.</b> Pop in your email to unlock it (and get the weekly "This week in 2450" email).</p>${msg}
+<p><b>Free for ${R.code} members.</b> Pop in your email to unlock it (and get the weekly "This week in ${R.code}" email).</p>${msg}
 <form method="post" action="/unlock"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
-<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from 2450 Maverick (Maverick Digital). Unsubscribe any time.</label>
+<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from ${R.brand} (Maverick Digital). Unsubscribe any time.</label>
 <p><button>Unlock the fridge</button></p></form>`);
 
 async function unlock(req, env) {
@@ -523,7 +526,7 @@ async function unlock(req, env) {
   if (f.get("website")) return unlockPage();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !f.get("consent")) return unlockPage(`<p class="note">Please add your email and tick the box.</p>`);
   const name = String(f.get("name") || "").slice(0, 40), tok = crypto.randomUUID();
-  await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: "2450", consent: true, source: "fridge", at: new Date().toISOString() }));
+  await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: R.code, consent: true, source: "fridge", at: new Date().toISOString() }));
   await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
   const prev = await env.DATA.get(`user:${email}`, "json"), now = new Date().toISOString();
   await env.DATA.put(`user:${email}`, JSON.stringify({ ...(prev || {}), email, name: name || prev?.name || "", via: prev?.via || "email", first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
@@ -570,10 +573,7 @@ document.getElementById('out').scrollIntoView({behavior:'smooth'})};
 </script>`);
 
 // ---- School run report (school choice saved on the phone only; nothing about kids is stored by us) ----
-const SCHOOLS = ["Coffs Harbour Public School","Narranga Public School","Boambee Public School","Bonville Public School","Korora Public School",
-  "Coramba Public School","Nana Glen Public School","Upper Orara Public School","St Augustine's Primary School","Coffs Harbour High School",
-  "Orara High School","Coffs Harbour Senior College","Bishop Druitt College","John Paul College","Coffs Harbour Christian Community School"];
-const schoolPage = () => { const t = TOWNS["2450"]; return page("School run report", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p>
+const schoolPage = () => { const t = TOWNS[R.code]; return page("School run report", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
 <h1>🚸 School run report</h1><p>Pick your school once and this page becomes your morning and afternoon check before the school run.</p>
 <label>Your school</label><select id="sch" style="width:100%"><option value="">Choose…</option>${SCHOOLS.map(x => `<option>${esc(x)}</option>`).join("")}</select>
 <p class="mute">Saved on your phone only. <a href="#" class="useloc">📍 Use my location</a> for weather where you are.</p>
@@ -585,7 +585,7 @@ const schoolPage = () => { const t = TOWNS["2450"]; return page("School run repo
 <p id="tip" class="note"></p>
 <h2>On your route</h2><p class="mute">Crashes, roadworks and closures near <span id="sn"></span>, coming soon. For now: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a>.</p>
 <h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a>.</p>
-<h2>Field closures &amp; weekend sport</h2><p class="mute">Wet-weather field closures and local junior sport fixtures, coming soon. Clubs will be able to post closures here free. For now: <a href="https://www.coffsharbour.nsw.gov.au" rel="noopener">Coffs Harbour City Council</a>.</p>
+<h2>Field closures &amp; weekend sport</h2><p class="mute">Wet-weather field closures and local junior sport fixtures, coming soon. Clubs will be able to post closures here free. For now: <a href="${R.council.url}" rel="noopener">${R.council.name}</a>.</p>
 <h2>Bell times</h2><p class="mute">Your school's own bell times, coming soon. Check the school newsletter or website for now.</p></div>
 <script>
 var sel=document.getElementById('sch');try{sel.value=localStorage.getItem('school')||''}catch(e){}
@@ -603,7 +603,7 @@ else tip='Looks like a smooth run today. Watch the 40 km/h school zones.';
 document.getElementById('tip').textContent=(hr<10?'This morning: ':hr<16?'This arvo: ':'Tomorrow, check again in the morning. Today: ')+tip;
 }).catch(function(){document.getElementById('tip').textContent='Weather unavailable right now.'})}
 sel.onchange=show;show();
-</script>`, "2450"); };
+</script>`, R.code); };
 
 // ---- Feedback: saved, then emailed to Brad ----
 const GOAL = 30, STATUS = { open: "", building: "🔨 Being built", done: "✅ Done" };
@@ -615,8 +615,8 @@ async function ideas(env) {
 const ideaItem = i => `<li class="idea"><button type="button" class="vote" data-id="${esc(i.id)}"${i.status === "done" ? " disabled" : ""}>👍 <b>${i.votes}</b></button>
 <div><span>${esc(i.text)}</span>${STATUS[i.status] ? ` <span class="tagg">${STATUS[i.status]}</span>` : ""}
 <div class="bar"><i style="width:${Math.min(100, Math.round(i.votes / GOAL * 100))}%"></i></div><small class="mute">${i.votes >= GOAL ? "🎉 Hit " + GOAL + " votes. On the build list!" : (GOAL - i.votes) + " more votes to get it built"}</small></div></li>`;
-const feedbackPage = async (env, msg = "") => { const list = await ideas(env); return page("Make 2450 better", `<h1>💬 Make 2450 better</h1>
-<p>2450 is built by the community. Suggest an idea or vote for one you like. When an idea hits <b>${GOAL} votes</b>, it goes on the build list.</p>${msg}
+const feedbackPage = async (env, msg = "") => { const list = await ideas(env); return page(`Make ${R.code} better`, `<h1>💬 Make ${R.code} better</h1>
+<p>${R.code} is built by the community. Suggest an idea or vote for one you like. When an idea hits <b>${GOAL} votes</b>, it goes on the build list.</p>${msg}
 <h2>Ideas from locals</h2><ul class="ideas">${list.map(ideaItem).join("") || '<li class="mute">No ideas yet. Be the first!</li>'}</ul>
 <h2>Suggest something</h2><p class="mute">Ideas are checked, then added to the list above for voting. Everything else comes straight to the team.</p>
 <form method="post" action="/feedback"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -651,9 +651,9 @@ async function feedback(req, env, ctx) {
   if (env.MAILER && env.FEEDBACK_TO) ctx.waitUntil((async () => {
     try {
       const { EmailMessage } = await import("cloudflare:email");
-      const from = "feedback@2450-maverick.live", clean = x => x.replace(/[\r\n]+/g, " ");
-      const raw = [`From: 2450 Maverick <${from}>`, `To: ${env.FEEDBACK_TO}`, fb.email ? `Reply-To: ${clean(fb.email)}` : "",
-        `Subject: 2450 feedback: ${clean(fb.kind)}`, `Message-ID: <${crypto.randomUUID()}@2450-maverick.live>`, `Date: ${new Date().toUTCString()}`,
+      const from = `feedback@${R.domain}`, clean = x => x.replace(/[\r\n]+/g, " ");
+      const raw = [`From: ${R.brand} <${from}>`, `To: ${env.FEEDBACK_TO}`, fb.email ? `Reply-To: ${clean(fb.email)}` : "",
+        `Subject: ${R.code} feedback: ${clean(fb.kind)}`, `Message-ID: <${crypto.randomUUID()}@${R.domain}>`, `Date: ${new Date().toUTCString()}`,
         "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "",
         `${fb.kind}\n\n${fb.msg}\n\nFrom: ${fb.name || "(no name)"} ${fb.email || "(no email)"}\n${fb.at}`].filter(Boolean).join("\r\n");
       await env.MAILER.send(new EmailMessage(from, env.FEEDBACK_TO, raw));
@@ -669,7 +669,7 @@ async function birthdayPage(env, msg = "") {
   const offers = [];
   for (const { name } of (await env.DATA.list({ prefix: "bday:" })).keys) { const o = await env.DATA.get(name, "json"); if (o) offers.push(o); }
   offers.sort((a, b) => a.biz.localeCompare(b.biz));
-  return page("Birthday deals in 2450", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🎂 Birthday deals</h1>
+  return page(`Birthday deals in ${R.code}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🎂 Birthday deals</h1>
 <p>Pop in your birthday and see which local places will look after you on your big day.</p>${msg}
 <div class="row"><select id="bd-d" aria-label="Day"><option value="">Day</option>${Array.from({ length: 31 }, (_, i) => `<option>${i + 1}</option>`).join("")}</select>
 <select id="bd-m" aria-label="Month"><option value="">Month</option>${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => `<option value="${i}">${m}</option>`).join("")}</select></div>
@@ -691,7 +691,7 @@ var now=new Date(),t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),b=
 var days=Math.round((b-t)/864e5);o.hidden=false;
 o.textContent=days===0?'🎉 Happy birthday! Every deal below is yours today. Say "Maverick" to redeem.':days<=7?'🎈 '+days+' day'+(days>1?'s':'')+' to go. Birthday-week deals are nearly on!':'🗓️ '+days+' days to your birthday. We’ll be here.'}
 d.onchange=m.onchange=calc;calc();
-</script>`, "2450");
+</script>`, R.code);
 }
 async function lodgeOffer(req, env) {
   const f = await req.formData();
@@ -704,9 +704,9 @@ async function lodgeOffer(req, env) {
 
 // ---- Charter (terms) and privacy policy. Update the date whenever either changes. ----
 const UPDATED = "16 October 2026";
-const charter = () => page("Our charter", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Our charter</h1>
+const charter = () => page("Our charter", `<p class="mute"><a href="/">${R.brand}</a></p><h1>Our charter</h1>
 <p class="mute">Our terms, in plain English. Last updated ${UPDATED}.</p>
-<h2>1. Free for locals, forever</h2><p>2450 Maverick will never charge you to use it. No paywalls, no subscriptions, and no fees to list an event, club, notice or offer. It's run by <a href="https://maverickdigital.com.ai">Maverick Digital</a> as a free gift to the community.</p>
+<h2>1. Free for locals, forever</h2><p>${R.brand} will never charge you to use it. No paywalls, no subscriptions, and no fees to list an event, club, notice or offer. It's run by <a href="https://maverickdigital.com.ai">Maverick Digital</a> as a free gift to the community.</p>
 <h2>2. Nobody pays to be listed</h2><p>Every event, offer and listing is here because it's happening locally, never because someone paid. We don't sell placement, rankings or reviews.</p>
 <h2>2a. Advertising, one day</h2><p>Once we reach about 15,000 locals, we'll sell a small number of advertising spots so the site can pay its way. Ads will be clearly labelled, kept separate from listings, selective, fairly priced and never packed in. Advertisers never get your personal details.</p>
 <h2>3. We source, we don't spin</h2><p>Information like council details, weather and tides comes from other organisations. We show it as they publish it, name the source, and show how current the source says it is. If a source is out of date or wrong, we'll say so factually. We don't rewrite their information.</p>
@@ -722,7 +722,7 @@ const charter = () => page("Our charter", `<p class="mute"><a href="/">2450 Mave
 <h2>10. Changes</h2><p>If we change this charter, we'll update the date at the top. Rule 1 won't change.</p>
 <p>Questions? <a href="/feedback">Talk to us</a>. <i>Maverick Digital</i></p>`);
 
-const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Privacy policy</h1>
+const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">${R.brand}</a></p><h1>Privacy policy</h1>
 <p class="mute">Plain English. Last updated ${UPDATED}.</p>
 <p>We collect as little as we can, we never sell it, and we follow the Australian Privacy Principles.</p>
 <h2>Kept on your phone, not with us</h2><p>If you tap &ldquo;Use my location&rdquo;, it's rounded to about a kilometre and saved on your phone. It's used for your weather and to find fuel near you, never stored by us, and you can reset it any time. Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. We never see them. Clear your browser data and they're gone.</p>
@@ -735,7 +735,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 M
 <h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details, and when we carry ads one day, advertisers will never get your personal details or use them to target you.</p>
 <h2>Who else is involved</h2><ul>
 <li><b>Cloudflare</b> hosts the site, stores our data and sends our emails. Like any website host, it processes basic visit data such as your internet address.</li>
-<li><b>Open-Meteo</b> provides weather and tides. Your browser asks it for Coffs Harbour's forecast, so it sees a request from your device, but no personal details from us.</li>
+<li><b>Open-Meteo</b> provides weather and tides. Your browser asks it for ${R.place}'s forecast, so it sees a request from your device, but no personal details from us.</li>
 <li>If we move our email list to a mailing service, we'll name it here.</li></ul>
 <h2>Your choices</h2><ul>
 <li>Unsubscribe from any email at any time.</li>
@@ -764,7 +764,7 @@ const PARENT = [["that's great|that's good|awesome|brilliant","That's a W / that
 ["you're in trouble|you're in big trouble","You're cooked"],["focus|do your homework|concentrate","Lock in"],["that's weird|that's strange","That's so Ohio"],["that's suspicious|that's dodgy","That's sus"],
 ["calm down|don't overreact","Don't crash out"],["you're showing off|stop sucking up","Stop glazing"],["can i have some|i'm taking one","Fanum tax"],["i love you","Lowkey you're the GOAT (they'll still roll their eyes)"],
 ["that's funny|that's hilarious","That's sending me"],["you're kidding|you're joking","You're delulu"],["it's cool|so cool","That's got aura"],["listen everyone|everyone listen","Chat, listen up"]];
-const genAlpha = () => page("Gen Alpha interpreter", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🗣️ Gen Alpha interpreter</h1>
+const genAlpha = () => page("Gen Alpha interpreter", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🗣️ Gen Alpha interpreter</h1>
 <p>No idea what the kids are saying? <b>Jimmy Joel</b> has you covered. Type a word they used, or flip it and find out how they'd say what you mean.</p>
 <div class="row"><button type="button" id="m1">Kid → Parent</button><button type="button" id="m2" style="background:var(--soft);color:var(--fg)">Parent → Kid</button></div>
 <p><input id="q" placeholder="Type what they said, e.g. rizz" style="width:100%" autocomplete="off"></p><div id="res"></div>
@@ -780,16 +780,22 @@ if(mode==1){h=S.filter(function(s){var w=s[0].toLowerCase();return w.indexOf(v)>
 else{h=P.filter(function(p){return p[0].split('|').some(function(k){return v.indexOf(k)>-1||k.indexOf(v)>-1})}).slice(0,3).map(function(p){return '<p class="card">Say: <b>'+e(p[1])+'</b></p>'}).join('')}
 r.innerHTML=h||'<p class="mute">Jimmy’s stumped on that one. <a href="/feedback">Teach him</a>.</p>'}
 b1.onclick=function(){set(1)};b2.onclick=function(){set(2)};q.oninput=go;
-</script>`, "2450");
+</script>`, R.code);
 
 // ---- In memory: local death notices, sourced from funeral homes (approved in admin; shown for 60 days) ----
 const ripItem = n => `<li><b>${esc(n.name)}</b>${n.age ? `, ${esc(n.age)}` : ""}<br><span class="mute">Passed ${esc(fmtDate(n.date))}${n.service ? ` · ${esc(n.service)}` : ""}</span><br>
 <span class="src">Info from ${n.link ? `<a href="${esc(n.link)}" rel="nofollow noopener">${esc(n.home)}</a>` : esc(n.home)}</span></li>`;
+async function memoryBlock(env) {
+  const since = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10), list = [];
+  for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { if (name.split(":")[1] < since) continue; const n = await env.DATA.get(name, "json"); if (n) list.push(n); }
+  list.sort((a, b) => b.date.localeCompare(a.date));
+  return `<section id="memory"><h2>🕊️ In memory</h2>${list.length ? `<ul>${list.slice(0, 5).map(ripItem).join("")}</ul><p><a href="/rip">All notices from the last two months →</a></p>` : `<p class="mute">No notices in the last month. Funeral homes and families can <a href="/rip">list a notice free</a>.</p>`}</section>`;
+}
 async function ripPage(env, msg = "") {
   const since = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10), list = [];
   for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { if (name.split(":")[1] < since) continue; const n = await env.DATA.get(name, "json"); if (n) list.push(n); }
   list.sort((a, b) => b.date.localeCompare(a.date));
-  return page("In memory", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🕊️ In memory</h1>
+  return page("In memory", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🕊️ In memory</h1>
 <p>Remembering locals who have passed away in the last two months. Rest in peace.</p>${msg}
 <ul>${list.map(ripItem).join("") || '<li class="mute">No notices listed yet.</li>'}</ul>
 <p class="mute">Every notice is sourced from the funeral home and links to their official notice for full service details.</p>
@@ -801,7 +807,7 @@ async function ripPage(env, msg = "") {
 <label>Funeral home *</label><input name="home" required maxlength="100" style="width:100%">
 <label>Link to the funeral home's notice *</label><input type="url" name="link" required maxlength="300" style="width:100%">
 <label>Your email (to confirm, never shown) *</label><input type="email" name="contact" required style="width:100%">
-<p><button>Submit notice</button></p></form></details>`, "2450");
+<p><button>Submit notice</button></p></form></details>`, R.code);
 }
 async function lodgeRip(req, env) {
   const f = await req.formData(), date = String(f.get("date") || ""), link = String(f.get("link") || "");
@@ -833,7 +839,7 @@ async function mav(req, env) {
   try {
     const list = SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ");
     const r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", { max_tokens: 250, messages: [
-      { role: "system", content: `You set up a free local info page for Coffs Harbour, Australia. Sections (id = name): ${list}. "tools" holds: dinner ideas from your fridge, birthday deals, Gen Alpha slang interpreter, death notices, school run report. Reply with ONLY JSON: {"order": [every section id, most useful for this person first, "today" first unless they say otherwise], "hide": [ids they clearly don't want], "name": "their first name if they said it, else empty", "say": "one warm, casual Aussie sentence under 25 words telling them what you set up"}` },
+      { role: "system", content: `You set up a free local info page for ${R.place}, Australia. Sections (id = name): ${list}. "tools" holds: dinner ideas from your fridge, birthday deals, Gen Alpha slang interpreter, death notices, school run report. Reply with ONLY JSON: {"order": [every section id, most useful for this person first, "today" first unless they say otherwise], "hide": [ids they clearly don't want], "name": "their first name if they said it, else empty", "say": "one warm, casual Aussie sentence under 25 words telling them what you set up"}` },
       { role: "user", content: text }] });
     const j = JSON.parse(String(r.response || "").match(/\{[\s\S]*\}/)[0]), valid = SECTIONS.map(x => x[0]);
     const order = [...new Set((j.order || []).filter(id => valid.includes(id)))]; valid.forEach(id => order.includes(id) || order.push(id));
@@ -841,16 +847,16 @@ async function mav(req, env) {
       name: String(j.name || "").replace(/[^\p{L} '-]/gu, "").slice(0, 30), say: String(j.say || guess.say).slice(0, 200) });
   } catch (e) { return Response.json(guess); }
 }
-const mePage = () => page("My 2450", `<h1>🎤 Make 2450 yours</h1>
+const mePage = () => page(`My ${R.code}`, `<h1>🎤 Make ${R.code} yours</h1>
 <div class="mav"><p><b>G'day<span id="hi"></span>, I'm Mav.</b> No fiddly settings. Just tell me about your day and what you care about, and I'll set up your page.</p>
 <div class="row"><button type="button" id="mic" class="micb">🎤 Tap and talk</button></div>
-<textarea id="say" rows="3" maxlength="500" placeholder="e.g. I'm Megan, I've got two kids at Coffs Public, I love the markets and my husband fishes"></textarea>
+<textarea id="say" rows="3" maxlength="500" placeholder="e.g. ${esc(R.mavExample)}"></textarea>
 <div class="chips" id="ex"><label>I fish and surf</label><label>Two kids, school run, footy on weekends</label><label>New to town, what's on?</label><label>Just weather and bins please</label></div>
 <p><button type="button" id="go">✨ Set me up</button></p><p id="reply" class="note" hidden></p></div>
-<h2>Your 2450</h2><p class="mute">Move things up or down, or switch them off. It saves as you go, on your phone only.</p>
+<h2>Your ${R.code}</h2><p class="mute">Move things up or down, or switch them off. It saves as you go, on your phone only.</p>
 <label>What should we call you?</label><input id="nm" maxlength="30" placeholder="First name" style="width:100%">
 <ul id="list" class="setlist"></ul>
-<p><a class="card" href="/2450">👀 <b>See my 2450</b> →</a></p><p class="mute"><a href="#" id="reset">Start again</a></p>
+<p><a class="card" href="/${R.code}">👀 <b>See my ${R.code}</b> →</a></p><p class="mute"><a href="#" id="reset">Start again</a></p>
 <script>
 var S=${JSON.stringify(SECTIONS)},L=document.getElementById('list');
 function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function p(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
@@ -870,30 +876,36 @@ p('order',JSON.stringify(j.order));S.forEach(function(x){p('hide_'+x[0],(j.hide|
 rp.hidden=false;rp.textContent='🗣️ '+j.say;draw()}).catch(function(){rp.hidden=false;rp.textContent='Mav dropped the ball. Try again?'}).then(function(){b.disabled=false;b.textContent='✨ Set me up'})};
 document.getElementById('reset').onclick=function(e){e.preventDefault();p('order',null);S.forEach(function(x){p('hide_'+x[0],null)});draw()};
 draw();
-</script>`, "2450");
+</script>`, R.code);
 
 // ---- Live sources: fetched by the Worker (every 30 min via cron, or on demand), cached in KV, always shown with "current as of" + source link ----
-const HOME = { lat: -30.2963, lon: 153.1135 };
 const asOf = iso => new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", weekday: "short", day: "numeric", month: "short" });
 const srcLine = (name, url, iso, note = "") => `<p class="src">Info from <a href="${url}" rel="noopener">${name}</a>.${iso ? ` Updated ${esc(asOf(iso))}.` : ""}${note ? " " + note : ""}</p>`;
 const dec = x => String(x || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(n)).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
   .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#039;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
 const tag = (x, t) => dec((x.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)) || [])[1]);
-const rss = xml => [...xml.matchAll(/<item[\s>][\s\S]*?<\/item>/g)].map(m => ({ title: tag(m[0], "title"), link: tag(m[0], "link"), date: tag(m[0], "pubDate") }));
+const rss = xml => [...xml.matchAll(/<item[\s>][\s\S]*?<\/item>/g)].map(m => ({ title: tag(m[0], "title"), link: tag(m[0], "link"), date: tag(m[0], "pubDate"),
+  desc: tag(m[0], "description").replace(/<[^>]+>/g, " ").slice(0, 400), cats: [...m[0].matchAll(/<category[^>]*>([\s\S]*?)<\/category>/g)].map(c => dec(c[1])).join(" | ") }));
 const km = (a, b) => { const r = Math.PI / 180, d = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(d)); };
 const firstPoint = g => !g ? null : g.type === "Point" ? { lon: g.coordinates[0], lat: g.coordinates[1] } : (g.geometries || []).map(firstPoint).find(Boolean) || null;
-const UA = { "user-agent": "2450-maverick.live community site (Maverick Digital)" };
 
 const SOURCES = {
-  news: { name: "News Of The Area, Coffs Coast", url: "https://coffscoast.newsofthearea.com.au", get: async () =>
-    rss(await (await fetch("https://coffscoast.newsofthearea.com.au/feed", { headers: UA })).text()).filter(i => !/^PROPERTY:/i.test(i.title)).slice(0, 8) },
+  news: { get name() { return R.news.map(n => n.name).join(", "); }, get url() { return R.news[0].url; }, get: async () => {
+    const all = [];
+    for (const src of R.news) { try {
+      const items = rss(await (await fetch(src.feed, { headers: UA })).text())
+        .filter(i => (!src.skip || !src.skip.test(i.title)) && (!src.cat || src.cat.test(i.cats)) && (!src.need || src.need.test(i.title + " " + i.desc)));
+      all.push(...items.slice(0, 8).map(i => ({ title: i.title, link: i.link, date: i.date, src: src.name })));
+    } catch (e) {} }
+    if (!all.length) throw new Error("no news");
+    return all.sort((x, y) => new Date(y.date || 0) - new Date(x.date || 0)).slice(0, 10); } },
   fires: { name: "NSW Rural Fire Service, Fires Near Me", url: "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", get: async () => {
     const j = await (await fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.json", { headers: UA })).json();
     return (j.features || []).map(f => { const p = f.properties || {}, pt = firstPoint(f.geometry), d = p.description || "", g = k => (d.match(new RegExp(k + ":\\s*([^<]*)")) || [])[1]?.trim() || "";
       return { title: (p.title || "").trim(), level: p.category || g("ALERT LEVEL"), where: g("LOCATION"), status: g("STATUS"), size: g("SIZE"), link: p.link, pt, km: pt ? Math.round(km(HOME, pt)) : 999 }; })
       .filter(f => f.km <= 100).sort((a, b) => a.km - b.km).slice(0, 8); } },
   warnings: { name: "Bureau of Meteorology, NSW warnings", url: "http://www.bom.gov.au/nsw/warnings/", get: async () =>
-    rss(await (await fetch("http://www.bom.gov.au/fwo/IDZ00054.warnings_nsw.xml", { headers: UA })).text()).filter(i => /mid north coast|coffs|northern tablelands|coastal waters|marine/i.test(i.title)).slice(0, 6) },
+    rss(await (await fetch("http://www.bom.gov.au/fwo/IDZ00054.warnings_nsw.xml", { headers: UA })).text()).filter(i => R.warnRe.test(i.title)).slice(0, 6) },
   holidays: { name: "Nager.Date public holidays", url: "https://date.nager.at", get: async () => {
     const y = new Date().getFullYear(), all = [];
     for (const yr of [y, y + 1]) all.push(...await (await fetch(`https://date.nager.at/api/v3/PublicHolidays/${yr}/AU`, { headers: UA })).json());
@@ -919,18 +931,18 @@ ${srcLine(S.fires.name, S.fires.url, fires.asof)}
 <h3>⚠️ Weather warnings</h3>${warn.ok === false ? fail() : warn.items.length ? `<ul>${warn.items.map(w => `<li>${w.link ? `<a href="${esc(w.link)}" rel="noopener">${esc(w.title)}</a>` : esc(w.title)}</li>`).join("")}</ul>` : "<p>✅ No current warnings for our area.</p>"}
 ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
 <p class="mute">Roads and traffic: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a> (live feed coming soon).</p></section>`;
-  const newsB = `<section id="news"><h2>News</h2><p class="mute">Local headlines. Tap to read the full story at the source.</p>
-${news.ok === false ? fail() : `<ul>${news.items.map(n => `<li><a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a><br><span class="mute">${esc(n.date ? new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" }) : "")}</span></li>`).join("")}</ul>`}
+  const newsB = `<section id="news"><h2>News</h2><p class="mute">Local headlines from ${R.news.map(n => esc(n.name)).join(" and ")}. Tap to read the full story on their site.</p>
+${news.ok === false ? fail() : `<ul>${news.items.map(n => `<li>${n.src ? `<span class="tagg">${esc(n.src)}</span> ` : ""}<a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a><br><span class="mute">${esc(n.date ? new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" }) : "")}</span></li>`).join("")}</ul>`}
 ${srcLine(S.news.name, S.news.url, news.asof)}</section>`;
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
-${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<h3>Next school holidays</h3>${schoolHols()}<p class="src">Public schools on the Coffs Coast. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
+${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<h3>🔭 Coming up in the sky</h3><ul>${[...skyNext().filter(e => !e.date).slice(0, 3), ...skyNext().filter(e => e.date)].map(e => `<li><b>${esc(fmtDate(e.d))}${e.d.slice(0, 4) !== todayISO().slice(0, 4) ? " " + e.d.slice(0, 4) : ""}</b>: ${esc(e.name)}${away(e.d)}</li>`).join("")}</ul><p class="src">Dates are the usual peaks; meteor showers are best away from town lights. Info from <a href="https://www.timeanddate.com/astronomy/meteor-shower/" rel="noopener">timeanddate.com</a> and <a href="https://en.wikipedia.org/wiki/Halley%27s_Comet" rel="noopener">Wikipedia</a>.</p><h3>Next school holidays</h3>${schoolHols()}<p class="src">${R.schoolsArea}. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
   return { alerts, news: newsB, holidays: holB };
 }
 
 // ---- FuelCheck (NSW Government API; needs free FUEL_KEY + FUEL_SECRET secrets) ----
 const FUELS = { E10: "E10", U91: "Unleaded 91", P95: "Premium 95", P98: "Premium 98", DL: "Diesel" };
 // Quota-safe: API.NSW allows 2,500 calls a month. We pull ALL current NSW prices in one call at most every 2 hours (~360 calls/month),
-// keep only stations within 60 km of Coffs, and answer every visitor (any fuel type, any location) from that cached copy.
+// keep only stations within 60 km of the town, and answer every visitor (any fuel type, any location) from that cached copy.
 async function fuelToken(env) {
   let tok = await env.DATA.get("fuel:token");
   if (!tok) {
@@ -984,13 +996,9 @@ ft.onchange=load;document.getElementById('fnear').onclick=function(){if(!navigat
 navigator.geolocation.getCurrentPosition(function(p){pos=[+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)];try{localStorage.setItem('loc',JSON.stringify(pos))}catch(e){}b.textContent='📍 Near you';load()},function(){b.textContent='📍 Near me'})};load()})();</script></section>`;
 
 // ---- Weekend for kids: free or under $50 a kid. Locals' events tagged "good for kids" + local favourites ----
-const FAVES = [["Muttonbird Island walk","Free","Short walk from the Jetty foreshore out along the breakwall. Whale-spotting in season."],
-  ["Jetty foreshores & beach","Free","Playground, picnic spots and calm water by the jetty."],["North Coast Regional Botanic Garden","Free","Boardwalks, sensory garden and Coffs Creek walks."],
-  ["Forest Sky Pier, Sealy Lookout","Free","Walk out over the treetops with views of the whole coast."],["Yarrila Arts and Museum (YAM)","Free","Gallery and museum in Yarrila Place, often with kids' activities."],
-  ["Library story time","Free","Regular sessions for little ones at Coffs Harbour library. Check times."],["Coffs Creek walk & cycleway","Free","Flat, shady path, great for scooters and bikes."]];
 function weekendDates() { const t = new Date(todayISO() + "T00:00:00Z"), d = t.getUTCDay(), sat = new Date(t); sat.setUTCDate(t.getUTCDate() + (d === 0 ? -1 : 6 - d));
   const sun = new Date(sat); sun.setUTCDate(sat.getUTCDate() + 1); return [sat.toISOString().slice(0, 10), sun.toISOString().slice(0, 10)]; }
-async function kidsBlock(local, feed, pc = "2450") {
+async function kidsBlock(local, feed, pc = R.code) {
   const [sat, sun] = weekendDates(), wk = [...local, ...feed].filter(e => e.kids && (e.cost == null || e.cost <= 50) && e.date >= sat && e.date <= sun);
   return `<section id="kids"><h2>Weekend for kids</h2><p class="mute">Free or under $50 a kid. This weekend: ${esc(fmtDate(sat))} and ${esc(fmtDate(sun))}.</p>
 ${wk.length ? `<h3>On this weekend</h3><ul>${wk.map(evItem).join("")}</ul>` : `<p>No kids' events listed for this weekend yet. Running one? <a href="/submit?pc=${pc}">Add it free</a> and tick "Good for kids".</p>`}
@@ -999,16 +1007,8 @@ ${wk.length ? `<h3>On this weekend</h3><ul>${wk.map(evItem).join("")}</ul>` : `<
 }
 
 // ---- Field closures: watch the council page for changes; alerts go out by push to anyone who opted in ----
-const FIELDS_URL = "https://coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Sports-facilities/Sports-grounds/Sports-field-closure-arrangements";
 // ---- Accountability: we watch the pages we source from and show how current the owner keeps them.
 // stated = a "last updated" date the page itself showed when we checked by hand (YYYY-MM or YYYY-MM-DD).
-const WATCH = {
-  councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
-  bulky: { owner: "Council", name: "Council bulky goods FAQ", url: "https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs", stated: "2018-03" },
-  wasteapp: { owner: "News Of The Area", name: "News Of The Area (waste app)", url: "https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week", stated: "2026-08" },
-  envreport: { owner: "Council", name: "City of Coffs Harbour, Report an environmental issue", url: "https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" },
-  contact: { owner: "Council", name: "City of Coffs Harbour, Contact details", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" },
-};
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 function pageDate(html) { // a "last updated" date the page publishes about itself, if any
   let m = html.match(/(?:dateModified|article:modified_time|last-modified)["']?\s*(?:content\s*=\s*|:\s*)["'](\d{4}-\d{2}-\d{2})/i);
@@ -1039,22 +1039,22 @@ function accLine(id, st) {
 }
 
 async function checkFields(env) {
+  if (!R.fields) return;
   try {
-    const txt = (await (await fetch(FIELDS_URL, { headers: UA })).text()).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const txt = (await (await fetch(R.fields.url, { headers: UA })).text()).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
     const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
     const old = await env.DATA.get("fields:state", "json"), now = new Date().toISOString();
     if (!old) return env.DATA.put("fields:state", JSON.stringify({ hash: h, changed: null, checked: now }));
     if (old.hash !== h) { await env.DATA.put("fields:state", JSON.stringify({ hash: h, changed: now, checked: now }));
-      await sendAlert(env, "fields", "Field closure update", "Council has just updated its sports field closure page. Tap to check.", "/2450#sport"); }
+      await sendAlert(env, "fields", "Field closure update", "Council has just updated its sports field closure page. Tap to check.", `/${R.code}#sport`); }
     else await env.DATA.put("fields:state", JSON.stringify({ ...old, checked: now }));
   } catch (e) {}
 }
 async function fieldsBlock(env) {
   const st = await env.DATA.get("fields:state", "json"), a = await env.DATA.get("alert:fields", "json");
   return `${a ? `<p><b>Latest:</b> ${esc(a.body)} <span class="mute">(${esc(asOf(a.at))})</span></p>` : ""}
-<h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
-<li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>
-<p class="src">Info from <a href="${FIELDS_URL}" rel="noopener">City of Coffs Harbour, Sports field closure arrangements</a>.${st?.changed ? ` <b>Council last changed it: ${esc(asOf(st.changed))}</b>.` : ""}${st?.checked ? ` We check it every 30 minutes (last check ${esc(asOf(st.checked))}).` : ""}</p>`;
+${R.fields.info}
+<p class="src">Info from <a href="${R.fields.url}" rel="noopener">${esc(R.fields.name)}</a>.${st?.changed ? ` <b>Council last changed it: ${esc(asOf(st.changed))}</b>.` : ""}${st?.checked ? ` We check it every 30 minutes (last check ${esc(asOf(st.checked))}).` : ""}</p>`;
 }
 
 // ---- Web push: no paid service. Keys are made by the Worker on first use and kept in KV. ----
@@ -1067,7 +1067,7 @@ async function vapid(env) {
 }
 async function pushOne(env, sub) {
   const k = await vapid(env), aud = new URL(sub.endpoint).origin, enc = o => b64u(new TextEncoder().encode(JSON.stringify(o)));
-  const unsigned = enc({ typ: "JWT", alg: "ES256" }) + "." + enc({ aud, exp: Math.floor(Date.now() / 1000) + 43200, sub: "mailto:feedback@2450-maverick.live" });
+  const unsigned = enc({ typ: "JWT", alg: "ES256" }) + "." + enc({ aud, exp: Math.floor(Date.now() / 1000) + 43200, sub: `mailto:feedback@${R.domain}` });
   const key = await crypto.subtle.importKey("jwk", k.priv, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
   const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(unsigned));
   const r = await fetch(sub.endpoint, { method: "POST", headers: { authorization: `vapid t=${unsigned}.${b64u(sig)}, k=${k.pub}`, ttl: "86400", "content-length": "0" } });
@@ -1089,7 +1089,7 @@ async function pushBatch(env) {
 }
 async function pushApi(req, env, p) {
   if (p === "/api/push/key") return Response.json({ key: (await vapid(env)).pub });
-  if (p === "/api/alert") return Response.json(await env.DATA.get("alert:latest", "json") || { title: "2450 Maverick", body: "Something new in 2450.", url: "/2450" });
+  if (p === "/api/alert") return Response.json(await env.DATA.get("alert:latest", "json") || { title: R.brand, body: `Something new in ${R.code}.`, url: `/${R.code}` });
   if (p === "/api/push/sub" && req.method === "POST") {
     let j = {}; try { j = await req.json(); } catch (e) {}
     if (!j.sub?.endpoint || !/^https:\/\//.test(j.sub.endpoint)) return Response.json({ ok: false }, { status: 400 });
@@ -1100,10 +1100,10 @@ async function pushApi(req, env, p) {
   }
   return null;
 }
-const PUSH_JS = `<script>(function(){var bs=document.querySelectorAll('.pushbtn');if(!bs.length)return;
+const PUSH_JS = () => `<script>(function(){var bs=document.querySelectorAll('.pushbtn');if(!bs.length)return;
 function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');var r=atob(b+'==='.slice((b.length+3)%4)),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
 bs.forEach(function(b){var m=b.parentNode.querySelector('.pushmsg');try{if(localStorage.getItem('push_'+b.dataset.topic)){b.textContent='Alerts on ✓';b.disabled=true}}catch(e){}
-b.onclick=function(){if(!('serviceWorker'in navigator)||!('PushManager'in window)){m.textContent='On iPhone: tap Share, then Add to Home Screen, open 2450 from there and try again.';return}
+b.onclick=function(){if(!('serviceWorker'in navigator)||!('PushManager'in window)){m.textContent='On iPhone: tap Share, then Add to Home Screen, open ${R.code} from there and try again.';return}
 b.disabled=true;b.textContent='Turning on…';Notification.requestPermission().then(function(p){if(p!=='granted')throw 0;return Promise.all([navigator.serviceWorker.ready,fetch('/api/push/key').then(function(r){return r.json()})])})
 .then(function(x){return x[0].pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(x[1].key)})}).then(function(sub){return fetch('/api/push/sub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sub:sub,topics:[b.dataset.topic]})})})
 .then(function(){b.textContent='Alerts on ✓';try{localStorage.setItem('push_'+b.dataset.topic,1)}catch(e){}m.textContent='You\\u2019ll get a notification when there\\u2019s news.'})
@@ -1120,7 +1120,7 @@ async function openApi(req, env) {
   const c = await env.DATA.get("osm:" + cat, "json");
   if (c && Date.now() - new Date(c.asof) < 864e5) return Response.json(c);
   try {
-    const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1]}(-30.45,152.95,-30.05,153.25););out center tags;`;
+    const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1]}(${R.bbox}););out center tags;`;
     const j = await (await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) })).json();
     const items = (j.elements || []).filter(e => e.tags?.name).map(e => { const t = e.tags;
       return { name: t.name, hours: t.opening_hours || "", phone: t.phone || t["contact:phone"] || "", lat: e.lat ?? e.center?.lat, lon: e.lon ?? e.center?.lon,
@@ -1130,7 +1130,7 @@ async function openApi(req, env) {
     return Response.json(out);
   } catch (e) { return Response.json(c || { error: "unreachable" }); }
 }
-const openPage = () => page("Open now in Coffs", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🟢 Open now?</h1>
+const openPage = () => page(`Open now in ${R.short}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🟢 Open now?</h1>
 <p>Pick what you need. Open places come first, nearest at the top. <a href="#" class="useloc">📍 Use my location</a></p>
 <div class="pills" id="cats">${Object.entries(OPEN_CATS).map(([k, [l]]) => `<button type="button" data-c="${k}">${l}</button>`).join("")}</div>
 <div id="olist"><p class="mute">Choose a category above.</p></div><p class="src" id="osrc"></p>
@@ -1159,33 +1159,25 @@ ol.innerHTML=it.length?'<ul class="openl">'+it.map(function(x){return '<li class
 document.getElementById('osrc').innerHTML='Info from <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>, a free map anyone can add to (© OpenStreetMap contributors). Updated '+new Date(j.asof).toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+'. Hours can be wrong, so call ahead if it matters. Wrong or missing hours? <a href="https://www.openstreetmap.org" rel="noopener">Anyone can fix them</a> or <a href="/feedback">tell us</a>.'})
 .catch(function(){ol.innerHTML='<p class="mute">Couldn\\u2019t load just now.</p>'})}
 document.querySelectorAll('#cats button').forEach(function(b){b.onclick=function(){load(b.dataset.c,b)}});
-var last;try{last=localStorage.getItem('opencat')}catch(_){}var lb=last&&document.querySelector('[data-c="'+last+'"]');if(lb)load(last,lb)})();</script>`, "2450");
+var last;try{last=localStorage.getItem('opencat')}catch(_){}var lb=last&&document.querySelector('[data-c="'+last+'"]');if(lb)load(last,lb)})();</script>`, R.code);
 
 // ---- Mav chat: a helper on every page. Answers from the site's own info and changes settings (all stored on the phone). Nothing is logged. ----
-const MAV_KB = `Site: 2450 Maverick, a free local info site for the Coffs Harbour council area (2450 Coffs Harbour, 2452 Sawtell & Toormina, 2456 Woolgoolga). Never charges. A gift from Maverick Digital.
-Pages: /2450 /2452 /2456 area pages; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
-/school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
-Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; fuel=cheapest fuel near you;
-sea=tides & fishing; know=Know your area (mayor Cr Nikki Williams, deputy Cr George Cecato, council 02 6648 4000 incl. 24/7 urgent water/sewer/pollution/animal attacks, bins via Coffs Coast Waste Services app, bulky goods 1800 265 495, tip at Englands Road, council request form, NSW Ombudsman);
-council=council news; kids=Weekend for kids (free or under $50); sport=Sport & field closures with phone alerts; holidays=public holidays; surfcams=surf cams; beaches=beaches.
-Every piece of information has an ⓘ Source button showing where it comes from and how current it is.
-Emergencies: 000. Tides are estimates, not for navigation.`;
 async function mavChat(req, env) {
   let j = {}; try { j = await req.json(); } catch (e) {}
   const msgs = (Array.isArray(j.messages) ? j.messages : []).slice(-6).map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content || "").slice(0, 500) }));
   const last = msgs.filter(m => m.role === "user").pop()?.content || "";
-  const pc = /^\d{4}$/.test(j.pc) ? j.pc : "2450", ids = SECTIONS.map(x => x[0]);
+  const pc = /^\d{4}$/.test(j.pc) ? j.pc : R.code, ids = SECTIONS.map(x => x[0]);
   const fallback = () => { const low = last.toLowerCase(), g = mavGuess(last), hit = [["open", "/open"], ["fridge", "/fridge"], ["dinner", "/fridge"], ["school", "/school"], ["birthday", "/birthday"], ["slang", "/genalpha"], ["idea", "/feedback"]].find(([k]) => low.includes(k));
     if (/\b(move|put|show|hide|first|top|set up|setup|order|only)\b/.test(low)) return { reply: g.say, actions: [{ type: "order", ids: g.order }] };
-    return { reply: hit ? `Try this page: ${hit[1]}` : "I can rearrange your page, find what's open, check fuel, and point you to anything on 2450. What do you need?", actions: hit ? [{ type: "link", url: hit[1] }] : [] }; };
+    return { reply: hit ? `Try this page: ${hit[1]}` : `I can rearrange your page, find what's open, check fuel, and point you to anything on ${R.code}. What do you need?`, actions: hit ? [{ type: "link", url: hit[1] }] : [] }; };
   if (!last.trim()) return Response.json(fallback());
   if (!env.AI) return Response.json(fallback());
   try {
     const r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", { max_tokens: 350, messages: [
-      { role: "system", content: `You are Mav, the friendly, down-to-earth Aussie helper on 2450 Maverick. Keep replies short (1-3 sentences), warm and practical. Only use facts below; if unsure, point to the right page or say to check the source. No medical, legal or financial advice beyond pointing to services; emergencies: call 000. Never ask for personal details beyond a first name.
+      { role: "system", content: `You are Mav, the friendly, down-to-earth Aussie helper on ${R.brand}. Keep replies short (1-3 sentences), warm and practical. Only use facts below; if unsure, point to the right page or say to check the source. No medical, legal or financial advice beyond pointing to services; emergencies: call 000. Never ask for personal details beyond a first name.
 ${MAV_KB}
 The person is viewing area ${pc}. Their current section order: ${JSON.stringify(j.order || ids)}; hidden: ${JSON.stringify(j.hidden || [])}; name: ${JSON.stringify(String(j.name || "").slice(0, 30))}.
-Reply with ONLY JSON: {"reply":"text","actions":[...]} where actions (optional) can be: {"type":"order","ids":[all section ids in new order]}, {"type":"hide","ids":[...]}, {"type":"show","ids":[...]}, {"type":"name","value":"First"}, {"type":"area","pc":"2450|2452|2456"}, {"type":"link","url":"/open"}, {"type":"fuel","value":"E10|U91|P95|P98|DL"}. Only use section ids: ${ids.join(", ")}.` },
+Reply with ONLY JSON: {"reply":"text","actions":[...]} where actions (optional) can be: {"type":"order","ids":[all section ids in new order]}, {"type":"hide","ids":[...]}, {"type":"show","ids":[...]}, {"type":"name","value":"First"}, {"type":"area","pc":"${Object.keys(TOWNS).filter(k => TOWNS[k].live).join("|")}"}, {"type":"link","url":"/open"}, {"type":"fuel","value":"E10|U91|P95|P98|DL"}. Only use section ids: ${ids.join(", ")}.` },
       ...msgs] });
     const raw = String(r.response || ""), m = raw.match(/\{[\s\S]*\}/);
     let out; try { out = JSON.parse(m[0]); } catch (e) { out = { reply: raw.replace(/[{}"]/g, "").slice(0, 400), actions: [] }; }
@@ -1193,22 +1185,22 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]} where actions (optional) 
       if (a.type === "order") { const o = [...new Set((a.ids || []).filter(i => ids.includes(i)))]; ids.forEach(i => o.includes(i) || o.push(i)); return { type: "order", ids: o }; }
       if (a.type === "hide" || a.type === "show") return { type: a.type, ids: (a.ids || []).filter(i => ids.includes(i) && i !== "today") };
       if (a.type === "name") return { type: "name", value: String(a.value || "").replace(/[^\p{L} '-]/gu, "").slice(0, 30) };
-      if (a.type === "area" && ["2450", "2452", "2456"].includes(String(a.pc))) return { type: "area", pc: String(a.pc) };
+      if (a.type === "area" && Object.keys(TOWNS).filter(k => TOWNS[k].live).includes(String(a.pc))) return { type: "area", pc: String(a.pc) };
       if (a.type === "link" && /^\/[a-z0-9/#?=&-]*$/i.test(a.url || "")) return { type: "link", url: a.url };
       if (a.type === "fuel" && FUELS[a.value]) return { type: "fuel", value: a.value };
       return null; }).filter(Boolean).slice(0, 4);
     return Response.json({ reply: String(out.reply || "Done!").slice(0, 500), actions: acts });
   } catch (e) { return Response.json(fallback()); }
 }
-const MAV_WIDGET = `<button type="button" id="mavbtn" aria-label="Ask Mav">💬 Ask Mav</button>
-<div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>Mav</b><span class="mute"> · your 2450 helper</span><button type="button" id="mavx" aria-label="Close">×</button></div>
+const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav">💬 Ask Mav</button>
+<div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>Mav</b><span class="mute"> · your ${R.code} helper</span><button type="button" id="mavx" aria-label="Close">×</button></div>
 <div id="mavlog"></div><div class="chips" id="mavchips"><label>Set up my page</label><label>What's open now?</label><label>Cheapest fuel</label><label>Bin info</label><label>Hide what I don't use</label></div>
 <form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Ask Mav anything…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
 <script>(function(){var P=document.getElementById('mavp'),B=document.getElementById('mavbtn'),LOG=document.getElementById('mavlog'),IN=document.getElementById('mavin'),H=[];
 function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function p(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
 try{H=JSON.parse(sessionStorage.getItem('mavh')||'[]')}catch(e){}
 function e(x){return String(x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
-function draw(){if(!H.length)H=[{role:'assistant',content:'G\\u2019day'+(g('name')?' '+g('name'):'')+'! I\\u2019m Mav. Ask me anything about 2450, or tell me how you want your page set up.'}];
+function draw(){if(!H.length)H=[{role:'assistant',content:'G\\u2019day'+(g('name')?' '+g('name'):'')+'! I\\u2019m Mav. Ask me anything about ${R.code}, or tell me how you want your page set up.'}];
 LOG.innerHTML=H.map(function(m){return '<p class="mm '+(m.role=='user'?'me':'mav')+'">'+e(m.content).replace(/(\\/[a-z0-9]+)/g,'<a href="$1">$1</a>')+'</p>'}).join('');LOG.scrollTop=1e6;try{sessionStorage.setItem('mavh',JSON.stringify(H.slice(-12)))}catch(_){}}
 function open(){P.hidden=false;B.hidden=true;draw();IN.focus();try{sessionStorage.setItem('mavopen',1)}catch(_){}}
 B.onclick=open;document.getElementById('mavx').onclick=function(){P.hidden=true;B.hidden=false;try{sessionStorage.removeItem('mavopen')}catch(_){}};
@@ -1221,7 +1213,7 @@ else if(a.type=='area'){p('pc',a.pc);setTimeout(function(){location.href='/'+a.p
 if(reload&&/^\\/\\d{4}\\/?$/.test(location.pathname))setTimeout(function(){location.reload()},900)}
 function send(t){t=t.trim();if(!t)return;H.push({role:'user',content:t});H.push({role:'assistant',content:'…'});draw();IN.value='';
 var hidden=[];document.querySelectorAll('#flow > section').forEach(function(s){if(g('hide_'+s.id))hidden.push(s.id)});
-var pc=(location.pathname.match(/^\\/(\\d{4})/)||[])[1]||g('pc')||'2450';
+var pc=(location.pathname.match(/^\\/(\\d{4})/)||[])[1]||g('pc')||'${R.code}';
 fetch('/api/mav',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:H.slice(0,-1).slice(-6),pc:pc,order:order(),hidden:hidden,name:g('name')})})
 .then(function(r){return r.json()}).then(function(j){H[H.length-1]={role:'assistant',content:j.reply};draw();apply(j.actions)})
 .catch(function(){H[H.length-1]={role:'assistant',content:'Sorry, I dropped the ball. Try again?'};draw()})}
@@ -1232,29 +1224,36 @@ r.onresult=function(x){IN.value=Array.prototype.map.call(x.results,function(y){r
 try{if(sessionStorage.getItem('mavopen'))open()}catch(_){}})();</script>`;
 
 // ---- Why Coffs: fun facts, every one sourced ----
-const FACTS = [
-  ["🗺️", "It's named after a spelling mistake", "Ship owner John Korff sheltered here from a storm in 1847 and called it Korff's Harbour. In 1861 a Crown surveyor wrote it down wrong, and Coffs stuck.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
-  ["🌏", "Gumbaynggirr Country", "Coffs is on Gumbaynggirr Country. The harbour's Gumbaynggirr name is Gitten Mirreh, meaning big moon.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
-  ["🌙", "Muttonbird Island is a moon sacred place", "Its Gumbaynggirr name, Giidany Miirlarl, means moon sacred place. Wedge-tailed shearwaters, the muttonbirds, nest in burrows all over it.", "https://www.nationalparks.nsw.gov.au/education/stage-3-science-giidany-miirlarl-a-special-site-muttonbird-island-nature-reserve", "NSW National Parks"],
-  ["🌉", "The Jetty is older than Federation", "Finished in August 1892, it reached about 500 m out to sea so steam cranes could load timber onto ships. The last commercial cargo left in 1979, it reopened restored in 1997, and it has been State Heritage listed since 2021. Technically it reaches straight out to sea like a pier, but it will always be the Jetty, and jumping off it is a Coffs rite of passage.", "https://www.coffscoastheritage.info/2018/06/the-story-of-the-coffs-harbour-jetty/", "Coffs Coast Heritage"],
-  ["⛰️", "Where the mountains meet the sea", "Coffs is often described as the only place in NSW where the Great Dividing Range comes right down to the Pacific Ocean.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia (marked as needing a source)"],
-  ["🐠", "Where tropical meets temperate", "In the Solitary Islands Marine Park, the warm East Australian Current meets cooler southern water. Many species here live at the northern or southern edge of their range, and critically endangered grey nurse sharks gather here.", "https://australianmarineparks.gov.au/parks/temperate-east-marine-parks-network/solitary-islands-marine-park/", "Australian Marine Parks"],
-  ["🌿", "World Heritage rainforest an hour away", "Dorrigo National Park is part of the Gondwana Rainforests of Australia World Heritage Area. Walk the Skywalk above the canopy and look all the way down to the sea.", "https://www.nationalparks.nsw.gov.au/visit-a-park/parks/dorrigo-national-park", "NSW National Parks"],
-  ["☀️", "Sunnier than Brisbane and Cairns", "Coffs averages about 122 clear days a year: sunnier than Brisbane and Cairns, a little behind Townsville. Locals will also tell you the CSIRO once named it Australia's best climate. We couldn't find that study, so if you have it, send it in!", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
-  ["🍌", "Home of the original big thing", "The Big Banana turned 50 in 2014.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"]];
-const whyPage = () => page("Why Coffs", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🌊 Why Coffs?</h1>
-<p>What can Coffs say that nowhere else can? Plenty. Here's the pitch, every fact sourced.</p>
+const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
+<p>${R.why.intro}</p>
 <ul class="ideas">${FACTS.map(([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`).join("")}</ul>
-<p class="mute">Know a fact we've missed? <a href="/feedback">Tell us</a>.</p>`, "2450");
+<p class="mute">Know a fact we've missed? <a href="/feedback">Tell us</a>.</p>`, R.code);
+
+// ---- Daily crossword ----
+const crosswordPage = () => {
+  const day = todayISO(), { grid, nums, clues } = buildCrossword([...R.cw, ...GENERAL], R.code + day);
+  const cell = (ch, r, c) => ch ? `<td><span class="cn">${nums[r + "," + c] || ""}</span><input maxlength="1" data-a="${ch}" autocomplete="off" autocapitalize="characters" aria-label="Row ${r + 1}, column ${c + 1}"></td>` : `<td class="bk"></td>`;
+  const list = d => clues.filter(x => x.d === d).map(x => `<li><b>${x.n}</b> ${esc(x.clue)} (${x.w.length})</li>`).join("");
+  return page(`Crossword: The ${R.code} Maverick Gazette`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🧩 Today's crossword</h1>
+<p class="mute">${esc(fmtDate(day))} · A new one every day, with a few local words in the mix.</p>
+<table class="cw" role="grid">${grid.map((row, r) => `<tr>${row.map((ch, c) => cell(ch, r, c)).join("")}</tr>`).join("")}</table>
+<p><button type="button" id="cwcheck">Check</button> <button type="button" id="cwshow" class="ghost">Show answers</button> <span id="cwmsg" class="mute"></span></p>
+<div class="row cwl"><div><h2>Across</h2><ol>${list("across")}</ol></div><div><h2>Down</h2><ol>${list("down")}</ol></div></div>
+<script>(function(){var I=[].slice.call(document.querySelectorAll('.cw input')),M=document.getElementById('cwmsg');
+I.forEach(function(x,i){x.oninput=function(){x.value=x.value.toUpperCase().replace(/[^A-Z]/g,'');x.classList.remove('bad');if(x.value&&I[i+1])I[i+1].focus()}});
+document.getElementById('cwcheck').onclick=function(){var bad=0,empty=0;I.forEach(function(x){if(!x.value)empty++;else if(x.value!==x.dataset.a){bad++;x.classList.add('bad')}});
+M.textContent=bad?bad+' not quite right (in red).':empty?'So far so good! '+empty+' to go.':'🎉 Solved! Same time tomorrow?'};
+document.getElementById('cwshow').onclick=function(){I.forEach(function(x){x.value=x.dataset.a;x.classList.remove('bad')});M.textContent='Answers shown. A fresh one tomorrow.'};})();</script>`, R.code);
+};
 
 // ---- My home: bin night + a house-sitter sheet. Everything stays on the phone; nothing is sent to us. ----
-const homePage = () => page("My home", `<p class="mute"><a href="/2450">‹ 2450</a></p><h1>🏡 My home</h1>
+const homePage = () => page("My home", `<p class="mute"><a href="/${R.code}">‹ ${R.code}</a></p><h1>🏡 My home</h1>
 <p>Handy home info, saved on <b>your phone only</b>. Nothing here is sent to us.</p>
 <h2>🗑️ Bin night</h2><div class="row"><div><label>Bins go out</label><select id="bday"><option value="">Choose…</option>${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].map((d, i) => `<option value="${i}">${d} night</option>`).join("")}</select></div>
 <div><label>Every week</label><input id="bweekly" value="Red (general waste)" maxlength="40"></div></div>
 <div class="row"><div><label>Alternating bin A</label><input id="balt1" value="Yellow (recycling)" maxlength="40"></div><div><label>Alternating bin B</label><input id="balt2" value="Green (organics)" maxlength="40"></div></div>
 <label>Which alternating bin goes out this week?</label><select id="bthis"><option value="1">Bin A</option><option value="2">Bin B</option></select>
-<p class="note" id="bnext" hidden></p><p class="mute">Check your bin days in the free Coffs Coast Waste Services app. We'll remind you on your 2450 page the day bins go out.</p>
+<p class="note" id="bnext" hidden></p><p class="mute">${R.binsTip} We'll remind you on your ${R.code} page the day bins go out.</p>
 <h2>🧳 House-sitter sheet</h2><p>Going away? Fill in what a house-sitter needs, then print or share it.</p>
 <p class="note">⚠️ Please don't put passwords, alarm codes or where the spare key is in here.</p>
 ${[["pets", "Pets: names, feeding, walks", 3], ["plants", "Plants and garden: what needs water and when", 2], ["routine", "House routine: mail, blinds, lights, pool", 3], ["contact", "Who to call if something goes wrong (name and phone)", 2], ["notes", "Anything else they should know", 3]].map(([id, l, r]) => `<label>${l}</label><textarea data-hs="${id}" rows="${r}" maxlength="600"></textarea>`).join("")}
@@ -1271,9 +1270,9 @@ function nb(){var i=binInfo(),o=document.getElementById('bnext');if(!i){o.hidden
 nb();document.querySelectorAll('[data-hs]').forEach(function(t){t.value=g('hs_'+t.dataset.hs)||'';t.oninput=function(){p('hs_'+t.dataset.hs,t.value)}});
 function sheet(){var i=binInfo(),L=['HOUSE-SITTER SHEET','',i?'Bin night: '+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][+g('bin_bday')]+' night. Next: '+i.text:''];
 document.querySelectorAll('[data-hs]').forEach(function(t){if(t.value.trim())L.push('',t.previousElementSibling.textContent.toUpperCase(),t.value.trim())});
-L.push('','EMERGENCIES: call 000','Council (24/7 for urgent water, sewer, animal attacks): 02 6648 4000','What\\u2019s open nearby: '+location.origin+'/open','Fire and weather alerts: '+location.origin+'/2450');return L.filter(function(x,j){return x!==''||j>0}).join('\\n')}
+L.push('','EMERGENCIES: call 000','${R.council.urgent}','What\\u2019s open nearby: '+location.origin+'/open','Fire and weather alerts: '+location.origin+'/${R.code}');return L.filter(function(x,j){return x!==''||j>0}).join('\\n')}
 document.getElementById('hsprint').onclick=function(){var o=document.getElementById('hsout');o.textContent=sheet();window.print()};
-document.getElementById('hsshare').onclick=function(){var t=sheet();if(navigator.share)navigator.share({title:'House-sitter sheet',text:t}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){document.getElementById('hsshare').textContent='✓ Copied'})}})();</script>`, "2450");
+document.getElementById('hsshare').onclick=function(){var t=sheet();if(navigator.share)navigator.share({title:'House-sitter sheet',text:t}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){document.getElementById('hsshare').textContent='✓ Copied'})}})();</script>`, R.code);
 
 // ---- Community notice board: legit local notices only (no buy/swap/sell), approved in admin, 30 days, interest alerts by push ----
 const NCATS = { lost: "🐾 Lost & found", volunteer: "🤝 Volunteers wanted", groups: "👥 Clubs & groups", classes: "🎨 Classes & workshops", help: "🙋 Help a neighbour", news: "📣 Neighbourhood news" };
@@ -1282,7 +1281,7 @@ async function noticesPage(env, msg = "") {
   const since = new Date(Date.now() - 30 * 864e5).toISOString(), list = [];
   for (const { name } of (await env.DATA.list({ prefix: "notice:" })).keys) { const n = await env.DATA.get(name, "json"); if (n && n.at >= since) list.push(n); }
   list.sort((a, b) => b.at.localeCompare(a.at));
-  return page("Community notice board", `<p class="mute"><a href="/2450">‹ 2450</a></p><h1>📌 Community notice board</h1>
+  return page("Community notice board", `<p class="mute"><a href="/${R.code}">‹ ${R.code}</a></p><h1>📌 Community notice board</h1>
 <p>Real notices from real locals: lost pets, volunteers, clubs, classes, neighbours helping neighbours. <b>No buying, selling or ads.</b> Every notice is checked before it goes up and comes down after 30 days.</p>${msg}
 <div class="note">🔔 <b>Tell me when there's a notice about…</b><div class="chips" id="nint">${Object.entries(NCATS).map(([k, l]) => `<label><input type="checkbox" value="${k}"> ${l}</label>`).join("")}</div>
 <button type="button" id="nsub">Turn on notice alerts</button><br><small class="mute" id="nmsg"></small></div>
@@ -1301,11 +1300,11 @@ document.querySelectorAll('#nlist li[data-c]').forEach(function(li){li.hidden=c&
 var saved=[];try{saved=JSON.parse(localStorage.getItem('nint')||'[]')}catch(e){}document.querySelectorAll('#nint input').forEach(function(c){c.checked=saved.indexOf(c.value)>-1});
 function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');var r=atob(b+'==='.slice((b.length+3)%4)),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
 document.getElementById('nsub').onclick=function(){var b=this,m=document.getElementById('nmsg'),t=[].map.call(document.querySelectorAll('#nint input:checked'),function(c){return 'n_'+c.value});
-if(!t.length){m.textContent='Tick at least one.';return}if(!('serviceWorker'in navigator)||!('PushManager'in window)){m.textContent='On iPhone: Share, then Add to Home Screen, open 2450 from there and try again.';return}
+if(!t.length){m.textContent='Tick at least one.';return}if(!('serviceWorker'in navigator)||!('PushManager'in window)){m.textContent='On iPhone: Share, then Add to Home Screen, open ${R.code} from there and try again.';return}
 b.disabled=true;Notification.requestPermission().then(function(p){if(p!=='granted')throw 0;return Promise.all([navigator.serviceWorker.ready,fetch('/api/push/key').then(function(r){return r.json()})])})
 .then(function(x){return x[0].pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(x[1].key)})}).then(function(sub){return fetch('/api/push/sub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sub:sub,topics:t})})})
 .then(function(){try{localStorage.setItem('nint',JSON.stringify(t.map(function(x){return x.slice(2)})))}catch(e){}b.textContent='Alerts on ✓';m.textContent='We\\u2019ll let you know when a matching notice goes up.'})
-.catch(function(){b.disabled=false;m.textContent='Alerts weren\\u2019t allowed. You can turn them on in your phone\\u2019s settings.'})}})();</script>`, "2450");
+.catch(function(){b.disabled=false;m.textContent='Alerts weren\\u2019t allowed. You can turn them on in your phone\\u2019s settings.'})}})();</script>`, R.code);
 }
 async function lodgeNotice(req, env) {
   const f = await req.formData();
@@ -1320,12 +1319,14 @@ async function lodgeNotice(req, env) {
 
 export default {
   async scheduled(evt, env, ctx) {
+    initRegion(env);
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(k => refreshSource(env, k)), checkFields(env), checkWatched(env)]));
   },
   async fetch(req, env, ctx) {
+    initRegion(env);
     const url = new URL(req.url), p = url.pathname;
-    if (p === "/") return town("2450", env, ctx, true);
+    if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
     if (p === "/signin") return signinPage(env, safeNext(url.searchParams.get("next") || "/"));
     if (p === "/auth/google") return startGoogle(url, env);
@@ -1337,7 +1338,8 @@ export default {
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/open") return openPage();
     if (p === "/api/open") return openApi(req, env);
-    if (p === "/coffs") return whyPage();
+    if (p === "/" + R.why.slug) return whyPage();
+    if (p === "/crossword") return crosswordPage();
     if (p === "/home") return homePage();
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
     if (p === "/about") return about(env);
@@ -1356,13 +1358,13 @@ export default {
     if (p === "/fridge") return (await member(req, env)) ? fridgePage() : unlockPage();
     if (p === "/unlock" && req.method === "POST") return unlock(req, env);
     if (p === "/admin") return admin(req, env);
-    if (p === "/submit") return req.method === "POST" ? handleSubmit(req, env) : submitForm((url.searchParams.get("pc") || "2450").replace(/\D/g, "").slice(0, 4));
+    if (p === "/submit") return req.method === "POST" ? handleSubmit(req, env) : submitForm((url.searchParams.get("pc") || R.code).replace(/\D/g, "").slice(0, 4));
     if (p === "/subscribe" && req.method === "POST") return handleSubscribe(req, env);
-    if (p === "/icon.svg") return new Response(ICON, { headers: { "content-type": "image/svg+xml" } });
-    if (p === "/manifest.webmanifest") return new Response(MANIFEST, { headers: { "content-type": "application/manifest+json" } });
-    if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "text/javascript" } });
+    if (p === "/icon.svg") return new Response(ICON(), { headers: { "content-type": "image/svg+xml" } });
+    if (p === "/manifest.webmanifest") return new Response(MANIFEST(), { headers: { "content-type": "application/manifest+json" } });
+    if (p === "/sw.js") return new Response(SW(), { headers: { "content-type": "text/javascript" } });
     const m = p.match(/^\/(\d{4})\/?$/);
     if (m) return town(m[1], env, ctx);
-    return page("Not found", `<h1>Not found</h1><p><a href="/">Back to 2450</a></p>`);
+    return page("Not found", `<h1>Not found</h1><p><a href="/">Back to ${R.code}</a></p>`);
   },
 };

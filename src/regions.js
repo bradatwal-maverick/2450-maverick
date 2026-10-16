@@ -1,0 +1,177 @@
+// Town settings for the 2450 Maverick engine. One Worker per region sets env.REGION to one of these keys.
+// Everything a town needs that's different from the others lives here: places, council, sources, facts, wording.
+
+export const REGIONS = {
+  "2450": {
+    code: "2450", brand: "2450 Maverick", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
+    towns: {
+  "2450": { name: "Coffs Harbour", lat: -30.3022, lon: 153.1189, mlat: -30.30, mlon: 153.15, live: true },
+  "2452": { name: "Sawtell & Toormina", lat: -30.3640, lon: 153.0960, mlat: -30.37, mlon: 153.12, live: true },
+  "2454": { name: "Bellingen", live: false },
+  "2456": { name: "Woolgoolga & Northern Beaches", lat: -30.1100, lon: 153.2000, mlat: -30.11, mlon: 153.22, live: true },
+},
+    home: { lat: -30.2963, lon: 153.1135 },
+    bbox: "-30.45,152.95,-30.05,153.25", // open-now search area (south,west,north,east)
+    coverage: "We cover the Coffs Harbour council area first (2450, 2452, 2456).", soon: "Coming soon: Bellingen.",
+    footer: `2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. 2450 Maverick brings communities back together.`,
+    ack: `2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
+    sign: "Born and built in 2450, raised by the world.",
+    goal: 15000, goalText: "about the reach of a local weekly paper",
+    council: { name: "Coffs Harbour City Council", url: "https://www.coffsharbour.nsw.gov.au", phone: "02 6648 4000", urgent: "Council (24/7 for urgent water, sewer, animal attacks): 02 6648 4000" },
+    binsTip: "Check your bin days in the free Coffs Coast Waste Services app.",
+    mavExample: "I'm Megan, I've got two kids at Coffs Public, I love the markets and my husband fishes",
+    schoolsArea: "Public schools on the Coffs Coast",
+    warnRe: /mid north coast|coffs|northern tablelands|coastal waters|marine/i,
+    news: [
+      { name: "News Of The Area", url: "https://coffscoast.newsofthearea.com.au", feed: "https://coffscoast.newsofthearea.com.au/feed", skip: /^PROPERTY:/i },
+      { name: "NBN News", url: "https://www.nbnnews.com.au", feed: "https://www.nbnnews.com.au/feed/", cat: /mid north/i, need: /coffs|sawtell|toormina|woolgoolga|woopi|bellingen|urunga|nambucca|boambee|korora|emerald beach|dorrigo/i },
+    ],
+    know: (W, acc) => `<details open><summary><b>Who runs the place</b></summary><ul>
+<li>Mayor: <b>Cr Nikki Williams</b> · Deputy Mayor: <b>Cr George Cecato</b></li>
+<li>Councillors: Cath Fowler, Gurminder Saro, Jonathan Cassell, Julie Sechi, Les Oxford, Paul Amos, Tony Judge. <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">Contact them</a></li>
+<li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${acc("councillors", W.councillors)}</details>
+<details><summary><b>Bins &amp; rubbish</b></summary><ul>
+<li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app (App Store or Google Play)</li>
+<li>Bulky goods (old couch, mattress): book a kerbside pick-up or get free tip vouchers on <a href="tel:1800265495">1800 265 495</a>. Vouchers are posted, so allow 2 weeks</li>
+<li>Tip: Englands Road Waste Management Facility</li>
+<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul>${acc("bulky", W.bulky)}${acc("wasteapp", W.wasteapp)}</details>
+<details><summary><b>Got a problem?</b></summary><ul>
+<li>Pothole, broken footpath, streetlight, overgrown block: <a href="https://forms.coffsharbour.nsw.gov.au/RunForm.aspx?formId=1366" rel="noopener">Council request form</a></li>
+<li>Pollution or environmental issue: <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">Report it</a></li>
+<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul>${acc("envreport", W.envreport)}</details>
+<details><summary><b>Contact council</b></summary><ul>
+<li>📞 <a href="tel:0266484000">02 6648 4000</a>, weekdays 8:30am–4:30pm. Same number 24/7 for urgent water, sewer, pollution or animal attacks</li>
+<li>✉️ <a href="mailto:coffs.council@chcc.nsw.gov.au">coffs.council@chcc.nsw.gov.au</a></li>
+<li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul>${acc("contact", W.contact)}</details>
+`,
+    idx: [
+      ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Nikki Williams, Deputy Mayor Cr George Cecato, plus 7 councillors.","#know"],
+      ["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? Get the free Coffs Coast Waste Services app.","#know"],
+      ["bulky couch mattress hard rubbish clean up tip voucher","Bulky goods","Book a pick-up or free tip vouchers: 1800 265 495.","#know"],
+      ["tip dump englands road","The tip","Englands Road Waste Management Facility.","#know"],
+      ["council phone contact email call hours after hours water sewer","Contact council","02 6648 4000 (urgent water, sewer, pollution, animal attacks 24/7).","#know"],
+      ["sport field fields closure closed footy soccer netball","Sport & field closures","Field closures and fixtures.","#sport"],
+      ["coffs facts history name jetty muttonbird gumbaynggirr why fun","Why Coffs?","Fun facts about Coffs, every one sourced.","/coffs"],
+    ],
+    cw: [["MUTTONBIRD", "Island at the harbour, named after a seabird"], ["DORRIGO", "Plateau with the rainforest Skywalk"], ["SAWTELL", "Village south of town, postcode 2452"],
+      ["WOOLGOOLGA", "Beach town home to Australia's first Sikh gurdwara"], ["KORORA", "Bay just north of town"], ["SOLITARY", "___ Islands Marine Park"],
+      ["ORARA", "Valley and river behind Coffs"], ["BANANA", "Big one turned 50 in 2014"], ["GUMBAYNGGIRR", "Traditional custodians of the Coffs Coast"]],
+    why: { slug: "coffs", title: "Why Coffs?", card: "Fun facts: the spelling mistake, the moon island, where the mountains meet the sea", intro: "What can Coffs say that nowhere else can? Plenty. Here's the pitch, every fact sourced." },
+    fields: { url: "https://coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Sports-facilities/Sports-grounds/Sports-field-closure-arrangements", info: `<h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
+<li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>`, name: "City of Coffs Harbour, Sports field closure arrangements" },
+    watch: {
+  councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
+  bulky: { owner: "Council", name: "Council bulky goods FAQ", url: "https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs", stated: "2018-03" },
+  wasteapp: { owner: "News Of The Area", name: "News Of The Area (waste app)", url: "https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week", stated: "2026-08" },
+  envreport: { owner: "Council", name: "City of Coffs Harbour, Report an environmental issue", url: "https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" },
+  contact: { owner: "Council", name: "City of Coffs Harbour, Contact details", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" },
+},
+    schools: ["Coffs Harbour Public School","Narranga Public School","Boambee Public School","Bonville Public School","Korora Public School",
+  "Coramba Public School","Nana Glen Public School","Upper Orara Public School","St Augustine's Primary School","Coffs Harbour High School",
+  "Orara High School","Coffs Harbour Senior College","Bishop Druitt College","John Paul College","Coffs Harbour Christian Community School"],
+    faves: [["Muttonbird Island walk","Free","Short walk from the Jetty foreshore out along the breakwall. Whale-spotting in season."],
+  ["Jetty foreshores & beach","Free","Playground, picnic spots and calm water by the jetty."],["North Coast Regional Botanic Garden","Free","Boardwalks, sensory garden and Coffs Creek walks."],
+  ["Forest Sky Pier, Sealy Lookout","Free","Walk out over the treetops with views of the whole coast."],["Yarrila Arts and Museum (YAM)","Free","Gallery and museum in Yarrila Place, often with kids' activities."],
+  ["Library story time","Free","Regular sessions for little ones at Coffs Harbour library. Check times."],["Coffs Creek walk & cycleway","Free","Flat, shady path, great for scooters and bikes."]],
+    facts: [
+  ["🗺️", "It's named after a spelling mistake", "Ship owner John Korff sheltered here from a storm in 1847 and called it Korff's Harbour. In 1861 a Crown surveyor wrote it down wrong, and Coffs stuck.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
+  ["🌏", "Gumbaynggirr Country", "Coffs is on Gumbaynggirr Country. The harbour's Gumbaynggirr name is Gitten Mirreh, meaning big moon.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
+  ["🌙", "Muttonbird Island is a moon sacred place", "Its Gumbaynggirr name, Giidany Miirlarl, means moon sacred place. Wedge-tailed shearwaters, the muttonbirds, nest in burrows all over it.", "https://www.nationalparks.nsw.gov.au/education/stage-3-science-giidany-miirlarl-a-special-site-muttonbird-island-nature-reserve", "NSW National Parks"],
+  ["🌉", "The Jetty is older than Federation", "Finished in August 1892, it reached about 500 m out to sea so steam cranes could load timber onto ships. The last commercial cargo left in 1979, it reopened restored in 1997, and it has been State Heritage listed since 2021. Technically it reaches straight out to sea like a pier, but it will always be the Jetty, and jumping off it is a Coffs rite of passage.", "https://www.coffscoastheritage.info/2018/06/the-story-of-the-coffs-harbour-jetty/", "Coffs Coast Heritage"],
+  ["⛰️", "Where the mountains meet the sea", "Coffs is often described as the only place in NSW where the Great Dividing Range comes right down to the Pacific Ocean.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia (marked as needing a source)"],
+  ["🐠", "Where tropical meets temperate", "In the Solitary Islands Marine Park, the warm East Australian Current meets cooler southern water. Many species here live at the northern or southern edge of their range, and critically endangered grey nurse sharks gather here.", "https://australianmarineparks.gov.au/parks/temperate-east-marine-parks-network/solitary-islands-marine-park/", "Australian Marine Parks"],
+  ["🌿", "World Heritage rainforest an hour away", "Dorrigo National Park is part of the Gondwana Rainforests of Australia World Heritage Area. Walk the Skywalk above the canopy and look all the way down to the sea.", "https://www.nationalparks.nsw.gov.au/visit-a-park/parks/dorrigo-national-park", "NSW National Parks"],
+  ["☀️", "Sunnier than Brisbane and Cairns", "Coffs averages about 122 clear days a year: sunnier than Brisbane and Cairns, a little behind Townsville. Locals will also tell you the CSIRO once named it Australia's best climate. We couldn't find that study, so if you have it, send it in!", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
+  ["🍌", "Home of the original big thing", "The Big Banana turned 50 in 2014.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"]],
+    mavKB: `Site: 2450 Maverick, a free local info site for the Coffs Harbour council area (2450 Coffs Harbour, 2452 Sawtell & Toormina, 2456 Woolgoolga). Never charges. A gift from Maverick Digital.
+Pages: /2450 /2452 /2456 area pages; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
+/school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
+Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; fuel=cheapest fuel near you;
+sea=tides & fishing; know=Know your area (mayor Cr Nikki Williams, deputy Cr George Cecato, council 02 6648 4000 incl. 24/7 urgent water/sewer/pollution/animal attacks, bins via Coffs Coast Waste Services app, bulky goods 1800 265 495, tip at Englands Road, council request form, NSW Ombudsman);
+council=council news; kids=Weekend for kids (free or under $50); sport=Sport & field closures with phone alerts; holidays=public holidays; surfcams=surf cams; beaches=beaches.
+Every piece of information has an ⓘ Source button showing where it comes from and how current it is.
+Emergencies: 000. Tides are estimates, not for navigation.`,
+  },
+  "2481": {
+    code: "2481", brand: "2481 Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
+    towns: {
+      "2481": { name: "Byron Bay", lat: -28.6474, lon: 153.6020, mlat: -28.64, mlon: 153.64, live: true },
+      "2479": { name: "Bangalow", live: false },
+      "2482": { name: "Mullumbimby", live: false },
+      "2483": { name: "Brunswick Heads", live: false },
+    },
+    home: { lat: -28.6474, lon: 153.6020 },
+    bbox: "-28.72,153.54,-28.60,153.66",
+    coverage: "We cover Byron Bay (2481) first, including Suffolk Park and Broken Head.", soon: "Coming soon: Bangalow, Mullumbimby and Brunswick Heads.",
+    footer: `2481 means Byron Bay. Mullum is 2482 and Bangalow is 2479, by the way. Live in Mullum? You get free membership, and you owe us a kombucha.<br>Big tech divided us. 2481 Maverick brings communities back together.`,
+    ack: `2481 Maverick acknowledges the Arakwal people of the Bundjalung Nation, the Traditional Custodians of the land on which Byron Bay stands, and pays respect to Elders past and present.`,
+    sign: "Built in 2450, made for 2481, raised by the world.",
+    goal: 5000, goalText: "about half the town",
+    council: { name: "Byron Shire Council", url: "https://www.byron.nsw.gov.au", phone: "02 6626 7000", urgent: "Byron Shire Council after hours emergencies: 02 6622 7022" },
+    binsTip: "Check your bin days in the free Recycle Coach app (search your address).",
+    mavExample: "I'm Jess, I surf at The Pass most mornings, I've got a kid at Byron Public and I love the markets",
+    schoolsArea: "Public schools in Byron Bay",
+    warnRe: /northern rivers|byron|northern tablelands|coastal waters|marine/i,
+    news: [
+      { name: "The Echo", url: "https://www.echo.net.au", feed: "https://www.echo.net.au/feed/" },
+      { name: "NBN News", url: "https://www.nbnnews.com.au", feed: "https://www.nbnnews.com.au/feed/", cat: /northern rivers/i, need: /byron|suffolk park|bangalow|mullum|brunswick|ocean shores|lennox|ballina|lismore/i },
+    ],
+    know: (W, acc) => `<details open><summary><b>Who runs the place</b></summary><ul>
+<li>Mayor: <b>Cr Sarah Ndiaye</b> · Deputy Mayor: <b>Cr Jack Dods</b></li>
+<li>Councillors: Elia Hauge, Delta Kay, Michelle Lowe, Asren Pugh, Janet Swain, David Warth, Michael Lyon. <a href="https://www.byron.nsw.gov.au/Council/Leadership" rel="noopener">Contact them</a></li>
+<li><a href="https://www.byron.nsw.gov.au/Council/Council-and-committee-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${acc("leadership", W.leadership)}</details>
+<details><summary><b>Bins &amp; rubbish</b></summary><ul>
+<li>Which bin this week? Get the free <b>Recycle Coach</b> app and search your address</li>
+<li>Yellow lid: recycling, fortnightly · Red lid: landfill, fortnightly · Green lid: food and garden, weekly (urban)</li>
+<li>Big clean-up? Each household gets an annual free drop-off at the Byron Resource Recovery Centre (2 × 150 kg household waste or 500 kg green waste)</li>
+<li>Missed bin? Report it within 24 hours on <a href="tel:1300652625">1300 652 625</a></li>
+<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul>${acc("waste", W.waste)}</details>
+<details><summary><b>Got a problem?</b></summary><ul>
+<li>Pothole, broken footpath, streetlight, overgrown block: <a href="https://www.byron.nsw.gov.au/Council/Report-Requests-Feedback" rel="noopener">Report it to council</a></li>
+<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul>${acc("report", W.report)}</details>
+<details><summary><b>Contact council</b></summary><ul>
+<li>📞 <a href="tel:0266267000">02 6626 7000</a> or toll free <a href="tel:1300811942">1300 811 942</a></li>
+<li>🚨 After hours emergencies: <a href="tel:0266227022">02 6622 7022</a></li>
+<li>✉️ <a href="mailto:council@byron.nsw.gov.au">council@byron.nsw.gov.au</a></li>
+<li>🏛️ 70 Station Street, Mullumbimby</li></ul>${acc("contact", W.contact)}</details>
+`,
+    idx: [
+      ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Sarah Ndiaye, Deputy Mayor Cr Jack Dods, plus 7 councillors.","#know"],
+      ["bin bins rubbish recycling garbage which bin recycle coach","Bins","Which bin this week? Get the free Recycle Coach app.","#know"],
+      ["bulky couch mattress hard rubbish clean up tip free drop off","Free drop-off","Annual free drop-off at the Byron Resource Recovery Centre.","#know"],
+      ["tip dump resource recovery myocum","The tip","Byron Resource Recovery Centre.","#know"],
+      ["council phone contact email call hours after hours emergency","Contact council","02 6626 7000. After hours emergencies 02 6622 7022.","#know"],
+      ["byron facts history name lighthouse cape easterly arakwal poets why fun","Why Byron?","Fun facts about Byron, every one sourced.","/why"],
+    ],
+    cw: [["LIGHTHOUSE", "Cape landmark built in 1901"], ["JULIAN", "___ Rocks, the famous dive site"], ["WATEGOS", "Beach tucked under the cape"],
+      ["BANGALOW", "Village up the hill, postcode 2479"], ["ARAKWAL", "Traditional custodians of Byron Bay"], ["CAVVANBAH", "Traditional name meaning meeting place"],
+      ["TALLOW", "Long beach south of the cape"], ["POETS", "Byron's streets are named after them"], ["SUFFOLK", "___ Park, just south of town"], ["EASTERLY", "Cape Byron is the most ___ point of the mainland"]],
+    why: { slug: "why", title: "Why Byron?", card: "Fun facts: the poets' streets mix-up, the most easterly point, the meeting place", intro: "Everyone knows Byron. Here's what they don't know, every fact sourced." },
+    fields: null,
+    watch: {
+      leadership: { owner: "Council", name: "Byron Shire Council, Leadership page", url: "https://www.byron.nsw.gov.au/Council/Leadership" },
+      waste: { owner: "Council", name: "Byron Shire Council, Waste guide for new residents", url: "https://www.byron.nsw.gov.au/Residential-Services/Waste-Recycling/Waste-guide-for-new-tenants-and-residents" },
+      report: { owner: "Council", name: "Byron Shire Council, Report requests and feedback", url: "https://www.byron.nsw.gov.au/Council/Report-Requests-Feedback" },
+      contact: { owner: "Council", name: "Byron Shire Council, Contact us", url: "https://www.byron.nsw.gov.au/Council/Report-Requests-Feedback/Contact-Byron-Shire-Council" },
+    },
+    schools: ["Byron Bay Public School","Byron Bay High School","St Finbarr's Catholic Primary School","Cape Byron Rudolf Steiner School"],
+    faves: [["Cape Byron walking track","Free","Loop up to the lighthouse and the most easterly point of mainland Australia. Whale-spotting in season."],
+      ["The Pass & Clarkes Beach","Free","Sheltered end of the bay. Swim between the flags."],["Arakwal National Park & Tallow Beach","Free","Bush tracks and a long, quieter beach."],
+      ["Railway Park","Free","Playground and shade right in the middle of town."],["Byron Bay Library","Free","Story time and holiday activities for little ones. Check times."]],
+    facts: [
+      ["📜", "Named after the wrong Byron", "Captain Cook named Cape Byron in 1770 after Vice Admiral John Byron. A Sydney clerk later assumed it honoured his grandson, the poet Lord Byron, which is why the streets are named after poets like Keats, Jonson and Shelley.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
+      ["🌏", "Arakwal Country", "Byron Bay is on the land of the Arakwal people of the Bundjalung Nation. The traditional name, Cavvanbah, means meeting place.", "https://www.byron.nsw.gov.au/Council/About-Byron-Shire/Aboriginal-Torres-Strait-Communities/Welcome-to-Country-Acknowledgement-of-Country-Protocols", "Byron Shire Council"],
+      ["🌅", "First mainland sunrise", "Cape Byron is the easternmost point of mainland Australia.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
+      ["🗼", "The lighthouse turns 125", "Cape Byron Lighthouse was built in 1901.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
+      ["🐢", "Julian Rocks", "About 2.5 km offshore, Julian Rocks is one of the east coast's best dive sites, part of the Cape Byron Marine Park.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
+      ["🐋", "From whaling to whale watching", "Byron had a whaling station until 1963. Today the same whales are the town's favourite winter show.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"]],
+    mavKB: `Site: 2481 Maverick, a free local info site for Byron Bay (2481, including Suffolk Park and Broken Head). Never charges. A gift from Maverick Digital.
+Pages: /2481 area page; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
+/school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /crossword daily crossword; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
+Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; memory=In memory (death notices); fuel=cheapest fuel near you;
+sea=tides & fishing; know=Know your area (mayor Cr Sarah Ndiaye, deputy Cr Jack Dods, Byron Shire Council 02 6626 7000, after hours emergencies 02 6622 7022, bins via the Recycle Coach app, annual free drop-off at the Byron Resource Recovery Centre, missed bins 1300 652 625, NSW Ombudsman);
+council=council news; kids=Weekend for kids (free or under $50); holidays=public and school holidays; puzzles=daily crossword; lotto=lotto results link; surfcams=surf cams; beaches=beaches.
+Every piece of information has an ⓘ Where from? button showing where it comes from and how current it is.
+Emergencies: 000. Tides are estimates, not for navigation.`,
+  },
+};
