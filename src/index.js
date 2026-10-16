@@ -31,7 +31,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:var(--soft);border-color:transparent!important}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
@@ -104,6 +104,8 @@ async function town(pc, env) {
   const SECTIONS = [["today", "At a glance"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your 2450"], ["council", "Council"], ["sport", "Sport"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
   return page(`${pc} ${t.name} — what's on`, `
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
+<div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search 2450">
+<div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
 <p class="mute" id="date"></p>
 ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <section id="today"><div class="tiles">
@@ -155,6 +157,40 @@ ${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "
 <h2>This week in ${esc(pc)}</h2><p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
+var IDX=[["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
+["sunrise sunset moon","Sunrise, sunset and moon","See the tiles at the top of the page.","#today"],
+["tide tides fishing fish swell waves boat","Tides & fishing","Next high and low tides, waves and swell. Modelled estimates, not for navigation.","#sea"],
+["surf cam beach waves","Surf cams","Live cams via Coastalwatch.","#surfcams"],["beach patrol lifeguard swim","Beaches","Patrolled beaches via Beachsafe.","#beaches"],
+["event events whats on what's on markets gig music things to do weekend","What's on","Local events, with locals' submissions first.","#events"],
+["add event submit list my event","Add an event","List your event free, checked before it goes live.","/submit?pc=2450"],
+["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Nikki Williams, Deputy Mayor Cr George Cecato, plus 7 councillors.","#know"],
+["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? Get the free Coffs Coast Waste Services app.","#know"],
+["bulky couch mattress hard rubbish clean up tip voucher","Bulky goods","Book a pick-up or free tip vouchers: 1800 265 495.","#know"],
+["tip dump englands road","The tip","Englands Road Waste Management Facility.","#know"],["dumping illegal dumped","Illegal dumping","Report it online via the NSW EPA (Environment Protection Authority).","#know"],
+["pothole footpath streetlight report problem fix overgrown","Report a problem","Use the council request form.","#know"],
+["council phone contact email call hours after hours water sewer","Contact council","02 6648 4000 (urgent water, sewer, pollution, animal attacks 24/7).","#know"],
+["complaint complain ombudsman unhappy","Complaints","Council first; then the NSW Ombudsman.","#know"],
+["fuel petrol diesel servo cheap","Fuel","Cheapest fuel: NSW FuelCheck for now.","#fuel"],["fire fires bushfire flood alert alerts emergency","Alerts","Fires Near Me for now. Emergencies: call 000.","#alerts"],
+["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run report","Weather and traffic for your school run.","/school"],
+["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],["sport field fields closure closed footy soccer netball","Sport & field closures","Field closures and fixtures.","#sport"],
+["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
+["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
+["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
+["feedback idea suggestion contact brad","Make 2450 better","Send Brad your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
+var qs=document.getElementById('qs'),qr=document.getElementById('qs-res'),qv=document.getElementById('qs-saved');
+function esc2(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function saved(){try{return JSON.parse(localStorage.getItem('saved_q')||'[]')}catch(e){return[]}}
+function drawSaved(){var a=saved();qv.innerHTML=a.map(function(x){return '<label class="sq">'+esc2(x)+' <span data-x="'+esc2(x)+'" title="Remove">×</span></label>'}).join('')}
+qv.onclick=function(e){var x=e.target.dataset.x;if(x){try{localStorage.setItem('saved_q',JSON.stringify(saved().filter(function(y){return y!==x})))}catch(_){}drawSaved();return}
+var l=e.target.closest('.sq');if(l){qs.value=l.firstChild.textContent.trim();find()}};
+function find(){var v=qs.value.toLowerCase().trim();if(v.length<2){qr.innerHTML='';return}var w=v.split(/\s+/),hits=IDX.map(function(r){var sc=w.filter(function(x){return (r[0]+' '+r[1].toLowerCase()).indexOf(x)>-1}).length;return[sc,r]}).filter(function(x){return x[0]}).sort(function(a,b){return b[0]-a[0]}).slice(0,4).map(function(x){return x[1]});
+document.querySelectorAll('#events li').forEach(function(li){if(hits.length<6&&li.textContent.toLowerCase().indexOf(v)>-1)hits.push(['',li.querySelector('b')?li.textContent.slice(0,60):'Event',li.textContent.slice(0,140),'#events'])});
+qr.innerHTML=(hits.length?hits.map(function(r){return '<a class="card qhit" href="'+r[3]+'"><b>'+esc2(r[1])+'</b><br><span class="mute">'+esc2(r[2])+'</span></a>'}).join(''):'<p class="mute">Nothing yet. <a href="/feedback">Tell Brad what you were looking for</a>.</p>')
++'<p class="mute"><a href="#" id="qs-save">☆ Save this search</a> · ⏰ Schedule it: coming soon in your weekly email</p>';
+document.getElementById('qs-save').onclick=function(e){e.preventDefault();var a=saved();if(a.indexOf(v)<0){a.unshift(v);a=a.slice(0,8)}try{localStorage.setItem('saved_q',JSON.stringify(a))}catch(_){}drawSaved();this.textContent='★ Saved'}}
+qr.onclick=function(e){var a=e.target.closest('a.qhit');if(a&&a.getAttribute('href').charAt(0)=='#'){var t=document.querySelector(a.getAttribute('href'));if(t){t.hidden=false;t.querySelectorAll('details').forEach(function(d){d.open=true})}}};
+qs.oninput=find;drawSaved();
+
 document.getElementById('date').textContent=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
 document.querySelectorAll('[data-s]').forEach(function(c){var k='hide_'+c.dataset.s,s=document.getElementById(c.dataset.s);if(!s)return;
 try{if(localStorage.getItem(k))c.checked=false}catch(e){}s.hidden=!c.checked;
