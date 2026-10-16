@@ -43,7 +43,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
-.hdr{display:flex;gap:8px;align-items:center}.signin{font-weight:600}.gbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1f1f1f;text-decoration:none;font-weight:600}.away{font-size:.8rem;color:var(--mute);background:var(--soft);border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap}.towns{margin:0 0 6px;font-size:.9rem}.towns select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-left:4px}.mast{font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:1.5rem;text-align:center;margin:4px 0 0;letter-spacing:.3px;border-top:3px double var(--fg);border-bottom:1px solid var(--fg);padding:6px 0}.edition{text-align:center;font-size:.75rem;color:var(--mute);margin:4px 0 10px;text-transform:uppercase;letter-spacing:1px}.cw{border-collapse:collapse;margin:10px auto}.cw td{width:min(34px,7.6vw);height:min(34px,7.6vw);border:1px solid var(--fg);position:relative;padding:0}.cw td.bk{border:0;background:transparent}.cw input{width:100%;height:100%;border:0;border-radius:0;text-align:center;font-size:1.1rem;text-transform:uppercase;padding:0;background:var(--bg)}.cw input.bad{color:#d93025}.cn{position:absolute;top:1px;left:2px;font-size:.55rem;color:var(--mute)}.cwl>div{flex:1;min-width:220px}.cwl ol{padding-left:0;list-style:none}.ghost{background:var(--soft);color:var(--fg)}.rally{background:#fbf5e6;border:1px dashed #e6d6ad;border-radius:6px;padding:10px 14px;margin:28px 0 18px;font-size:.8rem;color:var(--mute)}.rally p{margin:5px 0}.rally b{color:var(--mute)}.rallyh{margin:0 0 2px;font-size:.85rem;font-weight:600;color:var(--mute)}.rally input,.rally button{font-size:.85rem}.bar{display:block;height:5px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--mute);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:2px 0 8px;font-size:.8rem}.rallystrip{display:block;text-decoration:none;font-size:.72rem;margin:0 0 8px;opacity:.8}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}.rally{background:#211c12!important;border-color:#4a3f26!important}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
+.hdr{display:flex;gap:8px;align-items:center}.signin{font-weight:600}.gbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1f1f1f;text-decoration:none;font-weight:600}.away{font-size:.8rem;color:var(--mute);background:var(--soft);border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap}.towns{margin:0 0 6px;font-size:.9rem}.towns select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-left:4px}.mast{font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:1.5rem;text-align:center;margin:4px 0 0;letter-spacing:.3px;border-top:3px double var(--fg);border-bottom:1px solid var(--fg);padding:6px 0}.edition{text-align:center;font-size:.75rem;color:var(--mute);margin:4px 0 10px;text-transform:uppercase;letter-spacing:1px}.cw{border-collapse:collapse;margin:10px auto}.cw td{width:min(34px,7.6vw);height:min(34px,7.6vw);border:1px solid var(--fg);position:relative;padding:0}.cw td.bk{border:0;background:transparent}.cw input{width:100%;height:100%;border:0;border-radius:0;text-align:center;font-size:1.1rem;text-transform:uppercase;padding:0;background:var(--bg)}.cw input.bad{color:#d93025}.cn{position:absolute;top:1px;left:2px;font-size:.55rem;color:var(--mute)}.cwl>div{flex:1;min-width:220px}.cwl ol{padding-left:0;list-style:none}.ghost{background:var(--soft);color:var(--fg)}.snap span{display:inline-block;margin:8px 0 4px;background:var(--accent);color:var(--bg);border-radius:20px;padding:10px 18px;cursor:pointer;font-weight:bold}.rally{background:#fbf5e6;border:1px dashed #e6d6ad;border-radius:6px;padding:10px 14px;margin:28px 0 18px;font-size:.8rem;color:var(--mute)}.rally p{margin:5px 0}.rally b{color:var(--mute)}.rallyh{margin:0 0 2px;font-size:.85rem;font-weight:600;color:var(--mute)}.rally input,.rally button{font-size:.85rem}.bar{display:block;height:5px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--mute);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:2px 0 8px;font-size:.8rem}.rallystrip{display:block;text-decoration:none;font-size:.72rem;margin:0 0 8px;opacity:.8}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}.rally{background:#211c12!important;border-color:#4a3f26!important}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
 
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
@@ -157,9 +157,13 @@ async function town(pc, env, ctx, isRoot = false) {
   // Local submissions first, then events from feeds.
   const local = await listEvents(env, `event:${pc}:`);
   const feed = await listEvents(env, `feed:${pc}:`);
-  const events = (local.length ? `<h3>From locals</h3><ul>${local.map(evItem).join("")}</ul>` : "")
+  const others = Object.entries(TOWNS).filter(([k, v]) => k !== pc && v.live).sort((a, b) => km(t, a[1]) - km(t, b[1]));
+  let nearby = "";
+  for (const [k, v] of others) { const ev = [...await listEvents(env, `event:${k}:`), ...await listEvents(env, `feed:${k}:`)].slice(0, 4);
+    if (ev.length) nearby += `<h3>Nearby: ${esc(v.name)} (${k})</h3><ul>${ev.map(evItem).join("")}</ul>`; }
+  const events = ((local.length ? `<h3>From locals</h3><ul>${local.map(evItem).join("")}</ul>` : "")
     + (feed.length ? `<h3>More around town</h3><ul>${feed.map(evItem).join("")}</ul>` : "")
-    || `<p>Nothing listed yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`;
+    || `<p>Nothing listed in ${esc(pc)} yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`) + nearby;
 
   const cc = clockChange(), ann = await annBanner(env), live = await liveBlocks(env, ctx, { lat: t.lat, lon: t.lon });
   const nLocals = await localsCount(env);
@@ -522,6 +526,20 @@ const unlockPage = (msg = "") => page("What's in your fridge?", `<h1>🧊 What's
 <label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from ${R.brand} (Maverick Digital). Unsubscribe any time.</label>
 <p><button>Unlock the fridge</button></p></form>`);
 
+// Photo of the fridge -> list of foods. Uses Cloudflare's free AI allowance; the photo is never stored.
+async function fridgePhoto(req, env) {
+  if (!(await member(req, env))) return Response.json({ error: "Sign in to use the fridge." }, { status: 401 });
+  const buf = await req.arrayBuffer();
+  if (!buf.byteLength || buf.byteLength > 2e6) return Response.json({ error: "That photo's too big. Try again." }, { status: 400 });
+  const ask = { messages: [{ role: "user", content: "List the food and drink items you can see in this fridge or pantry photo. Reply with ONLY a comma-separated list of short, simple ingredient names in lowercase (e.g. eggs, milk, cheese, carrots). No other words." }], image: [...new Uint8Array(buf)], max_tokens: 200 };
+  const model = "@cf/meta/llama-3.2-11b-vision-instruct";
+  let out;
+  try { out = await env.AI.run(model, ask); }
+  catch (e) { if (/agree/i.test(String(e))) { await env.AI.run(model, { prompt: "agree" }); out = await env.AI.run(model, ask); } else throw e; }
+  const items = [...new Set(String(out?.response || "").toLowerCase().replace(/\.$/, "").split(/,|\n/).map(x => x.replace(/^[\s\-*\d.]+/, "").trim()).filter(x => x && x.length < 30 && !/sorry|can't|cannot|image/.test(x)))].slice(0, 25);
+  return Response.json({ items });
+}
+
 async function unlock(req, env) {
   const f = await req.formData(), email = String(f.get("email") || "").trim().toLowerCase();
   if (f.get("website")) return unlockPage();
@@ -535,6 +553,7 @@ async function unlock(req, env) {
 }
 
 const fridgePage = () => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
+<div class="note">📸 <b>Snap your fridge</b> and we&rsquo;ll tick what we can see. <label class="snap"><input type="file" id="snap" accept="image/*" capture="environment" hidden><span>Take a photo</span></label><br><small class="mute" id="snapmsg">Your photo is only used to spot the food, then thrown away. We never keep it.</small></div>
 <form id="ff"><h2>1. Tick what you've got</h2><div class="chips">${FOODS.map(x => `<label><input type="checkbox" name="i" value="${x}">${x}</label>`).join("")}</div>
 <label>Anything else?</label><input name="extra" placeholder="e.g. leftover roast, feta" style="width:100%">
 <h2>2. About dinner</h2><div class="row">
@@ -559,6 +578,11 @@ var D=[["Chicken stir-fry",["chicken","noodles|rice","capsicum|broccoli|carrots"
 ["Zucchini slice",["zucchini","eggs","cheese|bacon"],"Kid friendly",40,"veg"],["Roast veg salad",["pumpkin|potatoes","spinach|lettuce","cheese|chickpeas"],"Healthy",40,"veg"],
 ["Chicken schnitzel",["chicken","eggs","bread"],"Aussie classic",40,"meat"],["Nachos",["beans|beef mince","cheese","tomatoes|avocado"],"Mexican",20,"veg"]];
 var veganBad=/eggs|cheese|milk|cream|butter|yoghurt|bacon|ham|chicken|beef|steak|sausages|fish|prawns/,glutenBad=/pasta|noodles|bread|wraps/,dairyBad=/cheese|milk|cream|butter|yoghurt/;
+document.getElementById('snap').onchange=function(){var f=this.files[0],m=document.getElementById('snapmsg');if(!f)return;m.textContent='Having a look in your fridge…';
+var img=new Image();img.onload=function(){var k=Math.min(1,768/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*k;c.height=img.height*k;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+c.toBlob(function(b){fetch('/api/fridge-photo',{method:'POST',body:b,headers:{'content-type':'image/jpeg'}}).then(function(r){return r.json()}).then(function(j){if(!j.items||!j.items.length){m.textContent=j.error||'Couldn’t spot much. Try a brighter photo, or tick below.';return}
+var extra=[],n=0;j.items.forEach(function(it){var hit=[].slice.call(document.querySelectorAll('#ff input[name=i]')).filter(function(x){return it.indexOf(x.value)>-1||x.value.indexOf(it)>-1})[0];if(hit){if(!hit.checked){hit.checked=true;n++}}else extra.push(it)});
+var ex=document.querySelector('#ff input[name=extra]');if(extra.length)ex.value=(ex.value?ex.value+', ':'')+extra.join(', ');m.textContent='Spotted: '+j.items.join(', ')+'. Check the ticks, then pick dinner below.'}).catch(function(){m.textContent='That didn’t work. Tick what you’ve got below.'})},'image/jpeg',0.7)};img.src=URL.createObjectURL(f)};
 document.getElementById('ff').onsubmit=function(e){e.preventDefault();var f=new FormData(this),have=f.getAll('i').concat(String(f.get('extra')||'').toLowerCase().split(/,\\s*/).filter(Boolean)),
 likes=f.getAll('c'),n=f.get('n'),t=+f.get('t'),d=f.get('d');
 if(!have.length){document.getElementById('out').innerHTML='<p class="note">Tick at least one thing in your fridge.</p>';return}
@@ -731,6 +755,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">${R.br
 <li><b>Weekly email or fridge sign-up:</b> your email, first name if you give it, postcode and that you agreed to the email.</li>
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
 <li><b>Feedback:</b> your message, and your name and email only if you add them.</li>
+<li><b>Fridge photo:</b> if you snap your fridge, the photo goes to Cloudflare&rsquo;s AI just long enough to spot the food, then it&rsquo;s gone. We never store it.</li>
 <li><b>Signing in:</b> your name, email and, if you use Google, your Google profile photo, plus when you first and last signed in. Google only tells us those basics, never your password. One cookie keeps you signed in on that phone for up to a year. Sign out any time.</li></ul>
 <p>We don't ask for anything about your family or personal life beyond the basic contact details needed to make the site work.</p>
 <h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details, and when we carry ads one day, advertisers will never get your personal details or use them to target you.</p>
@@ -790,7 +815,8 @@ async function memoryBlock(env) {
   const since = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10), list = [];
   for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { if (name.split(":")[1] < since) continue; const n = await env.DATA.get(name, "json"); if (n) list.push(n); }
   list.sort((a, b) => b.date.localeCompare(a.date));
-  return `<section id="memory"><h2>🕊️ In memory</h2>${list.length ? `<ul>${list.slice(0, 5).map(ripItem).join("")}</ul><p><a href="/rip">All notices from the last two months →</a></p>` : `<p class="mute">No notices in the last month. Funeral homes and families can <a href="/rip">list a notice free</a>.</p>`}</section>`;
+  const notices = `<a href="https://www.google.com/search?q=${encodeURIComponent("funeral notices " + R.place)}" rel="noopener">funeral notices for ${esc(R.place)}</a>`;
+  return `<section id="memory"><h2>🕊️ In memory</h2><p class="mute">Remembering locals who have recently passed. Our thoughts are with their families and friends.</p>${list.length ? `<ul>${list.slice(0, 5).map(ripItem).join("")}</ul><p><a href="/rip">More notices</a></p>` : ""}<p class="mute">For service details, see the latest ${notices} from local funeral directors.</p></section>`;
 }
 async function ripPage(env, msg = "") {
   const since = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10), list = [];
@@ -800,8 +826,8 @@ async function ripPage(env, msg = "") {
 <p>Remembering locals who have passed away in the last two months. Rest in peace.</p>${msg}
 <ul>${list.map(ripItem).join("") || '<li class="mute">No notices listed yet.</li>'}</ul>
 <p class="mute">Every notice is sourced from the funeral home and links to their official notice for full service details.</p>
-<h2>Funeral homes and families</h2><p>List a notice free. We check every notice with the funeral home before it goes up.</p>
-<details><summary><b>Add a notice</b></summary><form method="post" action="/rip"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<p class="mute">For service details, see the latest <a href="https://www.google.com/search?q=${encodeURIComponent("funeral notices " + R.place)}" rel="noopener">funeral notices for ${esc(R.place)}</a> from local funeral directors.</p>
+<details><summary class="mute">For funeral directors</summary><p class="mute">If a family would like a notice shared here, you can add it below. We confirm every notice with you before it appears.</p><form method="post" action="/rip"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>Full name *</label><input name="name" required maxlength="100" style="width:100%">
 <div class="row"><div><label>Age</label><input name="age" maxlength="10"></div><div><label>Date of passing *</label><input type="date" name="date" required max="${todayISO()}"></div></div>
 <label>Service (date, time, place)</label><input name="service" maxlength="200" style="width:100%">
@@ -1358,6 +1384,7 @@ export default {
     if (p === "/school") return schoolPage();
     if (p === "/fridge") return (await member(req, env)) ? fridgePage() : unlockPage();
     if (p === "/unlock" && req.method === "POST") return unlock(req, env);
+    if (p === "/api/fridge-photo" && req.method === "POST") return fridgePhoto(req, env).catch(() => Response.json({ error: "Couldn’t read that one. Tick what you’ve got below." }));
     if (p === "/admin") return admin(req, env);
     if (p === "/submit") return req.method === "POST" ? handleSubmit(req, env) : submitForm((url.searchParams.get("pc") || R.code).replace(/\D/g, "").slice(0, 4));
     if (p === "/subscribe" && req.method === "POST") return handleSubscribe(req, env);

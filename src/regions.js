@@ -7,12 +7,11 @@ export const REGIONS = {
     towns: {
   "2450": { name: "Coffs Harbour", lat: -30.3022, lon: 153.1189, mlat: -30.30, mlon: 153.15, live: true },
   "2452": { name: "Sawtell & Toormina", lat: -30.3640, lon: 153.0960, mlat: -30.37, mlon: 153.12, live: true },
-  "2454": { name: "Bellingen", live: false },
   "2456": { name: "Woolgoolga & Northern Beaches", lat: -30.1100, lon: 153.2000, mlat: -30.11, mlon: 153.22, live: true },
 },
     home: { lat: -30.2963, lon: 153.1135 },
     bbox: "-30.45,152.95,-30.05,153.25", // open-now search area (south,west,north,east)
-    coverage: "We cover the Coffs Harbour council area first (2450, 2452, 2456).", soon: "Coming soon: Bellingen.",
+    coverage: "We cover the whole Coffs Harbour council area: 2450, 2452 and 2456.", soon: "",
     footer: `2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. 2450 Maverick brings communities back together.`,
     ack: `2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
     sign: "Born and built in 2450, raised by the world.",
@@ -95,22 +94,23 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
   "2481": {
     code: "2481", brand: "2481 Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
     towns: {
-      "2481": { name: "Byron Bay", lat: -28.6474, lon: 153.6020, mlat: -28.64, mlon: 153.64, live: true },
-      "2479": { name: "Bangalow", live: false },
-      "2482": { name: "Mullumbimby", live: false },
-      "2483": { name: "Brunswick Heads", live: false },
+      "2481": { name: "Byron Bay & Suffolk Park", lat: -28.6474, lon: 153.6020, mlat: -28.64, mlon: 153.64, live: true },
+      "2479": { name: "Bangalow", lat: -28.6860, lon: 153.5240, mlat: -28.64, mlon: 153.64, live: true },
+      "2480": { name: "Federal & surrounds", lat: -28.6500, lon: 153.4550, mlat: -28.64, mlon: 153.64, live: true },
+      "2482": { name: "Mullumbimby", lat: -28.5520, lon: 153.5000, mlat: -28.54, mlon: 153.58, live: true },
+      "2483": { name: "Brunswick Heads & Ocean Shores", lat: -28.5390, lon: 153.5510, mlat: -28.54, mlon: 153.58, live: true },
     },
     home: { lat: -28.6474, lon: 153.6020 },
     bbox: "-28.72,153.54,-28.60,153.66",
-    coverage: "We cover Byron Bay (2481) first, including Suffolk Park and Broken Head.", soon: "Coming soon: Bangalow, Mullumbimby and Brunswick Heads.",
-    footer: `2481 means Byron Bay. Mullum is 2482 and Bangalow is 2479, by the way. Live in Mullum? You get free membership, and you owe us a kombucha.<br>Big tech divided us. 2481 Maverick brings communities back together.`,
+    coverage: "We cover the whole Byron Shire: 2479, 2480, 2481, 2482 and 2483.", soon: "",
+    footer: `2481 means Byron Bay, and the whole shire's here too: Bangalow 2479, Federal 2480, Mullum 2482, Brunswick and Ocean Shores 2483. Live in Lismore? You get free membership, and you owe us a kombucha.<br>Big tech divided us. 2481 Maverick brings communities back together.`,
     ack: `2481 Maverick acknowledges the Arakwal people of the Bundjalung Nation, the Traditional Custodians of the land on which Byron Bay stands, and pays respect to Elders past and present.`,
     sign: "Built in 2450, made for 2481, raised by the world.",
     goal: 5000, goalText: "about half the town",
     council: { name: "Byron Shire Council", url: "https://www.byron.nsw.gov.au", phone: "02 6626 7000", urgent: "Byron Shire Council after hours emergencies: 02 6622 7022" },
     binsTip: "Check your bin days in the free Recycle Coach app (search your address).",
     mavExample: "I'm Jess, I surf at The Pass most mornings, I've got a kid at Byron Public and I love the markets",
-    schoolsArea: "Public schools in Byron Bay",
+    schoolsArea: "Public schools in the Byron Shire",
     warnRe: /northern rivers|byron|northern tablelands|coastal waters|marine/i,
     news: [
       { name: "The Echo", url: "https://www.echo.net.au", feed: "https://www.echo.net.au/feed/" },
@@ -165,8 +165,8 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["🗼", "The lighthouse turns 125", "Cape Byron Lighthouse was built in 1901.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
       ["🐢", "Julian Rocks", "About 2.5 km offshore, Julian Rocks is one of the east coast's best dive sites, part of the Cape Byron Marine Park.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
       ["🐋", "From whaling to whale watching", "Byron had a whaling station until 1963. Today the same whales are the town's favourite winter show.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"]],
-    mavKB: `Site: 2481 Maverick, a free local info site for Byron Bay (2481, including Suffolk Park and Broken Head). Never charges. A gift from Maverick Digital.
-Pages: /2481 area page; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
+    mavKB: `Site: 2481 Maverick, a free local info site for the Byron Shire (2481 Byron Bay & Suffolk Park, 2479 Bangalow, 2480 Federal, 2482 Mullumbimby, 2483 Brunswick Heads & Ocean Shores). Never charges. A gift from Maverick Digital.
+Pages: /2481 /2479 /2480 /2482 /2483 area pages; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
 /school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /crossword daily crossword; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
 Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; memory=In memory (death notices); fuel=cheapest fuel near you;
 sea=tides & fishing; know=Know your area (mayor Cr Sarah Ndiaye, deputy Cr Jack Dods, Byron Shire Council 02 6626 7000, after hours emergencies 02 6622 7022, bins via the Recycle Coach app, annual free drop-off at the Byron Resource Recovery Centre, missed bins 1300 652 625, NSW Ombudsman);
