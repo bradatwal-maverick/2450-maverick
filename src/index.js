@@ -23,7 +23,10 @@ textarea{border-radius:8px;width:100%}button{cursor:pointer;background:var(--acc
 .big{font-size:3rem;font-weight:bold;letter-spacing:-1px;margin:0}.search{display:flex;gap:8px;margin:20px 0;width:100%;max-width:420px}.search input{flex:1}
 ul{padding-left:18px}li{margin:6px 0}footer{border-top:1px solid var(--line);margin-top:40px;padding:16px;text-align:center;color:var(--mute);font-size:.85rem}
 label{display:block;margin:10px 0 4px}.row{display:flex;gap:8px;flex-wrap:wrap}.row input{flex:1;min-width:160px}
-.hp{position:absolute;left:-9999px}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
+.hp{position:absolute;left:-9999px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
+.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
 
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
@@ -67,7 +70,7 @@ function clockChange() {
   const days = Math.round((new Date(date) - new Date(today)) / 864e5);
   const what = dir === "back" ? "go back 1 hour at 3am (to 2am). Extra sleep!" : "go forward 1 hour at 2am (to 3am). Lose an hour's sleep.";
   const when = days === 0 ? "Today" : days === 1 ? "Tonight / tomorrow morning" : fmtDate(date);
-  return { soon: days <= 14, text: `<b>Clocks ${dir === "back" ? "go back" : "go forward"}</b> ${esc(when)}${days > 1 ? ` (in ${days} days)` : ""}: ${what.replace(/^go (back|forward) /, "")}` };
+  return { soon: days <= 14, date: days === 0 ? "Today" : new Date(date + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short" }), dir, text: `<b>Clocks ${dir === "back" ? "go back" : "go forward"}</b> ${esc(when)}${days > 1 ? ` (in ${days} days)` : ""}: ${what.replace(/^go (back|forward) /, "")}` };
 }
 
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
@@ -86,32 +89,60 @@ async function town(pc, env) {
     || `<p>Nothing listed yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`;
 
   const cc = clockChange();
+  const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
+  const SECTIONS = [["today", "At a glance"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["council", "Council"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
   return page(`${pc} ${t.name} — what's on`, `
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
-${cc.soon ? `<p style="border:1px solid var(--accent);border-radius:8px;padding:10px">⏰ ${cc.text}</p>` : ""}
-<p class="pins mute">Show: <label><input type="checkbox" data-s="today" checked> Today</label><label><input type="checkbox" data-s="sea" checked> Tides &amp; swell</label><label><input type="checkbox" data-s="events" checked> What's on</label></p>
-<section id="today"><h2>Today</h2><p id="wx" class="mute">Loading weather…</p>${cc.soon ? "" : `<p class="mute">${cc.text}</p>`}</section>
-<section id="sea"><h2>Tides &amp; swell</h2><p id="tide" class="mute">Loading…</p>
-<p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
+<p class="mute" id="date"></p>
+${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
+<section id="today"><div class="tiles">
+<div class="tile"><span id="i-wx" class="ico">⛅</span><b id="t-temp">–</b><small id="t-sky">Weather</small></div>
+<div class="tile"><span class="ico">🌧️</span><b id="t-rain">–</b><small>Rain chance</small></div>
+<div class="tile"><span class="ico">💨</span><b id="t-wind">–</b><small id="t-windd">Wind</small></div>
+<div class="tile"><span class="ico">🌅</span><b id="t-rise">–</b><small id="t-set">Sunrise</small></div>
+<div class="tile"><span class="ico">🌊</span><b id="t-tide">–</b><small id="t-tide2">Next tide</small></div>
+<div class="tile"><span class="ico">🏄</span><b id="t-swell">–</b><small>Swell</small></div>
+<div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small>Moon</small></div>
+<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>
+</div></section>
+<details class="pins mute"><summary>Customise this page</summary>${SECTIONS.map(([id, l]) => `<label><input type="checkbox" data-s="${id}" checked> ${esc(l)}</label>`).join("")}<br><small>Saved on your phone only.</small></details>
+${soon("alerts", "Alerts", "Bushfires, road closures and floods near 2450, coming soon.", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", "Fires Near Me (NSW Rural Fire Service)")}
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
+${soon("news", "News", "Local headlines from Coffs news outlets, linked to the full story, coming soon.")}
+${soon("fuel", "Fuel", "Cheapest petrol and diesel in 2450 today, coming soon.", "https://www.fuelcheck.nsw.gov.au", "NSW FuelCheck")}
+<section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
+<p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
+${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
+${soon("holidays", "Holidays", "Public and school holiday dates, coming soon.", "https://education.nsw.gov.au/schooling/calendar", "NSW school calendar")}
+${soon("surfcams", "Surf cams", "Live surf cams for Coffs beaches, coming soon.")}
+${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}
 <h2>This week in ${esc(pc)}</h2><p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
-document.querySelectorAll('[data-s]').forEach(function(c){var k='hide_'+c.dataset.s,s=document.getElementById(c.dataset.s);
+document.getElementById('date').textContent=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
+document.querySelectorAll('[data-s]').forEach(function(c){var k='hide_'+c.dataset.s,s=document.getElementById(c.dataset.s);if(!s)return;
 try{if(localStorage.getItem(k))c.checked=false}catch(e){}s.hidden=!c.checked;
 c.onchange=function(){s.hidden=!c.checked;try{c.checked?localStorage.removeItem(k):localStorage.setItem(k,1)}catch(e){}}});
-var W={0:'Clear',1:'Mostly clear',2:'Partly cloudy',3:'Cloudy',45:'Fog',48:'Fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Showers',81:'Showers',82:'Heavy showers',95:'Thunderstorms',96:'Thunderstorms',99:'Thunderstorms'};
+var $=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v};
+var W={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Cloudy'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Drizzle'],61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Storms'],96:['⛈️','Storms'],99:['⛈️','Storms']};
 var dirs=['N','NE','E','SE','S','SW','W','NW'],tm=function(s){return new Date(s).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'})};
+var age=((Date.now()-Date.UTC(2000,0,6,18,14))/864e5)%29.530588853,mi=Math.round(age/29.53*8)%8;
+var MN=[['🌑','New moon'],['🌒','Waxing crescent'],['🌓','First quarter'],['🌔','Waxing gibbous'],['🌕','Full moon'],['🌖','Waning gibbous'],['🌗','Last quarter'],['🌘','Waning crescent']];
+$('i-moon',MN[mi][0]);$('t-moon',MN[mi][1]);
 fetch('https://api.open-meteo.com/v1/forecast?latitude=${t.lat}&longitude=${t.lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&forecast_days=1&timezone=Australia%2FSydney')
-.then(function(r){return r.json()}).then(function(d){var c=d.current,y=d.daily;
-document.getElementById('wx').innerHTML='<b>'+Math.round(c.temperature_2m)+'°C</b> '+(W[c.weather_code]||'')+' · Top '+Math.round(y.temperature_2m_max[0])+'° / low '+Math.round(y.temperature_2m_min[0])+'° · Rain chance '+y.precipitation_probability_max[0]+'%<br>Wind '+Math.round(c.wind_speed_10m)+' km/h '+dirs[Math.round(c.wind_direction_10m/45)%8]+' · Sunrise '+tm(y.sunrise[0])+' · Sunset '+tm(y.sunset[0]);
-}).catch(function(){document.getElementById('wx').textContent='Weather unavailable right now.'});
+.then(function(r){return r.json()}).then(function(d){var c=d.current,y=d.daily,w=W[c.weather_code]||['🌡️',''];
+$('i-wx',w[0]);$('t-temp',Math.round(c.temperature_2m)+'°');$('t-sky',w[1]+' · '+Math.round(y.temperature_2m_max[0])+'°/'+Math.round(y.temperature_2m_min[0])+'°');
+$('t-rain',y.precipitation_probability_max[0]+'%');$('t-wind',Math.round(c.wind_speed_10m)+' km/h');$('t-windd','Wind from '+dirs[Math.round(c.wind_direction_10m/45)%8]);
+$('t-rise',tm(y.sunrise[0]));$('t-set','Sunset '+tm(y.sunset[0]));
+}).catch(function(){$('t-sky','Weather unavailable')});
 fetch('https://marine-api.open-meteo.com/v1/marine?latitude=${t.mlat}&longitude=${t.mlon}&hourly=sea_level_height_msl,wave_height,swell_wave_height&forecast_days=2&timezone=Australia%2FSydney')
 .then(function(r){return r.json()}).then(function(d){var h=d.hourly,s=h.sea_level_height_msl,out=[],now=Date.now();
-for(var i=1;i<s.length-1;i++){if(new Date(h.time[i])<now-36e5)continue;if(s[i]>s[i-1]&&s[i]>=s[i+1])out.push('High '+tm(h.time[i]));else if(s[i]<s[i-1]&&s[i]<=s[i+1])out.push('Low '+tm(h.time[i]));if(out.length>=4)break}
+for(var i=1;i<s.length-1;i++){if(new Date(h.time[i])<now)continue;if(s[i]>s[i-1]&&s[i]>=s[i+1])out.push(['High',h.time[i]]);else if(s[i]<s[i-1]&&s[i]<=s[i+1])out.push(['Low',h.time[i]]);if(out.length>=4)break}
 var j=h.time.findIndex(function(x){return new Date(x)>=now});if(j<0)j=0;
-document.getElementById('tide').innerHTML=(out.length?out.join(' · '):'Tide times unavailable')+'<br>Waves '+(h.wave_height[j]||0).toFixed(1)+' m · Swell '+(h.swell_wave_height[j]||0).toFixed(1)+' m';
-}).catch(function(){document.getElementById('tide').textContent='Tides unavailable right now.'});
+if(out.length){$('t-tide',tm(out[0][1]));$('t-tide2','Next '+out[0][0].toLowerCase()+' tide')}
+$('t-swell',(h.swell_wave_height[j]||0).toFixed(1)+' m');
+document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return o[0]+' '+tm(o[1])}).join(' · '):'Tide times unavailable')+'<br>Waves '+(h.wave_height[j]||0).toFixed(1)+' m · Swell '+(h.swell_wave_height[j]||0).toFixed(1)+' m · Moon: '+MN[mi][1];
+}).catch(function(){$('tide','Tides unavailable right now.')});
 </script>`, pc);
 }
 
