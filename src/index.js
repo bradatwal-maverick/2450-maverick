@@ -545,6 +545,17 @@ e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open('v1').then
 const cookie = (req, k) => (req.headers.get("cookie") || "").split(/;\s*/).map(c => c.split("=")).find(([n]) => n === k)?.[1];
 async function member(req, env) { const t = cookie(req, "m2450"); return t ? await env.DATA.get(`sess:${t}`) : null; }
 
+// ---- Fresh every day: anything that isn't brand new gets a new order each day (same all day, new tomorrow).
+// Dates stay on every item, so it's honest: we only move things around, we never change them.
+const daySeed = salt => { let h = 2166136261; for (const c of todayISO() + salt) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
+function dayMix(arr, salt = "") {
+  const a = [...arr]; let x = daySeed(salt) || 1;
+  for (let i = a.length - 1; i > 0; i--) { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; const j = (x >>> 0) % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const freshFirst = (items, salt, hrs = 24) => { const cut = Date.now() - hrs * 36e5, isNew = i => new Date(i.date || 0) >= cut;
+  return [...items.filter(isNew), ...dayMix(items.filter(i => !isNew(i)), salt)]; };
+
 // ---- Tracked links to Maverick Digital (key conversion events). Counts clicks per day, then adds UTM tags
 // so the Maverick Digital site and ActiveCampaign can see which Gazette and section the lead came from.
 const GO = { "nerd-ai": { url: "https://maverickdigital.com.ai/nerd/", content: "ai-good-bad" } };
@@ -1161,7 +1172,7 @@ ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
   const nsrc = n => n.src ? `<span class="kick">${esc(n.src)}</span>` : "";
   const nimg = (n, cls) => n.img ? `<img class="${cls}" src="${esc(n.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('wimg');this.remove()">` : "";
   const story = (n, lead) => `<a class="story${lead ? " lead" : ""}${n.img ? " wimg" : ""}" href="${esc(n.link)}" rel="noopener">${nimg(n, "simg")}<span class="sbody">${nsrc(n)}<span class="hl">${esc(n.title)}</span>${n.desc ? `<span class="dek">${esc(lead ? n.desc : cut(n.desc, 95))}</span>` : ""}<span class="byl">${nd(n)} · Read the full story →</span></span></a>`;
-  const ni = news.ok === false ? [] : news.items, withImg = ni.findIndex(n => n.img), leadI = withImg > -1 && withImg < 3 ? withImg : 0;
+  const ni = news.ok === false ? [] : freshFirst(news.items, "news"), withImg = ni.findIndex(n => n.img), leadI = withImg > -1 && withImg < 3 ? withImg : 0;
   const lead = ni[leadI], rest = ni.filter((_, k) => k !== leadI), top = rest.slice(0, 4), more = rest.slice(4);
   const newsB = `<section id="news" class="paper"><h2 class="sech">📰 Today's news</h2>
 ${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just now.</p>" : `${story(lead, true)}<div class="grid2">${top.map(n => story(n, false)).join("")}</div>${more.length ? `<h3 class="sub">More headlines</h3><ul class="heads">${more.map(n => `<li>${nsrc(n)} <a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a> <span class="mute">${nd(n)}</span></li>`).join("")}</ul>` : ""}`}
@@ -1237,7 +1248,7 @@ async function kidsBlock(local, feed, pc = R.code) {
   const [sat, sun] = weekendDates(), wk = [...local, ...feed].filter(e => e.kids && (e.cost == null || e.cost <= 50) && e.date >= sat && e.date <= sun);
   return `<section id="kids"><h2>Weekend for kids</h2><p class="mute">Free or under $50 a kid. This weekend: ${esc(fmtDate(sat))} and ${esc(fmtDate(sun))}.</p>
 ${wk.length ? `<h3>On this weekend</h3><ul>${wk.map(evItem).join("")}</ul>` : `<p>No kids' events listed for this weekend yet. Running one? <a href="/submit?pc=${pc}">Add it free</a> and tick "Good for kids".</p>`}
-<h3>Always-good local favourites</h3><ul>${FAVES.map(([n, c, d]) => `<li><b>${esc(n)}</b> <span class="tagg">${c}</span><br><span class="mute">${esc(d)}</span></li>`).join("")}</ul>
+<h3>Always-good local favourites</h3><ul>${dayMix(FAVES, "faves").map(([n, c, d]) => `<li><b>${esc(n)}</b> <span class="tagg">${c}</span><br><span class="mute">${esc(d)}</span></li>`).join("")}</ul>
 <p class="src">Picked by locals. Check times and prices before you go · <a href="/feedback">Suggest one</a></p></section>`;
 }
 
@@ -1478,7 +1489,7 @@ const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav"
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
 <p>${R.why.intro}</p>
-<ul class="ideas">${FACTS.map(([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`).join("")}</ul>
+<ul class="ideas">${dayMix(FACTS, "facts").map(([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`).join("")}</ul>
 <p class="mute">Know a fact we've missed? <a href="/feedback">Tell us</a>.</p>`, R.code);
 
 // ---- Daily crossword ----
@@ -2156,9 +2167,11 @@ async function refreshAiNews(env) {
 }
 async function aiBlock(env) {
   const log = await env.DATA.get("ailog", "json"), it = log ? log.items : [];
-  const card = (v, h, cls) => { const x = it.filter(i => i.v === v).sort((a, b) => b.date.localeCompare(a.date))[0];
+  const card = (v, h, cls) => { const all = it.filter(i => i.v === v).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12);
+    // Newest story if it's from the last day or so; otherwise a different recent one each day
+    const x = all[0] && Date.now() - new Date(all[0].date) < 36 * 36e5 ? all[0] : dayMix(all, "ai" + v)[0];
     return `<div class="aib ${cls}"><p class="kick">${h}</p>${x ? `<a href="${esc(x.link)}" rel="noopener"><b>${esc(x.title)}</b></a><br><small class="mute">${esc(x.src)} · ${esc(new Date(x.date).toLocaleDateString("en-AU", { day: "numeric", month: "short" }))}${x.why ? " · " + esc(x.why) : ""}</small>` : `<p class="mute">The first story is on its way.</p>`}</div>`; };
-  return `<section id="aigb"><h2>🤖 AI for good, AI for bad</h2><p class="mute">The latest AI story of each kind from the news, so you see both sides.</p><div class="aig">${card("good", "😇 AI for good", "good")}${card("bad", "😈 AI for bad", "bad")}</div>
+  return `<section id="aigb"><h2>🤖 AI for good, AI for bad</h2><p class="mute">A recent AI story of each kind from the news, so you see both sides.</p><div class="aig">${card("good", "😇 AI for good", "good")}${card("bad", "😈 AI for bad", "bad")}</div>
 <p class="src">Headlines from The Guardian and Google News, sorted into good and bad by AI, so check the full story. <a href="/ai-log">See every story we've logged</a>.</p>
 <p class="nerdcta"><a href="/go/nerd-ai" target="_blank" rel="noopener">🧠 Learn how AI can help in your everyday life, from your local experts at Maverick Digital &rarr;</a></p></section>`;
 }
