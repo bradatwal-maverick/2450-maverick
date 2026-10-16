@@ -48,7 +48,7 @@ function page(title, body, pc = "") {
 <script>try{var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");if(n)document.getElementById("my2450").textContent="⚙️ "+n+"\u2019s 2450";if(/(?:^|; )m2450n=/.test(document.cookie)){var si=document.getElementById("signin");si.textContent="Sign out";si.href="/signout";si.classList.remove("signin")}else document.getElementById("signin").href="/signin?next="+encodeURIComponent(location.pathname)}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
-<p>2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>Big tech divided us. 2450 Maverick brings communities back together.</p>
+<p>2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. 2450 Maverick brings communities back together.</p>
 <p class="aoc">2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present. <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a><br><span class="tagline">Big tech skills, used for the community. Born and built in 2450, raised by the world.</span></p></footer>
 ${MAV_WIDGET}
@@ -145,6 +145,7 @@ async function town(pc, env, ctx, isRoot = false) {
 
   const cc = clockChange(), ann = await annBanner(env), live = await liveBlocks(env, ctx, { lat: t.lat, lon: t.lon });
   const nLocals = await localsCount(env);
+  const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
   return page(`${pc} ${t.name} — what's on`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='2450')location.replace('/'+sp)}catch(e){}</script>` : ""}
 <p class="towns"><label for="pcsel">What's your postcode?</label> <select id="pcsel" onchange="try{localStorage.setItem('pc',this.value)}catch(e){}location='/'+this.value">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${esc(k)}"${k === pc ? " selected" : ""}>${esc(k)} ${esc(v.name)}</option>`).join("")}</select></p><h1>${esc(t.name)} ${esc(pc)}</h1>
@@ -180,24 +181,24 @@ ${live.news}
 ${fuelBlock(t)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
-<section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it, we just tell you where it&rsquo;s from and how current it is.</p>
+<section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it. We tell you where it&rsquo;s from and how well the owner keeps it up to date.</p>
 <details open><summary><b>Who runs the place</b></summary><ul>
 <li>Mayor: <b>Cr Nikki Williams</b> · Deputy Mayor: <b>Cr George Cecato</b></li>
 <li>Councillors: Cath Fowler, Gurminder Saro, Jonathan Cassell, Julie Sechi, Les Oxford, Paul Amos, Tony Judge. <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">Contact them</a></li>
-<li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul><p class="src">Info from <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">City of Coffs Harbour, Councillors page</a> · They don&rsquo;t say when they last updated it · We last looked 16 Oct 2026</p></details>
+<li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${accLine("councillors", W.councillors)}</details>
 <details><summary><b>Bins &amp; rubbish</b></summary><ul>
 <li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app (App Store or Google Play)</li>
 <li>Bulky goods (old couch, mattress): book a kerbside pick-up or get free tip vouchers on <a href="tel:1800265495">1800 265 495</a>. Vouchers are posted, so allow 2 weeks</li>
 <li>Tip: Englands Road Waste Management Facility</li>
-<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul><p class="src warn">Info from <a href="https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs" rel="noopener">Council bulky goods FAQ</a> · ⚠️ Heads up: this info is from March 2018, so it may be old · We last looked 16 Oct 2026</p><p class="src">Info from <a href="https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week" rel="noopener">News Of The Area (waste app)</a> · Written Aug 2026 · We last looked 16 Oct 2026</p></details>
+<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul>${accLine("bulky", W.bulky)}${accLine("wasteapp", W.wasteapp)}</details>
 <details><summary><b>Got a problem?</b></summary><ul>
 <li>Pothole, broken footpath, streetlight, overgrown block: <a href="https://forms.coffsharbour.nsw.gov.au/RunForm.aspx?formId=1366" rel="noopener">Council request form</a></li>
 <li>Pollution or environmental issue: <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">Report it</a></li>
-<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul><p class="src">Info from <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">City of Coffs Harbour, Report an environmental issue</a> · They don&rsquo;t say when they last updated it · We last looked 16 Oct 2026</p></details>
+<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul>${accLine("envreport", W.envreport)}</details>
 <details><summary><b>Contact council</b></summary><ul>
 <li>📞 <a href="tel:0266484000">02 6648 4000</a>, weekdays 8:30am–4:30pm. Same number 24/7 for urgent water, sewer, pollution or animal attacks</li>
 <li>✉️ <a href="mailto:coffs.council@chcc.nsw.gov.au">coffs.council@chcc.nsw.gov.au</a></li>
-<li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul><p class="src">Info from <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" rel="noopener">City of Coffs Harbour, Contact details</a> · They don&rsquo;t say when they last updated it · We last looked 16 Oct 2026</p></details>
+<li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul>${accLine("contact", W.contact)}</details>
 <p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
 ${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
 ${await kidsBlock(local, feed, pc)}
@@ -999,6 +1000,44 @@ ${wk.length ? `<h3>On this weekend</h3><ul>${wk.map(evItem).join("")}</ul>` : `<
 
 // ---- Field closures: watch the council page for changes; alerts go out by push to anyone who opted in ----
 const FIELDS_URL = "https://coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Sports-facilities/Sports-grounds/Sports-field-closure-arrangements";
+// ---- Accountability: we watch the pages we source from and show how current the owner keeps them.
+// stated = a "last updated" date the page itself showed when we checked by hand (YYYY-MM or YYYY-MM-DD).
+const WATCH = {
+  councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
+  bulky: { owner: "Council", name: "Council bulky goods FAQ", url: "https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs", stated: "2018-03" },
+  wasteapp: { owner: "News Of The Area", name: "News Of The Area (waste app)", url: "https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week", stated: "2026-08" },
+  envreport: { owner: "Council", name: "City of Coffs Harbour, Report an environmental issue", url: "https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" },
+  contact: { owner: "Council", name: "City of Coffs Harbour, Contact details", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" },
+};
+const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+function pageDate(html) { // a "last updated" date the page publishes about itself, if any
+  let m = html.match(/(?:dateModified|article:modified_time|last-modified)["']?\s*(?:content\s*=\s*|:\s*)["'](\d{4}-\d{2}-\d{2})/i);
+  if (m) return m[1];
+  m = html.replace(/<[^>]+>/g, " ").match(/(?:last|page)\s+(?:updated|modified|reviewed)\s*(?:on|:)?\s*(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3})[a-z]*\.?,?\s+(\d{4})/i);
+  if (m && MONTHS[m[2].toLowerCase()]) return `${m[3]}-${String(MONTHS[m[2].toLowerCase()]).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  return null;
+}
+async function checkWatched(env) {
+  for (const [id, w] of Object.entries(WATCH)) {
+    try {
+      const old = await env.DATA.get(`srcw:${id}`, "json"), now = new Date().toISOString();
+      if (old && Date.now() - new Date(old.checked) < 20 * 3600e3) continue; // once a day is plenty
+      const html = await (await fetch(w.url, { headers: UA })).text();
+      const txt = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+      const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
+      await env.DATA.put(`srcw:${id}`, JSON.stringify({ hash: h, since: old?.since || now, changed: old && old.hash !== h ? now : old?.changed || null, checked: now, found: pageDate(html) || old?.found || null }));
+    } catch (e) {}
+  }
+}
+const ago = iso => { const d = (Date.now() - new Date(iso.length === 7 ? iso + "-15" : iso)) / 864e5; return d < 1 ? "today" : d < 2 ? "yesterday" : d < 60 ? `${Math.round(d)} days ago` : d < 730 ? `${Math.round(d / 30.4)} months ago` : `${Math.floor(d / 365.25)} years ago`; };
+const niceDay = iso => new Date((iso.length === 7 ? iso + "-01" : iso.slice(0, 10)) + "T00:00:00").toLocaleDateString("en-AU", iso.length === 7 ? { month: "long", year: "numeric" } : { day: "numeric", month: "short", year: "numeric" });
+function accLine(id, st) {
+  const w = WATCH[id], upd = st?.found || w.stated, old = upd && (Date.now() - new Date(upd.length === 7 ? upd + "-15" : upd)) / 864e5 > 365;
+  const said = upd ? `<b>${esc(w.owner)} last updated it: ${esc(niceDay(upd))} (${esc(ago(upd))})</b>.${old ? " ⚠️ That&rsquo;s a while ago, so it may be out of date." : ""}` : `<b>${esc(w.owner)} doesn&rsquo;t say when they last updated it.</b>`;
+  const watch = st ? ` We&rsquo;ve watched it since ${esc(niceDay(st.since))}: ${st.changed ? `last change spotted ${esc(niceDay(st.changed))}` : "no changes spotted yet"}.` : "";
+  return `<p class="src${old ? " warn" : ""}">Info from <a href="${w.url}" rel="noopener">${esc(w.name)}</a>. ${said}${watch}</p>`;
+}
+
 async function checkFields(env) {
   try {
     const txt = (await (await fetch(FIELDS_URL, { headers: UA })).text()).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
@@ -1015,7 +1054,7 @@ async function fieldsBlock(env) {
   return `${a ? `<p><b>Latest:</b> ${esc(a.body)} <span class="mute">(${esc(asOf(a.at))})</span></p>` : ""}
 <h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
 <li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>
-<p class="src">Info from <a href="${FIELDS_URL}" rel="noopener">City of Coffs Harbour, Sports field closure arrangements</a>${st?.changed ? ` · They last changed it ${esc(asOf(st.changed))}` : ""}${st?.checked ? ` · We last looked ${esc(asOf(st.checked))}` : ""}</p>`;
+<p class="src">Info from <a href="${FIELDS_URL}" rel="noopener">City of Coffs Harbour, Sports field closure arrangements</a>.${st?.changed ? ` <b>Council last changed it: ${esc(asOf(st.changed))}</b>.` : ""}${st?.checked ? ` We check it every 30 minutes (last check ${esc(asOf(st.checked))}).` : ""}</p>`;
 }
 
 // ---- Web push: no paid service. Keys are made by the Worker on first use and kept in KV. ----
@@ -1282,7 +1321,7 @@ async function lodgeNotice(req, env) {
 export default {
   async scheduled(evt, env, ctx) {
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(k => refreshSource(env, k)), checkFields(env)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(k => refreshSource(env, k)), checkFields(env), checkWatched(env)]));
   },
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
