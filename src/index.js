@@ -287,7 +287,7 @@ const GIFT_URL = "";
 async function listAll(env, prefix) { const out = []; let cursor; do { const r = await env.DATA.list({ prefix, cursor }); out.push(...r.keys); cursor = r.list_complete ? null : r.cursor; } while (cursor); return out; }
 const localsCount = async env => { const emails = new Set(); for (const pre of ["sub:", "user:"]) for (const k of await listAll(env, pre)) emails.add(k.name.slice(pre.length)); return emails.size + (await listAll(env, "psub:")).length; };
 const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goal = LOCALS_GOAL.toLocaleString("en-AU"); return `<section id="join" class="rally">
-<h3 class="rallyh">🙏🏾 Help a brother out</h3>
+<h3 class="rallyh">🙏🏽 Help a brother out</h3>
 <p><b>2450 is free, for everyone, forever.</b> Our aim: ${goal} locals signed up, about the reach of a local weekly paper. That's when a few clearly labelled local ads can cover the costs. Nobody will ever pay to be listed.</p>
 <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${LOCALS_GOAL}" aria-valuenow="${n}" aria-label="Locals signed up"><span style="width:${Math.max(pct, 1).toFixed(1)}%"></span></div>
 <p class="barlab mute">${n.toLocaleString("en-AU")} of ${goal} locals</p>
