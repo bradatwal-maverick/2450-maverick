@@ -4,6 +4,7 @@ import { REGIONS } from "./regions.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
+import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
 import { WEST, EAST, VEDIC, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
 function initRegion(env) {
@@ -18,7 +19,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -67,6 +68,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .pills{padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .pills::before{content:"More in today's paper";display:block;width:100%;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}
 @media (prefers-color-scheme:dark){#flow>section{background:color-mix(in srgb,var(--acc) 9%,var(--bg))}}
+.pinlab{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:14px 0 4px}.pinlab b{color:var(--fg)}.frs{list-style:none;padding:0;margin:0 0 8px}.frs li{padding:6px 0;border-bottom:1px solid var(--line);font-size:.92rem}.frs small{font-size:.8rem}.frx{padding:0 8px;margin-left:4px}.me .row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}.me .row input{flex:1 1 130px}.me .row label{flex:1 1 140px}.me .row select{width:100%}.rules li{margin:4px 0}#sq li{display:flex;justify-content:space-between;align-items:center}
 `;
 
 function page(title, body, pc = "") {
@@ -94,6 +96,7 @@ f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote')
 <p class="gaz">Our towns: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
 <p class="aoc">🙏🏽 ${R.ack}<br><a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></p></footer>
+<script>window.M2C=${JSON.stringify({ code: R.code, secs: SECTIONS, towns: Object.fromEntries(Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => [k, [v.name, v.lat, v.lon]])) }).replace(/</g, "\\u003c")}<\/script><script>${PERSONAL_JS}<\/script>
 ${MAV_WIDGET()}
 <script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target)return;try{var u=new URL(a.href,location.href);if(/^https?:$/.test(u.protocol)&&u.host!==location.host){a.target="_blank";a.rel=((a.rel||"")+" noopener").trim()}}catch(_){}},true)</script>
 <script>(function(){var first=null,seen=false;try{seen=!!localStorage.getItem('src_hint')}catch(e){}
@@ -183,7 +186,7 @@ const skyNext = () => { const t = todayISO(), y = +t.slice(0, 4);
 const away = d => { const n = Math.round((new Date(d + "T00:00:00Z") - new Date(todayISO() + "T00:00:00Z")) / 864e5); return n < 0 ? "" : ` <span class="away">${n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n.toLocaleString("en-AU")} days`}</span>`; };
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
 const costTag = e => e.cost == null ? "" : ` <span class="tagg">${e.cost === 0 ? "Free" : "$" + e.cost + (e.kids ? " per kid" : "")}</span>`;
-const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b>${away(e.date)} — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
+const evItem = e => `<li${e.cost === 0 ? ' data-free="1"' : ""}${e.kids ? ' data-kids="1"' : ""}><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b>${away(e.date)} — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
 
 async function town(pc, env, ctx, isRoot = false) {
   const t = TOWNS[pc];
@@ -223,7 +226,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">🏄</span><b id="t-swell">–</b><small>Swell</small></div>
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
 ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>` : ""}
-</div><p class="mute tloc"><a href="#" class="useloc">📍 Use my location for weather</a></p></section>
+</div><p class="mute tloc"><a href="#" class="useloc">📍 Use my location for weather</a></p><div id="frs"></div></section>
 ${live.news}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
@@ -310,11 +313,12 @@ var el=document.createElement('p');el.className='note';el.innerHTML='🗑️ <b>
 var t=document.getElementById('today');t.parentNode.insertBefore(el,t)})();
 (function(){var f=document.getElementById('flow'),o;try{o=JSON.parse(localStorage.getItem('order')||'null')}catch(e){}
 if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
-var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&el.querySelector('h2')});
+var PIN=[];try{PIN=JSON.parse(localStorage.getItem('pin')||'[]')||[]}catch(e){}var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&PIN.indexOf(el.id)<0&&el.querySelector('h2')});
 var nm=function(el){return el.querySelector('h2').textContent.replace(/^[^A-Za-z0-9]+/,'').trim().toLowerCase()};secs.sort(function(a,b){return nm(a).localeCompare(nm(b))});
 secs.forEach(function(el){el.hidden=true;el.classList.add('panel');var b=document.createElement('button');b.type='button';b.textContent=el.querySelector('h2').textContent;
 try{b.style.setProperty('--pc',getComputedStyle(el).getPropertyValue('--acc'))}catch(e){}b.dataset.id=el.id;b.onclick=function(){var open=!el.hidden;secs.forEach(function(x){x.hidden=true});nav.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(!open){el.hidden=false;b.classList.add('on');nav.parentNode.insertBefore(el,nav.nextSibling);nav.scrollIntoView({behavior:'smooth',block:'start'})}};nav.appendChild(b)});
 var td=document.getElementById('news')||document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling);
+var tdy=document.getElementById('today'),ref=tdy.nextSibling,pl=PIN.filter(function(id){var el=document.getElementById(id);return el&&el.parentNode===f&&id!=='today'});if(pl.length){var lb=document.createElement('p');lb.className='pinlab';lb.innerHTML='☀️ <b>Your morning</b> · <a href="/me">change</a>';f.insertBefore(lb,ref);pl.forEach(function(id){var el=document.getElementById(id);el.hidden=false;f.insertBefore(el,ref)})}
 window.openPanel=function(id){var b=nav.querySelector('button[data-id="'+id+'"]');if(b&&!b.classList.contains('on'))b.click();else if(b)nav.scrollIntoView({behavior:'smooth',block:'start'})};
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-open]');if(a){e.preventDefault();openPanel(a.dataset.open)}})})();
 var $=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v};
@@ -834,7 +838,7 @@ const charter = () => page("Our charter", `<p class="mute"><a href="/">${R.brand
 const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">${R.brand}</a></p><h1>Privacy policy</h1>
 <p class="mute">Plain English. Last updated ${UPDATED}.</p>
 <p>We collect as little as we can, we never sell it, and we follow the Australian Privacy Principles.</p>
-<h2>Kept on your phone, not with us</h2><p>If you tap &ldquo;Use my location&rdquo;, it's rounded to about a kilometre and saved on your phone. It's used for your weather and to find fuel near you, never stored by us, and you can reset it any time. Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. We never see them. Clear your browser data and they're gone.</p>
+<h2>Kept on your phone, not with us</h2><p>If you tap &ldquo;Use my location&rdquo;, it's rounded to about a kilometre and saved on your phone. It's used for your weather and to find fuel near you, never stored by us, and you can reset it any time. Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. If you sign in, your page settings (what you pin, show or hide, your stars, the events you like, saved searches and bin night) are also saved to your account, so they follow you to any phone. Your location, school, birthday and friends&rsquo; clocks stay on your phone only. We never see them. Clear your browser data and they're gone.</p>
 <h2>What we do keep</h2><ul>
 <li><b>Weekly email or fridge sign-up:</b> your email, first name if you give it, postcode and that you agreed to the email.</li>
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
@@ -1015,36 +1019,40 @@ async function mav(req, env) {
       name: String(j.name || "").replace(/[^\p{L} '-]/gu, "").slice(0, 30), say: String(j.say || guess.say).slice(0, 200) });
   } catch (e) { return Response.json(guess); }
 }
-const mePage = () => page(`My ${R.code}`, `<h1>🎤 Make ${R.code} yours</h1>
-<div class="mav"><p><b>G'day<span id="hi"></span>, I'm Mav.</b> No fiddly settings. Just tell me about your day and what you care about, and I'll set up your page.</p>
-<div class="row"><button type="button" id="mic" class="micb">🎤 Tap and talk</button></div>
+const mePage = (name = "") => page(`My ${R.code}`, `<div class="me"><h1>⚙️ ${name ? esc(name) + "&rsquo;s" : "My"} ${R.code}</h1>
+<p class="gath"><b>Your daily news, your way.</b> Tell Mav, or tap below. Everything here only changes your own page.</p>
+<div class="mav"><p><b>G'day, I'm Mav.</b> I know ${R.short} inside out. Tell me about your day and what you care about, and I'll set up your page.</p>
 <textarea id="say" rows="3" maxlength="500" placeholder="e.g. ${esc(R.mavExample)}"></textarea>
-<div class="chips" id="ex"><label>I fish and surf</label><label>Two kids, school run, footy on weekends</label><label>New to town, what's on?</label><label>Just weather and bins please</label></div>
-<p><button type="button" id="go">✨ Set me up</button></p><p id="reply" class="note" hidden></p></div>
-<h2>Your ${R.code}</h2><p class="mute">Move things up or down, or switch them off. It saves as you go, on your phone only.</p>
-<label>What should we call you?</label><input id="nm" maxlength="30" placeholder="First name" style="width:100%">
-<ul id="list" class="setlist"></ul>
-<p><a class="card" href="/${R.code}">👀 <b>See my ${R.code}</b> →</a></p><p class="mute"><a href="#" id="reset">Start again</a> · <a href="/signout">Sign out</a></p>
-<script>
-var S=${JSON.stringify(SECTIONS)},L=document.getElementById('list');
-function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function p(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
-function order(){var o;try{o=JSON.parse(g('order')||'null')}catch(e){}var ids=S.map(function(x){return x[0]});o=(o||[]).filter(function(i){return ids.indexOf(i)>-1});ids.forEach(function(i){if(o.indexOf(i)<0)o.push(i)});return o}
-function lab(id){return S.filter(function(x){return x[0]==id})[0][1]}
-function draw(){var o=order();L.innerHTML=o.map(function(id,i){var off=g('hide_'+id);return '<li class="'+(off?'off':'')+'"><span>'+lab(id)+'</span><span><button type="button" data-u="'+i+'" aria-label="Move up"'+(i?'':' disabled')+'>↑</button> <button type="button" data-d="'+i+'" aria-label="Move down"'+(i<o.length-1?'':' disabled')+'>↓</button> <button type="button" data-t="'+id+'" class="tg">'+(off?'Off':'On')+'</button></span></li>'}).join('')}
-L.onclick=function(e){var b=e.target,o=order(),i;if(b.dataset.u){i=+b.dataset.u;o.splice(i-1,0,o.splice(i,1)[0])}else if(b.dataset.d){i=+b.dataset.d;o.splice(i+1,0,o.splice(i,1)[0])}else if(b.dataset.t){p('hide_'+b.dataset.t,g('hide_'+b.dataset.t)?null:'1')}else return;p('order',JSON.stringify(o));draw()};
-var nm=document.getElementById('nm');nm.value=g('name')||decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||'');function hi(){document.getElementById('hi').textContent=nm.value?' '+nm.value:''}hi();
-nm.oninput=function(){p('name',nm.value.trim()||null);hi()};
-var ta=document.getElementById('say');document.getElementById('ex').onclick=function(e){if(e.target.tagName=='LABEL'){ta.value=e.target.textContent;ta.focus()}};
-var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.getElementById('mic');
-if(!SR){mic.textContent='🎤 Use the mic on your keyboard';mic.onclick=function(){ta.focus()}}else{mic.onclick=function(){var r=new SR();r.lang='en-AU';r.interimResults=true;mic.textContent='👂 Listening… tap Set me up when done';
-r.onresult=function(e){ta.value=Array.prototype.map.call(e.results,function(x){return x[0].transcript}).join(' ')};r.onend=function(){mic.textContent='🎤 Tap and talk'};r.onerror=r.onend;r.start()}}
-document.getElementById('go').onclick=function(){var b=this,rp=document.getElementById('reply');if(!ta.value.trim()){ta.focus();return}b.disabled=true;b.textContent='Mav is thinking…';
-fetch('/mav',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:ta.value})}).then(function(r){return r.json()}).then(function(j){
-p('order',JSON.stringify(j.order));S.forEach(function(x){p('hide_'+x[0],(j.hide||[]).indexOf(x[0])>-1?'1':null)});if(j.name&&!nm.value){nm.value=j.name;p('name',j.name);hi()}
-rp.hidden=false;rp.textContent='🗣️ '+j.say;draw()}).catch(function(){rp.hidden=false;rp.textContent='Mav dropped the ball. Try again?'}).then(function(){b.disabled=false;b.textContent='✨ Set me up'})};
-document.getElementById('reset').onclick=function(e){e.preventDefault();p('order',null);S.forEach(function(x){p('hide_'+x[0],null)});draw()};
-draw();
-</script>`, R.code);
+<div class="chips" id="ex"><label>I fish and surf, pin tides and beaches</label><label>Two kids, school run, only free events</label><label>I'm a Libra, Year of the Dragon</label><label>Add Jimmy in London to my friends</label><label>Bins go out Tuesday night</label></div>
+<p><button type="button" id="go">✨ Set me up</button> <button type="button" id="mic" class="ghost">🎤 Talk</button></p><p id="reply" class="note" hidden></p></div>
+<label for="nm">What should we call you?</label><input id="nm" maxlength="30" placeholder="First name" style="width:100%">
+<h2>☀️ Your morning</h2><p class="mute">Pinned sections open at the top of your page every day, in this order.</p><ul id="pins" class="setlist"></ul>
+<h2>📰 Everything else</h2><p class="mute">These sit behind the buttons on your page. Tap 📌 to pin one, or switch off what you never read.</p><ul id="list" class="setlist"></ul>
+<h2 id="friends">📞 Friends&rsquo; clocks</h2><p class="mute">Family and friends in other time zones, with a nudge on when to call (and when not to). Kept on this phone only.</p>
+<ul id="frl" class="frs"></ul>
+<form id="fra" class="row"><input id="frn" maxlength="24" placeholder="First name" aria-label="Friend's first name"><input id="frz" list="tzl" placeholder="City, e.g. London" aria-label="Their city or time zone"><datalist id="tzl"></datalist><button>Add</button></form><p id="frm" class="mute"></p>
+<h2 id="likes-h">🎯 Events you like</h2><p class="mute">We'll show these first and hide the rest, with a one-tap Show all.</p>
+<div id="likes" class="pins">${LIKES.map(l => `<label><input type="checkbox" value="${l}"> ${{ free: "🆓 Free", kids: "🧒 Kids", music: "🎸 Music", markets: "🧺 Markets", sport: "🏉 Sport", food: "🍽️ Food & drink", arts: "🎨 Arts", outdoors: "🌿 Outdoors" }[l]}</label>`).join("")}</div>
+<h2>✨ Your stars</h2><div class="row">
+<label>Western<br><select id="zw"><option value="">Pick…</option>${WEST.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label>
+<label>Vedic (Indian)<br><select id="zv"><option value="">Pick…</option>${VEDIC.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label>
+<label>Chinese<br><select id="ze"><option value="">Pick…</option>${EAST.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label></div>
+<h2>⛅ Weather spot</h2><p class="mute"><span id="wxnow"></span> <a href="#" id="wxh">📍 Use where I am</a> · <a href="#" id="wxr">Reset</a></p>
+<select id="wxt" aria-label="Weather for"><option value="">Or pick a town…</option>${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${k}">${esc(v.name)} ${k}</option>`).join("")}</select>
+<h2>🔎 Saved searches</h2><ul id="sq" class="setlist"></ul>
+<h2>More about you</h2>
+<a class="card" href="/home">🗑️ <b>Bin night</b> <span id="mbin"></span> →</a>
+<a class="card" href="/school">🚸 <b>School run</b> <span id="msch"></span> →</a>
+<a class="card" href="/birthday">🎂 <b>Birthday deals</b> <span id="mbd"></span> →</a>
+<div class="note">🔔 <b>Alerts on your phone</b><br><button type="button" class="pushbtn" data-topic="alerts">Fires &amp; weather</button> ${R.fields ? `<button type="button" class="pushbtn" data-topic="fields">Field closures</button>` : ""}<br><small class="mute pushmsg"></small></div>
+<h2>Mav&rsquo;s rules</h2><ul class="rules">
+<li>Mav only changes <b>your own page</b>. He never adds, edits, deletes or posts anything on ${R.code}, and never changes what anyone else sees.</li>
+<li>We gather, we don't judge. Mav has no opinions on news, people, businesses or council.</li>
+<li>Mav never asks for personal details. A first name, your bin night and your stars are plenty.</li>
+<li>Signed in, your settings follow you to any phone. Your location, birthday, school and friends&rsquo; clocks stay on this phone only.</li></ul>
+<p><a class="card" href="/${R.code}">👀 <b>See my ${R.code}</b> →</a></p>
+<p class="mute">✓ Signed in. <a href="#" id="reset">Start again</a> · <a href="/signout">Sign out</a></p></div>
+<script>addEventListener("DOMContentLoaded",function(){${ME_JS}})<\/script>`, R.code);
 
 // ---- Live sources: fetched by the Worker (every 30 min via cron, or on demand), cached in KV, always shown with "current as of" + source link ----
 const asOf = iso => new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", weekday: "short", day: "numeric", month: "short" });
@@ -1284,14 +1292,7 @@ async function pushApi(req, env, p) {
   }
   return null;
 }
-const PUSH_JS = () => `<script>(function(){var bs=document.querySelectorAll('.pushbtn');if(!bs.length)return;
-function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');var r=atob(b+'==='.slice((b.length+3)%4)),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
-bs.forEach(function(b){var m=b.parentNode.querySelector('.pushmsg');try{if(localStorage.getItem('push_'+b.dataset.topic)){b.textContent='Alerts on ✓';b.disabled=true}}catch(e){}
-b.onclick=function(){if(!('serviceWorker'in navigator)||!('PushManager'in window)){m.textContent='On iPhone: tap Share, then Add to Home Screen, open ${R.code} from there and try again.';return}
-b.disabled=true;b.textContent='Turning on…';Notification.requestPermission().then(function(p){if(p!=='granted')throw 0;return Promise.all([navigator.serviceWorker.ready,fetch('/api/push/key').then(function(r){return r.json()})])})
-.then(function(x){return x[0].pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(x[1].key)})}).then(function(sub){return fetch('/api/push/sub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sub:sub,topics:[b.dataset.topic]})})})
-.then(function(){b.textContent='Alerts on ✓';try{localStorage.setItem('push_'+b.dataset.topic,1)}catch(e){}m.textContent='You\\u2019ll get a notification when there\\u2019s news.'})
-.catch(function(){b.disabled=false;b.textContent='Turn on alerts';m.textContent='Alerts weren\\u2019t allowed. You can turn them on in your phone\\u2019s settings.'})}})})();</script>`;
+const PUSH_JS = () => ""; // alerts buttons are bound by PERSONAL_JS on every page
 
 // ---- Open now: OpenStreetMap places around Coffs (free, no key), cached daily; open/closed worked out on the visitor's phone ----
 const OPEN_CATS = { pharmacy: ["💊 Pharmacies", 'nwr["amenity"="pharmacy"]'], doctor: ["🩺 Doctors & clinics", 'nwr["amenity"~"^(doctors|clinic)$"]'],
@@ -1358,62 +1359,77 @@ async function mavAnswer(req, env) {
   let j = {}; try { j = await req.json(); } catch (e) {}
   const msgs = (Array.isArray(j.messages) ? j.messages : []).slice(-6).map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content || "").slice(0, 500) }));
   const last = msgs.filter(m => m.role === "user").pop()?.content || "";
-  const pc = /^\d{4}$/.test(j.pc) ? j.pc : R.code, ids = SECTIONS.map(x => x[0]);
+  const pc = /^\d{4}$/.test(j.pc) ? j.pc : R.code, ids = SECTIONS.map(x => x[0]), live = Object.keys(TOWNS).filter(k => TOWNS[k].live);
   const fallback = () => { const low = last.toLowerCase(), g = mavGuess(last), hit = [["open", "/open"], ["fridge", "/fridge"], ["dinner", "/fridge"], ["school", "/school"], ["birthday", "/birthday"], ["slang", "/genalpha"], ["idea", "/feedback"]].find(([k]) => low.includes(k));
-    if (/\b(move|put|show|hide|first|top|set up|setup|order|only)\b/.test(low)) return { reply: g.say, actions: [{ type: "order", ids: g.order }] };
-    return { reply: hit ? `Try this page: ${hit[1]}` : `I can rearrange your page, find what's open, check fuel, and point you to anything on ${R.code}. What do you need?`, actions: hit ? [{ type: "link", url: hit[1] }] : [] }; };
-  if (!last.trim()) return Response.json(fallback());
-  if (!env.AI) return Response.json(fallback());
-  try {
-    const r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", { max_tokens: 350, messages: [
-      { role: "system", content: `You are Mav, the friendly, down-to-earth Aussie helper on ${R.brand}. Keep replies short (1-3 sentences), warm and practical. Only use facts below; if unsure, point to the right page or say to check the source. No medical, legal or financial advice beyond pointing to services; emergencies: call 000. Never ask for personal details beyond a first name.
+    if (/\b(hide|remove|get rid|don't want|dont want|switch off|turn off)\b/.test(low)) { const h = ids.filter(id => id !== "today" && low.includes(SECTIONS.find(x => x[0] === id)[1].toLowerCase().split(" ")[0])); if (h.length) return { reply: "Done, that's off your page. Ask me any time to bring it back.", actions: [{ type: "hide", ids: h }] }; }
+    if (/\b(pin|move|put|show|first|top|set up|setup|order|only)\b/.test(low)) { const top = g.order.slice(1, 4); return { reply: g.say, actions: [{ type: "pin", ids: top }] }; }
+    return { reply: hit ? `Try this page: ${hit[1]}` : `I can set up your daily page: pin what you read first, your stars, events you like, bin night, your friends' clocks and more. What do you need?`, actions: hit ? [{ type: "link", url: hit[1] }] : [] }; };
+  if (!last.trim() || !env.AI) return Response.json(fallback());
+  const st = j.state && typeof j.state === "object" ? JSON.stringify(j.state).slice(0, 1200) : "{}";
+  const sys = `You are Mav, the friendly, down-to-earth Aussie helper on ${R.brand}, a free local paper for ${R.place}. Keep replies short (1-3 sentences), warm and practical. Only use facts below; if unsure, point to the right page or say to check the source. No medical, legal or financial advice beyond pointing to services; emergencies: call 000.
+MAV'S RULES (never break these):
+1. You help each person make the daily page their own: what's pinned to "Your morning" at the top, what's hidden, their stars, events they like, weather spot, bin night, school, birthday, saved searches, alerts and friends' clocks. Use what you know about ${R.short} to suggest what suits them.
+2. You only change this person's own page settings. You never add, edit, delete, post or submit anything on the site, and never change what anyone else sees. If asked, say so kindly and point to the page: /submit to add an event, /notices for the notice board, /feedback to fix something wrong.
+3. We gather, we don't judge: no opinions on news, people, businesses, council or politics.
+4. Never ask for personal details. First names (theirs or a friend's), a friend's city, bin night, school and birthday day and month are fine. Never ask for an address, phone number, email, year of birth or anything private.
+5. Only take actions when they ask for a change, and say in the reply what you changed. Settings follow them when signed in; location, birthday, school and friends stay on their phone.
 ${MAV_KB}
-The person is viewing area ${pc}. Their current section order: ${JSON.stringify(j.order || ids)}; hidden: ${JSON.stringify(j.hidden || [])}; name: ${JSON.stringify(String(j.name || "").slice(0, 30))}.
-Reply with ONLY JSON: {"reply":"text","actions":[...]} where actions (optional) can be: {"type":"order","ids":[all section ids in new order]}, {"type":"hide","ids":[...]}, {"type":"show","ids":[...]}, {"type":"name","value":"First"}, {"type":"area","pc":"${Object.keys(TOWNS).filter(k => TOWNS[k].live).join("|")}"}, {"type":"link","url":"/open"}, {"type":"fuel","value":"E10|U91|P95|P98|DL"}. Only use section ids: ${ids.join(", ")}.` },
-      ...msgs] });
-    const raw = String(r.response || ""), m = raw.match(/\{[\s\S]*\}/);
+The person is viewing area ${pc}. Their settings now: ${st}
+Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6):
+{"type":"pin","ids":[...]} pins sections open at the top every day, in that order; {"type":"unpin","ids":[...]}; {"type":"hide","ids":[...]}; {"type":"show","ids":[...]};
+{"type":"name","value":"First"}; {"type":"area","pc":"${live.join("|")}"}; {"type":"fuel","value":"E10|U91|P95|P98|DL"};
+{"type":"sign","system":"w|v|e","value":"sign or animal"} (w Western by birthday, v Vedic Indian, e Chinese by birth year); {"type":"weather","pc":"${live.join("|")}"} or {"type":"weather","here":true};
+{"type":"bins","day":"Monday"}; {"type":"school","value":"exact name from: ${SCHOOLS.join("; ")}"}; {"type":"birthday","day":1-31,"month":1-12}; {"type":"search","value":"a few words"};
+{"type":"alerts","topic":"alerts|fields"} (alerts = fires and weather warnings, fields = sport field closures; shows a button they tap); {"type":"events","likes":[${LIKES.join(",")}]} ([] shows all);
+{"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"}.
+Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
+  try {
+    const ask = { max_tokens: 450, messages: [{ role: "system", content: sys }, ...msgs] };
+    let r; try { r = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", ask); }
+    const raw = typeof r.response === "string" ? r.response : JSON.stringify(r.response || {}), m = raw.match(/\{[\s\S]*\}/);
     let out; try { out = JSON.parse(m[0]); } catch (e) { out = { reply: raw.replace(/[{}"]/g, "").slice(0, 400), actions: [] }; }
-    const acts = (Array.isArray(out.actions) ? out.actions : []).filter(a => a && typeof a === "object").map(a => {
-      if (a.type === "order") { const o = [...new Set((a.ids || []).filter(i => ids.includes(i)))]; ids.forEach(i => o.includes(i) || o.push(i)); return { type: "order", ids: o }; }
-      if (a.type === "hide" || a.type === "show") return { type: a.type, ids: (a.ids || []).filter(i => ids.includes(i) && i !== "today") };
-      if (a.type === "name") return { type: "name", value: String(a.value || "").replace(/[^\p{L} '-]/gu, "").slice(0, 30) };
-      if (a.type === "area" && Object.keys(TOWNS).filter(k => TOWNS[k].live).includes(String(a.pc))) return { type: "area", pc: String(a.pc) };
-      if (a.type === "link" && /^\/[a-z0-9/#?=&-]*$/i.test(a.url || "")) return { type: "link", url: a.url };
-      if (a.type === "fuel" && FUELS[a.value]) return { type: "fuel", value: a.value };
-      return null; }).filter(Boolean).slice(0, 4);
-    return Response.json({ reply: String(out.reply || "Done!").slice(0, 500), actions: acts });
+    return Response.json({ reply: String(out.reply || "Done!").slice(0, 500), actions: cleanActs(out.actions, ids, live) });
   } catch (e) { return Response.json(fallback()); }
+}
+// Everything Mav sets is checked here first. Anything not on this list is dropped.
+function cleanActs(list, ids, live) {
+  const nm = s => String(s || "").replace(/[^\p{L} '-]/gu, "").trim().slice(0, 24), low = s => String(s || "").trim().toLowerCase();
+  const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const sign = (sys, v) => { const x = low(v).replace(/^year of the /, "").replace(/sheep|ram/, "goat").replace(/chicken/, "rooster");
+    const w = WEST.findIndex(s => low(s[1]) === x), vd = VEDIC.findIndex(s => low(s[1]) === x || low(s[2]) === x), e = EAST.findIndex(s => low(s[1]) === x);
+    if (sys === "e" || (!sys && e > -1)) return e > -1 ? { system: "e", index: e } : null;
+    if (sys === "v" || (!sys && VEDIC.some(s => low(s[1]) === x))) return vd > -1 ? { system: "v", index: vd } : null;
+    return w > -1 ? { system: "w", index: w } : null; };
+  return (Array.isArray(list) ? list : []).filter(a => a && typeof a === "object").map(a => {
+    const sec = (arr, noToday) => (Array.isArray(arr) ? arr : []).filter(i => ids.includes(i) && !(noToday && i === "today"));
+    switch (a.type) {
+      case "pin": case "unpin": case "hide": case "show": { const s = sec(a.ids, true); return s.length ? { type: a.type, ids: s } : null; }
+      case "order": { const o = [...new Set(sec(a.ids))]; ids.forEach(i => o.includes(i) || o.push(i)); return { type: "order", ids: o }; }
+      case "name": return nm(a.value) ? { type: "name", value: nm(a.value) } : null;
+      case "area": return live.includes(String(a.pc)) ? { type: "area", pc: String(a.pc) } : null;
+      case "fuel": return FUELS[a.value] ? { type: "fuel", value: a.value } : null;
+      case "sign": { const s = sign(["w", "v", "e"].includes(a.system) ? a.system : "", a.value); return s ? { type: "sign", ...s } : null; }
+      case "weather": if (a.here) return { type: "weather", here: true }; return live.includes(String(a.pc)) ? { type: "weather", lat: TOWNS[a.pc].lat, lon: TOWNS[a.pc].lon } : null;
+      case "bins": { const d = typeof a.day === "number" ? a.day : DAYS.findIndex(x => low(a.day).startsWith(x.slice(0, 3))); return d >= 0 && d <= 6 ? { type: "bins", day: d } : null; }
+      case "school": { const s = SCHOOLS.find(x => low(x) === low(a.value)) || SCHOOLS.find(x => low(a.value).length > 3 && low(x).includes(low(a.value))); return s ? { type: "school", value: s } : null; }
+      case "birthday": { const d = +a.day, m = +a.month; return d >= 1 && d <= 31 && m >= 1 && m <= 12 ? { type: "birthday", day: d, month: m } : null; }
+      case "search": { const v = String(a.value || "").replace(/[<>]/g, "").trim().slice(0, 60); return v.length > 1 ? { type: "search", value: v.toLowerCase() } : null; }
+      case "alerts": return ["alerts", "fields"].includes(a.topic) ? { type: "alerts", topic: a.topic } : null;
+      case "events": return { type: "events", likes: (Array.isArray(a.likes) ? a.likes : []).filter(x => LIKES.includes(x)) };
+      case "friend": { const n = nm(a.name), tz = String(a.tz || ""); if (!n || !/^[A-Za-z_]+(\/[A-Za-z_+-]+){1,2}$/.test(tz)) return null;
+        try { new Intl.DateTimeFormat("en-AU", { timeZone: tz }); } catch (e) { return null; }
+        return { type: "friend", name: n, tz, city: String(a.city || "").replace(/[<>]/g, "").slice(0, 40) }; }
+      case "unfriend": return nm(a.name) ? { type: "unfriend", name: nm(a.name) } : null;
+      case "link": return /^\/[a-z0-9/#?=&-]*$/i.test(a.url || "") ? { type: "link", url: a.url } : null;
+      default: return null;
+    }
+  }).filter(Boolean).slice(0, 8);
 }
 const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav">💬 Ask Mav</button>
 <div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>Mav</b><span class="mute"> · your ${R.code} helper</span><button type="button" id="mavx" aria-label="Close">×</button></div>
-<div id="mavlog"></div><div class="chips" id="mavchips"><label>Set up my page</label><label>What's open now?</label><label>Cheapest fuel</label><label>Bin info</label><label>Hide what I don't use</label></div>
+<div id="mavlog"></div><div class="chips" id="mavchips"><label>Set up my morning</label><label>What's open now?</label><label>Cheapest fuel</label><label>Add a friend's clock</label><label>Only free events</label></div>
 <form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Ask Mav anything…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
-<script>(function(){var P=document.getElementById('mavp'),B=document.getElementById('mavbtn'),LOG=document.getElementById('mavlog'),IN=document.getElementById('mavin'),H=[];
-function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function p(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
-try{H=JSON.parse(sessionStorage.getItem('mavh')||'[]')}catch(e){}
-function e(x){return String(x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
-function draw(){if(!H.length)H=[{role:'assistant',content:'G\\u2019day'+(g('name')?' '+g('name'):'')+'! I\\u2019m Mav. Ask me anything about ${R.code}, or tell me how you want your page set up.'}];
-LOG.innerHTML=H.map(function(m){return '<p class="mm '+(m.role=='user'?'me':'mav')+'">'+e(m.content).replace(/(\\/[a-z0-9]+)/g,'<a href="$1">$1</a>')+'</p>'}).join('');LOG.scrollTop=1e6;try{sessionStorage.setItem('mavh',JSON.stringify(H.slice(-12)))}catch(_){}}
-function open(){P.hidden=false;B.hidden=true;draw();IN.focus();try{sessionStorage.setItem('mavopen',1)}catch(_){}}
-B.onclick=open;document.getElementById('mavx').onclick=function(){P.hidden=true;B.hidden=false;try{sessionStorage.removeItem('mavopen')}catch(_){}};
-document.querySelectorAll('[href="/me"],.openmav').forEach(function(a){a.onclick=function(ev){ev.preventDefault();open()}});
-function order(){try{return JSON.parse(g('order')||'null')}catch(e){return null}}
-function apply(acts){var reload=false;(acts||[]).forEach(function(a){if(a.type=='order'){p('order',JSON.stringify(a.ids));reload=true}
-else if(a.type=='hide'){a.ids.forEach(function(i){p('hide_'+i,'1')});reload=true}else if(a.type=='show'){a.ids.forEach(function(i){p('hide_'+i,null)});reload=true}
-else if(a.type=='name'&&a.value){p('name',a.value);reload=true}else if(a.type=='fuel'){p('fuel',a.value);reload=true}
-else if(a.type=='area'){p('pc',a.pc);setTimeout(function(){location.href='/'+a.pc},900)}else if(a.type=='link'){setTimeout(function(){location.href=a.url},900)}});
-if(reload&&/^\\/\\d{4}\\/?$/.test(location.pathname))setTimeout(function(){location.reload()},900)}
-function send(t){t=t.trim();if(!t)return;H.push({role:'user',content:t});H.push({role:'assistant',content:'…'});draw();IN.value='';
-var hidden=[];document.querySelectorAll('#flow > section').forEach(function(s){if(g('hide_'+s.id))hidden.push(s.id)});
-var pc=(location.pathname.match(/^\\/(\\d{4})/)||[])[1]||g('pc')||'${R.code}';
-fetch('/api/mav',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:H.slice(0,-1).slice(-6),pc:pc,order:order(),hidden:hidden,name:g('name')})})
-.then(function(r){return r.json()}).then(function(j){H[H.length-1]={role:'assistant',content:j.reply};draw();apply(j.actions)})
-.catch(function(){H[H.length-1]={role:'assistant',content:'Sorry, I dropped the ball. Try again?'};draw()})}
-document.getElementById('mavf').onsubmit=function(ev){ev.preventDefault();send(IN.value)};
-document.getElementById('mavchips').onclick=function(ev){if(ev.target.tagName=='LABEL')send(ev.target.textContent)};
-var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.getElementById('mavmic');if(!SR)mic.hidden=true;else mic.onclick=function(){var r=new SR();r.lang='en-AU';mic.textContent='👂';
-r.onresult=function(x){IN.value=Array.prototype.map.call(x.results,function(y){return y[0].transcript}).join(' ')};r.onend=function(){mic.textContent='🎤';if(IN.value)send(IN.value)};r.start()};
-try{if(sessionStorage.getItem('mavopen'))open()}catch(_){}})();</script>`;
+<script>${MAV_JS}<\/script>`;
 
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
@@ -1548,7 +1564,8 @@ async function route(req, env, ctx) {
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
     if (p === "/about") return about(env);
     if (p === "/api/fuel") return fuelApi(req, env);
-    if (p === "/me") return (await member(req, env)) ? mePage() : new Response(null, { status: 303, headers: { location: "/signin?next=/me" } });
+    if (p === "/me") { const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/me" } }); const u = await env.DATA.get(`user:${em}`, "json"); return mePage((u?.name || "").split(" ")[0]); }
+    if (p === "/api/prefs") { const em = await member(req, env); return em ? prefsApi(req, env, em) : Response.json({ error: "Sign in" }, { status: 401 }); }
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
     if (p === "/api/flights") return Response.json(await env.DATA.get("flights", "json") || { list: null }, { headers: { "access-control-allow-origin": "*", "cache-control": "max-age=300" } });
