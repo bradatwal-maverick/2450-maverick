@@ -4,6 +4,14 @@
 export const REGIONS = {
   "2450": {
     code: "2450", brand: "2450 Maverick", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
+    venues: [
+      { name: "C.ex clubs (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
+      { name: "C.ex clubs (free live music)", url: "https://cex.com.au/free-live/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
+      { name: "Sawtell RSL (daily specials)", url: "https://sawtellrsl.com.au/dining/daily-specials/", venue: "Sawtell RSL" },
+      { name: "Sawtell RSL (every week)", url: "https://sawtellrsl.com.au/whats-on/every-week/", venue: "Sawtell RSL" },
+      { name: "Coffs Coast Growers Market", url: "https://www.coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Coffs-Coast-Growers-Markets", venue: "Coffs Coast Growers Market", market: true },
+      { name: "Harbourside Markets", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/harbourside-markets", venue: "Harbourside Markets", market: true },
+    ],
     towns: {
   "2450": { name: "Coffs Harbour", lat: -30.3022, lon: 153.1189, mlat: -30.30, mlon: 153.15, live: true },
   "2452": { name: "Sawtell & Toormina", lat: -30.3640, lon: 153.0960, mlat: -30.37, mlon: 153.12, live: true },
@@ -95,6 +103,9 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2481": {
     code: "2481", brand: "2481 Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
+    venues: [
+      { name: "Beach Hotel Byron Bay", url: "https://www.beachhotel.com.au/whats-on", venue: "Beach Hotel" },
+    ],
     towns: {
       "2481": { name: "Byron Bay & Suffolk Park", lat: -28.6474, lon: 153.6020, mlat: -28.64, mlon: 153.64, live: true },
       "2479": { name: "Bangalow", lat: -28.6860, lon: 153.5240, mlat: -28.64, mlon: 153.64, live: true },
@@ -180,6 +191,10 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2454": {
     code: "2454", brand: "2454 Maverick", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
+    venues: [
+      { name: "C.ex Urunga (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Urunga"] },
+      { name: "Bellingen Growers Market", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-growers-market", venue: "Bellingen Growers Market", market: true },
+    ],
     towns: {
       "2453": { name: "Dorrigo", lat: -30.3410, lon: 152.7130, mlat: -30.50, mlon: 153.05, live: true },
       "2454": { name: "Bellingen", lat: -30.4520, lon: 152.8990, mlat: -30.50, mlon: 153.05, live: true },
