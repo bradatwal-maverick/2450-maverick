@@ -3,7 +3,7 @@
 
 export const REGIONS = {
   "2450": {
-    code: "2450", brand: "The 2450 Gazette", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
+    code: "2450", brand: "Your 2450 Maverick", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
     venues: [
       { name: "C.ex clubs (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
       { name: "C.ex clubs (free live music)", url: "https://cex.com.au/free-live/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
@@ -23,8 +23,8 @@ export const REGIONS = {
     airport: { name: "Coffs Harbour Airport", url: "https://www.flightaware.com/live/airport/YCFS", iata: "CFS" },
     project: { name: "Coffs Harbour bypass", url: "https://www.nsw.gov.au/driving-boating-and-transport/projects/coffs-harbour-bypass/weekly-update-for-coffs-harbour-bypass", home: "https://www.nsw.gov.au/driving-boating-and-transport/projects/coffs-harbour-bypass" },
     coverage: "We cover the whole Coffs Harbour council area: 2450, 2452 and 2456.", soon: "",
-    footer: `2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. The 2450 Gazette brings communities back together.`,
-    ack: `The 2450 Gazette acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
+    footer: `2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. 2450 Maverick brings communities back together.`,
+    ack: `2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
     sign: "Born and built in 2450, raised by the world.",
     goal: 15000, goalText: "about the reach of a local weekly paper",
     council: { name: "Coffs Harbour City Council", url: "https://www.coffsharbour.nsw.gov.au", phone: "02 6648 4000", urgent: "Council (24/7 for urgent water, sewer, animal attacks): 02 6648 4000" },
@@ -103,7 +103,7 @@ Every piece of information has an ⓘ Source button showing where it comes from 
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2481": {
-    code: "2481", brand: "The 2481 Gazette", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
+    code: "2481", brand: "Your 2481 Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
     venues: [
       { name: "Beach Hotel Byron Bay", url: "https://www.beachhotel.com.au/whats-on", venue: "Beach Hotel" },
     ],
@@ -119,8 +119,8 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     funerals: [{ name: "Brunswick Valley Funerals", url: "https://brunswickvalleyfunerals.com.au/currently-in-our-care/" }],
     airport: { name: "Ballina Byron Gateway Airport", url: "https://www.flightaware.com/live/airport/YBNA", iata: "BNK" },
     coverage: "We cover the whole Byron Shire: 2479, 2480, 2481, 2482 and 2483.", soon: "",
-    footer: `Live in Lismore and went to Southern Cross University? You owe us a beer.<br>Big tech divided us. The 2481 Gazette brings communities back together.`,
-    ack: `The 2481 Gazette acknowledges the Arakwal people of the Bundjalung Nation, the Traditional Custodians of the land on which Byron Bay stands, and pays respect to Elders past and present.`,
+    footer: `Live in Lismore and went to Southern Cross University? You owe us a beer.<br>Big tech divided us. 2481 Maverick brings communities back together.`,
+    ack: `2481 Maverick acknowledges the Arakwal people of the Bundjalung Nation, the Traditional Custodians of the land on which Byron Bay stands, and pays respect to Elders past and present.`,
     sign: "Built in 2450, made for 2481, raised by the world.",
     goal: 5000, goalText: "about half the town",
     council: { name: "Byron Shire Council", url: "https://www.byron.nsw.gov.au", phone: "02 6626 7000", urgent: "Byron Shire Council after hours emergencies: 02 6622 7022" },
@@ -191,7 +191,7 @@ Every piece of information has an ⓘ Where from? button showing where it comes 
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2454": {
-    code: "2454", brand: "The 2454 Gazette", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
+    code: "2454", brand: "Your 2454 Maverick", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
     venues: [
       { name: "C.ex Urunga (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Urunga"] },
       { name: "Bellingen Growers Market", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-growers-market", venue: "Bellingen Growers Market", market: true },
@@ -206,8 +206,8 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     funerals: [{ name: "Keith Logue & Sons", url: "https://loguefunerals.com.au/upcoming-funerals/" }, { name: "Victor Rullis Funeral Services", url: "https://www.funeralcoffsharbour.com.au/funeral-notices-and-rememberance" }],
     airport: { name: "Coffs Harbour Airport", url: "https://www.flightaware.com/live/airport/YCFS", iata: "CFS", feed: "https://2450-maverick.live/api/flights" },
     coverage: "We cover the whole Bellingen Shire: 2453, 2454 and 2455.", soon: "",
-    footer: `Big tech divided us. The 2454 Gazette brings communities back together.`,
-    ack: `The 2454 Gazette acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
+    footer: `Big tech divided us. 2454 Maverick brings communities back together.`,
+    ack: `2454 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
     sign: "Built in 2450, made for 2454, raised by the world.",
     goal: 3000, goalText: "about a third of the shire",
     council: { name: "Bellingen Shire Council", url: "https://www.bellingen.nsw.gov.au", phone: "02 6655 7300", urgent: "Bellingen Shire Council: 02 6655 7300" },

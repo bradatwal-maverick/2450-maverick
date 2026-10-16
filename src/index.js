@@ -63,7 +63,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #know,#council,#tools,#sport{--acc:#475569!important}
 .pills button{border-left:4px solid var(--pc,var(--line))}
 .pills{padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.pills::before{content:"More in today's Gazette";display:block;width:100%;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}
+.pills::before{content:"More in today's paper";display:block;width:100%;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}
 @media (prefers-color-scheme:dark){#flow>section{background:color-mix(in srgb,var(--acc) 9%,var(--bg))}}
 `;
 
@@ -89,7 +89,7 @@ f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote')
 <footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a> · <a href="/faq">FAQ</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
 <p class="policy">One policy: no BS. We don't report the news, we gather it from local sources and name every one. No opinions, no spin.</p>
 <p>${R.footer}</p>
-<p class="gaz">Our Gazettes: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a></p>
+<p class="gaz">Our towns: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a></p>
 <p class="aoc">🙏🏽 ${R.ack} <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></p></footer>
 ${MAV_WIDGET()}
@@ -203,8 +203,8 @@ async function town(pc, env, ctx, isRoot = false) {
   const nLocals = await localsCount(env);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  return page(`The ${pc} Gazette: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(k)} <small>${esc(v.name)}</small></span>` : `<a class="pc" href="/${esc(k)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)} <small>${esc(v.name)}</small></a>`).join("")}<a class="pc add" href="/suggest">+ Your town?</a></nav><p class="mast">The ${esc(pc)} Gazette</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · Free, every day</p><p class="gath">We don't write the news, we gather it. Everything here comes from local sources, named on every item.</p>${quoteBlock()}
+  return page(`Your ${pc} Maverick: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
+<nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(k)} <small>${esc(v.name)}</small></span>` : `<a class="pc" href="/${esc(k)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)} <small>${esc(v.name)}</small></a>`).join("")}<a class="pc add" href="/suggest">+ Your town?</a></nav><p class="mast">Your ${esc(pc)} Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · Free, every day</p><p class="gath"><b>Your personalised local news, by Maverick Digital.</b> We don't write the news, we gather it. Everything here comes from local sources, named on every item.</p>${quoteBlock()}
 <h1>${esc(t.name)} ${esc(pc)}</h1>
 ${rallyStrip(nLocals)}
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
@@ -512,13 +512,13 @@ async function admin(req, env) {
 
 const about = async env => { const n = await localsCount(env), locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Nobody pays to be here.</h1>
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
-<h2>We gather, we don't report</h2><p>The Gazette is an aggregator. We don't write news stories or create the information you see here. We gather it from local news outlets, councils, government services, venues, funeral directors and local families, and every item names its source and links back to it. The information belongs to them. If you're a source and want something changed or removed, <a href="/feedback">tell us</a> and we'll fix it straight away.</p>
+<h2>We gather, we don't report</h2><p>${R.code} Maverick is an aggregator. We don't write news stories or create the information you see here. We gather it from local news outlets, councils, government services, venues, funeral directors and local families, and every item names its source and links back to it. The information belongs to them. If you're a source and want something changed or removed, <a href="/feedback">tell us</a> and we'll fix it straight away.</p>
 <p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no fees to list your event, club or notice. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
 <h2>How we'll keep the lights on</h2><p>Our goal is to reach as many locals as a local weekly paper: about <b>15,000 people</b>. ${locals}</p>
 <p>When we get there, local businesses will be able to reach that audience through a few ads in our <b>email</b>, and only there. <b>This site stays ad-free.</b> The ads will be <b>selective</b> (local and relevant to you), <b>fairly priced</b> and <b>clearly labelled</b>. Advertisers never get your name or email address, and we never sell your details.</p>
 <p>We're not here to build an empire off our community. Just to make a fair living doing something genuinely useful for it.</p>
-<p><i>Global vision, local thinking.</i> The ${R.code} Gazette is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
-<p>Big tech divided us. The ${R.code} Gazette brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>${R.sign}</i></p>
+<p><i>Global vision, local thinking.</i> ${R.code} Maverick is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
+<p>Big tech divided us. ${R.code} Maverick brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>${R.sign}</i></p>
 <h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`); };
 
 const ICON = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">${R.code}</text></svg>`;
@@ -1406,7 +1406,7 @@ const crosswordPage = () => {
   const day = todayISO(), { grid, nums, clues } = buildCrossword([...R.cw, ...GENERAL], R.code + day);
   const cell = (ch, r, c) => ch ? `<td><span class="cn">${nums[r + "," + c] || ""}</span><input maxlength="1" data-a="${ch}" autocomplete="off" autocapitalize="characters" aria-label="Row ${r + 1}, column ${c + 1}"></td>` : `<td class="bk"></td>`;
   const list = d => clues.filter(x => x.d === d).map(x => `<li><b>${x.n}</b> ${esc(x.clue)} (${x.w.length})</li>`).join("");
-  return page(`Crossword: The ${R.code} Gazette`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🧩 Today's crossword</h1>
+  return page(`Crossword: ${R.code} Maverick`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🧩 Today's crossword</h1>
 <p class="mute">${esc(fmtDate(day))} · A new one every day, with a few local words in the mix.</p>
 <table class="cw" role="grid">${grid.map((row, r) => `<tr>${row.map((ch, c) => cell(ch, r, c)).join("")}</tr>`).join("")}</table>
 <p><button type="button" id="cwcheck">Check</button> <button type="button" id="cwshow" class="ghost">Show answers</button> <span id="cwmsg" class="mute"></span></p>
@@ -1580,11 +1580,11 @@ function mailUs(env, ctx, subject, body, replyTo) {
   })());
 }
 
-// ---- Suggest a postcode: we build Gazettes for rural and community Australia on request ----
+// ---- Suggest a postcode: we build local pages for rural and community Australia on request ----
 const LIVE_CODES = () => Object.values(REGIONS).flatMap(x => Object.keys(x.towns || {}));
 function suggestPage(msg = "") {
-  return page("Get a Gazette for your town", `<h1>📮 Get a Gazette for your town</h1>
-<p>We're here to help rural and community Australia. If your postcode isn't on our list yet, tell us and we'll build your Gazette. It doesn't take us long, and it's free, like all of them.</p>
+  return page("Get a Maverick for your town", `<h1>📮 Get a Maverick for your town</h1>
+<p>We're here to help rural and community Australia. If your postcode isn't on our list yet, tell us and we'll build one for you. It doesn't take us long, and it's free, like all of them.</p>
 <p class="mute">Already running: ${Object.values(REGIONS).map(x => `<a href="https://${esc(x.domain)}/">${esc(x.code)} ${esc(x.place)}</a>`).join(" · ")}</p>${msg}
 <form method="post" action="/suggest"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="pc" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Postcode *" required><input name="town" maxlength="60" placeholder="Town *" required></div>
@@ -1598,14 +1598,14 @@ async function suggest(req, env, ctx) {
   const pc = String(f.get("pc") || "").trim(), town = String(f.get("town") || "").trim().slice(0, 60);
   const note = String(f.get("note") || "").slice(0, 600), email = String(f.get("email") || "").trim().slice(0, 120);
   if (!/^\d{4}$/.test(pc) || !town) return suggestPage(`<p class="note">Please add a 4-digit postcode and your town.</p>`);
-  if (LIVE_CODES().includes(pc)) { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc]); return suggestPage(`<p class="note">Good news: ${esc(pc)} is already covered by <a href="https://${esc(r.domain)}/${esc(pc)}">The ${esc(r.code)} Gazette</a>.</p>`); }
+  if (LIVE_CODES().includes(pc)) { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc]); return suggestPage(`<p class="note">Good news: ${esc(pc)} is already covered by <a href="https://${esc(r.domain)}/${esc(pc)}">Your ${esc(r.code)} Maverick</a>.</p>`); }
   const k = "pcsug:" + pc, cur = (await env.DATA.get(k, "json")) || { pc, towns: [], count: 0, emails: [], notes: [] };
   cur.count++; cur.at = new Date().toISOString();
   if (!cur.towns.includes(town)) cur.towns = [...cur.towns, town].slice(-10);
   if (email && !cur.emails.includes(email)) cur.emails = [...cur.emails, email].slice(-50);
   if (note.trim()) cur.notes = [...cur.notes, note].slice(-10);
   await env.DATA.put(k, JSON.stringify(cur));
-  mailUs(env, ctx, `Gazette request: ${pc} ${town} (${cur.count} so far)`, `Postcode: ${pc}\nTown: ${town}\nAsked ${cur.count} time(s)\n\n${note}\n\nEmail: ${email || "(none)"}\nVia ${R.domain}`, email);
+  mailUs(env, ctx, `New town request: ${pc} ${town} (${cur.count} so far)`, `Postcode: ${pc}\nTown: ${town}\nAsked ${cur.count} time(s)\n\n${note}\n\nEmail: ${email || "(none)"}\nVia ${R.domain}`, email);
   return suggestPage(`<p class="note">Thanks! ${esc(pc)} ${esc(town)} is on our list${cur.count > 1 ? ` (${cur.count} locals have asked)` : ""}.${email ? " We'll email you when it's live." : ""}</p>`);
 }
 
@@ -1674,7 +1674,7 @@ async function lodgeJoy(req, env, ctx) {
 
 // ---- FAQ: a long, plain-English question list for search engines and AI assistants (LLMs). Quietly linked. ----
 function faqList() {
-  const news = R.news.map(n => n.name).join(", "), homes = (R.funerals || []).map(f => f.name).join(" and "), G = `The ${R.code} Gazette`, base = `https://${R.domain}`;
+  const news = R.news.map(n => n.name).join(", "), homes = (R.funerals || []).map(f => f.name).join(" and "), G = `${R.code} Maverick`, base = `https://${R.domain}`;
   const places = [[R.place + " and the shire", R.code], ...Object.entries(TOWNS).filter(([, t]) => t.live).map(([pc, t]) => [t.name + " (" + pc + ")", pc])];
   const out = [];
   for (const [T, pc] of places) {
@@ -1700,21 +1700,21 @@ function faqList() {
       [`What can kids do in ${T} this weekend?`, `${G} has a Weekend for kids section with free playgrounds, library activities and family events near ${T}. See ${u}#kids.`],
       [`How do I report a lost or found pet in ${T}?`, `Post it free on the ${G} community notice board, which also lists volunteers, clubs and classes. See ${base}/notices.`],
       [`Are there any bushfires near ${T}?`, `${G} lists fires within 100 km of ${T} from NSW Rural Fire Service, and current Bureau of Meteorology weather warnings. In an emergency, call 000. See ${u}#alerts.`],
-      [`Whose traditional land is ${T} on?`, `${R.ack.replace(/^The \d+ Gazette acknowledges/, "We acknowledge").replace(" and pays respect", " and pay respect")} You can explore the Map of Indigenous Australia at aiatsis.gov.au.`],
+      [`Whose traditional land is ${T} on?`, `${R.ack.replace(/^\d+ Maverick acknowledges/, "We acknowledge").replace(" and pays respect", " and pay respect")} You can explore the Map of Indigenous Australia at aiatsis.gov.au.`],
       [`How do I list an event in ${T}?`, `Add it free at ${base}/submit?pc=${pc}. Events must cost $50 or less per person.`],
       [`Which local places give birthday deals in ${T}?`, `${G} lists local places that look after you on your birthday. See ${base}/birthday.`],
       [`What can I cook for dinner tonight with what's in my fridge?`, `Tell ${G}'s fridge helper what you've got and how many you're feeding, and get dinner ideas in seconds. See ${base}/fridge.`],
       [`When is the next full moon in ${T}?`, `${G} shows the moon phase and days until the next full moon, plus meteor showers and sky events in the next week. See ${u}.`],
     ]]);
   }
-  out.push(["About the Gazette", [
+  out.push([`About ${R.code} Maverick`, [
     [`What is ${G}?`, `${G} is a free daily community paper for ${R.place} and the shire: local news, events, alerts, tides, fuel, flights, lotto, a crossword, horoscopes, In memory, and births and marriages, all on one page. ${R.coverage}`],
     [`Is ${G} free?`, `Yes, always. No paywalls, no subscriptions and no fees to list an event or notice. The website is ad-free.`],
     [`Who runs ${G}?`, `${G} is a free gift to the community from Maverick Digital, a Coffs Harbour business that uses big tech skills for the community.`],
     [`Does ${G} write its own news?`, `No. ${G} is an aggregator: it gathers information from local news outlets, councils, government services, venues and local families, and every item names and links to its source. The stories and information belong to those sources.`],
     [`Where does ${G} get its information?`, `Every item names its source and shows when it was last updated, from local news outlets, NSW Government services, the Bureau of Meteorology, NSW Rural Fire Service, local funeral directors and local families. One policy: no BS. No opinions, no spin.`],
-    [`Can I get a Gazette for my town?`, `Yes. Any town in rural and community Australia can ask for its own Gazette at ${base}/suggest.`],
-    [`What other Gazettes are there?`, Object.values(REGIONS).map(x => `The ${x.code} Gazette covers ${x.place}`).join("; ") + "."],
+    [`Can I get one of these for my town?`, `Yes. Any town in rural and community Australia can ask for its own at ${base}/suggest.`],
+    [`Which other towns have one?`, Object.values(REGIONS).map(x => `${x.code} Maverick covers ${x.place}`).join("; ") + "."],
   ]]);
   return out;
 }
@@ -1733,7 +1733,7 @@ function sitemapXml() {
 }
 function llmsTxt() {
   const g = faqList();
-  return new Response(`# The ${R.code} Gazette\n\n> A free daily community paper for ${R.place} and the shire (${Object.keys(TOWNS).join(", ")}), from Maverick Digital. Every item names its source. One policy: no BS.\n\n` +
+  return new Response(`# Your ${R.code} Maverick\n\n> A free daily community paper for ${R.place} and the shire (${Object.keys(TOWNS).join(", ")}), from Maverick Digital. Every item names its source. One policy: no BS.\n\n` +
     g.map(([h, qs]) => `## ${h}\n\n` + qs.map(([q, a]) => `- ${q} ${a}`).join("\n")).join("\n\n") + "\n", { headers: { "content-type": "text/plain; charset=utf-8" } });
 }
 
@@ -1950,5 +1950,5 @@ async function healthMail(env, ctx) {
   const bad = (await health(env)).filter(x => !x.ok);
   await env.DATA.put("health:mailed", today, { expirationTtl: 2 * 86400 });
   if (!bad.length) return;
-  mailUs(env, ctx, `${R.code} Gazette: ${bad.length} source${bad.length > 1 ? "s" : ""} not working`, bad.map(x => `- ${x.name}: ${x.last ? "last worked " + x.hours + " hours ago" : "never worked"}${x.note ? " (" + x.note + ")" : ""}\n  ${x.url}`).join("\n") + `\n\nFull list: https://${R.domain}/admin`);
+  mailUs(env, ctx, `${R.code} Maverick: ${bad.length} source${bad.length > 1 ? "s" : ""} not working`, bad.map(x => `- ${x.name}: ${x.last ? "last worked " + x.hours + " hours ago" : "never worked"}${x.note ? " (" + x.note + ")" : ""}\n  ${x.url}`).join("\n") + `\n\nFull list: https://${R.domain}/admin`);
 }
