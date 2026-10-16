@@ -1773,7 +1773,9 @@ async function refreshVenues(env) {
     if (old && Date.now() - new Date(old.tried || old.asof) < 12 * 3600e3) continue;
     done++;
     try {
-      const html = await (await fetch(src.url, { headers: UA })).text();
+      const vr = await fetch(src.url, { headers: UA });
+      if ([401, 403, 429, 451].includes(vr.status)) { await env.DATA.put(k, JSON.stringify({ ...(old || { name: src.name, url: src.url, items: [] }), blocked: vr.status, tried: new Date().toISOString() })); continue; }
+      const html = await vr.text();
       const txt = dec(html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<nav[\s\S]*?<\/nav>|<footer[\s\S]*?<\/footer>|<header[\s\S]*?<\/header>/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&rsquo;|&lsquo;/g, "'").replace(/&ndash;|&mdash;/g, "-")).replace(/\s+/g, " ").slice(0, 12000);
       const ask = { messages: [
         { role: "system", content: "You extract what's on at local venues from web page text. Output ONLY JSON." },
@@ -1792,13 +1794,13 @@ async function refreshVenues(env) {
         if (!days.length && !date) continue;
         items.push({ venue, what, detail, days, date, week: Math.max(0, Math.min(4, +it.week || 0)), time: String(it.time || "").slice(0, 20), kind: KINDS[it.kind] ? it.kind : (src.market ? "market" : "other") });
       }
-      await env.DATA.put(k, JSON.stringify(items.length ? { name: src.name, url: src.url, items, asof: new Date().toISOString(), tried: new Date().toISOString() } : { ...(old || { name: src.name, url: src.url, items: [] }), tried: new Date().toISOString() }));
+      await env.DATA.put(k, JSON.stringify(items.length ? { name: src.name, url: src.url, items, asof: new Date().toISOString(), tried: new Date().toISOString(), blocked: 0 } : { ...(old || { name: src.name, url: src.url, items: [] }), tried: new Date().toISOString() }));
     } catch (e) { await env.DATA.put(k, JSON.stringify({ ...(old || { name: src.name, url: src.url, items: [] }), tried: new Date().toISOString() })); }
   }
 }
 async function plannerData(env) {
-  const out = [];
-  for (const src of await venueSources(env)) { const v = await env.DATA.get(vkey(src.url), "json"); if (v) for (const it of v.items) out.push({ ...it, src: v.name, url: v.url, asof: v.asof }); }
+  const out = []; out.blocked = [];
+  for (const src of await venueSources(env)) { const v = await env.DATA.get(vkey(src.url), "json"); if (v && v.blocked) out.blocked.push(v.name); if (v) for (const it of v.items) out.push({ ...it, src: v.name, url: v.url, asof: v.asof }); }
   for (const pc of Object.keys(TOWNS).filter(k => TOWNS[k].live)) for (const e of [...await listEvents(env, `event:${pc}:`), ...await listEvents(env, `feed:${pc}:`)])
     out.push({ venue: e.venue || TOWNS[pc].name, what: e.title, detail: "", days: [], date: e.date, week: 0, time: e.time || "", kind: "other", url: e.link || "", src: e.link ? "Event listing" : "Added by a local" });
   return out;
@@ -1808,7 +1810,7 @@ async function plannerBlock(env) {
   return `<section id="tonight"><h2>📅 What's on</h2><p class="mute">Specials, members nights, bingo, trivia, live music, markets and events around ${esc(R.short)}, in one place.</p>
 <div class="ptabs" role="tablist"><button type="button" data-p="0" class="on">Today</button><button type="button" data-p="1">Tomorrow</button><button type="button" data-p="w">This weekend</button><label class="pdate">Planning ahead? <input type="date" id="pdate" min="${todayISO()}"></label></div>
 <div id="pout"></div>
-<p class="src">Read from each venue's own website twice a day. Specials can change, so check with the venue before you go. Know a venue we're missing? <a href="/feedback">Tell us</a>.</p>
+${data.blocked.length ? `<p class="note">🚫 These venues' websites block automatic reading, so we can't show their specials: ${data.blocked.map(esc).join(", ")}. Check with them directly.</p>` : ""}<p class="src">Read from each venue's own website twice a day. Specials can change, so check with the venue before you go. Know a venue we're missing? <a href="/feedback">Tell us</a>.</p>
 <script>(function(){var D=${JSON.stringify(data).replace(/</g, "\\u003c")},K=${JSON.stringify(KINDS)},DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],out=document.getElementById('pout');
 function fr(a){if(!a)return '';var d=(Date.now()-new Date(a))/864e5,k=d<=7?'g':d<=92?'a':'r';return '<span class="fresh '+k+'"></span>'}function iso(d){return d.toLocaleDateString('en-CA',{timeZone:'Australia/Sydney'})}function at(n){var d=new Date();d.setDate(d.getDate()+n);return d}
 function e(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -1856,18 +1858,19 @@ async function refreshShop(env) {
   const old = await env.DATA.get("shop", "json");
   if (old && old.v === 2 && Date.now() - new Date(old.tried) < 20 * 3600e3) return old;
   const now = new Date().toISOString(), out = { v: 2, tried: now, stores: {}, items: {} };
-  let build = "";
-  try { build = ((await (await fetch("https://www.coles.com.au/", { headers: UA })).text()).match(/"buildId":"([^"]+)"/) || [])[1] || ""; } catch (e) {}
+  let build = "", blocked = {};
+  try { const cr = await fetch("https://www.coles.com.au/", { headers: UA }); build = ((await cr.text()).match(/"buildId":"([^"]+)"/) || [])[1] || ""; if (!build) blocked.c = cr.status; } catch (e) { blocked.c = "error"; }
   for (const k of Object.keys(STORES)) {
     let got = 0;
     for (const it of SHOP) {
       let r = null;
-      try { r = k === "w" ? await shopWoolies(it[k]) : k === "c" ? (build ? await shopColes(it[k], build) : null) : await shopAldi(it[k]); } catch (e) {}
+      try { r = k === "w" ? await shopWoolies(it[k]) : k === "c" ? (build ? await shopColes(it[k], build) : null) : await shopAldi(it[k]); } catch (e) { blocked[k] = blocked[k] || "error"; }
       const prev = old && old.items && old.items[it.id] && old.items[it.id][k];
       if (r) { got++; (out.items[it.id] = out.items[it.id] || {})[k] = { ...r, prev: prev && prev.price !== r.price ? prev.price : (prev && prev.prev) || 0, at: now }; }
       else if (prev) (out.items[it.id] = out.items[it.id] || {})[k] = { ...prev, stale: true };
     }
     out.stores[k] = got ? now : (old && old.stores && old.stores[k]) || null;
+    if (!got) (out.blocked = out.blocked || {})[k] = blocked[k] || "no data";
   }
   await env.DATA.put("shop", JSON.stringify(out));
   return out;
@@ -1883,7 +1886,7 @@ async function shopBlock(env) {
   return `<section id="shop"><h2>🛒 Supermarket watch</h2><p class="mute">The everyday basics at each supermarket today. Cheapest in green.</p>
 ${best ? `<p class="note">🏆 Cheapest basket today (milk, bread, eggs, chocolate): <b>${STORES[best]}</b> at ${money(tot[best])}${ks.filter(k => k !== best && tot[k] != null).map(k => `, ${STORES[k]} ${money(tot[k])}`).join("")}.</p>` : ""}
 <div class="tscroll"><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${STORES[k]}</th>`).join("")}</tr></thead><tbody>${SHOP.map(row).join("")}</tbody></table></div>
-<p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
+${Object.keys(s.blocked || {}).length ? `<p class="note">🚫 ${Object.keys(s.blocked).map(k => `<b>${STORES[k]}</b>`).join(" and ")} didn't let us read ${Object.keys(s.blocked).length > 1 ? "their" : "its"} prices today: ${Object.keys(s.blocked).length > 1 ? "their websites block" : "its website blocks"} automatic checks. We show what we can find, and we tell you when we can't.</p>` : ""}<p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
 }
 
 // ---- Big local projects (e.g. the Coffs Harbour bypass): the latest weekly update from the project's own page ----
@@ -1955,7 +1958,7 @@ async function health(env) {
   for (const [k, maxH] of [["news", 6], ["fires", 3], ["warnings", 3], ["holidays", 96]]) { const v = await env.DATA.get("src:" + k, "json"); add(SOURCES[k].name, SOURCES[k].url, v && v.asof, maxH); }
   const ob = await env.DATA.get("obits", "json"); add("Funeral notices (" + (R.funerals || []).map(f => f.name).join(", ") + ")", (R.funerals || [])[0]?.url || "", ob && ob.asof, 24, ob && !ob.items.length ? "no notices found" : "");
   const lo = await env.DATA.get("lotto", "json"); add("Lotto results (The Lott)", "https://www.thelott.com", lo && lo.asof, 12);
-  const sh = await env.DATA.get("shop", "json"); for (const [k, n] of Object.entries(STORES)) add("Supermarket prices (" + n + ")", { w: "https://www.woolworths.com.au", c: "https://www.coles.com.au", a: "https://www.aldi.com.au" }[k], sh && sh.stores && sh.stores[k], 48);
+  const sh = await env.DATA.get("shop", "json"); for (const [k, n] of Object.entries(STORES)) add("Supermarket prices (" + n + ")", { w: "https://www.woolworths.com.au", c: "https://www.coles.com.au", a: "https://www.aldi.com.au" }[k], sh && sh.stores && sh.stores[k], 48, sh && sh.blocked && sh.blocked[k] ? "blocks automatic checks (" + sh.blocked[k] + ")" : "");
   if (R.project) { const pr = await env.DATA.get("project", "json"); add(R.project.name + " weekly update", R.project.url, pr && pr.points && pr.points.length ? pr.asof : null, 48); }
   if (env.FLIGHT_KEY && !R.airport.feed) { const fl = await env.DATA.get("flights", "json"); add("Flights (AeroDataBox)", "https://aerodatabox.com", fl && fl.asof, 12); }
   if (env.FUEL_KEY) { const fu = await env.DATA.get("fuel:local", "json"); add("Fuel prices (NSW FuelCheck)", "https://www.fuelcheck.nsw.gov.au", fu && fu.asof, 24); }
