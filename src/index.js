@@ -55,7 +55,7 @@ function page(title, body, pc = "") {
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
 <p>${R.footer}</p>
-<p class="gaz">Maverick Gazettes: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${x.code}</b>` : `<a href="https://${x.domain}">${x.code}</a>`).join(" · ")}</p>
+<p class="gaz">Our Gazettes: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${x.code}</b>` : `<a href="https://${x.domain}">${x.code}</a>`).join(" · ")}</p>
 <p class="aoc">${R.ack} <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a><br><span class="tagline">Big tech skills, used for the community. ${R.sign}</span></p></footer>
 ${MAV_WIDGET()}
@@ -165,8 +165,8 @@ async function town(pc, env, ctx, isRoot = false) {
   const nLocals = await localsCount(env);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  return page(`The ${pc} Maverick Gazette: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<p class="towns"><label for="pcsel">What's your postcode?</label> <select id="pcsel" onchange="try{localStorage.setItem('pc',this.value)}catch(e){}location='/'+this.value">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${esc(k)}"${k === pc ? " selected" : ""}>${esc(k)} ${esc(v.name)}</option>`).join("")}</select></p><p class="mast">The ${esc(pc)} Maverick Gazette</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · Free, every day</p>
+  return page(`The ${pc} Gazette: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
+<p class="towns"><label for="pcsel">What's your postcode?</label> <select id="pcsel" onchange="try{localStorage.setItem('pc',this.value)}catch(e){}location='/'+this.value">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${esc(k)}"${k === pc ? " selected" : ""}>${esc(k)} ${esc(v.name)}</option>`).join("")}</select></p><p class="mast">The ${esc(pc)} Gazette</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · Free, every day</p>
 <h1>${esc(t.name)} ${esc(pc)}</h1>
 ${rallyStrip(nLocals)}
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
@@ -1235,7 +1235,7 @@ const crosswordPage = () => {
   const day = todayISO(), { grid, nums, clues } = buildCrossword([...R.cw, ...GENERAL], R.code + day);
   const cell = (ch, r, c) => ch ? `<td><span class="cn">${nums[r + "," + c] || ""}</span><input maxlength="1" data-a="${ch}" autocomplete="off" autocapitalize="characters" aria-label="Row ${r + 1}, column ${c + 1}"></td>` : `<td class="bk"></td>`;
   const list = d => clues.filter(x => x.d === d).map(x => `<li><b>${x.n}</b> ${esc(x.clue)} (${x.w.length})</li>`).join("");
-  return page(`Crossword: The ${R.code} Maverick Gazette`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🧩 Today's crossword</h1>
+  return page(`Crossword: The ${R.code} Gazette`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🧩 Today's crossword</h1>
 <p class="mute">${esc(fmtDate(day))} · A new one every day, with a few local words in the mix.</p>
 <table class="cw" role="grid">${grid.map((row, r) => `<tr>${row.map((ch, c) => cell(ch, r, c)).join("")}</tr>`).join("")}</table>
 <p><button type="button" id="cwcheck">Check</button> <button type="button" id="cwshow" class="ghost">Show answers</button> <span id="cwmsg" class="mute"></span></p>
