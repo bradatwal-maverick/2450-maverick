@@ -54,11 +54,11 @@ function page(title, body, pc = "") {
 ${MAV_WIDGET}
 <script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a||a.target)return;try{var u=new URL(a.href,location.href);if(/^https?:$/.test(u.protocol)&&u.host!==location.host){a.target="_blank";a.rel=((a.rel||"")+" noopener").trim()}}catch(_){}},true)</script>
 <script>(function(){var first=null,seen=false;try{seen=!!localStorage.getItem('src_hint')}catch(e){}
-document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=document.createElement('button');b.type='button';b.className='srcbtn';b.innerHTML='ⓘ <span>Source</span>';
+document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=document.createElement('button');b.type='button';b.className='srcbtn';b.innerHTML='ⓘ <span>Where from?</span>';
 b.setAttribute('aria-label','Where this information comes from');b.setAttribute('aria-expanded','false');
 b.onclick=function(){p.hidden=!p.hidden;b.setAttribute('aria-expanded',String(!p.hidden));b.classList.toggle('on',!p.hidden);try{localStorage.setItem('src_hint','1')}catch(e){}var h=document.getElementById('srchint');if(h)h.remove()};
 p.parentNode.insertBefore(b,p);if(!first)first=b});
-if(first&&!seen){var h=document.createElement('p');h.id='srchint';h.className='note';h.innerHTML='💡 <b>Tip:</b> tap <b>ⓘ Source</b> on anything to see where it comes from and how up to date it is. <a href="#" id="srcok">Got it</a>';first.parentNode.insertBefore(h,first);document.getElementById('srcok').onclick=function(e){e.preventDefault();h.remove();try{localStorage.setItem('src_hint','1')}catch(_){}}}})();</script>
+if(first&&!seen){var h=document.createElement('p');h.id='srchint';h.className='note';h.innerHTML='💡 Tap <b>ⓘ Where from?</b> to see who gave us the info and how fresh it is. <a href="#" id="srcok">Got it</a>';first.parentNode.insertBefore(h,first);document.getElementById('srcok').onclick=function(e){e.preventDefault();h.remove();try{localStorage.setItem('src_hint','1')}catch(_){}}}})();</script>
 <script>(function(){var TW=${JSON.stringify(Object.entries(TOWNS).filter(([, t]) => t.live).map(([k, t]) => [k, t.lat, t.lon]))};var L=null;try{L=JSON.parse(localStorage.getItem("loc"))}catch(e){}document.querySelectorAll(".useloc").forEach(function(a){if(L)a.textContent="📍 Using your location (reset)";
 a.onclick=function(e){e.preventDefault();if(L){try{localStorage.removeItem("loc")}catch(_){}location.reload();return}if(!navigator.geolocation){a.textContent="Location not available on this device";return}a.textContent="📍 Finding you…";
 navigator.geolocation.getCurrentPosition(function(p){var la=+p.coords.latitude.toFixed(2),lo=+p.coords.longitude.toFixed(2);try{localStorage.setItem("loc",JSON.stringify([la,lo]))}catch(_){}
@@ -184,20 +184,20 @@ ${fuelBlock(t)}
 <details open><summary><b>Who runs the place</b></summary><ul>
 <li>Mayor: <b>Cr Nikki Williams</b> · Deputy Mayor: <b>Cr George Cecato</b></li>
 <li>Councillors: Cath Fowler, Gurminder Saro, Jonathan Cassell, Julie Sechi, Les Oxford, Paul Amos, Tony Judge. <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">Contact them</a></li>
-<li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul><p class="src">Source: <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">City of Coffs Harbour, Councillors page</a> · Source shows no &ldquo;last updated&rdquo; date · Checked 16 Oct 2026</p></details>
+<li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul><p class="src">Info from <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">City of Coffs Harbour, Councillors page</a> · They don&rsquo;t say when they last updated it · We last looked 16 Oct 2026</p></details>
 <details><summary><b>Bins &amp; rubbish</b></summary><ul>
 <li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app (App Store or Google Play)</li>
 <li>Bulky goods (old couch, mattress): book a kerbside pick-up or get free tip vouchers on <a href="tel:1800265495">1800 265 495</a>. Vouchers are posted, so allow 2 weeks</li>
 <li>Tip: Englands Road Waste Management Facility</li>
-<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul><p class="src warn">Source: <a href="https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs" rel="noopener">Council bulky goods FAQ</a> · ⚠️ Source describes changes from March 2018, no newer date shown · Checked 16 Oct 2026</p><p class="src">Source: <a href="https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week" rel="noopener">News Of The Area (waste app)</a> · Published Aug 2026 · Checked 16 Oct 2026</p></details>
+<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul><p class="src warn">Info from <a href="https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs" rel="noopener">Council bulky goods FAQ</a> · ⚠️ Heads up: this info is from March 2018, so it may be old · We last looked 16 Oct 2026</p><p class="src">Info from <a href="https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week" rel="noopener">News Of The Area (waste app)</a> · Written Aug 2026 · We last looked 16 Oct 2026</p></details>
 <details><summary><b>Got a problem?</b></summary><ul>
 <li>Pothole, broken footpath, streetlight, overgrown block: <a href="https://forms.coffsharbour.nsw.gov.au/RunForm.aspx?formId=1366" rel="noopener">Council request form</a></li>
 <li>Pollution or environmental issue: <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">Report it</a></li>
-<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul><p class="src">Source: <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">City of Coffs Harbour, Report an environmental issue</a> · Source shows no &ldquo;last updated&rdquo; date · Checked 16 Oct 2026</p></details>
+<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul><p class="src">Info from <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">City of Coffs Harbour, Report an environmental issue</a> · They don&rsquo;t say when they last updated it · We last looked 16 Oct 2026</p></details>
 <details><summary><b>Contact council</b></summary><ul>
 <li>📞 <a href="tel:0266484000">02 6648 4000</a>, weekdays 8:30am–4:30pm. Same number 24/7 for urgent water, sewer, pollution or animal attacks</li>
 <li>✉️ <a href="mailto:coffs.council@chcc.nsw.gov.au">coffs.council@chcc.nsw.gov.au</a></li>
-<li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul><p class="src">Source: <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" rel="noopener">City of Coffs Harbour, Contact details</a> · Source shows no &ldquo;last updated&rdquo; date · Checked 16 Oct 2026</p></details>
+<li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul><p class="src">Info from <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" rel="noopener">City of Coffs Harbour, Contact details</a> · They don&rsquo;t say when they last updated it · We last looked 16 Oct 2026</p></details>
 <p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
 ${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
 ${await kidsBlock(local, feed, pc)}
@@ -583,7 +583,7 @@ const schoolPage = () => { const t = TOWNS["2450"]; return page("School run repo
 <div class="tile"><span class="ico">🚸</span><b>2:30–4pm</b><small>School zone 40 km/h</small></div></div>
 <p id="tip" class="note"></p>
 <h2>On your route</h2><p class="mute">Crashes, roadworks and closures near <span id="sn"></span>, coming soon. For now: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a>.</p>
-<h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. Source: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a>.</p>
+<h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a>.</p>
 <h2>Field closures &amp; weekend sport</h2><p class="mute">Wet-weather field closures and local junior sport fixtures, coming soon. Clubs will be able to post closures here free. For now: <a href="https://www.coffsharbour.nsw.gov.au" rel="noopener">Coffs Harbour City Council</a>.</p>
 <h2>Bell times</h2><p class="mute">Your school's own bell times, coming soon. Check the school newsletter or website for now.</p></div>
 <script>
@@ -783,7 +783,7 @@ b1.onclick=function(){set(1)};b2.onclick=function(){set(2)};q.oninput=go;
 
 // ---- In memory: local death notices, sourced from funeral homes (approved in admin; shown for 60 days) ----
 const ripItem = n => `<li><b>${esc(n.name)}</b>${n.age ? `, ${esc(n.age)}` : ""}<br><span class="mute">Passed ${esc(fmtDate(n.date))}${n.service ? ` · ${esc(n.service)}` : ""}</span><br>
-<span class="src">Source: ${n.link ? `<a href="${esc(n.link)}" rel="nofollow noopener">${esc(n.home)}</a>` : esc(n.home)}</span></li>`;
+<span class="src">Info from ${n.link ? `<a href="${esc(n.link)}" rel="nofollow noopener">${esc(n.home)}</a>` : esc(n.home)}</span></li>`;
 async function ripPage(env, msg = "") {
   const since = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10), list = [];
   for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { if (name.split(":")[1] < since) continue; const n = await env.DATA.get(name, "json"); if (n) list.push(n); }
@@ -874,7 +874,7 @@ draw();
 // ---- Live sources: fetched by the Worker (every 30 min via cron, or on demand), cached in KV, always shown with "current as of" + source link ----
 const HOME = { lat: -30.2963, lon: 153.1135 };
 const asOf = iso => new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", weekday: "short", day: "numeric", month: "short" });
-const srcLine = (name, url, iso, note = "") => `<p class="src">${iso ? `Current as of ${esc(asOf(iso))} · ` : ""}Source: <a href="${url}" rel="noopener">${name}</a>${note ? " · " + note : ""}</p>`;
+const srcLine = (name, url, iso, note = "") => `<p class="src">Info from <a href="${url}" rel="noopener">${name}</a>.${iso ? ` Updated ${esc(asOf(iso))}.` : ""}${note ? " " + note : ""}</p>`;
 const dec = x => String(x || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(n)).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
   .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#039;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
 const tag = (x, t) => dec((x.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)) || [])[1]);
@@ -922,7 +922,7 @@ ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
 ${news.ok === false ? fail() : `<ul>${news.items.map(n => `<li><a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a><br><span class="mute">${esc(n.date ? new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" }) : "")}</span></li>`).join("")}</ul>`}
 ${srcLine(S.news.name, S.news.url, news.asof)}</section>`;
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
-${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<h3>Next school holidays</h3>${schoolHols()}<p class="src">NSW public schools, Eastern division · Source: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
+${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<h3>Next school holidays</h3>${schoolHols()}<p class="src">Public schools on the Coffs Coast. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
   return { alerts, news: newsB, holidays: holB };
 }
 
@@ -972,13 +972,13 @@ async function fuelApi(req, env) {
 const fuelBlock = (t = HOME) => `<section id="fuel"><h2>Fuel</h2>
 <div class="row"><select id="ft" aria-label="Fuel type">${Object.entries(FUELS).map(([k, l]) => `<option value="${k}"${k === "U91" ? " selected" : ""}>${l}</option>`).join("")}</select>
 <button type="button" id="fnear">📍 Near me</button></div><div id="fout" class="mute">Loading cheapest fuel…</div>
-<p class="src" id="fsrc">Source: <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a></p>
+<p class="src" id="fsrc">Info from <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a></p>
 <script>(function(){var ft=document.getElementById('ft'),fo=document.getElementById('fout'),pos=null;try{var L=JSON.parse(localStorage.getItem('loc'));if(L){pos=L;document.getElementById('fnear').textContent='📍 Near you'}}catch(e){}try{ft.value=localStorage.getItem('fuel')||'U91'}catch(e){}
 function load(){try{localStorage.setItem('fuel',ft.value)}catch(e){}fo.textContent='Loading…';var q='/api/fuel?t='+ft.value+(pos?'&lat='+pos[0]+'&lon='+pos[1]:'&lat=${t.lat}&lon=${t.lon}');
 fetch(q).then(function(r){return r.json()}).then(function(j){if(j.error){fo.innerHTML=j.error=='not_set_up'?'Live prices coming soon. For now, check <a href="https://www.fuelcheck.nsw.gov.au">NSW FuelCheck</a>.':'Couldn’t reach FuelCheck just now.';return}
 if(!j.list.length){fo.textContent='No prices found nearby.';return}
 fo.innerHTML='<ol class="fuel">'+j.list.map(function(s,i){return '<li><b>'+(s.price/100).toFixed(2).replace(/^/,'$')+'</b> '+(i==0?'⭐ ':'')+s.name+'<br><span class="mute">'+(s.address||'')+(s.km!=null?' · '+(+s.km).toFixed(1)+' km':'')+'</span></li>'}).join('')+'</ol>';
-document.getElementById('fsrc').innerHTML='Current as of '+new Date(j.asof).toLocaleString('en-AU',{hour:'numeric',minute:'2-digit',weekday:'short'})+' · Source: <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a> · Prices per litre';}).catch(function(){fo.textContent='Couldn’t reach FuelCheck just now.'})}
+document.getElementById('fsrc').innerHTML='Info from <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a>, the NSW Government fuel price site. Updated '+new Date(j.asof).toLocaleString('en-AU',{hour:'numeric',minute:'2-digit',weekday:'short'})+'. Prices are per litre.';}).catch(function(){fo.textContent='Couldn’t reach FuelCheck just now.'})}
 ft.onchange=load;document.getElementById('fnear').onclick=function(){if(!navigator.geolocation)return;this.textContent='📍 Finding you…';var b=this;
 navigator.geolocation.getCurrentPosition(function(p){pos=[+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)];try{localStorage.setItem('loc',JSON.stringify(pos))}catch(e){}b.textContent='📍 Near you';load()},function(){b.textContent='📍 Near me'})};load()})();</script></section>`;
 
@@ -994,7 +994,7 @@ async function kidsBlock(local, feed, pc = "2450") {
   return `<section id="kids"><h2>Weekend for kids</h2><p class="mute">Free or under $50 a kid. This weekend: ${esc(fmtDate(sat))} and ${esc(fmtDate(sun))}.</p>
 ${wk.length ? `<h3>On this weekend</h3><ul>${wk.map(evItem).join("")}</ul>` : `<p>No kids' events listed for this weekend yet. Running one? <a href="/submit?pc=${pc}">Add it free</a> and tick "Good for kids".</p>`}
 <h3>Always-good local favourites</h3><ul>${FAVES.map(([n, c, d]) => `<li><b>${esc(n)}</b> <span class="tagg">${c}</span><br><span class="mute">${esc(d)}</span></li>`).join("")}</ul>
-<p class="src">Local favourites suggested by locals · Check opening times and prices before you go · <a href="/feedback">Suggest one</a></p></section>`;
+<p class="src">Picked by locals. Check times and prices before you go · <a href="/feedback">Suggest one</a></p></section>`;
 }
 
 // ---- Field closures: watch the council page for changes; alerts go out by push to anyone who opted in ----
@@ -1015,7 +1015,7 @@ async function fieldsBlock(env) {
   return `${a ? `<p><b>Latest:</b> ${esc(a.body)} <span class="mute">(${esc(asOf(a.at))})</span></p>` : ""}
 <h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
 <li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>
-<p class="src">Source: <a href="${FIELDS_URL}" rel="noopener">City of Coffs Harbour, Sports field closure arrangements</a>${st?.changed ? ` · Source last changed ${esc(asOf(st.changed))}` : ""}${st?.checked ? ` · Checked ${esc(asOf(st.checked))}` : ""}</p>`;
+<p class="src">Info from <a href="${FIELDS_URL}" rel="noopener">City of Coffs Harbour, Sports field closure arrangements</a>${st?.changed ? ` · They last changed it ${esc(asOf(st.changed))}` : ""}${st?.checked ? ` · We last looked ${esc(asOf(st.checked))}` : ""}</p>`;
 }
 
 // ---- Web push: no paid service. Keys are made by the Worker on first use and kept in KV. ----
@@ -1117,7 +1117,7 @@ fetch('/api/open?c='+c).then(function(r){return r.json()}).then(function(j){if(j
 var rank={open:0,shut:1,unk:2},it=j.items.map(function(x){x.s=status(x.hours);x.d=x.lat?km(HOME,[x.lat,x.lon]):999;return x}).filter(function(x){return x.d<40}).sort(function(a,b){return rank[a.s.c]-rank[b.s.c]||a.d-b.d}).slice(0,40);
 ol.innerHTML=it.length?'<ul class="openl">'+it.map(function(x){return '<li class="'+x.s.c+'"><span class="dot"></span><div><b>'+e(x.name)+'</b><br><span class="st">'+e(x.s.t)+'</span><br><span class="mute">'+e(x.addr||'')+(x.d<999?' · '+x.d.toFixed(1)+' km':'')+'</span><br>'
 +(x.phone?'<a href="tel:'+e(x.phone.replace(/[^+\\d]/g,''))+'">📞 Call</a> · ':'')+'<a href="https://www.google.com/maps/dir/?api=1&destination='+x.lat+','+x.lon+'" rel="noopener">🧭 Directions</a>'+(x.web?' · <a href="'+e(x.web)+'" rel="noopener">Website</a>':'')+'</div></li>'}).join('')+'</ul>':'<p>Nothing listed nearby.</p>';
-document.getElementById('osrc').innerHTML='Current as of '+new Date(j.asof).toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+' · Source: <a href="https://www.openstreetmap.org/copyright" rel="noopener">© OpenStreetMap contributors</a> · Hours are as listed there, so call ahead if it matters. Wrong or missing hours? <a href="https://www.openstreetmap.org" rel="noopener">Anyone can fix them</a> or <a href="/feedback">tell us</a>.'})
+document.getElementById('osrc').innerHTML='Info from <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>, a free map anyone can add to (© OpenStreetMap contributors). Updated '+new Date(j.asof).toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+'. Hours can be wrong, so call ahead if it matters. Wrong or missing hours? <a href="https://www.openstreetmap.org" rel="noopener">Anyone can fix them</a> or <a href="/feedback">tell us</a>.'})
 .catch(function(){ol.innerHTML='<p class="mute">Couldn\\u2019t load just now.</p>'})}
 document.querySelectorAll('#cats button').forEach(function(b){b.onclick=function(){load(b.dataset.c,b)}});
 var last;try{last=localStorage.getItem('opencat')}catch(_){}var lb=last&&document.querySelector('[data-c="'+last+'"]');if(lb)load(last,lb)})();</script>`, "2450");
@@ -1205,7 +1205,7 @@ const FACTS = [
   ["🍌", "Home of the original big thing", "The Big Banana turned 50 in 2014.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"]];
 const whyPage = () => page("Why Coffs", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🌊 Why Coffs?</h1>
 <p>What can Coffs say that nowhere else can? Plenty. Here's the pitch, every fact sourced.</p>
-<ul class="ideas">${FACTS.map(([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Source: <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`).join("")}</ul>
+<ul class="ideas">${FACTS.map(([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`).join("")}</ul>
 <p class="mute">Know a fact we've missed? <a href="/feedback">Tell us</a>.</p>`, "2450");
 
 // ---- My home: bin night + a house-sitter sheet. Everything stays on the phone; nothing is sent to us. ----
