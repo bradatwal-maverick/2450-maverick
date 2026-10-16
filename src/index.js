@@ -31,7 +31,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:var(--soft);border-color:transparent!important}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.md svg{width:22px;height:22px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
@@ -42,18 +42,18 @@ function page(title, body, pc = "") {
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="Everything on in your town, in one place. Free. Nobody pays to be here.">
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
-<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/"><span class="badge">2450</span>Maverick</a><a href="/fridge">🧊 Fridge</a></header>
+<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><a href="/fridge">🧊 Fridge</a></header>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
-Born and built in 2450, raised by the world.<br><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 20V5l9 9 9-9v15"/></svg>MAVERICK DIGITAL</a></footer>
+Born and built in 2450, raised by the world.<br><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></footer>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{})</script></body></html>`,
     { headers: { "content-type": "text/html;charset=utf-8" } });
 }
 
 const home = () => page("2450 Maverick — what's on in your town", `
-<div class="home"><p class="big" aria-label="2450 Maverick">2450<svg viewBox="0 0 64 40" aria-hidden="true" style="height:.9em;vertical-align:-.05em;margin-left:.15em"><path d="M2 38 L22 8 L32 22 L42 4 L62 38 Z" fill="currentColor"/></svg></p><p class="mute">Everything on in your town, in one place. Free.</p>
+<div class="home"><p class="big" aria-label="2450 Maverick">2450<svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark" style="height:.85em;margin-left:.12em;vertical-align:-.02em"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></p><p class="mute">Everything on in your town, in one place. Free.</p>
 <form class="search" onsubmit="event.preventDefault();var p=this.pc.value.trim();try{localStorage.setItem('pc',p)}catch(e){};location='/'+p">
 <input name="pc" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Your postcode" required aria-label="Your postcode"><button>Go</button></form>
 <p id="mine"></p><p class="mute">Live now: <a href="/2450">2450 Coffs Harbour</a>. Coming soon: Sawtell, Bellingen, Woolgoolga.</p>
