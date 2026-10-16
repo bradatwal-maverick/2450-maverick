@@ -53,7 +53,7 @@ Born and built in 2450, raised by the world.<br><br><span style="font-size:.75re
 }
 
 const home = () => page("2450 Maverick — what's on in your town", `
-<div class="home"><p class="big">2450 Maverick</p><p class="mute">Everything on in your town, in one place. Free.</p>
+<div class="home"><p class="big" aria-label="2450 Maverick">2450<svg viewBox="0 0 64 40" aria-hidden="true" style="height:.9em;vertical-align:-.05em;margin-left:.15em"><path d="M2 38 L22 8 L32 22 L42 4 L62 38 Z" fill="currentColor"/></svg></p><p class="mute">Everything on in your town, in one place. Free.</p>
 <form class="search" onsubmit="event.preventDefault();var p=this.pc.value.trim();try{localStorage.setItem('pc',p)}catch(e){};location='/'+p">
 <input name="pc" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Your postcode" required aria-label="Your postcode"><button>Go</button></form>
 <p id="mine"></p><p class="mute">Live now: <a href="/2450">2450 Coffs Harbour</a>. Coming soon: Sawtell, Bellingen, Woolgoolga.</p>
