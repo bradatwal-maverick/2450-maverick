@@ -44,7 +44,7 @@ function page(title, body, pc = "") {
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <style>${CSS}</style></head><body><header class="top"><a class="brand" href="/"><span class="badge">2450</span>Maverick</a><a href="/fridge">🧊 Fridge</a></header>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
-<footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
+<footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
 Born and built in 2450, raised by the world.<br><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 20V5l9 9 9-9v15"/></svg>MAVERICK DIGITAL</a></footer>
@@ -143,7 +143,7 @@ ${soon("fuel", "Fuel", "Cheapest petrol and diesel in 2450 today, coming soon.",
 <li>📞 <a href="tel:0266484000">02 6648 4000</a>, weekdays 8:30am–4:30pm. Same number 24/7 for urgent water, sewer, pollution or animal attacks</li>
 <li>✉️ <a href="mailto:coffs.council@chcc.nsw.gov.au">coffs.council@chcc.nsw.gov.au</a></li>
 <li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul></details>
-<p class="mute">Spotted something out of date? <a href="/submit?pc=2450">Let us know</a>.</p></section>
+<p class="mute">Spotted something out of date? <a href="/feedback">Let me know</a>.</p></section>
 ${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
 ${soon("sport", "Sport", "Field closures, local games and fixtures, coming soon. Clubs will be able to post them here free.")}
 ${soon("holidays", "Holidays", "Public and school holiday dates, coming soon.", "https://education.nsw.gov.au/schooling/calendar", "NSW school calendar")}
@@ -240,7 +240,10 @@ async function admin(req, env) {
     const btn = (a, l) => `<form method="post" style="display:inline"><input type="hidden" name="key" value="${key}"><input type="hidden" name="k" value="${esc(name)}"><input type="hidden" name="act" value="${a}"><button>${l}</button></form>`;
     rows += `<li>${evItem(e)}<span class="mute">${esc(e.pc)} · from ${esc(e.contact)}</span><br>${btn("approve", "Approve")} ${btn("delete", "Delete")}</li>`;
   }
-  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
+  const fbk = (await env.DATA.list({ prefix: "fb:" })).keys.slice(-20).reverse();
+  let fbl = "";
+  for (const { name } of fbk) { const x = await env.DATA.get(name, "json"); if (x) fbl += `<li><b>${esc(x.kind)}</b>: ${esc(x.msg)}<br><span class="mute">${esc(x.name)} ${esc(x.email)} · ${esc(x.at.slice(0, 10))}</span></li>`; }
+  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
 const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
@@ -356,11 +359,42 @@ document.getElementById('tip').textContent=(hr<10?'This morning: ':hr<16?'This a
 sel.onchange=show;show();
 </script>`, "2450"); };
 
+// ---- Feedback: saved, then emailed to Brad ----
+const feedbackPage = (msg = "") => page("Make 2450 better", `<h1>💬 Make 2450 better</h1>
+<p>This site is for locals, so tell me what would make it more useful. Every message comes straight to me.<br><i>Brad</i></p>${msg}
+<form method="post" action="/feedback"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<label>What's it about?</label><select name="kind" style="width:100%"><option>An idea for the site</option><option>Something's wrong or out of date</option><option>Add my club, group or event source</option><option>Just saying g'day</option></select>
+<label>Your message *</label><textarea name="msg" rows="5" maxlength="2000" required></textarea>
+<div class="row"><input name="name" placeholder="Name (optional)" maxlength="60"><input type="email" name="email" placeholder="Email if you'd like a reply" maxlength="120"></div>
+<p><button>Send to Brad</button></p></form>`);
+
+async function feedback(req, env, ctx) {
+  const f = await req.formData();
+  if (f.get("website")) return feedbackPage(`<p class="note">Thanks!</p>`);
+  const fb = { kind: String(f.get("kind") || "").slice(0, 60), msg: String(f.get("msg") || "").slice(0, 2000),
+    name: String(f.get("name") || "").slice(0, 60), email: String(f.get("email") || "").slice(0, 120), at: new Date().toISOString() };
+  if (!fb.msg.trim()) return feedbackPage(`<p class="note">Please add a message.</p>`);
+  await env.DATA.put(`fb:${fb.at}:${crypto.randomUUID().slice(0, 6)}`, JSON.stringify(fb));
+  if (env.MAILER && env.FEEDBACK_TO) ctx.waitUntil((async () => {
+    try {
+      const { EmailMessage } = await import("cloudflare:email");
+      const from = "feedback@2450-maverick.live", clean = x => x.replace(/[\r\n]+/g, " ");
+      const raw = [`From: 2450 Maverick <${from}>`, `To: ${env.FEEDBACK_TO}`, fb.email ? `Reply-To: ${clean(fb.email)}` : "",
+        `Subject: 2450 feedback: ${clean(fb.kind)}`, `Message-ID: <${crypto.randomUUID()}@2450-maverick.live>`, `Date: ${new Date().toUTCString()}`,
+        "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "",
+        `${fb.kind}\n\n${fb.msg}\n\nFrom: ${fb.name || "(no name)"} ${fb.email || "(no email)"}\n${fb.at}`].filter(Boolean).join("\r\n");
+      await env.MAILER.send(new EmailMessage(from, env.FEEDBACK_TO, raw));
+    } catch (e) { console.log("feedback email failed", e); }
+  })());
+  return feedbackPage(`<p class="note">Thanks${fb.name ? ", " + esc(fb.name) : ""}! It's on its way to me.</p>`);
+}
+
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home();
     if (p === "/about") return about();
+    if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage();
     if (p === "/school") return schoolPage();
     if (p === "/fridge") return (await member(req, env)) ? fridgePage() : unlockPage();
     if (p === "/unlock" && req.method === "POST") return unlock(req, env);

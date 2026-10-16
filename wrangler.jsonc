@@ -4,6 +4,8 @@
   "compatibility_date": "2026-10-01",
   "kv_namespaces": [
     { "binding": "DATA", "id": "17b9dc394f2345f79dc5ad071cc3b3d9" }
-  ]
-  // Secret (set in Cloudflare dashboard, never in this repo): ADMIN_KEY
+  ],
+  // Lets the site email feedback to Brad (address kept in the FEEDBACK_TO secret, not in this public repo)
+  "send_email": [ { "name": "MAILER" } ]
+  // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO
 }
