@@ -1,0 +1,25 @@
+// A thought for the day from Eastern philosophy. One per day, same for everyone.
+// Only quotes we can trace to the original text (with the reference), no made-up internet quotes.
+export const QUOTES = [
+  ["The journey of a thousand miles begins with a single step.", "Lao Tzu", "Tao Te Ching, ch. 64"],
+  ["Knowing others is wisdom; knowing yourself is enlightenment.", "Lao Tzu", "Tao Te Ching, ch. 33"],
+  ["Whoever knows they have enough is rich.", "Lao Tzu", "Tao Te Ching, ch. 33"],
+  ["The highest good is like water. Water gives life to all things and does not compete.", "Lao Tzu", "Tao Te Ching, ch. 8"],
+  ["Do the difficult things while they are easy, and the great things while they are small.", "Lao Tzu", "Tao Te Ching, ch. 63"],
+  ["Is it not a joy to have friends come from afar?", "Confucius", "Analects 1.1"],
+  ["What you do not want for yourself, do not do to others.", "Confucius", "Analects 15.24"],
+  ["To know what you know and to know what you do not know: that is true knowledge.", "Confucius", "Analects 2.17"],
+  ["When you meet someone better than yourself, think of becoming their equal. When you meet someone not as good, look within and examine yourself.", "Confucius", "Analects 4.17"],
+  ["The good person helps others to bring out what is good in them.", "Confucius", "Analects 12.16"],
+  ["Only when the year grows cold do we see that the pine and cypress are the last to fade.", "Confucius", "Analects 9.28"],
+  ["Hatred is never ended by hatred. By kindness alone is hatred ended. This is an eternal law.", "The Buddha", "Dhammapada, v. 5"],
+  ["Health is the greatest gift, contentment the greatest wealth, a trusted friend the best of kin.", "The Buddha", "Dhammapada, v. 204"],
+  ["Better than conquering a thousand times a thousand in battle is to conquer yourself.", "The Buddha", "Dhammapada, v. 103"],
+  ["Overcome anger with kindness, meanness with generosity, and lies with the truth.", "The Buddha", "Dhammapada, v. 223"],
+  ["The great person is one who does not lose the heart of a child.", "Mencius", "Mencius 4B.12"],
+  ["You have a right to your work, but never to its rewards. Do the work for its own sake.", "Bhagavad Gita", "ch. 2, v. 47"],
+  ["Lift yourself up by your own efforts. Do not let yourself down.", "Bhagavad Gita", "ch. 6, v. 5"],
+  ["Arise, awake, and stop not till the goal is reached.", "Swami Vivekananda", "after the Katha Upanishad"],
+  ["In the beginner's mind there are many possibilities; in the expert's mind there are few.", "Shunryu Suzuki", "Zen Mind, Beginner's Mind"],
+  ["Fall seven times, stand up eight.", "Japanese proverb", "nana korobi ya oki"],
+];
