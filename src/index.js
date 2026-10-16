@@ -116,6 +116,14 @@ function clockChange() {
   return { soon: days <= 14, date: days === 0 ? "Today" : new Date(date + "T00:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short" }), dir, text: `<b>Clocks ${dir === "back" ? "go back" : "go forward"}</b> ${esc(when)}${days > 1 ? ` (in ${days} days)` : ""}: ${what.replace(/^go (back|forward) /, "")}` };
 }
 
+// NSW school holidays, Eastern division (Coffs Harbour). Source: NSW Department of Education term dates.
+// Add new years here when the department publishes them.
+const SCHOOL_HOLS = [
+  ["Summer", "2026-12-18", "2027-01-27"], ["Autumn", "2027-04-12", "2027-04-23"], ["Winter", "2027-07-05", "2027-07-16"],
+  ["Spring", "2027-09-27", "2027-10-08"], ["Summer", "2027-12-21", "2028-01-28"],
+];
+const schoolHols = () => { const t = todayISO(), list = SCHOOL_HOLS.filter(([, , end]) => end >= t).slice(0, 2);
+  return list.length ? `<ul>${list.map(([name, start, end]) => `<li><b>${esc(name)} school holidays</b>: ${esc(fmtDate(start))} to ${esc(fmtDate(end))}${start <= t ? ` <span class="away">on now</span>` : away(start)}</li>`).join("")}</ul>` : ""; };
 // "How far away" note for upcoming dates, e.g. "in 12 days".
 const away = d => { const n = Math.round((new Date(d + "T00:00:00Z") - new Date(todayISO() + "T00:00:00Z")) / 864e5); return n < 0 ? "" : ` <span class="away">${n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`}</span>`; };
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
@@ -573,7 +581,7 @@ const schoolPage = () => { const t = TOWNS["2450"]; return page("School run repo
 <div class="tile"><span class="ico">🚸</span><b>2:30–4pm</b><small>School zone 40 km/h</small></div></div>
 <p id="tip" class="note"></p>
 <h2>On your route</h2><p class="mute">Crashes, roadworks and closures near <span id="sn"></span>, coming soon. For now: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a>.</p>
-<h2>School holidays</h2><p class="mute">Holiday and pupil-free day reminders, coming soon. For now: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW school calendar</a>.</p>
+<h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. Source: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a>.</p>
 <h2>Field closures &amp; weekend sport</h2><p class="mute">Wet-weather field closures and local junior sport fixtures, coming soon. Clubs will be able to post closures here free. For now: <a href="https://www.coffsharbour.nsw.gov.au" rel="noopener">Coffs Harbour City Council</a>.</p>
 <h2>Bell times</h2><p class="mute">Your school's own bell times, coming soon. Check the school newsletter or website for now.</p></div>
 <script>
@@ -912,7 +920,7 @@ ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
 ${news.ok === false ? fail() : `<ul>${news.items.map(n => `<li><a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a><br><span class="mute">${esc(n.date ? new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" }) : "")}</span></li>`).join("")}</ul>`}
 ${srcLine(S.news.name, S.news.url, news.asof)}</section>`;
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
-${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<p class="mute">School holidays: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW school calendar</a>.</p></section>`;
+${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<h3>Next school holidays</h3>${schoolHols()}<p class="src">NSW public schools, Eastern division · Source: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
   return { alerts, news: newsB, holidays: holB };
 }
 
