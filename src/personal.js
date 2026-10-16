@@ -4,7 +4,9 @@
 
 // Settings that follow a signed-in local to any phone. Location, birthday, school and friends stay on the phone.
 export const SYNC_RE = /^(order|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|hide_[a-z]+)$/;
-export const LIKES = ["free", "kids", "music", "markets", "sport", "food", "arts", "outdoors"];
+export const LIKES = ["free", "kids", "music", "markets", "sport", "food", "arts", "outdoors", "trivia", "bingo", "comedy", "raffles", "deals"];
+// How each interest matches a What's on listing kind.
+export const LIKE_KINDS = { kids: "kids", music: "music", markets: "market", sport: "sport", food: "meal", trivia: "trivia", bingo: "bingo", comedy: "comedy", raffles: "raffle", deals: "members" };
 
 export async function prefsApi(req, env, email) {
   const k = `prefs:${email}`;
@@ -59,7 +61,7 @@ function drawFriends(){var el=document.getElementById('frs');if(!el)return;var h
 drawFriends();setInterval(drawFriends,60000);
 
 // Events you like: filter the events list, with a one-tap way back to everything.
-var LK={kids:/kid|child|family|junior|toddler|teen|youth/i,music:/music|gig|band|concert|dj|jazz|choir|acoustic|karaoke|live at/i,markets:/market|stall|fair|bazaar|car boot/i,sport:/sport|footy|rugby|soccer|cricket|netball|parkrun|fun run|swim|surf|tennis|golf|cycl/i,food:/food|lunch|dinner|breakfast|brunch|wine|beer|tasting|bbq|cook/i,arts:/art|gallery|exhibit|theatre|film|movie|craft|workshop|book|poetry|dance/i,outdoors:/walk|hike|beach|park|garden|nature|bush|whale|kayak|trail/i};
+var LK={kids:/kid|child|family|junior|toddler|teen|youth/i,music:/music|gig|band|concert|dj|jazz|choir|acoustic|karaoke|live at/i,markets:/market|stall|fair|bazaar|car boot/i,sport:/sport|footy|rugby|soccer|cricket|netball|parkrun|fun run|swim|surf|tennis|golf|cycl/i,food:/food|lunch|dinner|breakfast|brunch|wine|beer|tasting|bbq|cook/i,arts:/art|gallery|exhibit|theatre|film|movie|craft|workshop|book|poetry|dance/i,outdoors:/walk|hike|beach|park|garden|nature|bush|whale|kayak|trail/i,trivia:/trivia|quiz/i,bingo:/bingo|housie/i,comedy:/comedy|comedian|stand-up|stand up/i,raffles:/raffle|meat tray|draw/i,deals:/members|special|deal|discount|happy hour/i};
 function evFilter(){var L=j('ev_like',[]),box=document.getElementById('events');if(!box||!L.length)return;var lis=box.querySelectorAll('li'),n=0;
 lis.forEach(function(li){var t=li.textContent,ok=L.some(function(k){return k==='free'?!!li.dataset.free:k==='kids'?(!!li.dataset.kids||LK.kids.test(t)):LK[k]&&LK[k].test(t)});li.hidden=!ok;if(ok)n++});
 var note=document.createElement('p');note.className='note';note.innerHTML='🎯 Events you like: '+esc(L.join(', '))+' ('+n+' on). <a href="#" class="evall">Show all</a> · <a href="/me#likes">change</a>';
@@ -77,7 +79,8 @@ function draw(){if(!H.length)H=[{role:'assistant',content:'G’day'+(g('name')?'
 LOG.innerHTML=H.map(function(m){return '<p class="mm '+(m.role=='user'?'me':'mav')+'">'+e(m.content).replace(/(^|\s)(\/[a-z0-9]+)/g,'$1<a href="$2">$2</a>')+'</p>'}).join('');LOG.scrollTop=1e6;try{sessionStorage.setItem('mavh',JSON.stringify(H.slice(-12)))}catch(_){}}
 function open(){P.hidden=false;B.hidden=true;draw();IN.focus();try{sessionStorage.setItem('mavopen',1)}catch(_){}}
 B.onclick=open;document.getElementById('mavx').onclick=function(){P.hidden=true;B.hidden=false;try{sessionStorage.removeItem('mavopen')}catch(_){}};
-document.querySelectorAll('.openmav').forEach(function(a){a.onclick=function(ev){ev.preventDefault();open()}});
+// Mav is the settings button: any link to My 2450 opens him instead (except his own 'see everything' link and on My 2450 itself).
+document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('a[href^="/me"],.openmav');if(!a||a.classList.contains('mavall')||location.pathname==='/me')return;ev.preventDefault();open()});
 function state(){var hidden=[];(C.secs||[]).forEach(function(s){if(g('hide_'+s[0]))hidden.push(s[0])});var b=j('bday',null);
 return {pins:j('pin',[]),hidden:hidden,name:g('name')||'',fuel:g('fuel')||'',signs:{w:g('z_w'),v:g('z_v'),e:g('z_e')},likes:j('ev_like',[]),friends:j('friends',[]).map(function(f){return f.n+' ('+f.tz+')'}),
 bins:g('bin_bday'),school:g('school')||'',birthday:b?(+b[0])+'/'+(+b[1]+1):'',saved:j('saved_q',[]),weather:g('loc')?'set':'town centre'}}
@@ -111,8 +114,9 @@ fetch('/api/mav',{method:'POST',headers:{'content-type':'application/json'},body
 window.mavSend=send;
 document.getElementById('mavf').onsubmit=function(ev){ev.preventDefault();send(IN.value)};
 document.getElementById('mavchips').onclick=function(ev){if(ev.target.tagName=='LABEL')send(ev.target.textContent)};
-var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.getElementById('mavmic');if(!SR)mic.hidden=true;else mic.onclick=function(){var r=new SR();r.lang='en-AU';mic.textContent='👂';
-r.onresult=function(x){IN.value=Array.prototype.map.call(x.results,function(y){return y[0].transcript}).join(' ')};r.onend=function(){mic.textContent='🎤';if(IN.value)send(IN.value)};r.start()};
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.getElementById('mavmic'),big=document.getElementById('mavbig');
+function listen(btn,idle){var r=new SR();r.lang='en-AU';r.interimResults=true;btn.textContent='👂 Listening…';r.onresult=function(x){IN.value=Array.prototype.map.call(x.results,function(y){return y[0].transcript}).join(' ')};r.onend=function(){btn.textContent=idle;if(IN.value)send(IN.value)};r.onerror=function(){btn.textContent=idle};r.start()}
+if(!SR){mic.hidden=true;big.textContent='⌨️ Type what you want below';big.onclick=function(){IN.focus()}}else{mic.onclick=function(){listen(mic,'🎤')};big.onclick=function(){listen(big,'🎤 Tap and tell Mav')}}
 try{if(sessionStorage.getItem('mavopen'))open()}catch(_){}})();`;
 
 // My <postcode>: the one spot to make the daily page yours. Tell Mav, or tap.

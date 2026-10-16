@@ -4,7 +4,7 @@ import { REGIONS } from "./regions.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
-import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, prefsApi } from "./personal.js";
+import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
 import { WEST, EAST, VEDIC, STARTS, VSTARTS, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
 function initRegion(env) {
@@ -68,7 +68,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .pills{padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .pills::before{content:"More in today's paper";display:block;width:100%;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}
 @media (prefers-color-scheme:dark){#flow>section{background:color-mix(in srgb,var(--acc) 9%,var(--bg))}}
-.pinlab{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:14px 0 4px}.pinlab b{color:var(--fg)}.frs{list-style:none;padding:0;margin:0 0 8px}.frs li{padding:6px 0;border-bottom:1px solid var(--line);font-size:.92rem}.frs small{font-size:.8rem}.frx{padding:0 8px;margin-left:4px}.me .row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}.me .row input{flex:1 1 130px}.me .row label{flex:1 1 140px}.me .row select{width:100%}.rules li{margin:4px 0}#sq li{display:flex;justify-content:space-between;align-items:center}
+.mavtalk{padding:0 14px 8px;display:flex;flex-direction:column;gap:4px}.mavtalk small{font-size:.75rem}.pinlab{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:14px 0 4px}.pinlab b{color:var(--fg)}.frs{list-style:none;padding:0;margin:0 0 8px}.frs li{padding:6px 0;border-bottom:1px solid var(--line);font-size:.92rem}.frs small{font-size:.8rem}.frx{padding:0 8px;margin-left:4px}.me .row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}.me .row input{flex:1 1 130px}.me .row label{flex:1 1 140px}.me .row select{width:100%}.rules li{margin:4px 0}#sq li{display:flex;justify-content:space-between;align-items:center}
 `;
 
 function page(title, body, pc = "") {
@@ -77,7 +77,7 @@ function page(title, body, pc = "") {
 <meta name="description" content="Everything on in your town, in one place. Free. Nobody pays to be here.">
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><span class="hdr"><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></span></header>
-<script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="⚙️ "+(n?n+"\\u2019s ":"My ")+"${R.code}"}}catch(e){}<\/script>
+<script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}"}}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
 <span class="mute">Did we mess up? <a href="#" id="rwrong">Tell us and we'll fix it</a>.</span>
@@ -1031,8 +1031,8 @@ const mePage = (name = "") => page(`My ${R.code}`, `<div class="me"><h1>⚙️ $
 <h2 id="friends">📞 Friends&rsquo; clocks</h2><p class="mute">Family and friends in other time zones, with a nudge on when to call (and when not to). Kept on this phone only.</p>
 <ul id="frl" class="frs"></ul>
 <form id="fra" class="row"><input id="frn" maxlength="24" placeholder="First name" aria-label="Friend's first name"><input id="frz" list="tzl" placeholder="City, e.g. London" aria-label="Their city or time zone"><datalist id="tzl"></datalist><button>Add</button></form><p id="frm" class="mute"></p>
-<h2 id="likes-h">🎯 Events you like</h2><p class="mute">We'll show these first and hide the rest, with a one-tap Show all.</p>
-<div id="likes" class="pins">${LIKES.map(l => `<label><input type="checkbox" value="${l}"> ${{ free: "🆓 Free", kids: "🧒 Kids", music: "🎸 Music", markets: "🧺 Markets", sport: "🏉 Sport", food: "🍽️ Food & drink", arts: "🎨 Arts", outdoors: "🌿 Outdoors" }[l]}</label>`).join("")}</div>
+<h2 id="likes-h">🎯 What you like doing</h2><p class="mute">What&rsquo;s on shows these first, marked ⭐ For you. Community events show just these, with a one-tap Show all.</p>
+<div id="likes" class="pins">${LIKES.map(l => `<label><input type="checkbox" value="${l}"> ${{ free: "🆓 Free", kids: "🧒 Kids", music: "🎸 Music", markets: "🧺 Markets", sport: "🏉 Sport", food: "🍽️ Food & drink", arts: "🎨 Arts", outdoors: "🌿 Outdoors", trivia: "🧠 Trivia", bingo: "🎱 Bingo", comedy: "😂 Comedy", raffles: "🎁 Raffles & meat trays", deals: "🎟️ Members deals & specials" }[l]}</label>`).join("")}</div>
 <h2>✨ Your stars</h2><div class="row">
 <label>Western<br><select id="zw"><option value="">Pick…</option>${WEST.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label>
 <label>Vedic (Indian)<br><select id="zv"><option value="">Pick…</option>${VEDIC.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label>
@@ -1368,7 +1368,7 @@ async function mavAnswer(req, env) {
   const st = j.state && typeof j.state === "object" ? JSON.stringify(j.state).slice(0, 1200) : "{}";
   const sys = `You are Mav, the friendly, down-to-earth Aussie helper on ${R.brand}, a free local paper for ${R.place}. Keep replies short (1-3 sentences), warm and practical. Only use facts below; if unsure, point to the right page or say to check the source. No medical, legal or financial advice beyond pointing to services; emergencies: call 000.
 MAV'S RULES (never break these):
-1. You help each person make the daily page their own: what's pinned to "Your morning" at the top, what's hidden, their stars, events they like, weather spot, bin night, school, birthday, saved searches, alerts and friends' clocks. Use what you know about ${R.short} to suggest what suits them.
+1. You help each person make the daily page their own: what's pinned to "Your morning" at the top, what's hidden, their stars, what they like doing (so What's on shows their kind of thing first), weather spot, bin night, school, birthday, saved searches, alerts and friends' clocks. Use what you know about ${R.short} to suggest what suits them.
 2. You only change this person's own page settings. You never add, edit, delete, post or submit anything on the site, and never change what anyone else sees. If asked, say so kindly and point to the page: /submit to add an event, /notices for the notice board, /feedback to fix something wrong.
 3. We gather, we don't judge: no opinions on news, people, businesses, council or politics.
 4. Never ask for personal details. First names (theirs or a friend's), a friend's city, bin night, school and birthday day and month are fine. Never ask for an address, phone number, email, year of birth or anything private.
@@ -1380,7 +1380,7 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6
 {"type":"name","value":"First"}; {"type":"area","pc":"${live.join("|")}"}; {"type":"fuel","value":"E10|U91|P95|P98|DL"};
 {"type":"sign","system":"w|v|e","value":"sign or animal"} (w Western by birthday, v Vedic Indian, e Chinese by birth year); {"type":"weather","pc":"${live.join("|")}"} or {"type":"weather","here":true};
 {"type":"bins","day":"Monday"}; {"type":"school","value":"exact name from: ${SCHOOLS.join("; ")}"}; {"type":"birthday","day":1-31,"month":1-12}; {"type":"search","value":"a few words"};
-{"type":"alerts","topic":"alerts|fields"} (alerts = fires and weather warnings, fields = sport field closures; shows a button they tap); {"type":"events","likes":[${LIKES.join(",")}]} ([] shows all);
+{"type":"alerts","topic":"alerts|fields"} (alerts = fires and weather warnings, fields = sport field closures; shows a button they tap); {"type":"events","likes":[${LIKES.join(",")}]} (what they like doing: tailors What's on, with their picks first as "For you", and Community events; [] shows all; when they tell you their interests, set this);
 {"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"}.
 Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
   try {
@@ -1427,7 +1427,7 @@ function cleanActs(list, ids, live) {
 }
 const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav">💬 Ask Mav</button>
 <div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>Mav</b><span class="mute"> · your ${R.code} helper</span><button type="button" id="mavx" aria-label="Close">×</button></div>
-<div id="mavlog"></div><div class="chips" id="mavchips"><label>Set up my morning</label><label>What's open now?</label><label>Cheapest fuel</label><label>Add a friend's clock</label><label>Only free events</label></div>
+<div id="mavlog"></div><div class="mavtalk"><button type="button" id="mavbig" class="micb">🎤 Tap and tell Mav</button><small class="mute">Talk or type what you want on your page. No settings to find. <a href="/me" class="mavall">See everything</a></small></div><div class="chips" id="mavchips"><label>Set up my morning</label><label>What's open now?</label><label>Cheapest fuel</label><label>Add a friend's clock</label><label>I love trivia and live music</label></div>
 <form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Ask Mav anything…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
 <script>${MAV_JS}<\/script>`;
 
@@ -1859,7 +1859,11 @@ ${data.blocked.length ? `<p class="note">🚫 These venues' websites block autom
 function fr(a){if(!a)return '';var d=(Date.now()-new Date(a))/864e5,k=d<=7?'g':d<=92?'a':'r';return '<span class="fresh '+k+'"></span>'}function iso(d){return d.toLocaleDateString('en-CA',{timeZone:'Australia/Sydney'})}function at(n){var d=new Date();d.setDate(d.getDate()+n);return d}
 function e(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function on(day){var dn=DN[new Date(day+'T12:00:00').getDay()],nth=Math.ceil(+day.slice(8)/7);return D.filter(function(x){return x.date?x.date===day:(x.days.indexOf(dn)>-1&&(!x.week||x.week===nth))})}
-function list(day){var it=on(day);if(!it.length)return '<p class="mute">Nothing listed yet for this day.</p>';var g={};it.forEach(function(x){(g[x.venue]=g[x.venue]||[]).push(x)});
+var LK=${JSON.stringify(LIKE_KINDS)},MY=[];try{MY=(JSON.parse(localStorage.getItem('ev_like')||'[]')||[]).map(function(l){return LK[l]}).filter(Boolean)}catch(_){}
+function list(day){var it=on(day);if(!it.length)return '<p class="mute">Nothing listed yet for this day.</p>';if(!MY.length)return grp(it);
+var mine=it.filter(function(x){return MY.indexOf(x.kind)>-1}),rest=it.filter(function(x){return MY.indexOf(x.kind)<0});
+return (mine.length?'<p class="pinlab">⭐ <b>For you</b> · <a href="/me#likes-h">change</a></p>'+grp(mine):'<p class="mute">Nothing matching what you like this day. <a href="/me#likes-h">Change</a></p>')+(rest.length?'<details'+(mine.length?'':' open')+'><summary>Everything else ('+rest.length+')</summary>'+grp(rest)+'</details>':'')}
+function grp(it){var g={};it.forEach(function(x){(g[x.venue]=g[x.venue]||[]).push(x)});
 return Object.keys(g).sort().map(function(v){return '<div class="pven"><b>'+e(v)+'</b><ul>'+g[v].map(function(x){return '<li>'+(K[x.kind]||'📌')+' '+e(x.what)+(x.time?' <span class="mute">'+e(x.time)+'</span>':'')+(x.detail?' · '+e(x.detail):'')+'</li>'}).join('')+'</ul><span class="src">'+(x0=g[v][0]).src.replace(/[<>]/g,'')+(x0.url?' · <a href="'+e(x0.url)+'" rel="noopener">their page</a>':'')+'</span></div>'}).join('')}var x0;
 function head(day){return '<h3>'+new Date(day+'T12:00:00').toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'})+'</h3>'}
 function show(p){if(p==='w'){var w=at(0).getDay(),days=w===6?[0,1]:w===0?[0]:[6-w,7-w];out.innerHTML=days.map(function(n){var d=iso(at(n));return head(d)+list(d)}).join('')}else if(p.length>2){out.innerHTML=head(p)+list(p)}else{var d=iso(at(+p));out.innerHTML=head(d)+list(d)}}
