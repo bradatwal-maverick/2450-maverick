@@ -16,7 +16,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["memory", "In memory"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -204,6 +204,7 @@ ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b
 ${live.news}
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${await memoryBlock(env)}
+${await joyBlock(env)}
 <section id="tools"><h2>Handy tools</h2>
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
@@ -260,7 +261,7 @@ var IDX=[...${JSON.stringify(R.idx)},["weather temperature rain wind forecast","
 ["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run report","Weather and traffic for your school run.","/school"],
 ["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],
 ["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
-["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
+["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["births birth baby babies marriage marriages wedding engaged engagement anniversary celebrations hatches matches","Births & marriages","New babies, engagements and weddings. Share your news free.","/celebrations"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
 ["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
 ["feedback idea suggestion contact","Make ${R.code} better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
 var qs=document.getElementById('qs'),qr=document.getElementById('qs-res'),qv=document.getElementById('qs-saved');
@@ -285,7 +286,7 @@ document.getElementById('date').textContent=new Date().toLocaleDateString('en-AU
 (function(){var f=document.getElementById('flow'),o;try{o=JSON.parse(localStorage.getItem('order')||'null')}catch(e){}
 if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
 var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&el.id!=='alerts'&&el.querySelector('h2')});
-var PR=['events','memory','lotto','puzzles','stars','sea','fuel','beaches','sport','flights','holidays','kids','council','know','tools','surfcams'];if(!o)secs.sort(function(a,b){var x=PR.indexOf(a.id),y=PR.indexOf(b.id);return (x<0?99:x)-(y<0?99:y)});
+var PR=['events','memory','joy','lotto','puzzles','stars','sea','fuel','beaches','sport','flights','holidays','kids','council','know','tools','surfcams'];if(!o)secs.sort(function(a,b){var x=PR.indexOf(a.id),y=PR.indexOf(b.id);return (x<0?99:x)-(y<0?99:y)});
 secs.forEach(function(el){el.hidden=true;el.classList.add('panel');var b=document.createElement('button');b.type='button';b.textContent=el.querySelector('h2').textContent;
 b.onclick=function(){var open=!el.hidden;secs.forEach(function(x){x.hidden=true});nav.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(!open){el.hidden=false;b.classList.add('on');f.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'start'})}};nav.appendChild(b)});
 var td=document.getElementById('news')||document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling)})();
@@ -426,6 +427,11 @@ async function admin(req, env) {
     await env.DATA.delete(k);
   }
   if (k.startsWith("notice:") && act === "remove") await env.DATA.delete(k);
+  if (k.startsWith("jpending:")) {
+    if (act === "approve") { const v = await env.DATA.get(k); if (v) { await env.DATA.put("joy:" + k.slice(9), v); LC.delete("joy:"); } }
+    await env.DATA.delete(k);
+  }
+  if (k.startsWith("joy:") && act === "remove") { await env.DATA.delete(k); LC.delete("joy:"); }
   if (k.startsWith("rpending:")) {
     if (act === "approve") { const v = await env.DATA.get(k); if (v) await env.DATA.put("rip:" + k.slice(9), v); }
     await env.DATA.delete(k);
@@ -456,6 +462,8 @@ async function admin(req, env) {
   const btnB = (a, l, name) => `<form method="post" style="display:inline"><input type="hidden" name="key" value="${key}"><input type="hidden" name="k" value="${esc(name)}"><input type="hidden" name="act" value="${a}"><button>${l}</button></form>`;
   let bl = "";
   for (const { name } of (await env.DATA.list({ prefix: "bpending:" })).keys) { const o = await env.DATA.get(name, "json"); if (o) bl += `${offerItem(o).replace("</li>", "")}<br><span class="mute">from ${esc(o.contact)}</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
+  let jl = "";
+  for (const { name } of (await env.DATA.list({ prefix: "jpending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) jl += `${joyItem(n).replace("</li>", "")}<br><span class="mute">from ${esc(n.contact)}</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
   let rl = "";
   for (const { name } of (await env.DATA.list({ prefix: "rpending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) rl += `${ripItem(n).replace("</li>", "")}<br><span class="mute">from ${esc(n.contact)}. Check with the funeral home first</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
   let il = "";
@@ -470,7 +478,7 @@ async function admin(req, env) {
 <div class="row"><select name="topic"><option value="fields">Field closures</option><option value="alerts">General alert</option></select><button>Send alert</button></div></form>
 <h2>📣 Announce a new feature</h2><p class="mute">Marking a voted idea Done announces it automatically. Use this for anything else.</p>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="announce"><input name="text" maxlength="200" placeholder="e.g. Fuel prices are live!" style="width:100%" required><div class="row"><input name="link" placeholder="Link, e.g. /${R.code} (optional)"><button>Announce</button></div></form>
-<ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>Community notices waiting</h2><ul>${await (async () => { let h = ""; for (const { name } of (await env.DATA.list({ prefix: "npending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) h += `${noticeItem(n).replace("</li>", "")}<span class="mute">from ${esc(n.contact)}</span><br>${btnB("approve", "Approve and alert", name)} ${btnB("delete", "Delete", name)}</li>`; } return h || "<li>None</li>"; })()}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
+<ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>Community notices waiting</h2><ul>${await (async () => { let h = ""; for (const { name } of (await env.DATA.list({ prefix: "npending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) h += `${noticeItem(n).replace("</li>", "")}<span class="mute">from ${esc(n.contact)}</span><br>${btnB("approve", "Approve and alert", name)} ${btnB("delete", "Delete", name)}</li>`; } return h || "<li>None</li>"; })()}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Births &amp; marriages waiting</h2><ul>${jl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
 const about = async env => { const n = await localsCount(env), locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Nobody pays to be here.</h1>
@@ -1490,6 +1498,7 @@ async function route(req, env, ctx) {
     if (p === "/me") return mePage();
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
+    if (p === "/celebrations") return req.method === "POST" ? lodgeJoy(req, env, ctx) : joyPage(env);
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
     if (p === "/genalpha") return genAlpha();
     if (p === "/charter") return charter();
@@ -1588,4 +1597,41 @@ async function rate(req, env, ctx) {
     mailUs(env, ctx, `${R.code}: someone says we got something wrong on ${p}`, `Page: https://${R.domain}${p}\n\n${note}\n\nEmail: ${email || "(none)"}`, email);
   }
   return Response.json({ ok: true });
+}
+
+// ---- Births & marriages: family notices, shared by the family, checked by us before they appear ----
+const JOY = { birth: ["👶", "Birth"], engagement: ["💍", "Engagement"], wedding: ["💒", "Wedding"], anniversary: ["🥂", "Anniversary"] };
+const joyItem = n => `<li><b>${JOY[n.kind][0]} ${esc(n.title)}</b><br><span class="mute">${JOY[n.kind][1]} · ${esc(fmtDate(n.date))}</span>${n.msg ? `<br>${esc(n.msg)}` : ""}</li>`;
+async function joyWithin(env, days) {
+  const cut = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10), out = [];
+  for (const { name } of await klist(env, "joy:")) { if (name.slice(4, 14) < cut) continue; const n = await env.DATA.get(name, "json"); if (n) out.push({ id: name, ...n }); }
+  return out.sort((a, b) => b.date.localeCompare(a.date));
+}
+async function joyBlock(env) {
+  const list = await joyWithin(env, 30);
+  return `<section id="joy"><h2>🎉 Births &amp; marriages</h2><p class="mute">New babies, engagements, weddings and big anniversaries, shared by local families.</p>
+${list.length ? `<ul>${list.slice(0, 8).map(joyItem).join("")}</ul>` : `<p class="mute">No new notices this month yet.</p>`}<p><a href="/celebrations">Share your family's news (free) →</a></p></section>`;
+}
+async function joyPage(env, msg = "") {
+  const list = await joyWithin(env, 90);
+  return page("Births & marriages", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🎉 Births &amp; marriages</h1>
+<p>New babies, engagements, weddings and big anniversaries from around ${esc(R.place)}. Congratulations to every family here.</p>${msg}
+<ul>${list.map(joyItem).join("") || '<li class="mute">No notices in the last three months yet. Be the first to share some good news.</li>'}</ul>
+<h2>Share your family's news</h2><p class="mute">Free, always. Notices come from family, and we check every one before it goes up. Please use names only: no addresses, and no times or hospital details for babies.</p>
+<form method="post" action="/celebrations"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<label>What are you celebrating? *</label><select name="kind" style="width:100%">${Object.entries(JOY).map(([k, v]) => `<option value="${k}">${v[0]} ${v[1]}</option>`).join("")}</select>
+<label>Headline *</label><input name="title" required maxlength="90" placeholder="e.g. Welcome, baby Mia Nguyen! or Sam &amp; Priya are engaged" style="width:100%">
+<label>Date *</label><input type="date" name="date" required max="${todayISO()}">
+<label>A few words (optional)</label><textarea name="msg" rows="3" maxlength="280" placeholder="e.g. Proud parents Jess and Tom, and big brother Leo. Born at 3.4 kg."></textarea>
+<label>Your email (so we can check, never shown) *</label><input type="email" name="contact" required maxlength="120" style="width:100%">
+<label class="row"><input type="checkbox" name="ok" value="1" required style="width:auto"> I'm family, and everyone named is happy for this to be shared.</label>
+<p><button>Send our news</button></p></form>`, R.code);
+}
+async function lodgeJoy(req, env, ctx) {
+  const f = await req.formData(), kind = String(f.get("kind") || ""), date = String(f.get("date") || ""), title = String(f.get("title") || "").trim();
+  if (f.get("website") || !JOY[kind] || !title || !/^\d{4}-\d{2}-\d{2}$/.test(date) || date > todayISO() || !f.get("ok") || !f.get("contact")) return joyPage(env, `<p class="note">Please fill in the required details and tick the box.</p>`);
+  const n = { kind, title: title.slice(0, 90), date, msg: String(f.get("msg") || "").trim().slice(0, 280), contact: String(f.get("contact")).slice(0, 120), at: new Date().toISOString() };
+  await env.DATA.put(`jpending:${todayISO()}:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify(n));
+  mailUs(env, ctx, `${R.code}: new ${JOY[kind][1].toLowerCase()} notice to check`, `${n.title}\n${n.date}\n${n.msg}\n\nFrom: ${n.contact}\nApprove in admin: https://${R.domain}/admin`, n.contact);
+  return joyPage(env, `<p class="note">Congratulations! 🎉 We'll check your notice and it'll appear here soon.</p>`);
 }
