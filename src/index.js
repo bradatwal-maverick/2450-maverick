@@ -1,6 +1,7 @@
 
 // One engine, many towns: each Worker sets REGION (default 2450) and gets that town's settings from regions.js.
 import { REGIONS } from "./regions.js";
+import { auHandle, auCovers } from "./au.js";
 import { GENERAL, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
 import { WEST, EAST, eastYears, readings, seasonOf, moonLine } from "./horoscope.js";
@@ -89,7 +90,7 @@ f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote')
 <footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a> · <a href="/faq">FAQ</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
 <p class="policy">One policy: no BS. We don't report the news, we gather it from local sources and name every one. No opinions, no spin.</p>
 <p>${R.footer}</p>
-<p class="gaz">Our towns: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a></p>
+<p class="gaz">Our towns: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
 <p class="aoc">🙏🏽 ${R.ack} <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></p></footer>
 ${MAV_WIDGET()}
@@ -1565,11 +1566,19 @@ async function route(req, env, ctx) {
     if (p === "/icon.svg") return new Response(ICON(), { headers: { "content-type": "image/svg+xml" } });
     if (p === "/manifest.webmanifest") return new Response(MANIFEST(), { headers: { "content-type": "application/manifest+json" } });
     if (p === "/sw.js") return new Response(SW(), { headers: { "content-type": "text/javascript" } });
+    if (p === "/au" || p.startsWith("/au/")) { const r = auHandle(p, url, AU_HELPERS); if (r) return r; }
     const m = p.match(/^\/(\d{4})\/?$/);
+    if (m && !(TOWNS[m[1]] && TOWNS[m[1]].live) && auCovers(m[1])) return Response.redirect(new URL("/au/pc/" + m[1], url).toString(), 302);
     if (m) return town(m[1], env, ctx);
     return page("Not found", `<h1>Not found</h1><p><a href="/">Back to ${R.code}</a></p>`);
   }
 }
+
+// Helpers the regional-Australia pages borrow from this engine.
+const AU_HELPERS = {
+  page: (...a) => page(...a), esc: x => esc(x),
+  liveGazette: pc => { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc] && x.towns[pc].live); return r ? { name: `The ${r.code} Gazette`, url: `https://${r.domain}/${pc}` } : null; },
+};
 
 // A new thought every visit. Who said it shows on hover, so the quote does the talking.
 function quoteBlock() {
