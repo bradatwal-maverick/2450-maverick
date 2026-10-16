@@ -117,6 +117,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>
 </div></section>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
+<a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
 <a class="card" href="/school">🚸 <b>School run report</b> Weather and traffic for your school drop-off and pick-up →</a>
 <details class="pins mute"><summary>Customise this page</summary>${SECTIONS.map(([id, l]) => `<label><input type="checkbox" data-s="${id}" checked> ${esc(l)}</label>`).join("")}<br><small>Saved on your phone only.</small></details>
 ${soon("alerts", "Alerts", "Bushfires, road closures and floods near 2450, coming soon.", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", "Fires Near Me (NSW Rural Fire Service)")}
@@ -224,6 +225,10 @@ async function admin(req, env) {
   const f = await req.formData();
   if (f.get("key") !== env.ADMIN_KEY) return page("Admin", `<h1>Admin</h1><p>Wrong key.</p>${login}`);
   const act = f.get("act"), k = String(f.get("k") || "");
+  if (k.startsWith("bpending:")) {
+    if (act === "approve") { const v = await env.DATA.get(k); if (v) await env.DATA.put("bday:" + k.slice(9), v); }
+    await env.DATA.delete(k);
+  }
   if (k.startsWith("pending:")) {
     if (act === "approve") {
       const v = await env.DATA.get(k);
@@ -243,7 +248,10 @@ async function admin(req, env) {
   const fbk = (await env.DATA.list({ prefix: "fb:" })).keys.slice(-20).reverse();
   let fbl = "";
   for (const { name } of fbk) { const x = await env.DATA.get(name, "json"); if (x) fbl += `<li><b>${esc(x.kind)}</b>: ${esc(x.msg)}<br><span class="mute">${esc(x.name)} ${esc(x.email)} · ${esc(x.at.slice(0, 10))}</span></li>`; }
-  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
+  const btnB = (a, l, name) => `<form method="post" style="display:inline"><input type="hidden" name="key" value="${key}"><input type="hidden" name="k" value="${esc(name)}"><input type="hidden" name="act" value="${a}"><button>${l}</button></form>`;
+  let bl = "";
+  for (const { name } of (await env.DATA.list({ prefix: "bpending:" })).keys) { const o = await env.DATA.get(name, "json"); if (o) bl += `${offerItem(o).replace("</li>", "")}<br><span class="mute">from ${esc(o.contact)}</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
+  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
 const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
@@ -389,11 +397,52 @@ async function feedback(req, env, ctx) {
   return feedbackPage(`<p class="note">Thanks${fb.name ? ", " + esc(fb.name) : ""}! It's on its way to me.</p>`);
 }
 
+// ---- Birthday deals (birthday saved on the phone only; offers lodged by businesses, approved in admin) ----
+const WHEN = { day: "On your birthday", week: "Your birthday week", month: "Your birthday month" };
+const offerItem = o => `<li><b>${esc(o.biz)}</b>: ${esc(o.offer)}<br><span class="mute">${esc(WHEN[o.when] || "")}${o.cond ? " · " + esc(o.cond) : ""} · Say <b>&ldquo;Maverick&rdquo;</b> when you redeem</span></li>`;
+async function birthdayPage(env, msg = "") {
+  const offers = [];
+  for (const { name } of (await env.DATA.list({ prefix: "bday:" })).keys) { const o = await env.DATA.get(name, "json"); if (o) offers.push(o); }
+  offers.sort((a, b) => a.biz.localeCompare(b.biz));
+  return page("Birthday deals in 2450", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🎂 Birthday deals</h1>
+<p>Pop in your birthday and see which local places will look after you on your big day.</p>${msg}
+<div class="row"><select id="bd-d" aria-label="Day"><option value="">Day</option>${Array.from({ length: 31 }, (_, i) => `<option>${i + 1}</option>`).join("")}</select>
+<select id="bd-m" aria-label="Month"><option value="">Month</option>${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => `<option value="${i}">${m}</option>`).join("")}</select></div>
+<p class="mute">Just the day and month, saved on your phone only.</p><p id="bd-out" class="note" hidden></p>
+<h2>Local birthday deals (${offers.length})</h2><ul>${offers.map(offerItem).join("") || "<li>No deals yet. Know a business that does one? Tell them about this page!</li>"}</ul>
+<h2>Own a local business?</h2><p>List your birthday offer free. Nobody pays to be here.</p>
+<details><summary><b>Add your birthday offer</b></summary><form method="post" action="/birthday"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<label>Business name *</label><input name="biz" required maxlength="80" style="width:100%">
+<label>The offer *</label><input name="offer" required maxlength="140" placeholder="e.g. Free coffee, 20% off your meal" style="width:100%">
+<label>When can they use it?</label><select name="when"><option value="day">On their birthday</option><option value="week">Birthday week</option><option value="month">Birthday month</option></select>
+<label>Conditions</label><input name="cond" maxlength="140" placeholder="e.g. Show ID, dine-in only, 18+" style="width:100%">
+<label>Your email (to confirm, never shown) *</label><input type="email" name="contact" required style="width:100%">
+<p class="mute">Customers redeem by saying &ldquo;Maverick&rdquo;. Offers are checked before they go live.</p><p><button>Add my offer</button></p></form></details>
+<script>
+var d=document.getElementById('bd-d'),m=document.getElementById('bd-m'),o=document.getElementById('bd-out');
+try{var b=JSON.parse(localStorage.getItem('bday')||'null');if(b){d.value=b[0];m.value=b[1]}}catch(e){}
+function calc(){if(!d.value||m.value===''){o.hidden=true;return}try{localStorage.setItem('bday',JSON.stringify([d.value,m.value]))}catch(e){}
+var now=new Date(),t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),b=new Date(now.getFullYear(),+m.value,+d.value);if(b<t)b.setFullYear(b.getFullYear()+1);
+var days=Math.round((b-t)/864e5);o.hidden=false;
+o.textContent=days===0?'🎉 Happy birthday! Every deal below is yours today. Say "Maverick" to redeem.':days<=7?'🎈 '+days+' day'+(days>1?'s':'')+' to go. Birthday-week deals are nearly on!':'🗓️ '+days+' days to your birthday. We’ll be here.'}
+d.onchange=m.onchange=calc;calc();
+</script>`, "2450");
+}
+async function lodgeOffer(req, env) {
+  const f = await req.formData();
+  if (f.get("website") || !f.get("biz") || !f.get("offer")) return birthdayPage(env);
+  const o = { biz: String(f.get("biz")).slice(0, 80), offer: String(f.get("offer")).slice(0, 140), when: ["day","week","month"].includes(f.get("when")) ? f.get("when") : "day",
+    cond: String(f.get("cond") || "").slice(0, 140), contact: String(f.get("contact") || "").slice(0, 120), at: new Date().toISOString() };
+  await env.DATA.put(`bpending:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify(o));
+  return birthdayPage(env, `<p class="note">Thanks, ${esc(o.biz)}! Your offer will appear once it's checked.</p>`);
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home();
     if (p === "/about") return about();
+    if (p === "/birthday") return req.method === "POST" ? lodgeOffer(req, env) : birthdayPage(env);
     if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage();
     if (p === "/school") return schoolPage();
     if (p === "/fridge") return (await member(req, env)) ? fridgePage() : unlockPage();
