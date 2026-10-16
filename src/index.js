@@ -33,7 +33,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:var(--soft);border-color:transparent!important}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.fuel{padding-left:20px}.fuel li{margin:8px 0}h3{font-size:1rem;margin:14px 0 4px}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.fuel{padding-left:20px}.fuel li{margin:8px 0}h3{font-size:1rem;margin:14px 0 4px}.openl{list-style:none;padding:0}.openl li{display:flex;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}.openl .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:6px;background:#9aa0a6}.openl li.open .dot{background:#1e9e4a}.openl li.shut .dot{background:#d93025}.openl li.open .st{color:#1e9e4a;font-weight:bold}.openl li.shut .st{color:#d93025;font-weight:bold}.openl li.unk .st{color:var(--mute)}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
@@ -142,6 +142,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>
 </div></section>
 <section id="tools"><h2>Handy tools</h2>
+<a class="card" href="/open">🟢 <b>Open now?</b> Pharmacies, mechanics, servos, cafés and more. Open ones first →</a>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
 <a class="card" href="/genalpha">🗣️ <b>Gen Alpha interpreter</b> What did your kid just say? Jimmy Joel translates →</a>
@@ -202,7 +203,7 @@ var IDX=[["weather temperature rain wind forecast","Weather today","Today's weat
 ["fuel petrol diesel servo cheap","Fuel","Cheapest fuel: NSW FuelCheck for now.","#fuel"],["fire fires bushfire flood alert alerts emergency","Alerts","Fires Near Me for now. Emergencies: call 000.","#alerts"],
 ["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run report","Weather and traffic for your school run.","/school"],
 ["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],["sport field fields closure closed footy soccer netball","Sport & field closures","Field closures and fixtures.","#sport"],
-["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
+["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
 ["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
 ["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
 ["feedback idea suggestion contact","Make 2450 better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
@@ -212,7 +213,7 @@ function saved(){try{return JSON.parse(localStorage.getItem('saved_q')||'[]')}ca
 function drawSaved(){var a=saved();qv.innerHTML=a.map(function(x){return '<label class="sq">'+esc2(x)+' <span data-x="'+esc2(x)+'" title="Remove">×</span></label>'}).join('')}
 qv.onclick=function(e){var x=e.target.dataset.x;if(x){try{localStorage.setItem('saved_q',JSON.stringify(saved().filter(function(y){return y!==x})))}catch(_){}drawSaved();return}
 var l=e.target.closest('.sq');if(l){qs.value=l.firstChild.textContent.trim();find()}};
-function find(){var v=qs.value.toLowerCase().trim();if(v.length<2){qr.innerHTML='';return}var w=v.split(/\s+/),hits=IDX.map(function(r){var sc=w.filter(function(x){return (r[0]+' '+r[1].toLowerCase()).indexOf(x)>-1}).length;return[sc,r]}).filter(function(x){return x[0]}).sort(function(a,b){return b[0]-a[0]}).slice(0,4).map(function(x){return x[1]});
+function find(){var v=qs.value.toLowerCase().trim();if(v.length<2){qr.innerHTML='';return}var w=v.split(/\\s+/),hits=IDX.map(function(r){var sc=w.filter(function(x){return (r[0]+' '+r[1].toLowerCase()).indexOf(x)>-1}).length;return[sc,r]}).filter(function(x){return x[0]}).sort(function(a,b){return b[0]-a[0]}).slice(0,4).map(function(x){return x[1]});
 document.querySelectorAll('#events li').forEach(function(li){if(hits.length<6&&li.textContent.toLowerCase().indexOf(v)>-1)hits.push(['',li.querySelector('b')?li.textContent.slice(0,60):'Event',li.textContent.slice(0,140),'#events'])});
 qr.innerHTML=(hits.length?hits.map(function(r){return '<a class="card qhit" href="'+r[3]+'"><b>'+esc2(r[1])+'</b><br><span class="mute">'+esc2(r[2])+'</span></a>'}).join(''):'<p class="mute">Nothing yet. <a href="/feedback">Tell us what you were looking for</a>.</p>')
 +'<p class="mute"><a href="#" id="qs-save">☆ Save this search</a> · ⏰ Schedule it: coming soon in your weekly email</p>';
@@ -424,7 +425,7 @@ var D=[["Chicken stir-fry",["chicken","noodles|rice","capsicum|broccoli|carrots"
 ["Zucchini slice",["zucchini","eggs","cheese|bacon"],"Kid friendly",40,"veg"],["Roast veg salad",["pumpkin|potatoes","spinach|lettuce","cheese|chickpeas"],"Healthy",40,"veg"],
 ["Chicken schnitzel",["chicken","eggs","bread"],"Aussie classic",40,"meat"],["Nachos",["beans|beef mince","cheese","tomatoes|avocado"],"Mexican",20,"veg"]];
 var veganBad=/eggs|cheese|milk|cream|butter|yoghurt|bacon|ham|chicken|beef|steak|sausages|fish|prawns/,glutenBad=/pasta|noodles|bread|wraps/,dairyBad=/cheese|milk|cream|butter|yoghurt/;
-document.getElementById('ff').onsubmit=function(e){e.preventDefault();var f=new FormData(this),have=f.getAll('i').concat(String(f.get('extra')||'').toLowerCase().split(/,\s*/).filter(Boolean)),
+document.getElementById('ff').onsubmit=function(e){e.preventDefault();var f=new FormData(this),have=f.getAll('i').concat(String(f.get('extra')||'').toLowerCase().split(/,\\s*/).filter(Boolean)),
 likes=f.getAll('c'),n=f.get('n'),t=+f.get('t'),d=f.get('d');
 if(!have.length){document.getElementById('out').innerHTML='<p class="note">Tick at least one thing in your fridge.</p>';return}
 var res=D.map(function(r){var need=r[1],got=need.filter(function(g){return g.split('|').some(function(x){return have.some(function(h){return h.indexOf(x)>-1||x.indexOf(h)>-1})})}).length,
@@ -939,6 +940,58 @@ b.disabled=true;b.textContent='Turning on…';Notification.requestPermission().t
 .then(function(){b.textContent='Alerts on ✓';try{localStorage.setItem('push_'+b.dataset.topic,1)}catch(e){}m.textContent='You\\u2019ll get a notification when there\\u2019s news.'})
 .catch(function(){b.disabled=false;b.textContent='Turn on alerts';m.textContent='Alerts weren\\u2019t allowed. You can turn them on in your phone\\u2019s settings.'})}})})();</script>`;
 
+// ---- Open now: OpenStreetMap places around Coffs (free, no key), cached daily; open/closed worked out on the visitor's phone ----
+const OPEN_CATS = { pharmacy: ["💊 Pharmacies", 'nwr["amenity"="pharmacy"]'], doctor: ["🩺 Doctors & clinics", 'nwr["amenity"~"^(doctors|clinic)$"]'],
+  mechanic: ["🔧 Mechanics & tyres", 'nwr["shop"~"^(car_repair|tyres)$"]'], fuel: ["⛽ Servos", 'nwr["amenity"="fuel"]'],
+  grocery: ["🛒 Supermarkets", 'nwr["shop"~"^(supermarket|convenience)$"]'], bottle: ["🍷 Bottle shops", 'nwr["shop"="alcohol"]'],
+  pub: ["🍺 Pubs & bars", 'nwr["amenity"~"^(pub|bar)$"]'], cafe: ["☕ Cafés", 'nwr["amenity"="cafe"]'], food: ["🍔 Takeaway & restaurants", 'nwr["amenity"~"^(fast_food|restaurant)$"]'],
+  vet: ["🐾 Vets", 'nwr["amenity"="veterinary"]'], hardware: ["🔨 Hardware", 'nwr["shop"~"^(hardware|doityourself)$"]'] };
+async function openApi(req, env) {
+  const cat = new URL(req.url).searchParams.get("c"); if (!OPEN_CATS[cat]) return Response.json({ error: "bad" }, { status: 400 });
+  const c = await env.DATA.get("osm:" + cat, "json");
+  if (c && Date.now() - new Date(c.asof) < 864e5) return Response.json(c);
+  try {
+    const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1]}(-30.45,152.95,-30.05,153.25););out center tags;`;
+    const j = await (await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) })).json();
+    const items = (j.elements || []).filter(e => e.tags?.name).map(e => { const t = e.tags;
+      return { name: t.name, hours: t.opening_hours || "", phone: t.phone || t["contact:phone"] || "", lat: e.lat ?? e.center?.lat, lon: e.lon ?? e.center?.lon,
+        addr: [t["addr:housenumber"], t["addr:street"], t["addr:suburb"] || t["addr:city"]].filter(Boolean).join(" "), web: t.website || t["contact:website"] || "", osm: `${e.type}/${e.id}` }; });
+    const out = { cat, items, asof: new Date().toISOString() };
+    await env.DATA.put("osm:" + cat, JSON.stringify(out));
+    return Response.json(out);
+  } catch (e) { return Response.json(c || { error: "unreachable" }); }
+}
+const openPage = () => page("Open now in Coffs", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🟢 Open now?</h1>
+<p>Pick what you need. Open places come first, nearest at the top. <a href="#" class="useloc">📍 Use my location</a></p>
+<div class="pills" id="cats">${Object.entries(OPEN_CATS).map(([k, [l]]) => `<button type="button" data-c="${k}">${l}</button>`).join("")}</div>
+<div id="olist"><p class="mute">Choose a category above.</p></div><p class="src" id="osrc"></p>
+<script>(function(){var L=null;try{L=JSON.parse(localStorage.getItem('loc'))}catch(e){}var HOME=L||[${HOME.lat},${HOME.lon}],ol=document.getElementById('olist');
+var DN=['Su','Mo','Tu','We','Th','Fr','Sa'],DL=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function days(spec){var set=[];spec.split(',').forEach(function(p){var r=p.split('-'),a=DN.indexOf(r[0]),b=DN.indexOf(r[1]||r[0]);if(a<0||b<0)return;for(var i=a;;i=(i+1)%7){set.push(i);if(i==b)break}});return set}
+function sched(h){if(!h)return null;h=h.trim();if(h=='24/7')return 'always';var S={};for(var d=0;d<7;d++)S[d]=null;var ok=false;
+h.split(';').forEach(function(rule){rule=rule.trim();if(!rule||/^PH/.test(rule))return;var m=rule.match(/^((?:(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?,?)+)?\\s*(.*)$/);if(!m)return;
+var ds=m[1]?days(m[1].replace(/,$/,'')):[0,1,2,3,4,5,6],t=m[2].trim();if(!ds.length)return;
+if(/^(off|closed)$/i.test(t)){ds.forEach(function(d){S[d]=[]});ok=true;return}
+var sl=[];t.split(',').forEach(function(r){var x=r.match(/(\\d\\d):(\\d\\d)\\s*-\\s*(\\d\\d):(\\d\\d)/);if(x)sl.push([+x[1]*60+ +x[2],+x[3]*60+ +x[4]])});if(sl.length){ds.forEach(function(d){S[d]=sl});ok=true}});return ok?S:null}
+function fmt(m){var h=Math.floor(m/60)%24,mm=m%60;return (h%12||12)+(mm?':'+String(mm).padStart(2,'0'):'')+(h<12?'am':'pm')}
+function status(h){var S=sched(h);if(S=='always')return{c:'open',t:'Open 24 hours'};if(!S)return{c:'unk',t:h?'Hours: '+h:'Hours not listed'};
+var n=new Date(),d=n.getDay(),m=n.getHours()*60+n.getMinutes();
+var y=S[(d+6)%7]||[];for(var i=0;i<y.length;i++)if(y[i][1]<y[i][0]&&m<y[i][1])return{c:'open',t:'Open now · closes '+fmt(y[i][1])};
+var td=S[d]||[];for(i=0;i<td.length;i++){var a=td[i][0],b=td[i][1];if(b<=a?m>=a:(m>=a&&m<b))return{c:'open',t:'Open now · closes '+fmt(b)}}
+for(var k=0;k<8;k++){var dd=(d+k)%7,sl=S[dd]||[];for(i=0;i<sl.length;i++)if(k>0||sl[i][0]>m)return{c:'shut',t:'Closed · opens '+fmt(sl[i][0])+(k==0?' today':k==1?' tomorrow':' '+DL[dd])}}
+return{c:'shut',t:'Closed'}}
+function km(a,b){var r=Math.PI/180,x=Math.sin((b[0]-a[0])*r/2),y=Math.sin((b[1]-a[1])*r/2),q=x*x+Math.cos(a[0]*r)*Math.cos(b[0]*r)*y*y;return 12742*Math.asin(Math.sqrt(q))}
+function e(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function load(c,btn){document.querySelectorAll('#cats button').forEach(function(b){b.classList.toggle('on',b==btn)});try{localStorage.setItem('opencat',c)}catch(_){}ol.innerHTML='<p class="mute">Loading…</p>';
+fetch('/api/open?c='+c).then(function(r){return r.json()}).then(function(j){if(j.error){ol.innerHTML='<p class="mute">Couldn\\u2019t reach the map data just now.</p>';return}
+var rank={open:0,shut:1,unk:2},it=j.items.map(function(x){x.s=status(x.hours);x.d=x.lat?km(HOME,[x.lat,x.lon]):999;return x}).filter(function(x){return x.d<40}).sort(function(a,b){return rank[a.s.c]-rank[b.s.c]||a.d-b.d}).slice(0,40);
+ol.innerHTML=it.length?'<ul class="openl">'+it.map(function(x){return '<li class="'+x.s.c+'"><span class="dot"></span><div><b>'+e(x.name)+'</b><br><span class="st">'+e(x.s.t)+'</span><br><span class="mute">'+e(x.addr||'')+(x.d<999?' · '+x.d.toFixed(1)+' km':'')+'</span><br>'
++(x.phone?'<a href="tel:'+e(x.phone.replace(/[^+\\d]/g,''))+'">📞 Call</a> · ':'')+'<a href="https://www.google.com/maps/dir/?api=1&destination='+x.lat+','+x.lon+'" rel="noopener">🧭 Directions</a>'+(x.web?' · <a href="'+e(x.web)+'" rel="noopener">Website</a>':'')+'</div></li>'}).join('')+'</ul>':'<p>Nothing listed nearby.</p>';
+document.getElementById('osrc').innerHTML='Current as of '+new Date(j.asof).toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+' · Source: <a href="https://www.openstreetmap.org/copyright" rel="noopener">© OpenStreetMap contributors</a> · Hours are as listed there, so call ahead if it matters. Wrong or missing hours? <a href="https://www.openstreetmap.org" rel="noopener">Anyone can fix them</a> or <a href="/feedback">tell us</a>.'})
+.catch(function(){ol.innerHTML='<p class="mute">Couldn\\u2019t load just now.</p>'})}
+document.querySelectorAll('#cats button').forEach(function(b){b.onclick=function(){load(b.dataset.c,b)}});
+var last;try{last=localStorage.getItem('opencat')}catch(_){}var lb=last&&document.querySelector('[data-c="'+last+'"]');if(lb)load(last,lb)})();</script>`, "2450");
+
 export default {
   async scheduled(evt, env, ctx) {
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
@@ -949,6 +1002,8 @@ export default {
     if (p === "/") return home(env);
     if (p === "/new") return newPage(env);
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
+    if (p === "/open") return openPage();
+    if (p === "/api/open") return openApi(req, env);
     if (p === "/about") return about();
     if (p === "/api/fuel") return fuelApi(req, env);
     if (p === "/me") return mePage();
