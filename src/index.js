@@ -4,6 +4,7 @@ import { REGIONS } from "./regions.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
+import { BANKS, MOVES, CDR } from "./rates.js";
 import { WEST, EAST, eastYears, readings, seasonOf, moonLine } from "./horoscope.js";
 function initRegion(env) {
   if (R && R.code === (env.REGION || "2450")) return;
@@ -17,7 +18,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -58,7 +59,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #tonight{--acc:#0f766e!important}#events,#kids{--acc:#0f766e!important}
 #alerts{--acc:#b42318!important}
 #memory{--acc:#6b7280!important}#joy{--acc:#c2417a!important}
-#numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#lotto{--acc:#15803d!important}
+#numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#rates,#lotto{--acc:#15803d!important}
 #flights,#bypass,#sea,#beaches,#surfcams{--acc:#1d6fb8!important}
 #puzzles,#stars,#holidays{--acc:#b45309!important}
 #know,#council,#tools,#sport{--acc:#475569!important}
@@ -242,6 +243,7 @@ ${fuelBlock(t)}
 ${await numbersBlock(env)}
 ${await aiBlock(env)}
 ${await shopBlock(env)}
+${await ratesBlock(env)}
 ${await projectBlock(env)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
@@ -310,7 +312,7 @@ document.getElementById('date').textContent=new Date().toLocaleDateString('en-AU
 (function(){var f=document.getElementById('flow'),o;try{o=JSON.parse(localStorage.getItem('order')||'null')}catch(e){}
 if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
 var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&el.id!=='tonight'&&el.id!=='alerts'&&el.id!=='lotto'&&el.querySelector('h2')});
-var PR=['events','council','numbers','aigb','bypass','memory','joy','shop','flights','puzzles','stars','sea','fuel','beaches','sport','flights','holidays','kids','council','know','tools','surfcams'];if(!o)secs.sort(function(a,b){var x=PR.indexOf(a.id),y=PR.indexOf(b.id);return (x<0?99:x)-(y<0?99:y)});
+var PR=['events','council','numbers','aigb','bypass','memory','joy','shop','rates','flights','puzzles','stars','sea','fuel','beaches','sport','flights','holidays','kids','council','know','tools','surfcams'];if(!o)secs.sort(function(a,b){var x=PR.indexOf(a.id),y=PR.indexOf(b.id);return (x<0?99:x)-(y<0?99:y)});
 secs.forEach(function(el){el.hidden=true;el.classList.add('panel');var b=document.createElement('button');b.type='button';b.textContent=el.querySelector('h2').textContent;
 try{b.style.setProperty('--pc',getComputedStyle(el).getPropertyValue('--acc'))}catch(e){}b.onclick=function(){var open=!el.hidden;secs.forEach(function(x){x.hidden=true});nav.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(!open){el.hidden=false;b.classList.add('on');f.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'start'})}};nav.appendChild(b)});
 var td=document.getElementById('tonight')||document.getElementById('news')||document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling)})();
@@ -1501,7 +1503,7 @@ export default {
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshAiNews(env), healthMail(env, ctx)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
@@ -1954,6 +1956,7 @@ async function health(env) {
   if (R.project) { const pr = await env.DATA.get("project", "json"); add(R.project.name + " weekly update", R.project.url, pr && pr.points && pr.points.length ? pr.asof : null, 48); }
   if (env.FLIGHT_KEY && !R.airport.feed) { const fl = await env.DATA.get("flights", "json"); add("Flights (AeroDataBox)", "https://aerodatabox.com", fl && fl.asof, 12); }
   if (env.FUEL_KEY) { const fu = await env.DATA.get("fuel:local", "json"); add("Fuel prices (NSW FuelCheck)", "https://www.fuelcheck.nsw.gov.au", fu && fu.asof, 24); }
+  { const rn = await env.DATA.get("rates:now", "json"); for (const [k, n] of Object.entries(BANKS)) add("Home loan rates (" + n + ")", CDR[k], rn && rn.banks[k] && rn.banks[k].rate ? rn.banks[k].asof : null, 72); }
   if (R.council.meetings) { const cn = await env.DATA.get("council:next", "json"); add("Council meetings page", R.council.meetings, cn && cn.asof, 72); }
   if (R.council.progress) { const cp = await env.DATA.get("council:progress", "json"); add("Council progress reports", R.council.progress, cp && cp.asof, 120 * 24); }
   { const al = await env.DATA.get("ailog", "json"); add("AI news (The Guardian, Google News)", AI_FEEDS[0][1], al && al.items && al.items.length ? al.items[0].at : null, 72); }
@@ -2107,4 +2110,49 @@ ${tot.length ? `<p><b>${tot.map(([k, i, l]) => `${i} ${t[k]} ${l}`).join(" · ")
 ${p.behind.length ? `<p><b>Council reports these as behind or delayed:</b></p><ul class="prom">${p.behind.map(b => `<li><span class="pl">🟠</span><span><b>${esc(b.action)}</b>${b.status ? ` <span class="tagg">${esc(b.status)}</span>` : ""}${b.comment ? `<br><small class="mute">Council says: “${esc(b.comment)}”</small>` : ""}</span></li>`).join("")}</ul>` : ""}
 ${p.done.length ? `<p><b>Council reports these as completed:</b></p><ul class="prom">${p.done.map(d => `<li><span class="pl">✅</span><span>${esc(d.action)}</span></li>`).join("")}</ul>` : ""}
 <p class="src">${fresh(p.asof)}Statuses are council's own, quoted from its report and checked against the original. We don't add, judge or change them. Read ${esc(asOf(p.asof))}.</p>`;
+}
+
+// ---- Banks and the RBA: today's lowest advertised variable home loan rate at each big four bank (from their official Open Banking
+// data, checked daily, one bank per run), plus how fast each passed on past RBA changes. Numbers only. ----
+async function refreshBankRates(env) {
+  const cur = (await env.DATA.get("rates:now", "json")) || { banks: {}, hist: {} };
+  const due = Object.keys(BANKS).find(k => !cur.banks[k] || Date.now() - new Date(cur.banks[k].tried) > 20 * 3600e3);
+  if (!due) return;
+  const H = { "x-v": "4", "x-min-v": "1", accept: "application/json", ...UA }, now = new Date().toISOString();
+  try {
+    const list = await (await fetch(CDR[due] + "/banking/products?product-category=RESIDENTIAL_MORTGAGES&page-size=50", { headers: { ...H, "x-v": "3" } })).json();
+    const prods = (list.data && list.data.products || []).filter(p => !/invest|business|bridging|construction|reverse|green/i.test(p.name || "")).slice(0, 25);
+    let best = null;
+    for (const p of prods) {
+      try {
+        const d = (await (await fetch(CDR[due] + "/banking/products/" + encodeURIComponent(p.productId), { headers: H })).json()).data || {};
+        for (const r of d.lendingRates || []) {
+          const v = parseFloat(r.rate) * 100;
+          if (r.lendingRateType === "VARIABLE" && (!r.loanPurpose || r.loanPurpose === "OWNER_OCCUPIED") && (!r.repaymentType || r.repaymentType === "PRINCIPAL_AND_INTEREST") && v > 2 && v < 15 && (!best || v < best.rate)) best = { rate: +v.toFixed(2), product: d.name || p.name };
+        }
+      } catch (e) {}
+    }
+    const day = todayISO();
+    if (best) { cur.banks[due] = { ...best, asof: now, tried: now }; (cur.hist[due] = cur.hist[due] || {})[day] = best.rate; const ks = Object.keys(cur.hist[due]).sort(); if (ks.length > 400) delete cur.hist[due][ks[0]]; }
+    else cur.banks[due] = { ...(cur.banks[due] || {}), tried: now };
+  } catch (e) { cur.banks[due] = { ...(cur.banks[due] || {}), tried: now }; }
+  await env.DATA.put("rates:now", JSON.stringify(cur));
+}
+async function ratesBlock(env) {
+  const cur = (await env.DATA.get("rates:now", "json")) || { banks: {} }, ks = Object.keys(BANKS);
+  const days = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5), dd = d => new Date(d + "T12:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+  const now = ks.filter(k => cur.banks[k] && cur.banks[k].rate);
+  const low = now.length ? Math.min(...now.map(k => cur.banks[k].rate)) : null;
+  const today = now.length ? `<h3>Lowest advertised variable rate today</h3><p class="mute">Owner-occupier, principal and interest, best rate across each bank's home loans.</p><table class="shopt"><tbody>${ks.map(k => { const b = cur.banks[k]; return `<tr><th scope="row">${BANKS[k]}</th><td class="${b && b.rate === low ? "cheap" : ""}" title="${b ? esc(b.product || "") : ""}">${b && b.rate ? b.rate.toFixed(2) + "%" : "–"}</td></tr>`; }).join("")}</tbody></table><p class="src">${fresh(now.map(k => cur.banks[k].asof).sort().pop())}From each bank's official Open Banking product data, checked daily. Your rate depends on your loan; check with the bank.</p>` : "";
+  const avg = (k, up) => { const l = MOVES.filter(m => (m.ch > 0) === up && m.banks[k]).map(m => days(m.d, m.banks[k][0])); return l.length ? (l.reduce((a, b) => a + b, 0) / l.length).toFixed(1) : "–"; };
+  const passed = (k, up) => { const l = MOVES.filter(m => (m.ch > 0) === up && m.banks[k]); return l.length ? l.filter(m => Math.abs(m.banks[k][1]) >= Math.abs(m.ch)).length + " of " + l.length : "–"; };
+  const speed = `<h3>How fast they passed on RBA changes</h3><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${BANKS[k]}</th>`).join("")}</tr></thead><tbody>
+<tr><th scope="row">Average days to pass on a rise</th>${ks.map(k => `<td>${avg(k, true)}</td>`).join("")}</tr>
+<tr><th scope="row">Average days to pass on a cut</th>${ks.map(k => `<td>${avg(k, false)}</td>`).join("")}</tr>
+<tr><th scope="row">Rises passed on in full</th>${ks.map(k => `<td>${passed(k, true)}</td>`).join("")}</tr>
+<tr><th scope="row">Cuts passed on in full</th>${ks.map(k => `<td>${passed(k, false)}</td>`).join("")}</tr></tbody></table>
+<p class="mute">Days from the RBA's decision to the date the bank's new variable rate took effect, for the ${MOVES.length} RBA moves since February 2025.</p>`;
+  const hist = `<details><summary>Every RBA move and what each bank did</summary><div class="tscroll"><table class="shopt"><thead><tr><th>RBA decision</th>${ks.map(k => `<th>${BANKS[k]}</th>`).join("")}</tr></thead><tbody>${MOVES.map(m => `<tr><th scope="row">${dd(m.d)}<br><small class="mute">${m.ch > 0 ? "▲ +" : "▼ "}${m.ch.toFixed(2)} to ${m.cash.toFixed(2)}%</small></th>${ks.map(k => { const b = m.banks[k]; return b ? `<td>${b[1] > 0 ? "+" : ""}${b[1].toFixed(2)}<br><small class="mute">${dd(b[0])} · ${days(m.d, b[0])} days</small></td>` : "<td>–</td>"; }).join("")}</tr>`).join("")}</tbody></table></div>
+<p class="src">${MOVES.map(m => `<a href="${m.src[1]}" rel="noopener">${esc(m.src[0])}</a>`).filter((v, i, a) => a.indexOf(v) === i).join(" · ")}. Cash rate from the <a href="https://www.rba.gov.au/statistics/cash-rate/" rel="noopener">Reserve Bank of Australia</a>.</p></details>`;
+  return `<section id="rates"><h2>🏦 Banks and the RBA</h2><p class="mute">Home loan rates at the big four, and how quickly each passed on the Reserve Bank's (RBA) rate changes. Numbers only.</p><p><b>Cash rate: ${MOVES[0].cash.toFixed(2)}%</b> <span class="mute">since ${dd(MOVES[0].d)}</span></p>${today}${speed}${hist}</section>`;
 }
