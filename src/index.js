@@ -66,7 +66,7 @@ document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=docum
 b.setAttribute('aria-label','Where this information comes from');b.setAttribute('aria-expanded','false');
 b.onclick=function(){p.hidden=!p.hidden;b.setAttribute('aria-expanded',String(!p.hidden));b.classList.toggle('on',!p.hidden);try{localStorage.setItem('src_hint','1')}catch(e){}var h=document.getElementById('srchint');if(h)h.remove()};
 p.parentNode.insertBefore(b,p);if(!first)first=b});
-if(first&&!seen){var h=document.createElement('p');h.id='srchint';h.className='note';h.innerHTML='💡 Tap <b>ⓘ Where from?</b> to see who gave us the info and how fresh it is. <a href="#" id="srcok">Got it</a>';first.parentNode.insertBefore(h,first);document.getElementById('srcok').onclick=function(e){e.preventDefault();h.remove();try{localStorage.setItem('src_hint','1')}catch(_){}}}})();</script>
+})();</script>
 <script>(function(){var TW=${JSON.stringify(Object.entries(TOWNS).filter(([, t]) => t.live).map(([k, t]) => [k, t.lat, t.lon]))};var L=null;try{L=JSON.parse(localStorage.getItem("loc"))}catch(e){}document.querySelectorAll(".useloc").forEach(function(a){if(L)a.textContent="📍 Using your location (reset)";
 a.onclick=function(e){e.preventDefault();if(L){try{localStorage.removeItem("loc")}catch(_){}location.reload();return}if(!navigator.geolocation){a.textContent="Location not available on this device";return}a.textContent="📍 Finding you…";
 navigator.geolocation.getCurrentPosition(function(p){var la=+p.coords.latitude.toFixed(2),lo=+p.coords.longitude.toFixed(2);try{localStorage.setItem("loc",JSON.stringify([la,lo]))}catch(_){}
