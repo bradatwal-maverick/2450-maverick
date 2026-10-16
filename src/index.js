@@ -8,7 +8,7 @@ const TOWNS = {
   "2456": { name: "Woolgoolga", live: false },
 };
 
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your 2450"], ["council", "Council"], ["sport", "Sport"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your 2450"], ["council", "Council"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -51,7 +51,10 @@ function page(title, body, pc = "") {
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
 Born and built in 2450, raised by the world.<br><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></footer>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{})</script></body></html>`,
+<script>(function(){var L=null;try{L=JSON.parse(localStorage.getItem("loc"))}catch(e){}document.querySelectorAll(".useloc").forEach(function(a){if(L)a.textContent="📍 Using your location (reset)";
+a.onclick=function(e){e.preventDefault();if(L){try{localStorage.removeItem("loc")}catch(_){}location.reload();return}if(!navigator.geolocation){a.textContent="Location not available on this device";return}a.textContent="📍 Finding you…";
+navigator.geolocation.getCurrentPosition(function(p){try{localStorage.setItem("loc",JSON.stringify([+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)]))}catch(_){}location.reload()},function(){a.textContent="📍 Location not allowed"},{timeout:10000})}})})();
+if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{})</script></body></html>`,
     { headers: { "content-type": "text/html;charset=utf-8" } });
 }
 
@@ -105,7 +108,8 @@ function clockChange() {
 }
 
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
-const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b> — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
+const costTag = e => e.cost == null ? "" : ` <span class="tagg">${e.cost === 0 ? "Free" : "$" + e.cost + (e.kids ? " per kid" : "")}</span>`;
+const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b> — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
 
 async function town(pc, env, ctx) {
   const t = TOWNS[pc];
@@ -125,7 +129,7 @@ async function town(pc, env, ctx) {
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search 2450">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
-${ann}<p class="mute"><span id="date"></span> · <a href="/me">🎤 Make this page yours</a></p>
+${ann}<p class="mute"><span id="date"></span> · <a href="#" class="useloc">📍 Use my location</a> · <a href="/me">🎤 Make this page yours</a></p>
 ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div id="flow"><section id="today"><div class="tiles">
 <div class="tile"><span id="i-wx" class="ico">⛅</span><b id="t-temp">–</b><small id="t-sky">Weather</small></div>
@@ -168,14 +172,18 @@ ${fuelBlock()}
 <li>📞 <a href="tel:0266484000">02 6648 4000</a>, weekdays 8:30am–4:30pm. Same number 24/7 for urgent water, sewer, pollution or animal attacks</li>
 <li>✉️ <a href="mailto:coffs.council@chcc.nsw.gov.au">coffs.council@chcc.nsw.gov.au</a></li>
 <li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul><p class="src">Source: <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" rel="noopener">City of Coffs Harbour, Contact details</a> · Source shows no &ldquo;last updated&rdquo; date · Checked 16 Oct 2026</p></details>
-<p class="mute">Spotted something out of date? <a href="/feedback">Let me know</a>.</p></section>
+<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
 ${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
-${soon("sport", "Sport", "Field closures, local games and fixtures, coming soon. Clubs will be able to post them here free.")}
+${await kidsBlock(local, feed)}
+<section id="sport"><h2>Sport &amp; field closures</h2>
+<div class="note">🔔 <b>Get field closure alerts</b> on your phone the moment we know. <button type="button" class="pushbtn" data-topic="fields">Turn on alerts</button><br><small class="mute pushmsg"></small></div>
+${await fieldsBlock(env, ctx)}
+<p class="mute">Clubs: post games, fixtures and closures free via <a href="/submit?pc=2450">Add an event</a>.</p></section>
 ${live.holidays}
 ${soon("surfcams", "Surf cams", "Check the waves live before you head down.", "https://www.coastalwatch.com", "Coastalwatch")}
 ${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}</div>
 <p><a class="card" href="/me">🎤 <b>Make this page yours</b> Just tell Mav what you want to see →</a></p>
-<h2>This week in ${esc(pc)}</h2><p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
+${PUSH_JS}<h2>This week in ${esc(pc)}</h2><p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
 var IDX=[["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
@@ -226,7 +234,8 @@ var dirs=['N','NE','E','SE','S','SW','W','NW'],tm=function(s){return new Date(s)
 var age=((Date.now()-Date.UTC(2000,0,6,18,14))/864e5)%29.530588853,mi=Math.round(age/29.53*8)%8;
 var MN=[['🌑','New moon'],['🌒','Waxing crescent'],['🌓','First quarter'],['🌔','Waxing gibbous'],['🌕','Full moon'],['🌖','Waning gibbous'],['🌗','Last quarter'],['🌘','Waning crescent']];
 $('i-moon',MN[mi][0]);$('t-moon',MN[mi][1]);
-fetch('https://api.open-meteo.com/v1/forecast?latitude=${t.lat}&longitude=${t.lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&forecast_days=1&timezone=Australia%2FSydney')
+var LOC=null;try{LOC=JSON.parse(localStorage.getItem('loc'))}catch(e){};var LAT=LOC?LOC[0]:${t.lat},LON=LOC?LOC[1]:${t.lon};
+fetch('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&forecast_days=1&timezone=Australia%2FSydney')
 .then(function(r){return r.json()}).then(function(d){var c=d.current,y=d.daily,w=W[c.weather_code]||['🌡️',''];
 $('i-wx',w[0]);$('t-temp',Math.round(c.temperature_2m)+'°');$('t-sky',w[1]+' · '+Math.round(y.temperature_2m_max[0])+'°/'+Math.round(y.temperature_2m_min[0])+'°');
 $('t-rain',y.precipitation_probability_max[0]+'%');$('t-wind',Math.round(c.wind_speed_10m)+' km/h');$('t-windd','Wind from '+dirs[Math.round(c.wind_direction_10m/45)%8]);
@@ -254,6 +263,8 @@ const submitForm = pc => page("Add an event — free", `<p class="mute"><a href=
 <label>What's on *</label><input name="title" required maxlength="120" style="width:100%">
 <div class="row"><div><label>Date *</label><input type="date" name="date" required min="${todayISO()}"></div><div><label>Time</label><input name="time" placeholder="7pm" maxlength="20"></div></div>
 <label>Where</label><input name="venue" maxlength="120" style="width:100%">
+<div class="row"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="kids"> Good for kids</label>
+<div><label>Cost per kid ($)</label><input type="number" name="cost" min="0" max="999" step="1" placeholder="0 = free" style="width:120px"></div></div>
 <label>Link (tickets or more info)</label><input type="url" name="link" maxlength="300" style="width:100%">
 <label>Short description</label><textarea name="desc" rows="3" maxlength="300"></textarea>
 <label>Your email (so we can check details, never shown) *</label><input type="email" name="contact" required style="width:100%">
@@ -267,7 +278,8 @@ async function handleSubmit(req, env) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !f.get("title")) return page("Missing details", `<h1>Missing details</h1><p><a href="/submit?pc=${esc(pc)}">Try again</a></p>`);
   const ev = { pc, date, title: String(f.get("title")).slice(0, 120), time: String(f.get("time") || "").slice(0, 20),
     venue: String(f.get("venue") || "").slice(0, 120), link: /^https?:\/\//.test(link) ? link.slice(0, 300) : "",
-    desc: String(f.get("desc") || "").slice(0, 300), contact: String(f.get("contact") || "").slice(0, 200), at: new Date().toISOString() };
+    desc: String(f.get("desc") || "").slice(0, 300), contact: String(f.get("contact") || "").slice(0, 200), at: new Date().toISOString(),
+    kids: !!f.get("kids"), cost: f.get("cost") === "" || f.get("cost") == null ? null : Math.max(0, Math.min(999, Math.round(+f.get("cost") || 0))) };
   const id = crypto.randomUUID().slice(0, 8);
   await env.DATA.put(`pending:${pc}:${date}:${id}`, JSON.stringify(ev));
   return page("Thanks", `<h1>Thanks, it's in!</h1><p>We'll check it and it'll appear on <a href="/${esc(pc)}">${esc(pc)}</a> soon.</p>`, pc);
@@ -288,6 +300,7 @@ async function admin(req, env) {
   const f = await req.formData();
   if (f.get("key") !== env.ADMIN_KEY) return page("Admin", `<h1>Admin</h1><p>Wrong key.</p>${login}`);
   const act = f.get("act"), k = String(f.get("k") || "");
+  if (act === "alert" && f.get("text")) await sendAlert(env, String(f.get("topic")) === "alerts" ? "alerts" : "fields", String(f.get("topic")) === "alerts" ? "2450 alert" : "Field closure update", String(f.get("text")).slice(0, 160), String(f.get("topic")) === "alerts" ? "/2450#alerts" : "/2450#sport");
   if (act === "announce" && f.get("text")) { const l = String(f.get("link") || ""); await env.DATA.put(`ann:${new Date().toISOString()}`, JSON.stringify({ text: String(f.get("text")).slice(0, 200), link: /^\/|^https?:\/\//.test(l) ? l.slice(0, 300) : "", at: new Date().toISOString() })); }
   if (k.startsWith("ann:") && act === "remove") await env.DATA.delete(k);
   if (k.startsWith("ipending:")) {
@@ -334,6 +347,9 @@ async function admin(req, env) {
   for (const { name } of (await env.DATA.list({ prefix: "ipending:" })).keys) { const i = await env.DATA.get(name, "json"); if (i) il += `<li>${esc(i.text)}<br>${btnB("approve", "Approve for voting", name)} ${btnB("delete", "Delete", name)}</li>`; }
   const board = (await ideas(env)).map(i => `<li>👍 ${i.votes} · ${esc(i.text)} ${STATUS[i.status] || ""}<br>${btnB("building", "Building", "idea:" + i.id)} ${btnB("done", "Done", "idea:" + i.id)} ${btnB("open", "Reopen", "idea:" + i.id)} ${btnB("remove", "Remove", "idea:" + i.id)}</li>`).join("");
   return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p>
+<h2>🔔 Send a phone alert</h2><p class="mute">Goes to everyone who turned on alerts. ${(await env.DATA.list({ prefix: "psub:" })).keys.length} phones signed up.</p>
+<form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="alert"><input name="text" maxlength="160" placeholder="e.g. All Coffs fields closed tonight due to rain" style="width:100%" required>
+<div class="row"><select name="topic"><option value="fields">Field closures</option><option value="alerts">General alert</option></select><button>Send alert</button></div></form>
 <h2>📣 Announce a new feature</h2><p class="mute">Marking a voted idea Done announces it automatically. Use this for anything else.</p>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="announce"><input name="text" maxlength="200" placeholder="e.g. Fuel prices are live!" style="width:100%" required><div class="row"><input name="link" placeholder="Link, e.g. /2450 (optional)"><button>Announce</button></div></form>
 <ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
@@ -348,7 +364,9 @@ const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">
 const ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">2450</text></svg>`;
 const MANIFEST = JSON.stringify({ name: "2450 Maverick", short_name: "2450", start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
   icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }] });
-const SW = `self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
+const SW = `self.addEventListener('push',e=>{e.waitUntil(fetch('/api/alert').then(r=>r.json()).then(a=>self.registration.showNotification(a.title,{body:a.body,icon:'/icon.svg',data:a.url||'/2450'})))});
+self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow(e.notification.data||'/2450'))});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
 e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open('v1').then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request)))})`;
 
 
@@ -427,7 +445,7 @@ const SCHOOLS = ["Coffs Harbour Public School","Narranga Public School","Boambee
 const schoolPage = () => { const t = TOWNS["2450"]; return page("School run report", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p>
 <h1>🚸 School run report</h1><p>Pick your school once and this page becomes your morning and afternoon check before the school run.</p>
 <label>Your school</label><select id="sch" style="width:100%"><option value="">Choose…</option>${SCHOOLS.map(x => `<option>${esc(x)}</option>`).join("")}</select>
-<p class="mute">Saved on your phone only.</p>
+<p class="mute">Saved on your phone only. <a href="#" class="useloc">📍 Use my location</a> for weather where you are.</p>
 <div id="rep" hidden>
 <div class="tiles"><div class="tile"><span class="ico">🌅</span><b id="am">–</b><small>Drop-off weather</small></div>
 <div class="tile"><span class="ico">🏫</span><b id="pm">–</b><small>Pick-up weather</small></div>
@@ -442,7 +460,8 @@ const schoolPage = () => { const t = TOWNS["2450"]; return page("School run repo
 var sel=document.getElementById('sch');try{sel.value=localStorage.getItem('school')||''}catch(e){}
 function show(){var v=sel.value;try{v?localStorage.setItem('school',v):localStorage.removeItem('school')}catch(e){}
 document.getElementById('rep').hidden=!v;document.getElementById('sn').textContent=v;if(!v)return;
-fetch('https://api.open-meteo.com/v1/forecast?latitude=${t.lat}&longitude=${t.lon}&hourly=temperature_2m,precipitation_probability&forecast_days=1&timezone=Australia%2FSydney')
+var LOC=null;try{LOC=JSON.parse(localStorage.getItem('loc'))}catch(e){};var LAT=LOC?LOC[0]:${t.lat},LON=LOC?LOC[1]:${t.lon};
+fetch('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&hourly=temperature_2m,precipitation_probability&forecast_days=1&timezone=Australia%2FSydney')
 .then(function(r){return r.json()}).then(function(d){var h=d.hourly,am=8,pm=15,ra=h.precipitation_probability[am],rp=h.precipitation_probability[pm];
 document.getElementById('am').textContent=Math.round(h.temperature_2m[am])+'° · '+ra+'% rain';document.getElementById('pm').textContent=Math.round(h.temperature_2m[pm])+'° · '+rp+'% rain';
 var hr=new Date().getHours(),day=new Date().getDay(),tip;
@@ -574,7 +593,7 @@ const charter = () => page("Our charter", `<p class="mute"><a href="/">2450 Mave
 const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Privacy policy</h1>
 <p class="mute">Plain English. Last updated ${UPDATED}.</p>
 <p>We collect as little as we can, we never sell it, and we follow the Australian Privacy Principles.</p>
-<h2>Kept on your phone, not with us</h2><p>Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. We never see them. Clear your browser data and they're gone.</p>
+<h2>Kept on your phone, not with us</h2><p>If you tap &ldquo;Use my location&rdquo;, it's rounded to about a kilometre and saved on your phone. It's used for your weather and to find fuel near you, never stored by us, and you can reset it any time. Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. We never see them. Clear your browser data and they're gone.</p>
 <h2>What we do keep</h2><ul>
 <li><b>Weekly email or fridge sign-up:</b> your email, first name if you give it, postcode and that you agreed to the email.</li>
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
@@ -823,21 +842,113 @@ const fuelBlock = () => `<section id="fuel"><h2>Fuel</h2>
 <div class="row"><select id="ft" aria-label="Fuel type">${Object.entries(FUELS).map(([k, l]) => `<option value="${k}"${k === "U91" ? " selected" : ""}>${l}</option>`).join("")}</select>
 <button type="button" id="fnear">📍 Near me</button></div><div id="fout" class="mute">Loading cheapest fuel…</div>
 <p class="src" id="fsrc">Source: <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a></p>
-<script>(function(){var ft=document.getElementById('ft'),fo=document.getElementById('fout'),pos=null;try{ft.value=localStorage.getItem('fuel')||'U91'}catch(e){}
+<script>(function(){var ft=document.getElementById('ft'),fo=document.getElementById('fout'),pos=null;try{var L=JSON.parse(localStorage.getItem('loc'));if(L){pos=L;document.getElementById('fnear').textContent='📍 Near you'}}catch(e){}try{ft.value=localStorage.getItem('fuel')||'U91'}catch(e){}
 function load(){try{localStorage.setItem('fuel',ft.value)}catch(e){}fo.textContent='Loading…';var q='/api/fuel?t='+ft.value+(pos?'&lat='+pos[0]+'&lon='+pos[1]:'');
 fetch(q).then(function(r){return r.json()}).then(function(j){if(j.error){fo.innerHTML=j.error=='not_set_up'?'Live prices coming soon. For now, check <a href="https://www.fuelcheck.nsw.gov.au">NSW FuelCheck</a>.':'Couldn’t reach FuelCheck just now.';return}
 if(!j.list.length){fo.textContent='No prices found nearby.';return}
 fo.innerHTML='<ol class="fuel">'+j.list.map(function(s,i){return '<li><b>'+(s.price/100).toFixed(2).replace(/^/,'$')+'</b> '+(i==0?'⭐ ':'')+s.name+'<br><span class="mute">'+(s.address||'')+(s.km!=null?' · '+(+s.km).toFixed(1)+' km':'')+'</span></li>'}).join('')+'</ol>';
 document.getElementById('fsrc').innerHTML='Current as of '+new Date(j.asof).toLocaleString('en-AU',{hour:'numeric',minute:'2-digit',weekday:'short'})+' · Source: <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a> · Prices per litre';}).catch(function(){fo.textContent='Couldn’t reach FuelCheck just now.'})}
 ft.onchange=load;document.getElementById('fnear').onclick=function(){if(!navigator.geolocation)return;this.textContent='📍 Finding you…';var b=this;
-navigator.geolocation.getCurrentPosition(function(p){pos=[p.coords.latitude.toFixed(2),p.coords.longitude.toFixed(2)];b.textContent='📍 Near you';load()},function(){b.textContent='📍 Near me'})};load()})();</script></section>`;
+navigator.geolocation.getCurrentPosition(function(p){pos=[+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)];try{localStorage.setItem('loc',JSON.stringify(pos))}catch(e){}b.textContent='📍 Near you';load()},function(){b.textContent='📍 Near me'})};load()})();</script></section>`;
+
+// ---- Weekend for kids: free or under $50 a kid. Locals' events tagged "good for kids" + local favourites ----
+const FAVES = [["Muttonbird Island walk","Free","Short walk from the Jetty foreshore out along the breakwall. Whale-spotting in season."],
+  ["Jetty foreshores & beach","Free","Playground, picnic spots and calm water by the jetty."],["North Coast Regional Botanic Garden","Free","Boardwalks, sensory garden and Coffs Creek walks."],
+  ["Forest Sky Pier, Sealy Lookout","Free","Walk out over the treetops with views of the whole coast."],["Yarrila Arts and Museum (YAM)","Free","Gallery and museum in Yarrila Place, often with kids' activities."],
+  ["Library story time","Free","Regular sessions for little ones at Coffs Harbour library. Check times."],["Coffs Creek walk & cycleway","Free","Flat, shady path, great for scooters and bikes."]];
+function weekendDates() { const t = new Date(todayISO() + "T00:00:00Z"), d = t.getUTCDay(), sat = new Date(t); sat.setUTCDate(t.getUTCDate() + (d === 0 ? -1 : 6 - d));
+  const sun = new Date(sat); sun.setUTCDate(sat.getUTCDate() + 1); return [sat.toISOString().slice(0, 10), sun.toISOString().slice(0, 10)]; }
+async function kidsBlock(local, feed) {
+  const [sat, sun] = weekendDates(), wk = [...local, ...feed].filter(e => e.kids && (e.cost == null || e.cost <= 50) && e.date >= sat && e.date <= sun);
+  return `<section id="kids"><h2>Weekend for kids</h2><p class="mute">Free or under $50 a kid. This weekend: ${esc(fmtDate(sat))} and ${esc(fmtDate(sun))}.</p>
+${wk.length ? `<h3>On this weekend</h3><ul>${wk.map(evItem).join("")}</ul>` : `<p>No kids' events listed for this weekend yet. Running one? <a href="/submit?pc=2450">Add it free</a> and tick "Good for kids".</p>`}
+<h3>Always-good local favourites</h3><ul>${FAVES.map(([n, c, d]) => `<li><b>${esc(n)}</b> <span class="tagg">${c}</span><br><span class="mute">${esc(d)}</span></li>`).join("")}</ul>
+<p class="src">Local favourites suggested by locals · Check opening times and prices before you go · <a href="/feedback">Suggest one</a></p></section>`;
+}
+
+// ---- Field closures: watch the council page for changes; alerts go out by push to anyone who opted in ----
+const FIELDS_URL = "https://coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Sports-facilities/Sports-grounds/Sports-field-closure-arrangements";
+async function checkFields(env) {
+  try {
+    const txt = (await (await fetch(FIELDS_URL, { headers: UA })).text()).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
+    const old = await env.DATA.get("fields:state", "json"), now = new Date().toISOString();
+    if (!old) return env.DATA.put("fields:state", JSON.stringify({ hash: h, changed: null, checked: now }));
+    if (old.hash !== h) { await env.DATA.put("fields:state", JSON.stringify({ hash: h, changed: now, checked: now }));
+      await sendAlert(env, "fields", "Field closure update", "Council has just updated its sports field closure page. Tap to check.", "/2450#sport"); }
+    else await env.DATA.put("fields:state", JSON.stringify({ ...old, checked: now }));
+  } catch (e) {}
+}
+async function fieldsBlock(env) {
+  const st = await env.DATA.get("fields:state", "json"), a = await env.DATA.get("alert:fields", "json");
+  return `${a ? `<p><b>Latest:</b> ${esc(a.body)} <span class="mute">(${esc(asOf(a.at))})</span></p>` : ""}
+<h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
+<li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>
+<p class="src">Source: <a href="${FIELDS_URL}" rel="noopener">City of Coffs Harbour, Sports field closure arrangements</a>${st?.changed ? ` · Source last changed ${esc(asOf(st.changed))}` : ""}${st?.checked ? ` · Checked ${esc(asOf(st.checked))}` : ""}</p>`;
+}
+
+// ---- Web push: no paid service. Keys are made by the Worker on first use and kept in KV. ----
+const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+async function vapid(env) {
+  let k = await env.DATA.get("vapid", "json");
+  if (!k) { const kp = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    k = { priv: await crypto.subtle.exportKey("jwk", kp.privateKey), pub: b64u(await crypto.subtle.exportKey("raw", kp.publicKey)) }; await env.DATA.put("vapid", JSON.stringify(k)); }
+  return k;
+}
+async function pushOne(env, sub) {
+  const k = await vapid(env), aud = new URL(sub.endpoint).origin, enc = o => b64u(new TextEncoder().encode(JSON.stringify(o)));
+  const unsigned = enc({ typ: "JWT", alg: "ES256" }) + "." + enc({ aud, exp: Math.floor(Date.now() / 1000) + 43200, sub: "mailto:feedback@2450-maverick.live" });
+  const key = await crypto.subtle.importKey("jwk", k.priv, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(unsigned));
+  const r = await fetch(sub.endpoint, { method: "POST", headers: { authorization: `vapid t=${unsigned}.${b64u(sig)}, k=${k.pub}`, ttl: "86400", "content-length": "0" } });
+  return r.status;
+}
+async function sendAlert(env, topic, title, body, url) {
+  await env.DATA.put("alert:" + topic, JSON.stringify({ title, body, url, at: new Date().toISOString() }));
+  await env.DATA.put("alert:latest", JSON.stringify({ title, body, url, at: new Date().toISOString() }));
+  await env.DATA.put("push:queue", JSON.stringify({ topic, cursor: null }));      // sent in batches by the 5-minute cron
+}
+async function pushBatch(env) {
+  const q = await env.DATA.get("push:queue", "json"); if (!q) return;
+  const page = await env.DATA.list({ prefix: "psub:", cursor: q.cursor || undefined, limit: 20 });
+  for (const { name } of page.keys) {
+    const s = await env.DATA.get(name, "json"); if (!s || !(s.topics || []).includes(q.topic)) continue;
+    try { const st = await pushOne(env, s.sub); if (st === 404 || st === 410) await env.DATA.delete(name); } catch (e) {}
+  }
+  page.list_complete ? await env.DATA.delete("push:queue") : await env.DATA.put("push:queue", JSON.stringify({ ...q, cursor: page.cursor }));
+}
+async function pushApi(req, env, p) {
+  if (p === "/api/push/key") return Response.json({ key: (await vapid(env)).pub });
+  if (p === "/api/alert") return Response.json(await env.DATA.get("alert:latest", "json") || { title: "2450 Maverick", body: "Something new in 2450.", url: "/2450" });
+  if (p === "/api/push/sub" && req.method === "POST") {
+    let j = {}; try { j = await req.json(); } catch (e) {}
+    if (!j.sub?.endpoint || !/^https:\/\//.test(j.sub.endpoint)) return Response.json({ ok: false }, { status: 400 });
+    const id = b64u(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(j.sub.endpoint))).slice(0, 22);
+    const topics = (j.topics || ["fields"]).filter(t => ["fields", "alerts"].includes(t));
+    await env.DATA.put("psub:" + id, JSON.stringify({ sub: j.sub, topics, at: new Date().toISOString() }));
+    return Response.json({ ok: true });
+  }
+  return null;
+}
+const PUSH_JS = `<script>(function(){var bs=document.querySelectorAll('.pushbtn');if(!bs.length)return;
+function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');var r=atob(b+'==='.slice((b.length+3)%4)),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
+bs.forEach(function(b){var m=b.parentNode.querySelector('.pushmsg');try{if(localStorage.getItem('push_'+b.dataset.topic)){b.textContent='Alerts on ✓';b.disabled=true}}catch(e){}
+b.onclick=function(){if(!('serviceWorker'in navigator)||!('PushManager'in window)){m.textContent='On iPhone: tap Share, then Add to Home Screen, open 2450 from there and try again.';return}
+b.disabled=true;b.textContent='Turning on…';Notification.requestPermission().then(function(p){if(p!=='granted')throw 0;return Promise.all([navigator.serviceWorker.ready,fetch('/api/push/key').then(function(r){return r.json()})])})
+.then(function(x){return x[0].pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(x[1].key)})}).then(function(sub){return fetch('/api/push/sub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sub:sub,topics:[b.dataset.topic]})})})
+.then(function(){b.textContent='Alerts on ✓';try{localStorage.setItem('push_'+b.dataset.topic,1)}catch(e){}m.textContent='You\\u2019ll get a notification when there\\u2019s news.'})
+.catch(function(){b.disabled=false;b.textContent='Turn on alerts';m.textContent='Alerts weren\\u2019t allowed. You can turn them on in your phone\\u2019s settings.'})}})})();</script>`;
 
 export default {
-  async scheduled(evt, env, ctx) { ctx.waitUntil(Promise.all(Object.keys(SOURCES).map(k => refreshSource(env, k)))); },
+  async scheduled(evt, env, ctx) {
+    if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(k => refreshSource(env, k)), checkFields(env)]));
+  },
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home(env);
     if (p === "/new") return newPage(env);
+    if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/about") return about();
     if (p === "/api/fuel") return fuelApi(req, env);
     if (p === "/me") return mePage();

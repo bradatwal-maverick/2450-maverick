@@ -9,7 +9,7 @@
   "send_email": [ { "name": "MAILER" } ],
   // Free daily AI allowance powers "Tell Mav" setup
   "ai": { "binding": "AI" },
-  // Refresh news, fires, warnings and holidays every 30 minutes
-  "triggers": { "crons": [ "*/30 * * * *" ] }
+  // Every 30 min: refresh news, fires, warnings, holidays and watch the council field page. Every 5 min: send queued phone alerts
+  "triggers": { "crons": [ "*/30 * * * *", "*/5 * * * *" ] }
   // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO, FUEL_KEY, FUEL_SECRET
 }
