@@ -44,7 +44,7 @@ function page(title, body, pc = "") {
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><a href="/fridge">🧊 Fridge</a></header>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
-<footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
+<footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
 Big tech divided us. 2450 Maverick brings communities back together.<br>
 Born and built in 2450, raised by the world.<br><br><span style="font-size:.75rem">Powered by</span><br><a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></footer>
@@ -183,7 +183,7 @@ document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <input type="email" name="email" placeholder="Your email" required aria-label="Your email"><button>Sign me up</button></form>
-<p class="mute">By signing up you agree to get the weekly email from 2450 Maverick (Maverick Digital). Unsubscribe any time.</p>`;
+<p class="mute">By signing up you agree to get the weekly email from 2450 Maverick (Maverick Digital). Unsubscribe any time. <a href="/privacy">Privacy</a></p>`;
 
 const submitForm = pc => page("Add an event — free", `<p class="mute"><a href="/${esc(pc)}">‹ Back to ${esc(pc)}</a></p>
 <h1>Add an event, free</h1><p>Nobody pays to be listed. Events are checked before they go live, usually within a day.</p>
@@ -256,9 +256,9 @@ async function admin(req, env) {
 
 const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
-<p>If that ever changes, paid spots will be clearly marked, and they'll only go to small local businesses and new start-ups getting off the ground, not big brands with marketing budgets. That's the deal.</p>
+<p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no paid listings. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
 <p>Big tech divided us. 2450 Maverick brings communities back together.</p><p><i>Born and built in 2450, raised by the world.</i><br>Brad, <a href="https://maverickdigital.com.ai">Maverick Digital</a></p>
-<h2>Your privacy</h2><p>Your postcode and the sections you show or hide are saved on your own phone, not with us. If you sign up for the weekly email we keep your email address and postcode only to send it, and you can unsubscribe any time.</p>`);
+<h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`);
 
 const ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">2450</text></svg>`;
 const MANIFEST = JSON.stringify({ name: "2450 Maverick", short_name: "2450", start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
@@ -437,11 +437,54 @@ async function lodgeOffer(req, env) {
   return birthdayPage(env, `<p class="note">Thanks, ${esc(o.biz)}! Your offer will appear once it's checked.</p>`);
 }
 
+// ---- Charter (terms) and privacy policy. Update the date whenever either changes. ----
+const UPDATED = "16 October 2026";
+const charter = () => page("Our charter", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Our charter</h1>
+<p class="mute">Our terms, in plain English. Last updated ${UPDATED}.</p>
+<h2>1. Free, forever</h2><p>2450 Maverick will never charge you. No paywalls, no subscriptions, no paid listings, no fees to locals, clubs or businesses. It's run by <a href="https://maverickdigital.com.ai">Maverick Digital</a> as a free gift to the community.</p>
+<h2>2. Nobody pays to be here</h2><p>Every event, offer and listing is here because it's happening locally, never because someone paid. We don't sell placement, rankings or reviews.</p>
+<h2>3. We source, we don't spin</h2><p>Information like council details, weather and tides comes from other organisations. We show it as they publish it, name the source, and show how current the source says it is. If a source is out of date or wrong, we'll say so factually. We don't rewrite their information.</p>
+<h2>4. Check before you rely on it</h2><p>We work hard to keep things right, but information here can be out of date, incomplete or wrong. Always check the original source for anything important.</p>
+<ul><li><b>Emergencies:</b> this site is not an emergency service. Call <a href="tel:000">000</a>.</li>
+<li><b>Tides and swell</b> are modelled estimates, not for navigation. Check the Bureau of Meteorology before boating.</li>
+<li><b>Fires, floods and roads:</b> follow official sources and emergency services.</li></ul>
+<h2>5. What you post</h2><p>When you add an event, offer or feedback, you confirm it's true, local and yours to share, and you let us show it on this site. We check everything before it goes live and may edit for length, decline or remove anything, including anything misleading, hateful, illegal, spammy or unsafe.</p>
+<h2>6. Birthday deals and other offers</h2><p>Offers are made by the businesses, not us. Each business sets its own conditions and decides whether to honour them. Saying &ldquo;Maverick&rdquo; is just how you let them know where you found the deal.</p>
+<h2>7. Links to other sites</h2><p>We link to lots of useful websites. They're not ours and we're not responsible for them. If something there charges, that's between you and them.</p>
+<h2>8. Fair play</h2><p>Please don't misuse the site, scrape it in bulk, try to break it or post on someone else's behalf without permission.</p>
+<h2>9. The legal bit</h2><p>The site is provided free and as is. To the extent the law allows, we're not liable for loss from using it. Nothing here limits your rights under the Australian Consumer Law. These terms are governed by the laws of New South Wales.</p>
+<h2>10. Changes</h2><p>If we change this charter, we'll update the date at the top. Rule 1 won't change.</p>
+<p>Questions? <a href="/feedback">Talk to me</a>. <i>Brad, Maverick Digital</i></p>`);
+
+const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Privacy policy</h1>
+<p class="mute">Plain English. Last updated ${UPDATED}.</p>
+<p>We collect as little as we can, we never sell it, and we follow the Australian Privacy Principles.</p>
+<h2>Kept on your phone, not with us</h2><p>Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. We never see them. Clear your browser data and they're gone.</p>
+<h2>What we do keep</h2><ul>
+<li><b>Weekly email or fridge sign-up:</b> your email, first name if you give it, postcode and that you agreed to the email.</li>
+<li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
+<li><b>Feedback:</b> your message, and your name and email only if you add them.</li>
+<li><b>Fridge login:</b> one cookie that keeps the fridge tool unlocked on your phone for up to a year.</li></ul>
+<p>We don't ask for, and don't want, anything about your kids.</p>
+<h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details.</p>
+<h2>Who else is involved</h2><ul>
+<li><b>Cloudflare</b> hosts the site, stores our data and sends our emails. Like any website host, it processes basic visit data such as your internet address.</li>
+<li><b>Open-Meteo</b> provides weather and tides. Your browser asks it for Coffs Harbour's forecast, so it sees a request from your device, but no personal details from us.</li>
+<li>If we move our email list to a mailing service, we'll name it here.</li></ul>
+<h2>Your choices</h2><ul>
+<li>Unsubscribe from any email at any time.</li>
+<li>Ask what we hold about you, ask us to fix it, or ask us to delete it, through the <a href="/feedback">feedback form</a>. We'll sort it within 30 days.</li>
+<li>Email sign-ups are for people aged 16 and over.</li></ul>
+<h2>Keeping it safe</h2><p>Data is stored on Cloudflare's secure systems and only Brad can access the admin area. If something ever goes wrong with your data, we'll tell you.</p>
+<h2>Not happy?</h2><p>Tell us first through the <a href="/feedback">feedback form</a>. You can also contact the <a href="https://www.oaic.gov.au" rel="noopener">Office of the Australian Information Commissioner</a>.</p>`);
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home();
     if (p === "/about") return about();
+    if (p === "/charter") return charter();
+    if (p === "/privacy") return privacy();
     if (p === "/birthday") return req.method === "POST" ? lodgeOffer(req, env) : birthdayPage(env);
     if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage();
     if (p === "/school") return schoolPage();
