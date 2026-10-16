@@ -14,7 +14,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["memory", "In memory"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["memory", "In memory"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -55,7 +55,7 @@ function page(title, body, pc = "") {
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
 <p>${R.footer}</p>
-<p class="gaz">Our Gazettes: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${x.code}</b>` : `<a href="https://${x.domain}">${x.code}</a>`).join(" · ")}</p>
+<p class="gaz">Our Gazettes: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")}</p>
 <p class="aoc">${R.ack} <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a><br><span class="tagline">Big tech skills, used for the community. ${R.sign}</span></p></footer>
 ${MAV_WIDGET()}
@@ -213,6 +213,9 @@ ${R.fields ? `<section id="sport"><h2>Sport &amp; field closures</h2>
 <div class="note">🔔 <b>Get field closure alerts</b> on your phone the moment we know. <button type="button" class="pushbtn" data-topic="fields">Turn on alerts</button><br><small class="mute pushmsg"></small></div>
 ${await fieldsBlock(env, ctx)}
 <p class="mute">Clubs: post games, fixtures and closures free via <a href="/submit?pc=${pc}">Add an event</a>.</p></section>` : soon("sport", "Sport & field closures", "Field closures and local sport, coming soon. Clubs can post games and closures free via Add an event.")}
+<section id="flights"><h2>✈️ Flights</h2><p>Flying out or picking someone up? Pop in the flight number for its latest status.</p>
+<form class="row" onsubmit="event.preventDefault();var f=this.fn.value.replace(/\s+/g,'').toUpperCase();if(f)window.open('https://www.google.com/search?q='+encodeURIComponent(f+' flight status'),'_blank','noopener')"><input name="fn" placeholder="e.g. QF2134 or VA1137" autocapitalize="characters" maxlength="10" aria-label="Flight number"><button>Check</button></form>
+<p class="mute">Or see everything coming and going at <a href="${R.airport.url}" rel="noopener">${esc(R.airport.name)}</a> (live board on FlightAware).</p></section>
 ${live.holidays}
 <section id="puzzles"><h2>🧩 Crossword</h2><p>Today&rsquo;s ${esc(R.short)} crossword: eight words, a few minutes, no sign-up. <a href="/crossword"><b>Play today&rsquo;s →</b></a></p></section>
 <section id="lotto"><h2>🎱 Lotto results</h2><details><summary>Tap to show</summary><p>Latest draws for Saturday Lotto, Oz Lotto, Powerball, Set for Life and the rest, straight from the official source: <a href="https://www.thelott.com/results" rel="noopener">The Lott results</a>.</p>

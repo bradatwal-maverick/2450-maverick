@@ -11,6 +11,7 @@ export const REGIONS = {
 },
     home: { lat: -30.2963, lon: 153.1135 },
     bbox: "-30.45,152.95,-30.05,153.25", // open-now search area (south,west,north,east)
+    airport: { name: "Coffs Harbour Airport", url: "https://www.flightaware.com/live/airport/YCFS" },
     coverage: "We cover the whole Coffs Harbour council area: 2450, 2452 and 2456.", soon: "",
     footer: `2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. 2450 Maverick brings communities back together.`,
     ack: `2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
@@ -102,8 +103,9 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     },
     home: { lat: -28.6474, lon: 153.6020 },
     bbox: "-28.72,153.54,-28.60,153.66",
+    airport: { name: "Ballina Byron Gateway Airport", url: "https://www.flightaware.com/live/airport/YBNA" },
     coverage: "We cover the whole Byron Shire: 2479, 2480, 2481, 2482 and 2483.", soon: "",
-    footer: `2481 means Byron Bay, and the whole shire's here too: Bangalow 2479, Federal 2480, Mullum 2482, Brunswick and Ocean Shores 2483. Live in Lismore? You get free membership, and you owe us a kombucha.<br>Big tech divided us. 2481 Maverick brings communities back together.`,
+    footer: `2481 means Byron Bay, and the whole shire's here too: Bangalow 2479, Federal 2480, Mullum 2482, Brunswick and Ocean Shores 2483. Live in Lismore and went to Southern Cross University? You owe us a beer.<br>Big tech divided us. 2481 Maverick brings communities back together.`,
     ack: `2481 Maverick acknowledges the Arakwal people of the Bundjalung Nation, the Traditional Custodians of the land on which Byron Bay stands, and pays respect to Elders past and present.`,
     sign: "Built in 2450, made for 2481, raised by the world.",
     goal: 5000, goalText: "about half the town",
@@ -172,6 +174,75 @@ Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise,
 sea=tides & fishing; know=Know your area (mayor Cr Sarah Ndiaye, deputy Cr Jack Dods, Byron Shire Council 02 6626 7000, after hours emergencies 02 6622 7022, bins via the Recycle Coach app, annual free drop-off at the Byron Resource Recovery Centre, missed bins 1300 652 625, NSW Ombudsman);
 council=council news; kids=Weekend for kids (free or under $50); holidays=public and school holidays; puzzles=daily crossword; lotto=lotto results link; surfcams=surf cams; beaches=beaches.
 Every piece of information has an ⓘ Where from? button showing where it comes from and how current it is.
+Emergencies: 000. Tides are estimates, not for navigation.`,
+  },
+  "2454": {
+    code: "2454", brand: "2454 Maverick", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
+    towns: {
+      "2453": { name: "Dorrigo", lat: -30.3410, lon: 152.7130, mlat: -30.50, mlon: 153.05, live: true },
+      "2454": { name: "Bellingen", lat: -30.4520, lon: 152.8990, mlat: -30.50, mlon: 153.05, live: true },
+      "2455": { name: "Urunga", lat: -30.4950, lon: 153.0170, mlat: -30.50, mlon: 153.05, live: true },
+    },
+    home: { lat: -30.4520, lon: 152.8990 },
+    bbox: "-30.60,152.55,-30.25,153.10",
+    airport: { name: "Coffs Harbour Airport", url: "https://www.flightaware.com/live/airport/YCFS" },
+    coverage: "We cover the whole Bellingen Shire: 2453, 2454 and 2455.", soon: "",
+    footer: `2454 means Bellingen, and the whole shire's here: Dorrigo 2453, Bellingen 2454, Urunga 2455.<br>Big tech divided us. 2454 Maverick brings communities back together.`,
+    ack: `2454 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
+    sign: "Built in 2450, made for 2454, raised by the world.",
+    goal: 3000, goalText: "about a third of the shire",
+    council: { name: "Bellingen Shire Council", url: "https://www.bellingen.nsw.gov.au", phone: "02 6655 7300", urgent: "Bellingen Shire Council: 02 6655 7300" },
+    binsTip: "Check your bin days in the free Coffs Coast Waste Services app, or call 1800 265 495.",
+    mavExample: "I'm Sam, I live in Dorrigo, I've got a kid at Bellingen High and I love the markets",
+    schoolsArea: "Public schools in the Bellingen Shire",
+    warnRe: /mid north coast|bellingen|dorrigo|urunga|northern tablelands|coastal waters|marine/i,
+    news: [
+      { name: "News Of The Area", url: "https://coffscoast.newsofthearea.com.au", feed: "https://coffscoast.newsofthearea.com.au/feed", skip: /^PROPERTY:/i, need: /bellingen|bello|dorrigo|urunga|mylestom|repton|raleigh|thora|kalang/i },
+      { name: "NBN News", url: "https://www.nbnnews.com.au", feed: "https://www.nbnnews.com.au/feed/", cat: /mid north/i, need: /bellingen|dorrigo|urunga|mylestom|repton|raleigh/i },
+    ],
+    know: (W, acc) => `<details open><summary><b>Who runs the place</b></summary><ul>
+<li>Mayor: <b>Cr Steve Allan</b> · Deputy Mayor: <b>Cr Graeme Shephard</b></li>
+<li>Councillors: Jo Brotherton, Linda Coomber, Jennie Fenton, Dominic King, Andrew O'Keeffe. <a href="https://www.bellingen.nsw.gov.au/Your-Council/Our-Mayor-and-Councillors" rel="noopener">Contact them</a></li>
+<li><a href="https://www.bellingen.nsw.gov.au/Your-Council/Council-Meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${acc("leadership", W.leadership)}</details>
+<details><summary><b>Bins &amp; rubbish</b></summary><ul>
+<li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app, or call the hotline on <a href="tel:1800265495">1800 265 495</a></li>
+<li>Tip: Raleigh Waste Management Station, Short Cut Road, Raleigh (with a Community Recycling Centre for paint, batteries and oil)</li>
+<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul>${acc("waste", W.waste)}</details>
+<details><summary><b>Got a problem?</b></summary><ul>
+<li>Pothole, broken footpath, streetlight, overgrown block: tell council on <a href="tel:0266557300">02 6655 7300</a> or <a href="mailto:council@bellingen.nsw.gov.au">council@bellingen.nsw.gov.au</a></li>
+<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul></details>
+<details><summary><b>Contact council</b></summary><ul>
+<li>📞 <a href="tel:0266557300">02 6655 7300</a></li>
+<li>✉️ <a href="mailto:council@bellingen.nsw.gov.au">council@bellingen.nsw.gov.au</a></li>
+<li>🏛️ 33 Hyde Street, Bellingen</li></ul>${acc("contact", W.contact)}</details>
+`,
+    idx: [
+      ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Steve Allan, Deputy Mayor Cr Graeme Shephard, plus 5 councillors.","#know"],
+      ["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? Coffs Coast Waste Services app or 1800 265 495.","#know"],
+      ["tip dump raleigh waste","The tip","Raleigh Waste Management Station, Short Cut Road.","#know"],
+      ["council phone contact email call","Contact council","02 6655 7300, council@bellingen.nsw.gov.au.","#know"],
+      ["bellingen facts history dorrigo urunga rainforest gumbaynggirr why fun","Why Bello?","Fun facts about the shire, every one sourced.","/why"],
+    ],
+    cw: [["DORRIGO", "Plateau town with the rainforest Skywalk"], ["URUNGA", "Where the rivers meet the sea, postcode 2455"], ["BELLINGER", "River that runs through town"],
+      ["KALANG", "River that joins the Bellinger at Urunga"], ["DANGAR", "___ Falls, just outside Dorrigo"], ["SKYWALK", "Dorrigo's walkway above the rainforest canopy"],
+      ["GUMBAYNGGIRR", "Traditional custodians of the Bellingen Shire"], ["MYLESTOM", "Riverside village near Urunga"]],
+    why: { slug: "why", title: "Why Bello?", card: "Fun facts: World Heritage rainforest, where the rivers meet the sea", intro: "Small shire, big story. Every fact sourced." },
+    fields: null,
+    watch: {
+      leadership: { owner: "Council", name: "Bellingen Shire Council, Our Mayor and Councillors", url: "https://www.bellingen.nsw.gov.au/Your-Council/Our-Mayor-and-Councillors" },
+      waste: { owner: "Recycling Near You", name: "Recycling Near You, Bellingen Shire", url: "https://recyclingnearyou.com.au/otherwaste/BellingenNSW" },
+      contact: { owner: "Council", name: "Bellingen Shire Council website", url: "https://www.bellingen.nsw.gov.au/Your-Council/Our-Mayor-and-Councillors" },
+    },
+    schools: ["Bellingen Public School","Bellingen High School","Dorrigo Public School","Dorrigo High School","Urunga Public School"],
+    faves: [["Dorrigo Rainforest Centre & Skywalk","Free","Walk out over the World Heritage rainforest canopy."],["Dangar Falls","Free","Short walk to the falls just outside Dorrigo."],
+      ["Urunga boardwalk","Free","Walk out to where the rivers meet the sea."],["Bellingen markets","Free entry","Local food, crafts and music. Check dates before you go."]],
+    facts: [
+      ["🌿", "World Heritage on the doorstep", "Dorrigo National Park is part of the Gondwana Rainforests of Australia World Heritage Area.", "https://en.wikipedia.org/wiki/Dorrigo_National_Park", "Wikipedia"],
+      ["🌊", "Where two rivers meet the sea", "At Urunga, the Bellinger and Kalang rivers come together and meet the ocean.", "https://en.wikipedia.org/wiki/Urunga", "Wikipedia"],
+      ["🌏", "Gumbaynggirr Country", "The Bellingen Shire is on Gumbaynggirr Country.", "https://en.wikipedia.org/wiki/Gumbaynggirr", "Wikipedia"]],
+    mavKB: `Site: 2454 Maverick, a free local info site for the Bellingen Shire (2453 Dorrigo, 2454 Bellingen, 2455 Urunga). Never charges. A gift from Maverick Digital.
+Pages: /2453 /2454 /2455 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
+Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Steve Allan, deputy Cr Graeme Shephard, council 02 6655 7300, bins via Coffs Coast Waste Services app or 1800 265 495, tip at Raleigh); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; lotto; surfcams; beaches.
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
 };

@@ -22,6 +22,15 @@
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
       "triggers": { "crons": [ "*/30 * * * *", "*/5 * * * *" ] }
+    },
+    "bellingen": {
+      "name": "2454-maverick",
+      "vars": { "REGION": "2454" },
+      "routes": [ { "pattern": "2454-maverick.live", "custom_domain": true } ],
+      "kv_namespaces": [ { "binding": "DATA", "id": "11b90efb8d4241b189a0aba5e024d7e0" } ],
+      "send_email": [ { "name": "MAILER" } ],
+      "ai": { "binding": "AI" },
+      "triggers": { "crons": [ "*/30 * * * *", "*/5 * * * *" ] }
     }
   }
 }
