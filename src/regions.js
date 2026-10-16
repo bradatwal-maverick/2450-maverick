@@ -3,7 +3,7 @@
 
 export const REGIONS = {
   "2450": {
-    code: "2450", brand: "Your 2450 Maverick", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
+    code: "2450", brand: "Daily 2450 Maverick", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
     venues: [
       { name: "C.ex clubs (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
       { name: "C.ex clubs (free live music)", url: "https://cex.com.au/free-live/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
@@ -23,7 +23,7 @@ export const REGIONS = {
     airport: { name: "Coffs Harbour Airport", url: "https://www.flightaware.com/live/airport/YCFS", iata: "CFS" },
     project: { name: "Coffs Harbour bypass", url: "https://www.nsw.gov.au/driving-boating-and-transport/projects/coffs-harbour-bypass/weekly-update-for-coffs-harbour-bypass", home: "https://www.nsw.gov.au/driving-boating-and-transport/projects/coffs-harbour-bypass" },
     coverage: "We cover the whole Coffs Harbour council area: 2450, 2452 and 2456.", soon: "",
-    footer: `2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way). Live in Brooklana? You get free membership, and you owe us a beer.<br>Big tech divided us. 2450 Maverick brings communities back together.`,
+    footer: `Big tech divided us. 2450 Maverick brings communities back together.`,
     ack: `2450 Maverick acknowledges the Gumbaynggirr people, the Traditional Custodians of the land on which we live and work, and pays respect to Elders past and present.`,
     sign: "Born and built in 2450, raised by the world.",
     goal: 15000, goalText: "about the reach of a local weekly paper",
@@ -103,7 +103,7 @@ Every piece of information has an ⓘ Source button showing where it comes from 
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2481": {
-    code: "2481", brand: "Your 2481 Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
+    code: "2481", brand: "Daily 2481 Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
     venues: [
       { name: "Beach Hotel Byron Bay", url: "https://www.beachhotel.com.au/whats-on", venue: "Beach Hotel" },
     ],
@@ -191,7 +191,7 @@ Every piece of information has an ⓘ Where from? button showing where it comes 
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2454": {
-    code: "2454", brand: "Your 2454 Maverick", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
+    code: "2454", brand: "Daily 2454 Maverick", place: "Bellingen", short: "Bello", domain: "2454-maverick.live",
     venues: [
       { name: "C.ex Urunga (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Urunga"] },
       { name: "Bellingen Growers Market", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-growers-market", venue: "Bellingen Growers Market", market: true },

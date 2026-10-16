@@ -67,3 +67,17 @@ export function readings(day, kind) {
   const dl = DAY[new Date(day + "T12:00:00Z").getUTCDay()], off = Math.floor(r() * 4);
   return Array.from({ length: 12 }, (_, i) => ({ text: dl[(i + off) % dl.length] + " " + LINES[idx[i]], lucky: 1 + Math.floor(r() * 45) }));
 }
+
+// Vedic (Indian, sidereal) signs: the rashi. Dates run about 24 days later than Western signs.
+export const VEDIC = [
+  ["♈", "Mesha", "Aries", "14 Apr–14 May"], ["♉", "Vrishabha", "Taurus", "15 May–14 Jun"], ["♊", "Mithuna", "Gemini", "15 Jun–15 Jul"], ["♋", "Karka", "Cancer", "16 Jul–16 Aug"],
+  ["♌", "Simha", "Leo", "17 Aug–16 Sep"], ["♍", "Kanya", "Virgo", "17 Sep–16 Oct"], ["♎", "Tula", "Libra", "17 Oct–15 Nov"], ["♏", "Vrischika", "Scorpio", "16 Nov–15 Dec"],
+  ["♐", "Dhanu", "Sagittarius", "16 Dec–13 Jan"], ["♑", "Makara", "Capricorn", "14 Jan–12 Feb"], ["♒", "Kumbha", "Aquarius", "13 Feb–13 Mar"], ["♓", "Meena", "Pisces", "14 Mar–13 Apr"],
+];
+const VSTARTS = [[4, 14], [5, 15], [6, 15], [7, 16], [8, 17], [9, 17], [10, 17], [11, 16], [12, 16], [1, 14], [2, 13], [3, 14]];
+export function vedicOf(day) { const [, m, d] = day.split("-").map(Number), v = m * 100 + d; let best = 11, bv = -1;
+  VSTARTS.forEach(([sm, sd], i) => { const x = sm * 100 + sd; if (x <= v && x > bv) { bv = x; best = i; } }); return best; }
+// Chinese elements follow the last digit of the year: 0-1 Metal, 2-3 Water, 4-5 Wood, 6-7 Fire, 8-9 Earth.
+export const elementOf = y => ["Metal", "Water", "Wood", "Fire", "Earth"][Math.floor((((y % 10) + 10) % 10) / 2)];
+const COLOURS = ["ocean blue", "sunset orange", "rainforest green", "sand gold", "coral pink", "sky blue", "banana yellow", "deep purple", "pearl white", "jacaranda mauve", "lime", "red"];
+export const luckyColour = (day, kind, i) => { const r = rng("c" + kind + day + i); return COLOURS[Math.floor(r() * COLOURS.length)]; };
