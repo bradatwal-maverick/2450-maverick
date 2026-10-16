@@ -497,6 +497,7 @@ async function admin(req, env) {
   const board = (await ideas(env)).map(i => `<li>👍 ${i.votes} · ${esc(i.text)} ${STATUS[i.status] || ""}<br>${btnB("building", "Building", "idea:" + i.id)} ${btnB("done", "Done", "idea:" + i.id)} ${btnB("open", "Reopen", "idea:" + i.id)} ${btnB("remove", "Remove", "idea:" + i.id)}</li>`).join("");
   return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p>
 <h2>👍 Was this useful?</h2><ul>${(await Promise.all((await listAll(env, "rate:")).map(async k => [k.name.slice(5), await env.DATA.get(k.name, "json")]))).filter(x => x[1]).sort((a, b) => (b[1].up + b[1].down) - (a[1].up + a[1].down)).map(([pg, c]) => `<li>${esc(pg)}: 👍 ${c.up} · 👎 ${c.down}</li>`).join("") || "<li class=mute>No votes yet.</li>"}</ul>
+<h2>🩺 Source health</h2><ul>${(await health(env)).map(x => `<li>${x.ok ? "🟢" : "🔴"} ${esc(x.name)} · ${x.last ? `worked ${x.hours < 1 ? "under an hour" : x.hours + " hours"} ago` : "not working yet"}${x.note ? ` · ${esc(x.note)}` : ""}</li>`).join("")}</ul>
 <h2>📅 Venue pages we read</h2><p class="mute">Add a pub, club or market's own "what's on" or "specials" page. We read it twice a day.</p><ul>${(await Promise.all((await venueSources(env)).map(async v => { const d = await env.DATA.get(vkey(v.url), "json"); return `<li>${esc(v.name)} · ${d ? `${d.items.length} items${d.asof ? ", updated " + esc(asOf(d.asof)) : ""}` : "not read yet"} <a href="${esc(v.url)}" rel="noopener">page</a>${(R.venues || []).some(x => x.url === v.url) ? "" : ` <form method="post" style="display:inline"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="vdel"><input type="hidden" name="vurl" value="${esc(v.url)}"><button>Remove</button></form>`}</li>`; }))).join("")}</ul>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="vadd"><input name="vname" placeholder="Venue name" maxlength="60"> <input name="vurl" type="url" placeholder="https://… their what's on page" required style="width:100%"> <button>Add venue page</button></form>
 <h2>📮 Postcode requests</h2><ul>${(await Promise.all((await listAll(env, "pcsug:")).map(k => env.DATA.get(k.name, "json")))).filter(Boolean).sort((a, b) => b.count - a.count).map(x => `<li><b>${esc(x.pc)}</b> ${esc(x.towns.join(", "))} · asked ${x.count}× · ${x.emails.length} emails${x.notes.length ? `<br><span class="mute">${esc(x.notes.join(" | "))}</span>` : ""}</li>`).join("") || "<li class=mute>None yet.</li>"}</ul>
@@ -1494,7 +1495,7 @@ export default {
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), healthMail(env, ctx)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
@@ -1528,6 +1529,7 @@ async function route(req, env, ctx) {
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
     if (p === "/api/flights") return Response.json(await env.DATA.get("flights", "json") || { list: null }, { headers: { "access-control-allow-origin": "*", "cache-control": "max-age=300" } });
+    if (p === "/api/health") return Response.json({ gazette: R.code, checked: new Date().toISOString(), sources: await health(env) }, { headers: { "access-control-allow-origin": "*" } });
     if (p === "/faq") return faqPage();
     if (p === "/robots.txt") return robotsTxt();
     if (p === "/sitemap.xml") return sitemapXml();
@@ -1890,4 +1892,30 @@ ${board ? "" : `<p class="mute">See everything coming and going at <a href="${A.
 <script>(function(){var L=${JSON.stringify(up.map(f => ({ no: f.no, t: tm(f.sched), dir: f.dir, other: f.other }))).replace(/</g, "\\u003c")};document.getElementById('flf').onsubmit=function(e){e.preventDefault();var f=this.fn.value.replace(/\s+/g,'').toUpperCase();if(!f)return;
 var hit=L.filter(function(x){return x.no===f})[0],o=document.getElementById('flo');if(hit){o.innerHTML='<b>'+f+'</b> '+(hit.dir==='dep'?'departs ':'arrives ')+hit.t+'. See its status in the list above.';var li=[].filter.call(document.querySelectorAll('.fls li'),function(x){return x.textContent.indexOf(f)>-1})[0];if(li){li.classList.add('hit');li.scrollIntoView({behavior:'smooth',block:'center'})}}
 else window.open('https://www.google.com/search?q='+encodeURIComponent(f+' flight status'),'_blank','noopener')}})();</script></section>`;
+}
+
+// ---- Source health: every source we gather from, with when it last worked. Red = not working for too long.
+// Shown in admin, served at /api/health (no private data), and emailed to us once a day when something's broken. ----
+async function health(env) {
+  const age = iso => iso ? (Date.now() - new Date(iso)) / 36e5 : Infinity, out = [];
+  const add = (name, url, iso, maxH, note = "") => out.push({ name, url, last: iso || null, hours: iso ? Math.round(age(iso)) : null, ok: age(iso) <= maxH, note });
+  for (const [k, maxH] of [["news", 6], ["fires", 3], ["warnings", 3], ["holidays", 96]]) { const v = await env.DATA.get("src:" + k, "json"); add(SOURCES[k].name, SOURCES[k].url, v && v.asof, maxH); }
+  const ob = await env.DATA.get("obits", "json"); add("Funeral notices (" + (R.funerals || []).map(f => f.name).join(", ") + ")", (R.funerals || [])[0]?.url || "", ob && ob.asof, 24, ob && !ob.items.length ? "no notices found" : "");
+  const lo = await env.DATA.get("lotto", "json"); add("Lotto results (The Lott)", "https://www.thelott.com", lo && lo.asof, 12);
+  const sh = await env.DATA.get("shop", "json"); add("Supermarket prices (Woolworths)", "https://www.woolworths.com.au", sh && sh.items && sh.items.length ? sh.asof : null, 48, sh && sh.items ? sh.items.length + " of " + SHOP.length + " items" : "");
+  if (R.project) { const pr = await env.DATA.get("project", "json"); add(R.project.name + " weekly update", R.project.url, pr && pr.points && pr.points.length ? pr.asof : null, 48); }
+  if (env.FLIGHT_KEY && !R.airport.feed) { const fl = await env.DATA.get("flights", "json"); add("Flights (AeroDataBox)", "https://aerodatabox.com", fl && fl.asof, 12); }
+  if (env.FUEL_KEY) { const fu = await env.DATA.get("fuel:local", "json"); add("Fuel prices (NSW FuelCheck)", "https://www.fuelcheck.nsw.gov.au", fu && fu.asof, 24); }
+  for (const v of await venueSources(env)) { const d = await env.DATA.get(vkey(v.url), "json"); add("Venue: " + v.name, v.url, d && d.items && d.items.length ? d.asof : null, 48, d ? d.items.length + " items" : "not read yet"); }
+  return out;
+}
+async function healthMail(env, ctx) {
+  const today = todayISO();
+  if ((await env.DATA.get("health:mailed")) === today) return;
+  const h = +new Date().toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", hour12: false });
+  if (h < 7) return;
+  const bad = (await health(env)).filter(x => !x.ok);
+  await env.DATA.put("health:mailed", today, { expirationTtl: 2 * 86400 });
+  if (!bad.length) return;
+  mailUs(env, ctx, `${R.code} Gazette: ${bad.length} source${bad.length > 1 ? "s" : ""} not working`, bad.map(x => `- ${x.name}: ${x.last ? "last worked " + x.hours + " hours ago" : "never worked"}${x.note ? " (" + x.note + ")" : ""}\n  ${x.url}`).join("\n") + `\n\nFull list: https://${R.domain}/admin`);
 }
