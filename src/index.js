@@ -1385,13 +1385,13 @@ const OPEN_CATS = { pharmacy: ["💊 Pharmacies", 'nwr["amenity"="pharmacy"]'], 
   mechanic: ["🔧 Mechanics & tyres", 'nwr["shop"~"^(car_repair|tyres)$"]'], fuel: ["⛽ Servos", 'nwr["amenity"="fuel"]'],
   grocery: ["🛒 Supermarkets", 'nwr["shop"~"^(supermarket|convenience)$"]'], bottle: ["🍷 Bottle shops", 'nwr["shop"="alcohol"]'],
   pub: ["🍺 Pubs & bars", 'nwr["amenity"~"^(pub|bar)$"]'], cafe: ["☕ Cafés", 'nwr["amenity"="cafe"]'], food: ["🍔 Takeaway & restaurants", 'nwr["amenity"~"^(fast_food|restaurant)$"]'],
-  vet: ["🐾 Vets", 'nwr["amenity"="veterinary"]'], hardware: ["🔨 Hardware", 'nwr["shop"~"^(hardware|doityourself)$"]'] };
+  vet: ["🐾 Vets", 'nwr["amenity"="veterinary"]'], dogs: ["🐕 Dog beaches & parks", 'nwr["leisure"="dog_park"];nwr["natural"="beach"]["dog"~"^(yes|leashed|unleashed|designated)$"];nwr["dog"~"^(unleashed|designated)$"]["leisure"~"^(park|beach_resort)$"]'], hardware: ["🔨 Hardware", 'nwr["shop"~"^(hardware|doityourself)$"]'] };
 async function openApi(req, env) {
   const cat = new URL(req.url).searchParams.get("c"); if (!OPEN_CATS[cat]) return Response.json({ error: "bad" }, { status: 400 });
   const c = await env.DATA.get("osm:" + cat, "json");
   if (c && Date.now() - new Date(c.asof) < 864e5) return Response.json(c);
   try {
-    const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1]}(${R.bbox}););out center tags;`;
+    const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1].split(";").map(s => s + `(${R.bbox});`).join("")});out center tags;`;
     const j = await (await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) })).json();
     const items = (j.elements || []).filter(e => e.tags?.name).map(e => { const t = e.tags;
       return { name: t.name, hours: t.opening_hours || "", phone: t.phone || t["contact:phone"] || "", lat: e.lat ?? e.center?.lat, lon: e.lon ?? e.center?.lon,
