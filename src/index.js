@@ -8,6 +8,8 @@ const TOWNS = {
   "2456": { name: "Woolgoolga", live: false },
 };
 
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your 2450"], ["council", "Council"], ["sport", "Sport"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
 
@@ -31,7 +33,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:var(--soft);border-color:transparent!important}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
@@ -42,7 +44,8 @@ function page(title, body, pc = "") {
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="Everything on in your town, in one place. Free. Nobody pays to be here.">
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
-<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><a href="/fridge">🧊 Fridge</a></header>
+<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="2450 Maverick home"><span class="badge">2450</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><a href="/me" id="my2450" class="my">⚙️ My 2450</a></header>
+<script>try{var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");if(n)document.getElementById("my2450").textContent="⚙️ "+n+"\u2019s 2450"}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><a href="/">Find your postcode</a> · <a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make 2450 better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}<br>
 2450 means Coffs Harbour. Not Brooklana (it's up the Eastern Dorrigo Way, by the way).<br>
@@ -101,14 +104,13 @@ async function town(pc, env) {
 
   const cc = clockChange();
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  const SECTIONS = [["today", "At a glance"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your 2450"], ["council", "Council"], ["sport", "Sport"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
   return page(`${pc} ${t.name} — what's on`, `
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search 2450">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
-<p class="mute" id="date"></p>
+<p class="mute"><span id="date"></span> · <a href="/me">🎤 Make this page yours</a></p>
 ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
-<section id="today"><div class="tiles">
+<div id="flow"><section id="today"><div class="tiles">
 <div class="tile"><span id="i-wx" class="ico">⛅</span><b id="t-temp">–</b><small id="t-sky">Weather</small></div>
 <div class="tile"><span class="ico">🌧️</span><b id="t-rain">–</b><small>Rain chance</small></div>
 <div class="tile"><span class="ico">💨</span><b id="t-wind">–</b><small id="t-windd">Wind</small></div>
@@ -118,12 +120,13 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small>Moon</small></div>
 <div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>
 </div></section>
+<section id="tools"><h2>Handy tools</h2>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
 <a class="card" href="/genalpha">🗣️ <b>Gen Alpha interpreter</b> What did your kid just say? Jimmy Joel translates →</a>
 <a class="card" href="/rip">🕊️ <b>In memory</b> Remembering locals who have recently passed →</a>
 <a class="card" href="/school">🚸 <b>School run report</b> Weather and traffic for your school drop-off and pick-up →</a>
-<details class="pins mute"><summary>Customise this page</summary>${SECTIONS.map(([id, l]) => `<label><input type="checkbox" data-s="${id}" checked> ${esc(l)}</label>`).join("")}<br><small>Saved on your phone only.</small></details>
+</section>
 ${soon("alerts", "Alerts", "Bushfires, road closures and floods near 2450, coming soon.", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", "Fires Near Me (NSW Rural Fire Service)")}
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${soon("news", "News", "Local headlines from Coffs news outlets, linked to the full story, coming soon.")}
@@ -153,7 +156,8 @@ ${soon("council", "Council", "Council news, public notices and road works, comin
 ${soon("sport", "Sport", "Field closures, local games and fixtures, coming soon. Clubs will be able to post them here free.")}
 ${soon("holidays", "Holidays", "Public and school holiday dates, coming soon.", "https://education.nsw.gov.au/schooling/calendar", "NSW school calendar")}
 ${soon("surfcams", "Surf cams", "Check the waves live before you head down.", "https://www.coastalwatch.com", "Coastalwatch")}
-${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}
+${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}</div>
+<p><a class="card" href="/me">🎤 <b>Make this page yours</b> Just tell Mav what you want to see →</a></p>
 <h2>This week in ${esc(pc)}</h2><p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
@@ -192,9 +196,9 @@ qr.onclick=function(e){var a=e.target.closest('a.qhit');if(a&&a.getAttribute('hr
 qs.oninput=find;drawSaved();
 
 document.getElementById('date').textContent=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
-document.querySelectorAll('[data-s]').forEach(function(c){var k='hide_'+c.dataset.s,s=document.getElementById(c.dataset.s);if(!s)return;
-try{if(localStorage.getItem(k))c.checked=false}catch(e){}s.hidden=!c.checked;
-c.onchange=function(){s.hidden=!c.checked;try{c.checked?localStorage.removeItem(k):localStorage.setItem(k,1)}catch(e){}}});
+(function(){var f=document.getElementById('flow'),o;try{o=JSON.parse(localStorage.getItem('order')||'null')}catch(e){}
+if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
+Array.prototype.forEach.call(f.children,function(el){try{if(localStorage.getItem('hide_'+el.id))el.hidden=true}catch(e){}})})();
 var $=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v};
 var W={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Cloudy'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Drizzle'],61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Storms'],96:['⛈️','Storms'],99:['⛈️','Storms']};
 var dirs=['N','NE','E','SE','S','SW','W','NW'],tm=function(s){return new Date(s).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'})};
@@ -334,7 +338,10 @@ async function unlock(req, env) {
   const name = String(f.get("name") || "").slice(0, 40), tok = crypto.randomUUID();
   await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: "2450", consent: true, source: "fridge", at: new Date().toISOString() }));
   await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
-  return new Response(null, { status: 303, headers: { location: "/fridge", "set-cookie": `m2450=${tok}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax` } });
+  const h = new Headers({ location: "/fridge" });
+  h.append("set-cookie", `m2450=${tok}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`);
+  if (name) h.append("set-cookie", `m2450n=${encodeURIComponent(name)}; Path=/; Max-Age=31536000; Secure; SameSite=Lax`);
+  return new Response(null, { status: 303, headers: h });
 }
 
 const fridgePage = () => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
@@ -590,11 +597,73 @@ async function lodgeRip(req, env) {
   return ripPage(env, `<p class="note">Thank you. We'll confirm with the funeral home and add the notice soon.</p>`);
 }
 
+// ---- My 2450: tell Mav (voice or text) and he sets up the page. Settings stay on the phone. ----
+const KEYS = { tools: "kid kids school son daughter children family cook cooking dinner recipe food fridge birthday", alerts: "fire fires flood drive driving commute roads traffic storm",
+  events: "events gig gigs music markets going out weekend things to do festival", news: "news headlines what's happening", fuel: "fuel petrol diesel car drive driving commute ute",
+  sea: "fish fishing boat tide tides surf surfing swell kayak", know: "council bins rubbish rates new to town moved mayor", council: "council rates development roadworks",
+  sport: "sport footy soccer netball cricket kids sport field rugby", holidays: "school holidays kids school family", surfcams: "surf surfing waves board", beaches: "beach beaches swim swimming patrol dog" };
+function mavGuess(text) {
+  const t = " " + text.toLowerCase() + " ", score = {};
+  for (const [id, ws] of Object.entries(KEYS)) score[id] = ws.split(" ").filter(w => w && t.includes(" " + w)).length;
+  const ids = SECTIONS.map(x => x[0]).filter(id => id !== "today");
+  const order = ["today", ...ids.filter(id => score[id] > 0).sort((a, b) => score[b] - score[a]), ...ids.filter(id => !score[id])];
+  const hits = order.filter(id => score[id] > 0).map(id => SECTIONS.find(x => x[0] === id)[1]);
+  return { order, hide: [], name: "", say: hits.length ? `Easy! I've put ${hits.slice(0, 3).join(", ")} up the top for you.` : "Done! Tell me a bit more, like 'I fish and have two kids', and I'll sharpen it up." };
+}
+async function mav(req, env) {
+  let text = "";
+  try { text = String((await req.json()).text || "").slice(0, 500); } catch (e) {}
+  const guess = mavGuess(text);
+  if (!text.trim() || !env.AI) return Response.json(guess);
+  try {
+    const list = SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ");
+    const r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", { max_tokens: 250, messages: [
+      { role: "system", content: `You set up a free local info page for Coffs Harbour, Australia. Sections (id = name): ${list}. "tools" holds: dinner ideas from your fridge, birthday deals, Gen Alpha slang interpreter, death notices, school run report. Reply with ONLY JSON: {"order": [every section id, most useful for this person first, "today" first unless they say otherwise], "hide": [ids they clearly don't want], "name": "their first name if they said it, else empty", "say": "one warm, casual Aussie sentence under 25 words telling them what you set up"}` },
+      { role: "user", content: text }] });
+    const j = JSON.parse(String(r.response || "").match(/\{[\s\S]*\}/)[0]), valid = SECTIONS.map(x => x[0]);
+    const order = [...new Set((j.order || []).filter(id => valid.includes(id)))]; valid.forEach(id => order.includes(id) || order.push(id));
+    return Response.json({ order, hide: (j.hide || []).filter(id => valid.includes(id) && id !== "today"),
+      name: String(j.name || "").replace(/[^\p{L} '-]/gu, "").slice(0, 30), say: String(j.say || guess.say).slice(0, 200) });
+  } catch (e) { return Response.json(guess); }
+}
+const mePage = () => page("My 2450", `<h1>🎤 Make 2450 yours</h1>
+<div class="mav"><p><b>G'day<span id="hi"></span>, I'm Mav.</b> No fiddly settings. Just tell me about your day and what you care about, and I'll set up your page.</p>
+<div class="row"><button type="button" id="mic" class="micb">🎤 Tap and talk</button></div>
+<textarea id="say" rows="3" maxlength="500" placeholder="e.g. I'm Megan, I've got two kids at Coffs Public, I love the markets and my husband fishes"></textarea>
+<div class="chips" id="ex"><label>I fish and surf</label><label>Two kids, school run, footy on weekends</label><label>New to town, what's on?</label><label>Just weather and bins please</label></div>
+<p><button type="button" id="go">✨ Set me up</button></p><p id="reply" class="note" hidden></p></div>
+<h2>Your 2450</h2><p class="mute">Move things up or down, or switch them off. It saves as you go, on your phone only.</p>
+<label>What should we call you?</label><input id="nm" maxlength="30" placeholder="First name" style="width:100%">
+<ul id="list" class="setlist"></ul>
+<p><a class="card" href="/2450">👀 <b>See my 2450</b> →</a></p><p class="mute"><a href="#" id="reset">Start again</a></p>
+<script>
+var S=${JSON.stringify(SECTIONS)},L=document.getElementById('list');
+function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function p(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+function order(){var o;try{o=JSON.parse(g('order')||'null')}catch(e){}var ids=S.map(function(x){return x[0]});o=(o||[]).filter(function(i){return ids.indexOf(i)>-1});ids.forEach(function(i){if(o.indexOf(i)<0)o.push(i)});return o}
+function lab(id){return S.filter(function(x){return x[0]==id})[0][1]}
+function draw(){var o=order();L.innerHTML=o.map(function(id,i){var off=g('hide_'+id);return '<li class="'+(off?'off':'')+'"><span>'+lab(id)+'</span><span><button type="button" data-u="'+i+'" aria-label="Move up"'+(i?'':' disabled')+'>↑</button> <button type="button" data-d="'+i+'" aria-label="Move down"'+(i<o.length-1?'':' disabled')+'>↓</button> <button type="button" data-t="'+id+'" class="tg">'+(off?'Off':'On')+'</button></span></li>'}).join('')}
+L.onclick=function(e){var b=e.target,o=order(),i;if(b.dataset.u){i=+b.dataset.u;o.splice(i-1,0,o.splice(i,1)[0])}else if(b.dataset.d){i=+b.dataset.d;o.splice(i+1,0,o.splice(i,1)[0])}else if(b.dataset.t){p('hide_'+b.dataset.t,g('hide_'+b.dataset.t)?null:'1')}else return;p('order',JSON.stringify(o));draw()};
+var nm=document.getElementById('nm');nm.value=g('name')||decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||'');function hi(){document.getElementById('hi').textContent=nm.value?' '+nm.value:''}hi();
+nm.oninput=function(){p('name',nm.value.trim()||null);hi()};
+var ta=document.getElementById('say');document.getElementById('ex').onclick=function(e){if(e.target.tagName=='LABEL'){ta.value=e.target.textContent;ta.focus()}};
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.getElementById('mic');
+if(!SR){mic.textContent='🎤 Use the mic on your keyboard';mic.onclick=function(){ta.focus()}}else{mic.onclick=function(){var r=new SR();r.lang='en-AU';r.interimResults=true;mic.textContent='👂 Listening… tap Set me up when done';
+r.onresult=function(e){ta.value=Array.prototype.map.call(e.results,function(x){return x[0].transcript}).join(' ')};r.onend=function(){mic.textContent='🎤 Tap and talk'};r.onerror=r.onend;r.start()}}
+document.getElementById('go').onclick=function(){var b=this,rp=document.getElementById('reply');if(!ta.value.trim()){ta.focus();return}b.disabled=true;b.textContent='Mav is thinking…';
+fetch('/mav',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:ta.value})}).then(function(r){return r.json()}).then(function(j){
+p('order',JSON.stringify(j.order));S.forEach(function(x){p('hide_'+x[0],(j.hide||[]).indexOf(x[0])>-1?'1':null)});if(j.name&&!nm.value){nm.value=j.name;p('name',j.name);hi()}
+rp.hidden=false;rp.textContent='🗣️ '+j.say;draw()}).catch(function(){rp.hidden=false;rp.textContent='Mav dropped the ball. Try again?'}).then(function(){b.disabled=false;b.textContent='✨ Set me up'})};
+document.getElementById('reset').onclick=function(e){e.preventDefault();p('order',null);S.forEach(function(x){p('hide_'+x[0],null)});draw()};
+draw();
+</script>`, "2450");
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home();
     if (p === "/about") return about();
+    if (p === "/me") return mePage();
+    if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
     if (p === "/genalpha") return genAlpha();
     if (p === "/charter") return charter();

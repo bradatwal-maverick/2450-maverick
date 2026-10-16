@@ -6,6 +6,8 @@
     { "binding": "DATA", "id": "17b9dc394f2345f79dc5ad071cc3b3d9" }
   ],
   // Lets the site email feedback to Brad (address kept in the FEEDBACK_TO secret, not in this public repo)
-  "send_email": [ { "name": "MAILER" } ]
+  "send_email": [ { "name": "MAILER" } ],
+  // Free daily AI allowance powers "Tell Mav" setup
+  "ai": { "binding": "AI" }
   // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO
 }
