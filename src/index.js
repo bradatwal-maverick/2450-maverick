@@ -191,7 +191,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <section id="tools"><h2>Handy tools</h2>
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
-<a class="card" href="/${R.why.slug}">🌊 <b>${R.why.title}</b> ${R.why.card} →</a>
+${R.code === "2450" ? `<a class="card" href="/${R.why.slug}">🌊 <b>${R.why.title}</b> ${R.why.card} →</a>` : ""}
 <a class="card" href="/open">🟢 <b>Open now?</b> Pharmacies, mechanics, servos, cafés and more. Open ones first →</a>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
@@ -1450,7 +1450,7 @@ async function route(req, env, ctx) {
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/open") return openPage();
     if (p === "/api/open") return openApi(req, env);
-    if (p === "/" + R.why.slug) return whyPage();
+    if (R.code === "2450" && p === "/" + R.why.slug) return whyPage();
     if (p === "/crossword") return crosswordPage();
     if (p === "/home") return homePage();
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
