@@ -137,7 +137,7 @@ else if(d.t){p('hide_'+d.t,g('hide_'+d.t)?null:'1');ch();return}
 else if(b.classList.contains('frx')){var F=j('friends',[]);F.splice(+d.i,1);p('friends',F.length?JSON.stringify(F):null);draw();return}
 else if(d.q){var Q=j('saved_q',[]);Q.splice(+d.q,1);p('saved_q',Q.length?JSON.stringify(Q):null);ch();return}else return;
 p('pin',pins.length?JSON.stringify(pins):null);ch()});
-['w','v','e'].forEach(function(k){document.getElementById('z'+k).onchange=function(){p('z_'+k,this.value===''?null:this.value);ch()}});
+['w','v','e'].forEach(function(k){document.getElementById('z'+k).onchange=function(){var v=this.value;p('z_'+k,v===''?null:v);if(v!==''&&k==='w'&&g('z_v')===null)p('z_v',(+v+11)%12);if(v!==''&&k==='v'&&g('z_w')===null)p('z_w',(+v+1)%12);ch()}});
 document.getElementById('likes').onchange=function(){var L=[];document.querySelectorAll('#likes input:checked').forEach(function(c){L.push(c.value)});p('ev_like',L.length?JSON.stringify(L):null);ch()};
 var tzs=[];try{tzs=Intl.supportedValuesOf('timeZone')}catch(e){tzs=['Europe/London','America/New_York','America/Los_Angeles','Asia/Kolkata','Asia/Singapore','Asia/Tokyo','Pacific/Auckland','Australia/Perth','Australia/Brisbane','Australia/Adelaide','Australia/Darwin']}
 document.getElementById('tzl').innerHTML=tzs.map(function(z){return '<option value="'+z+'">'+z.split('/').pop().replace(/_/g,' ')+'</option>'}).join('');

@@ -44,7 +44,7 @@ const LINES = [
 ];
 function rng(seed) { let h = 2166136261; for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296; }
 // Start of each sign (month, day), same order as WEST.
-const STARTS = [[3, 21], [4, 20], [5, 21], [6, 21], [7, 23], [8, 23], [9, 23], [10, 23], [11, 22], [12, 22], [1, 20], [2, 19]];
+export const STARTS = [[3, 21], [4, 20], [5, 21], [6, 21], [7, 23], [8, 23], [9, 23], [10, 23], [11, 22], [12, 22], [1, 20], [2, 19]];
 export function seasonOf(day) { const [, m, d] = day.split("-").map(Number), v = m * 100 + d; let best = 9, bv = -1;
   STARTS.forEach(([sm, sd], i) => { const x = sm * 100 + sd; if (x <= v && x > bv) { bv = x; best = i; } }); return best; }
 const DAY = {
@@ -74,8 +74,8 @@ export const VEDIC = [
   ["♌", "Simha", "Leo", "17 Aug–16 Sep"], ["♍", "Kanya", "Virgo", "17 Sep–16 Oct"], ["♎", "Tula", "Libra", "17 Oct–15 Nov"], ["♏", "Vrischika", "Scorpio", "16 Nov–15 Dec"],
   ["♐", "Dhanu", "Sagittarius", "16 Dec–13 Jan"], ["♑", "Makara", "Capricorn", "14 Jan–12 Feb"], ["♒", "Kumbha", "Aquarius", "13 Feb–13 Mar"], ["♓", "Meena", "Pisces", "14 Mar–13 Apr"],
 ];
-const VSTARTS = [[4, 14], [5, 15], [6, 15], [7, 16], [8, 17], [9, 17], [10, 17], [11, 16], [12, 16], [1, 14], [2, 13], [3, 14]];
-export function vedicOf(day) { const [, m, d] = day.split("-").map(Number), v = m * 100 + d; let best = 11, bv = -1;
+export const VSTARTS = [[4, 14], [5, 15], [6, 15], [7, 16], [8, 17], [9, 17], [10, 17], [11, 16], [12, 16], [1, 14], [2, 13], [3, 14]];
+export function vedicOf(day) { const [, m, d] = day.split("-").map(Number), v = m * 100 + d; let best = 8, bv = -1;
   VSTARTS.forEach(([sm, sd], i) => { const x = sm * 100 + sd; if (x <= v && x > bv) { bv = x; best = i; } }); return best; }
 // Chinese elements follow the last digit of the year: 0-1 Metal, 2-3 Water, 4-5 Wood, 6-7 Fire, 8-9 Earth.
 export const elementOf = y => ["Metal", "Water", "Wood", "Fire", "Earth"][Math.floor((((y % 10) + 10) % 10) / 2)];

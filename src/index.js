@@ -6,7 +6,7 @@ import { GENERAL, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
 import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
-import { WEST, EAST, VEDIC, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
+import { WEST, EAST, VEDIC, STARTS, VSTARTS, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
 function initRegion(env) {
   if (R && R.code === (env.REGION || "2450")) return;
   R = REGIONS[env.REGION] || REGIONS["2450"];
@@ -1662,7 +1662,7 @@ async function suggest(req, env, ctx) {
 function starsBlock() {
   const d = todayISO(), sn = seasonOf(d), vn = vedicOf(d), y = new Date(d + "T00:00:00").getFullYear(), cy = ((y - 4) % 12 + 12) % 12;
   const pack = (kind, list, sub) => { const r = readings(d, kind); return list.map((x, k) => ({ i: x[0], n: x[1], s: sub(x, k), t: r[k].text, l: r[k].lucky, c: luckyColour(d, kind, k) })); };
-  const data = { w: pack("w", WEST, x => x[2]), v: pack("v", VEDIC, x => `${x[2]} · ${x[3]}`), e: pack("e", EAST, (x, k) => `born ${eastYears(k)}`), def: { w: sn, v: vn, e: cy } };
+  const data = { w: pack("w", WEST, x => x[2]), v: pack("v", VEDIC, x => `${x[2]} · ${x[3]}`), e: pack("e", EAST, (x, k) => `born ${eastYears(k)}`), def: { w: sn, v: vn, e: cy }, sw: STARTS, sv: VSTARTS };
   const opts = (list, lab) => list.map((x, k) => `<option value="${k}">${x[0]} ${esc(lab(x, k))}</option>`).join("");
   return `<section id="stars"><h2>✨ Horoscopes</h2><p><b>Your stars for ${esc(new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long" }))}</b>. ${esc(moonLine(d))} This is the Year of the ${elementOf(y)} ${EAST[cy][1]} ${EAST[cy][0]}.</p>
 <div class="ptabs" id="zt"><button type="button" data-k="w" class="on">Western</button><button type="button" data-k="v">Vedic (Indian)</button><button type="button" data-k="e">Chinese</button></div>
@@ -1670,7 +1670,7 @@ function starsBlock() {
 <optgroup data-k="w">${opts(WEST, x => `${x[1]} (${x[2]})`)}</optgroup><optgroup data-k="v" hidden>${opts(VEDIC, x => `${x[1]}, ${x[2]} (${x[3]})`)}</optgroup><optgroup data-k="e" hidden>${opts(EAST, (x, k) => `${x[1]} (${eastYears(k)})`)}</optgroup></select></p>
 <ul class="zod one"><li class="on"><span class="zs" id="zi"></span><span><b id="zn"></b> <small class="mute" id="zs"></small><br><span id="zx"></span> <small class="mute" id="zl"></small></span></li></ul>
 <p class="mute" id="zh"></p>
-<p class="mute">Just for fun, and always on the bright side. New every morning. Pick your sign once and we'll remember it on this phone.</p>
+<p class="pdate">🎂 Add your birthday and we'll set your Western and Vedic signs: <select id="zbd" aria-label="Day"><option value="">Day</option>${Array.from({ length: 31 }, (_, i) => `<option>${i + 1}</option>`).join("")}</select> <select id="zbm" aria-label="Month"><option value="">Month</option>${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => `<option value="${i}">${m}</option>`).join("")}</select></p>
 <script>(function(){var D=${JSON.stringify(data)},H={w:'Western signs go by your birthday.',v:'Vedic (Jyotish) astrology comes from India. It uses the stars as they sit in the sky today, so your sign is often one before your Western sign.',e:'Chinese signs go by the year you were born. The year starts at Lunar New Year, so if you were born in January or early February, you may belong to the year before.'},
 k='w',sel=document.getElementById('zsel'),g=function(x){try{return localStorage.getItem(x)}catch(e){return null}},p=function(x,v){try{localStorage.setItem(x,v)}catch(e){}},$=function(i){return document.getElementById(i)};
 function show(){var mine=g('z_'+k),i=mine!==null?+mine:D.def[k],r=D[k][i];sel.querySelectorAll('optgroup').forEach(function(o){o.hidden=o.dataset.k!==k;o.disabled=o.dataset.k!==k});
@@ -1679,7 +1679,10 @@ $('zi').textContent=r.i;$('zn').textContent=r.n;$('zs').textContent=r.s;$('zx').
 $('zh').textContent=(mine===null?(k==='e'?'Showing this year’s sign. ':'Showing the sign in season today. ')+'Pick yours above. ':'')+H[k];
 document.querySelectorAll('#zt button').forEach(function(b){b.classList.toggle('on',b.dataset.k===k)})}
 document.querySelectorAll('#zt button').forEach(function(b){b.onclick=function(){k=b.dataset.k;p('z_tab',k);show()}});
-sel.onchange=function(){p('z_'+k,sel.value);show()};var t=g('z_tab');if(t&&D[t])k=t;show()})();</script></section>`;
+function at(S,m,d){var v=m*100+d,b=-1,bv=-1;S.forEach(function(x,i){var q=x[0]*100+x[1];if(q<=v&&q>bv){bv=q;b=i}});if(b<0){S.forEach(function(x,i){var q=x[0]*100+x[1];if(q>bv){bv=q;b=i}})}return b}
+function fromBday(force){var b=null;try{b=JSON.parse(g('bday')||'null')}catch(e){}if(!b||b[0]===''||b[1]==='')return;var d=+b[0],m=+b[1]+1;if(force||g('z_w')===null)p('z_w',at(D.sw,m,d));if(force||g('z_v')===null)p('z_v',at(D.sv,m,d));$('zbd').value=String(d);$('zbm').value=String(m-1)}
+function bd(){var d=$('zbd').value,m=$('zbm').value;if(!d||m==='')return;p('bday',JSON.stringify([d,m]));fromBday(true);show();if(window.M2)M2.up()}$('zbd').onchange=bd;$('zbm').onchange=bd;
+sel.onchange=function(){var i=+sel.value;p('z_'+k,i);if(k==='w'&&g('z_v')===null)p('z_v',(i+11)%12);if(k==='v'&&g('z_w')===null)p('z_w',(i+1)%12);show();if(window.M2)M2.up()};var t=g('z_tab');if(t&&D[t])k=t;fromBday(false);show()})();</script></section>`;
 }
 
 // ---- Was this useful? 👍/👎 per page, plus "did we mess up?" notes ----
