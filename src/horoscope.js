@@ -43,9 +43,27 @@ const LINES = [
   "Laugh at the hiccup. It makes a great story later.",
 ];
 function rng(seed) { let h = 2166136261; for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296; }
+// Start of each sign (month, day), same order as WEST.
+const STARTS = [[3, 21], [4, 20], [5, 21], [6, 21], [7, 23], [8, 23], [9, 23], [10, 23], [11, 22], [12, 22], [1, 20], [2, 19]];
+export function seasonOf(day) { const [, m, d] = day.split("-").map(Number), v = m * 100 + d; let best = 9, bv = -1;
+  STARTS.forEach(([sm, sd], i) => { const x = sm * 100 + sd; if (x <= v && x > bv) { bv = x; best = i; } }); return best; }
+const DAY = {
+  0: ["Sunday's for slowing down.", "A lazy Sunday suits you.", "Sunday brunch energy.", "Recharge today, the week can wait."],
+  1: ["Fresh week, fresh start.", "Monday's on your side.", "Ease into the week.", "New week, clean slate."],
+  2: ["Tuesday brings momentum.", "Find your rhythm today.", "A steady Tuesday.", "Quiet progress day."],
+  3: ["Halfway through the week.", "Midweek lift.", "Hump day, you've got this.", "Wednesday rewards focus."],
+  4: ["Thursday's lining things up.", "Nearly there.", "Good day to get ahead.", "Thursday brings a nudge."],
+  5: ["Friday feeling.", "The weekend's in sight.", "Finish the week strong.", "Friday treats are allowed."],
+  6: ["Saturday's for fun.", "Weekend mode: on.", "Markets, beach or both.", "Saturday rewards saying yes."],
+};
+const MOON = ["The new moon favours fresh starts.", "The growing moon backs new plans.", "The first-quarter moon says take action.", "The moon is building towards full, so keep pushing.",
+  "Full moon tonight-ish: big feelings, big fun.", "The moon is easing off, so tie up loose ends.", "Last-quarter moon: clear out what you don't need.", "The old moon says rest before the next round."];
+export function moonIdx(day) { const age = ((Date.parse(day + "T09:00:00Z") - Date.UTC(2000, 0, 6, 18, 14)) / 864e5) % 29.530588853; return Math.round(age / 29.53 * 8) % 8; }
+export const moonLine = day => MOON[moonIdx(day)];
 // Every sign gets a different line each day, and the lines rotate so nobody gets the same one twice in a row.
 export function readings(day, kind) {
   const r = rng(kind + day), idx = LINES.map((_, i) => i);
   for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
-  return Array.from({ length: 12 }, (_, i) => ({ text: LINES[idx[i]], lucky: 1 + Math.floor(r() * 45) }));
+  const dl = DAY[new Date(day + "T12:00:00Z").getUTCDay()], off = Math.floor(r() * 4);
+  return Array.from({ length: 12 }, (_, i) => ({ text: dl[(i + off) % dl.length] + " " + LINES[idx[i]], lucky: 1 + Math.floor(r() * 45) }));
 }
