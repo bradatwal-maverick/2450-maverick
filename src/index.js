@@ -56,7 +56,7 @@ function page(title, body, pc = "") {
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
 <p>${R.footer}</p>
-<p class="gaz">Our Gazettes: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")}</p>
+<p class="gaz">Our Gazettes: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a></p>
 <p class="aoc">${R.ack} <a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a><br><span class="tagline">Big tech skills, used for the community. ${R.sign}</span></p><p class="policy">One policy: no BS. We find the information and tell you where it came from. No opinions, no spin.</p></footer>
 ${MAV_WIDGET()}
@@ -171,7 +171,7 @@ async function town(pc, env, ctx, isRoot = false) {
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
   return page(`The ${pc} Gazette: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(k)} <small>${esc(v.name)}</small></span>` : `<a class="pc" href="/${esc(k)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)} <small>${esc(v.name)}</small></a>`).join("")}</nav><p class="mast">The ${esc(pc)} Gazette</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · Free, every day</p>${quoteBlock()}
+<nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(k)} <small>${esc(v.name)}</small></span>` : `<a class="pc" href="/${esc(k)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)} <small>${esc(v.name)}</small></a>`).join("")}<a class="pc add" href="/suggest">+ Your town?</a></nav><p class="mast">The ${esc(pc)} Gazette</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · Free, every day</p>${quoteBlock()}
 <h1>${esc(t.name)} ${esc(pc)}</h1>
 ${rallyStrip(nLocals)}
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
@@ -433,6 +433,7 @@ async function admin(req, env) {
   for (const { name } of (await env.DATA.list({ prefix: "ipending:" })).keys) { const i = await env.DATA.get(name, "json"); if (i) il += `<li>${esc(i.text)}<br>${btnB("approve", "Approve for voting", name)} ${btnB("delete", "Delete", name)}</li>`; }
   const board = (await ideas(env)).map(i => `<li>👍 ${i.votes} · ${esc(i.text)} ${STATUS[i.status] || ""}<br>${btnB("building", "Building", "idea:" + i.id)} ${btnB("done", "Done", "idea:" + i.id)} ${btnB("open", "Reopen", "idea:" + i.id)} ${btnB("remove", "Remove", "idea:" + i.id)}</li>`).join("");
   return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p>
+<h2>📮 Postcode requests</h2><ul>${(await Promise.all((await listAll(env, "pcsug:")).map(k => env.DATA.get(k.name, "json")))).filter(Boolean).sort((a, b) => b.count - a.count).map(x => `<li><b>${esc(x.pc)}</b> ${esc(x.towns.join(", "))} · asked ${x.count}× · ${x.emails.length} emails${x.notes.length ? `<br><span class="mute">${esc(x.notes.join(" | "))}</span>` : ""}</li>`).join("") || "<li class=mute>None yet.</li>"}</ul>
 <h2>👥 People</h2><p>${(await listAll(env, "user:")).length} signed in · ${(await listAll(env, "sub:")).length} on the weekly email · ${await localsCount(env)} locals in total.</p><form method="post"><input type="hidden" name="key" value="${esc(String(f.get("key")))}"><input type="hidden" name="act" value="export"><button>Download people (CSV)</button></form>
 <h2>🔔 Send a phone alert</h2><p class="mute">Goes to everyone who turned on alerts. ${(await env.DATA.list({ prefix: "psub:" })).keys.length} phones signed up.</p>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="alert"><input name="text" maxlength="160" placeholder="e.g. All fields closed tonight due to rain" style="width:100%" required>
@@ -692,17 +693,7 @@ async function feedback(req, env, ctx) {
   if (!fb.msg.trim()) return feedbackPage(env, `<p class="note">Please add a message.</p>`);
   await env.DATA.put(`fb:${fb.at}:${crypto.randomUUID().slice(0, 6)}`, JSON.stringify(fb));
   if (fb.kind.startsWith("An idea")) await env.DATA.put(`ipending:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify({ text: fb.msg.slice(0, 280), votes: 0, status: "open", at: fb.at }));
-  if (env.MAILER && env.FEEDBACK_TO) ctx.waitUntil((async () => {
-    try {
-      const { EmailMessage } = await import("cloudflare:email");
-      const from = `feedback@${R.domain}`, clean = x => x.replace(/[\r\n]+/g, " ");
-      const raw = [`From: ${R.brand} <${from}>`, `To: ${env.FEEDBACK_TO}`, fb.email ? `Reply-To: ${clean(fb.email)}` : "",
-        `Subject: ${R.code} feedback: ${clean(fb.kind)}`, `Message-ID: <${crypto.randomUUID()}@${R.domain}>`, `Date: ${new Date().toUTCString()}`,
-        "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "",
-        `${fb.kind}\n\n${fb.msg}\n\nFrom: ${fb.name || "(no name)"} ${fb.email || "(no email)"}\n${fb.at}`].filter(Boolean).join("\r\n");
-      await env.MAILER.send(new EmailMessage(from, env.FEEDBACK_TO, raw));
-    } catch (e) { console.log("feedback email failed", e); }
-  })());
+  mailUs(env, ctx, `${R.code} feedback: ${fb.kind}`, `${fb.kind}\n\n${fb.msg}\n\nFrom: ${fb.name || "(no name)"} ${fb.email || "(no email)"}\n${fb.at}`, fb.email);
   return feedbackPage(env, `<p class="note">Thanks${fb.name ? ", " + esc(fb.name) : ""}! It's on its way to us.${fb.kind.startsWith("An idea") ? " Once it's checked it'll appear in the list for voting." : ""}</p>`);
 }
 
@@ -1464,6 +1455,7 @@ async function route(req, env, ctx) {
     if (p === "/charter") return charter();
     if (p === "/privacy") return privacy();
     if (p === "/birthday") return req.method === "POST" ? lodgeOffer(req, env) : birthdayPage(env);
+    if (p === "/suggest") return req.method === "POST" ? suggest(req, env, ctx) : suggestPage();
     if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage(env);
     if (p === "/vote" && req.method === "POST") return vote(req, env);
     if (p === "/school") return schoolPage();
@@ -1487,4 +1479,48 @@ function quoteBlock() {
   const d = todayISO(), n = Math.floor(Date.parse(d + "T00:00:00Z") / 864e5);
   const [q, who, ref] = QUOTES[n % QUOTES.length];
   return `<blockquote class="quote">“${esc(q)}”<cite>${esc(who)} · ${esc(ref)}</cite></blockquote>`;
+}
+
+// Email us (feedback, postcode requests). Never blocks the page.
+function mailUs(env, ctx, subject, body, replyTo) {
+  if (!env.MAILER || !env.FEEDBACK_TO) return;
+  ctx.waitUntil((async () => {
+    try {
+      const { EmailMessage } = await import("cloudflare:email");
+      const from = `feedback@${R.domain}`, clean = x => String(x).replace(/[\r\n]+/g, " ");
+      const raw = [`From: ${R.brand} <${from}>`, `To: ${env.FEEDBACK_TO}`, replyTo ? `Reply-To: ${clean(replyTo)}` : "",
+        `Subject: ${clean(subject)}`, `Message-ID: <${crypto.randomUUID()}@${R.domain}>`, `Date: ${new Date().toUTCString()}`,
+        "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "", body].filter(Boolean).join("\r\n");
+      await env.MAILER.send(new EmailMessage(from, env.FEEDBACK_TO, raw));
+    } catch (e) { console.log("email failed", e); }
+  })());
+}
+
+// ---- Suggest a postcode: we build Gazettes for rural and community Australia on request ----
+const LIVE_CODES = () => Object.values(REGIONS).flatMap(x => Object.keys(x.towns || {}));
+function suggestPage(msg = "") {
+  return page("Get a Gazette for your town", `<h1>📮 Get a Gazette for your town</h1>
+<p>We're here to help rural and community Australia. If your postcode isn't on our list yet, tell us and we'll build your Gazette. It doesn't take us long, and it's free, like all of them.</p>
+<p class="mute">Already running: ${Object.values(REGIONS).map(x => `<a href="https://${esc(x.domain)}/">${esc(x.code)} ${esc(x.place)}</a>`).join(" · ")}</p>${msg}
+<form method="post" action="/suggest"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="row"><input name="pc" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="Postcode *" required><input name="town" maxlength="60" placeholder="Town *" required></div>
+<label>Anything we should know? (optional)</label><textarea name="note" rows="3" maxlength="600" placeholder="Local paper closed down, best sources for news, who to talk to…"></textarea>
+<input type="email" name="email" maxlength="120" placeholder="Your email, so we can tell you when it's live (optional)" style="width:100%">
+<p><button>Suggest my postcode</button></p></form>`);
+}
+async function suggest(req, env, ctx) {
+  const f = await req.formData();
+  if (f.get("website")) return suggestPage(`<p class="note">Thanks!</p>`);
+  const pc = String(f.get("pc") || "").trim(), town = String(f.get("town") || "").trim().slice(0, 60);
+  const note = String(f.get("note") || "").slice(0, 600), email = String(f.get("email") || "").trim().slice(0, 120);
+  if (!/^\d{4}$/.test(pc) || !town) return suggestPage(`<p class="note">Please add a 4-digit postcode and your town.</p>`);
+  if (LIVE_CODES().includes(pc)) { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc]); return suggestPage(`<p class="note">Good news: ${esc(pc)} is already covered by <a href="https://${esc(r.domain)}/${esc(pc)}">The ${esc(r.code)} Gazette</a>.</p>`); }
+  const k = "pcsug:" + pc, cur = (await env.DATA.get(k, "json")) || { pc, towns: [], count: 0, emails: [], notes: [] };
+  cur.count++; cur.at = new Date().toISOString();
+  if (!cur.towns.includes(town)) cur.towns = [...cur.towns, town].slice(-10);
+  if (email && !cur.emails.includes(email)) cur.emails = [...cur.emails, email].slice(-50);
+  if (note.trim()) cur.notes = [...cur.notes, note].slice(-10);
+  await env.DATA.put(k, JSON.stringify(cur));
+  mailUs(env, ctx, `Gazette request: ${pc} ${town} (${cur.count} so far)`, `Postcode: ${pc}\nTown: ${town}\nAsked ${cur.count} time(s)\n\n${note}\n\nEmail: ${email || "(none)"}\nVia ${R.domain}`, email);
+  return suggestPage(`<p class="note">Thanks! ${esc(pc)} ${esc(town)} is on our list${cur.count > 1 ? ` (${cur.count} locals have asked)` : ""}.${email ? " We'll email you when it's live." : ""}</p>`);
 }
