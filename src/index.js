@@ -309,8 +309,8 @@ var t=document.getElementById('today');t.parentNode.insertBefore(el,t)})();
 document.getElementById('date').textContent=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
 (function(){var f=document.getElementById('flow'),o;try{o=JSON.parse(localStorage.getItem('order')||'null')}catch(e){}
 if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
-var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&el.id!=='tonight'&&el.id!=='alerts'&&el.querySelector('h2')});
-var PR=['events','council','numbers','aigb','bypass','memory','joy','shop','flights','lotto','puzzles','stars','sea','fuel','beaches','sport','flights','holidays','kids','council','know','tools','surfcams'];if(!o)secs.sort(function(a,b){var x=PR.indexOf(a.id),y=PR.indexOf(b.id);return (x<0?99:x)-(y<0?99:y)});
+var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&el.id!=='tonight'&&el.id!=='alerts'&&el.id!=='lotto'&&el.querySelector('h2')});
+var PR=['events','council','numbers','aigb','bypass','memory','joy','shop','flights','puzzles','stars','sea','fuel','beaches','sport','flights','holidays','kids','council','know','tools','surfcams'];if(!o)secs.sort(function(a,b){var x=PR.indexOf(a.id),y=PR.indexOf(b.id);return (x<0?99:x)-(y<0?99:y)});
 secs.forEach(function(el){el.hidden=true;el.classList.add('panel');var b=document.createElement('button');b.type='button';b.textContent=el.querySelector('h2').textContent;
 try{b.style.setProperty('--pc',getComputedStyle(el).getPropertyValue('--acc'))}catch(e){}b.onclick=function(){var open=!el.hidden;secs.forEach(function(x){x.hidden=true});nav.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(!open){el.hidden=false;b.classList.add('on');f.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'start'})}};nav.appendChild(b)});
 var td=document.getElementById('tonight')||document.getElementById('news')||document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling)})();
@@ -426,13 +426,6 @@ async function admin(req, env) {
   const f = await req.formData();
   if (f.get("key") !== env.ADMIN_KEY) return page("Admin", `<h1>Admin</h1><p>Wrong key.</p>${login}`);
   const act = f.get("act"), k = String(f.get("k") || "");
-  if (act === "padd" || act === "pset" || act === "pdel") {
-    const L = await promises(env), i = +f.get("i");
-    if (act === "padd" && f.get("ptext") && /^https:\/\//.test(String(f.get("psaid") || ""))) L.push({ text: String(f.get("ptext")).slice(0, 200), said: String(f.get("psaid")).slice(0, 300), when: String(f.get("pwhen") || "").slice(0, 30), status: "none" });
-    if (act === "pset" && L[i] && PSTAT[f.get("pstatus")]) { L[i].status = f.get("pstatus"); const ev = String(f.get("pev") || ""); if (/^https:\/\//.test(ev)) L[i].evidence = ev.slice(0, 300); L[i].note = String(f.get("pnote") || L[i].note || "").slice(0, 160); }
-    if (act === "pdel" && L[i]) L.splice(i, 1);
-    await env.DATA.put("promises", JSON.stringify(L));
-  }
   if (act === "vadd" || act === "vdel") {
     const L = (await env.DATA.get("vsrc:list", "json")) || [], u = String(f.get("vurl") || "").trim();
     if (act === "vadd" && /^https:\/\//.test(u) && !L.some(x => x.url === u)) L.push({ name: String(f.get("vname") || u).slice(0, 60), url: u.slice(0, 300), venue: String(f.get("vname") || "").slice(0, 60) || undefined });
@@ -507,8 +500,6 @@ async function admin(req, env) {
   const board = (await ideas(env)).map(i => `<li>👍 ${i.votes} · ${esc(i.text)} ${STATUS[i.status] || ""}<br>${btnB("building", "Building", "idea:" + i.id)} ${btnB("done", "Done", "idea:" + i.id)} ${btnB("open", "Reopen", "idea:" + i.id)} ${btnB("remove", "Remove", "idea:" + i.id)}</li>`).join("");
   return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p>
 <h2>👍 Was this useful?</h2><ul>${(await Promise.all((await listAll(env, "rate:")).map(async k => [k.name.slice(5), await env.DATA.get(k.name, "json")]))).filter(x => x[1]).sort((a, b) => (b[1].up + b[1].down) - (a[1].up + a[1].down)).map(([pg, c]) => `<li>${esc(pg)}: 👍 ${c.up} · 👎 ${c.down}</li>`).join("") || "<li class=mute>No votes yet.</li>"}</ul>
-<h2>🏛️ Mayor's commitments</h2><p class="mute">Only change a light when you have a public link to show for it.</p>${(await promises(env)).map((p, i) => `<form method="post" class="row"><input type="hidden" name="key" value="${key}"><input type="hidden" name="i" value="${i}"><b>${PSTAT[p.status || "none"][0]} ${esc(p.text)}</b> <select name="pstatus">${Object.entries(PSTAT).map(([k, v]) => `<option value="${k}"${k === p.status ? " selected" : ""}>${v[1]}</option>`).join("")}</select><input name="pev" type="url" placeholder="Evidence link" value="${esc(p.evidence || "")}"><input name="pnote" placeholder="Short note" value="${esc(p.note || "")}"><button name="act" value="pset">Save</button><button name="act" value="pdel">Remove</button></form>`).join("")}
-<form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="padd"><input name="ptext" placeholder="What the mayor said they'd do" required style="width:100%"><input name="psaid" type="url" placeholder="Link to where they said it" required style="width:100%"><input name="pwhen" placeholder="When (e.g. March 2026)"><button>Add commitment</button></form>
 <h2>🩺 Source health</h2><ul>${(await health(env)).map(x => `<li>${x.ok ? "🟢" : "🔴"} ${esc(x.name)} · ${x.last ? `worked ${x.hours < 1 ? "under an hour" : x.hours + " hours"} ago` : "not working yet"}${x.note ? ` · ${esc(x.note)}` : ""}</li>`).join("")}</ul>
 <h2>📅 Venue pages we read</h2><p class="mute">Add a pub, club or market's own "what's on" or "specials" page. We read it twice a day.</p><ul>${(await Promise.all((await venueSources(env)).map(async v => { const d = await env.DATA.get(vkey(v.url), "json"); return `<li>${esc(v.name)} · ${d ? `${d.items.length} items${d.asof ? ", updated " + esc(asOf(d.asof)) : ""}` : "not read yet"} <a href="${esc(v.url)}" rel="noopener">page</a>${(R.venues || []).some(x => x.url === v.url) ? "" : ` <form method="post" style="display:inline"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="vdel"><input type="hidden" name="vurl" value="${esc(v.url)}"><button>Remove</button></form>`}</li>`; }))).join("")}</ul>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="vadd"><input name="vname" placeholder="Venue name" maxlength="60"> <input name="vurl" type="url" placeholder="https://… their what's on page" required style="width:100%"> <button>Add venue page</button></form>
@@ -1507,7 +1498,7 @@ export default {
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshAiNews(env), healthMail(env, ctx)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
@@ -1961,6 +1952,7 @@ async function health(env) {
   if (env.FLIGHT_KEY && !R.airport.feed) { const fl = await env.DATA.get("flights", "json"); add("Flights (AeroDataBox)", "https://aerodatabox.com", fl && fl.asof, 12); }
   if (env.FUEL_KEY) { const fu = await env.DATA.get("fuel:local", "json"); add("Fuel prices (NSW FuelCheck)", "https://www.fuelcheck.nsw.gov.au", fu && fu.asof, 24); }
   if (R.council.meetings) { const cn = await env.DATA.get("council:next", "json"); add("Council meetings page", R.council.meetings, cn && cn.asof, 72); }
+  if (R.council.progress) { const cp = await env.DATA.get("council:progress", "json"); add("Council progress reports", R.council.progress, cp && cp.asof, 120 * 24); }
   { const al = await env.DATA.get("ailog", "json"); add("AI news (The Guardian, Google News)", AI_FEEDS[0][1], al && al.items && al.items.length ? al.items[0].at : null, 72); }
   for (const v of await venueSources(env)) { const d = await env.DATA.get(vkey(v.url), "json"); add("Venue: " + v.name, v.url, d && d.items && d.items.length ? d.asof : null, 48, d ? d.items.length + " items" : "not read yet"); }
   return out;
@@ -2005,8 +1997,7 @@ async function numbersBlock(env) {
 }
 
 // ---- Council watch: accountability. Next meeting (read from the council's own page), how to have your say or complain,
-// and what the mayor has publicly said they'll do, with a traffic light that only changes when there's a source to show. ----
-const PSTAT = { done: ["🟢", "Done"], progress: ["🟡", "Under way"], notdone: ["🔴", "Not done or dropped"], none: ["⚪", "No update yet"] };
+// and how council says it's tracking on its own plan, quoted from its own progress reports (we never set a status ourselves). ----
 async function refreshCouncil(env) {
   if (!R.council.meetings) return;
   const old = await env.DATA.get("council:next", "json"), now = new Date().toISOString();
@@ -2022,16 +2013,12 @@ async function refreshCouncil(env) {
     await env.DATA.put("council:next", JSON.stringify(ok ? { date: j.date, time: String(j.time || "").slice(0, 40), what: String(j.what || "Council meeting").slice(0, 60), where: String(j.where || "").slice(0, 80), asof: now, tried: now } : { ...(old || {}), tried: now }));
   } catch (e) { await env.DATA.put("council:next", JSON.stringify({ ...(old || {}), tried: now })); }
 }
-async function promises(env) { const extra = (await env.DATA.get("promises", "json")) || null; return extra || R.promises || []; }
 async function councilBlock(env) {
-  const c = R.council, nx = await env.DATA.get("council:next", "json"), list = await promises(env);
+  const c = R.council, nx = await env.DATA.get("council:next", "json");
   const meet = nx && nx.date && nx.date >= todayISO() ? `<p><b>Next meeting: ${esc(fmtDate(nx.date))}${nx.time ? ", " + esc(nx.time) : ""}</b>${away(nx.date)}<br><span class="mute">${esc(nx.what)}${nx.where ? " · " + esc(nx.where) : ""}. Meetings are open to the public, and you can ask to speak.</span></p>` : `<p class="mute">Meeting dates are on the council's <a href="${c.meetings || c.url}" rel="noopener">meetings page</a>.</p>`;
-  const tally = Object.keys(PSTAT).map(k => [k, list.filter(p => p.status === k).length]).filter(x => x[1]);
   return `<section id="council"><h2>🏛️ Council watch</h2><p class="mute">Keeping an eye on ${esc(c.name)}, with every item linked to its source.</p>
 ${meet}${nx && nx.asof ? `<p class="src">Read from the <a href="${c.meetings}" rel="noopener">council's meetings page</a>, ${esc(asOf(nx.asof))}.</p>` : ""}
-<h3>What ${esc(c.mayor ? "Mayor " + c.mayor : "the mayor")} has said they'll do</h3>
-${list.length ? `<p class="mute">${tally.map(([k, n]) => `${PSTAT[k][0]} ${n} ${PSTAT[k][1].toLowerCase()}`).join(" · ")}</p><ul class="prom">${list.map(p => `<li><span class="pl" title="${PSTAT[p.status || "none"][1]}">${PSTAT[p.status || "none"][0]}</span><span><b>${esc(p.text)}</b><br><small class="mute">Said ${esc(p.when || "")} · <a href="${esc(p.said)}" rel="noopener">source</a>${p.evidence ? ` · ${PSTAT[p.status][1]}: <a href="${esc(p.evidence)}" rel="noopener">evidence</a>` : ""}${p.note ? ` · ${esc(p.note)}` : ""}</small></span></li>`).join("")}</ul>
-<p class="src">${Object.values(PSTAT).map(x => x.join(" ")).join(" · ")}. A light only changes when there's a public source to show for it. Seen progress we've missed? <a href="/feedback">Send us the link</a>.</p>` : `<p class="mute">We're collecting the mayor's public commitments, each linked to where they said it. Know one? <a href="/feedback">Send us the link</a>.</p>`}
+${await progressBlock(env)}
 <h3>Have your say or make a complaint</h3><ul>
 <li>Report a problem or make a request: ${esc(c.name)} on <a href="tel:${c.phone.replace(/\s/g, "")}">${esc(c.phone)}</a> or <a href="${c.url}" rel="noopener">their website</a>.</li>
 <li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a>.</li>
@@ -2073,4 +2060,48 @@ async function aiLogPage(env) {
   return page("AI for good, AI for bad", `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>🤖 AI for good, AI for bad: the log</h1><p>Every AI news story we've sorted, newest first. ${it.filter(i => i.v === "good").length} good, ${it.filter(i => i.v === "bad").length} bad so far.</p>
 <ul class="ailog">${it.map(i => `<li>${i.v === "good" ? "😇" : "😈"} <a href="${esc(i.link)}" rel="noopener">${esc(i.title)}</a><br><small class="mute">${esc(i.src)} · ${esc(new Date(i.date).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }))}${i.why ? " · " + esc(i.why) : ""}</small></li>`).join("") || "<li class=mute>Nothing logged yet.</li>"}</ul>
 <p class="src">Sorted by AI from the headline and summary, so it can get it wrong. The stories belong to their publishers.</p>`, R.code);
+}
+
+// Council's own progress reports: every quarter NSW councils report how they're tracking on their Delivery Program and
+// Operational Plan. We find the newest report on the council's page, read it, and quote council's own statuses. Fully automatic.
+async function refreshProgress(env) {
+  if (!R.council.progress) return;
+  const old = await env.DATA.get("council:progress", "json"), now = new Date().toISOString();
+  if (old && Date.now() - new Date(old.tried) < 3 * 86400e3) return;
+  const save = v => env.DATA.put("council:progress", JSON.stringify(v));
+  try {
+    const page = await (await fetch(R.council.progress, { headers: UA })).text();
+    const links = [...page.matchAll(/<a[^>]+href="([^"]+\.pdf)[^"]*"[^>]*>([\s\S]{0,200}?)<\/a>/gi)].map(m => ({ url: new URL(m[1].replace(/&amp;/g, "&"), R.council.progress).href, text: dec(m[2].replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim() }))
+      .filter(l => /progress|quarter/i.test(l.text + " " + l.url) && !/annual|financial|budget/i.test(l.text));
+    const pick = links[0];
+    if (!pick) return save({ ...(old || {}), tried: now });
+    if (old && old.url === pick.url && old.asof) return save({ ...old, tried: now });
+    const buf = await (await fetch(pick.url, { headers: UA })).arrayBuffer();
+    if (buf.byteLength > 30e6 || !env.AI.toMarkdown) return save({ ...(old || {}), tried: now });
+    const md = await env.AI.toMarkdown([{ name: "report.pdf", blob: new Blob([buf], { type: "application/pdf" }) }]);
+    const text = String((md && md[0] && md[0].data) || "").replace(/\s+/g, " ");
+    if (text.length < 500) return save({ ...(old || {}), tried: now });
+    const lines = text.split(/(?<=[.|])\s+/).filter(l => /\b(completed?|on track|not on track|behind|delayed|deferred|at risk|off track)\b/i.test(l)).map(l => l.slice(0, 260));
+    const sample = lines.slice(0, 160).join("\n");
+    const ask = { messages: [{ role: "system", content: "You read council progress reports. Quote, never judge. Output ONLY JSON." },
+      { role: "user", content: `These lines come from ${R.council.name}'s report "${pick.text}". Return {"period":"the period covered, as written","totals":{"completed":number or null,"on_track":number or null,"behind":number or null} (only if the report itself states totals, else nulls),"behind":[up to 8 {"action":"the action's name exactly as written","status":"status exactly as written","comment":"council's own comment, quoted, under 25 words, or empty"}] for actions the report marks behind, delayed, deferred, off track or at risk,"done":[up to 5 {"action":"exactly as written"}] for actions marked completed}. Copy wording exactly. Never invent.\n\n${sample}` }], max_tokens: 1500 };
+    let out; try { out = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { out = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", ask); }
+    const raw = typeof out?.response === "string" ? out.response : JSON.stringify(out?.response || {}), j = JSON.parse(raw.match(/\{[\s\S]*\}/)[0]);
+    const low = text.toLowerCase(), real = x => x && String(x).length > 4 && low.includes(String(x).toLowerCase().replace(/\s+/g, " ").trim());
+    const num = x => Number.isInteger(x) && x >= 0 && x < 5000 && low.includes(String(x)) ? x : null;
+    await save({ url: pick.url, title: pick.text.replace(/\(PDF.*$/i, "").trim().slice(0, 140), period: real(j.period) ? String(j.period).slice(0, 80) : "",
+      totals: j.totals ? { completed: num(j.totals.completed), on_track: num(j.totals.on_track), behind: num(j.totals.behind) } : {},
+      behind: (j.behind || []).filter(b => real(b.action)).slice(0, 8).map(b => ({ action: String(b.action).slice(0, 160), status: real(b.status) ? String(b.status).slice(0, 40) : "", comment: real(b.comment) ? String(b.comment).slice(0, 200) : "" })),
+      done: (j.done || []).filter(d => real(d.action)).slice(0, 5).map(d => ({ action: String(d.action).slice(0, 160) })), asof: now, tried: now });
+  } catch (e) { await save({ ...(old || {}), tried: now }); }
+}
+async function progressBlock(env) {
+  const p = await env.DATA.get("council:progress", "json"), c = R.council;
+  if (!p || !p.asof) return `<h3>Is council doing what it said?</h3><p class="mute">Every three months ${esc(c.name)} reports on its own plan. We'll show its latest report here, in its own words.${c.progress ? ` For now: <a href="${c.progress}" rel="noopener">council's progress reports</a>.` : ""}</p>`;
+  const t = p.totals || {}, tot = [["completed", "✅", "completed"], ["on_track", "🟢", "on track"], ["behind", "🟠", "behind"]].filter(([k]) => t[k] != null);
+  return `<h3>Is council doing what it said?</h3><p class="mute">In council's own words, from its latest report: <a href="${esc(p.url)}" rel="noopener">${esc(p.title)}</a>${p.period ? ` (${esc(p.period)})` : ""}.</p>
+${tot.length ? `<p><b>${tot.map(([k, i, l]) => `${i} ${t[k]} ${l}`).join(" · ")}</b></p>` : ""}
+${p.behind.length ? `<p><b>Council reports these as behind or delayed:</b></p><ul class="prom">${p.behind.map(b => `<li><span class="pl">🟠</span><span><b>${esc(b.action)}</b>${b.status ? ` <span class="tagg">${esc(b.status)}</span>` : ""}${b.comment ? `<br><small class="mute">Council says: “${esc(b.comment)}”</small>` : ""}</span></li>`).join("")}</ul>` : ""}
+${p.done.length ? `<p><b>Council reports these as completed:</b></p><ul class="prom">${p.done.map(d => `<li><span class="pl">✅</span><span>${esc(d.action)}</span></li>`).join("")}</ul>` : ""}
+<p class="src">Statuses are council's own, quoted from its report and checked against the original. We don't add, judge or change them. Read ${esc(asOf(p.asof))}.</p>`;
 }
