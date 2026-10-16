@@ -378,11 +378,15 @@ async function admin(req, env) {
 <ul>${(await announcements(env)).slice(0, 5).map(a => `<li>${esc(a.text)} <span class="mute">${esc(a.at.slice(0, 10))}</span> ${btnB("remove", "Remove", a.id)}</li>`).join("")}</ul><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>Community notices waiting</h2><ul>${await (async () => { let h = ""; for (const { name } of (await env.DATA.list({ prefix: "npending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) h += `${noticeItem(n).replace("</li>", "")}<span class="mute">from ${esc(n.contact)}</span><br>${btnB("approve", "Approve and alert", name)} ${btnB("delete", "Delete", name)}</li>`; } return h || "<li>None</li>"; })()}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
-const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
+const about = async env => { const n = (await env.DATA.list({ prefix: "sub:" })).keys.length + (await env.DATA.list({ prefix: "psub:" })).keys.length, locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
-<p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no paid listings. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
+<p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no fees to list your event, club or notice. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
+<h2>How we'll keep the lights on</h2><p>Our goal is to reach as many locals as a local weekly paper: about <b>15,000 people</b>. ${locals}</p>
+<p>When we get there, we'll offer a small number of advertising spots so local businesses can reach that audience. They'll be <b>selective</b> (local and relevant to you), <b>fairly priced</b> and <b>never packed in</b>: a few clearly labelled ads, never mixed into the listings, never using your personal details.</p>
+<p>We're not here to build an empire off our community. Just to make a fair living doing something genuinely useful for it.</p>
+<p><i>Global vision, local thinking.</i> 2450 Maverick is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
 <p>Big tech divided us. 2450 Maverick brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>Born and built in 2450, raised by the world.</i></p>
-<h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`);
+<h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`); };
 
 const ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">2450</text></svg>`;
 const MANIFEST = JSON.stringify({ name: "2450 Maverick", short_name: "2450", start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
@@ -598,8 +602,9 @@ async function lodgeOffer(req, env) {
 const UPDATED = "16 October 2026";
 const charter = () => page("Our charter", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Our charter</h1>
 <p class="mute">Our terms, in plain English. Last updated ${UPDATED}.</p>
-<h2>1. Free, forever</h2><p>2450 Maverick will never charge you. No paywalls, no subscriptions, no paid listings, no fees to locals, clubs or businesses. It's run by <a href="https://maverickdigital.com.ai">Maverick Digital</a> as a free gift to the community.</p>
-<h2>2. Nobody pays to be here</h2><p>Every event, offer and listing is here because it's happening locally, never because someone paid. We don't sell placement, rankings or reviews.</p>
+<h2>1. Free for locals, forever</h2><p>2450 Maverick will never charge you to use it. No paywalls, no subscriptions, and no fees to list an event, club, notice or offer. It's run by <a href="https://maverickdigital.com.ai">Maverick Digital</a> as a free gift to the community.</p>
+<h2>2. Nobody pays to be listed</h2><p>Every event, offer and listing is here because it's happening locally, never because someone paid. We don't sell placement, rankings or reviews.</p>
+<h2>2a. Advertising, one day</h2><p>Once we reach about 15,000 locals, we'll sell a small number of advertising spots so the site can pay its way. Ads will be clearly labelled, kept separate from listings, selective, fairly priced and never packed in. Advertisers never get your personal details.</p>
 <h2>3. We source, we don't spin</h2><p>Information like council details, weather and tides comes from other organisations. We show it as they publish it, name the source, and show how current the source says it is. If a source is out of date or wrong, we'll say so factually. We don't rewrite their information.</p>
 <h2>4. Check before you rely on it</h2><p>We work hard to keep things right, but information here can be out of date, incomplete or wrong. Always check the original source for anything important.</p>
 <ul><li><b>Emergencies:</b> this site is not an emergency service. Call <a href="tel:000">000</a>.</li>
@@ -623,7 +628,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 M
 <li><b>Feedback:</b> your message, and your name and email only if you add them.</li>
 <li><b>Fridge login:</b> one cookie that keeps the fridge tool unlocked on your phone for up to a year.</li></ul>
 <p>We don't ask for anything about your family or personal life beyond the basic contact details needed to make the site work.</p>
-<h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details.</p>
+<h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details, and when we carry ads one day, advertisers will never get your personal details or use them to target you.</p>
 <h2>Who else is involved</h2><ul>
 <li><b>Cloudflare</b> hosts the site, stores our data and sends our emails. Like any website host, it processes basic visit data such as your internet address.</li>
 <li><b>Open-Meteo</b> provides weather and tides. Your browser asks it for Coffs Harbour's forecast, so it sees a request from your device, but no personal details from us.</li>
@@ -1186,7 +1191,7 @@ export default {
     if (p === "/coffs") return whyPage();
     if (p === "/home") return homePage();
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
-    if (p === "/about") return about();
+    if (p === "/about") return about(env);
     if (p === "/api/fuel") return fuelApi(req, env);
     if (p === "/me") return mePage();
     if (p === "/mav" && req.method === "POST") return mav(req, env);
