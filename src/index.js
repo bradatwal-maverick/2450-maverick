@@ -897,15 +897,15 @@ const ripItem = n => `<li><b>${esc(n.name)}</b>${n.age ? `, ${esc(n.age)}` : ""}
 // Funeral directors publish notices on their own sites. We read those pages a few times a day, pull out
 // the names and dates with Cloudflare's AI, and keep only names that appear word-for-word on the page.
 // Lotto: latest draw results from The Lott, refreshed every 3 hours. If it can't be reached, the section links out.
-const LOTTO = { TattsLotto: "Saturday Lotto", OzLotto: "Oz Lotto", Powerball: "Powerball", MonWedLotto: "Mon & Wed Lotto", SetForLife744: "Set for Life" };
+const LOTTO = { TattsLotto: "Saturday Lotto", OzLotto: "Oz Lotto", Powerball: "Powerball", MondayWednesdayFridayLotto: "Mon, Wed & Fri Lotto", SetForLife744: "Set for Life" };
 async function refreshLotto(env) {
   const old = await env.DATA.get("lotto", "json");
   if (old && Date.now() - new Date(old.asof) < 3 * 3600e3) return;
   try {
     const r = await fetch("https://data.api.thelott.com/sales/vmax/web/data/lotto/latestresults", { method: "POST", headers: { ...UA, "content-type": "application/json" },
-      body: JSON.stringify({ CompanyId: "NSWLotteries", MaxDrawCountPerProduct: 1, OptionalProductFilter: Object.keys(LOTTO) }) });
+      body: JSON.stringify({ CompanyId: "NSWLotteries", MaxDrawCountPerProduct: 1 }) });
     const j = await r.json(), draws = (j.DrawResults || []).filter(d => LOTTO[d.ProductId]).map(d => ({ game: LOTTO[d.ProductId], date: String(d.DrawDate || "").slice(0, 10), no: d.DrawNumber,
-      main: d.PrimaryNumbers || [], extra: d.SecondaryNumbers || [], extraName: d.ProductId === "Powerball" ? "Powerball" : "Supps" }));
+      main: d.PrimaryNumbers || [], extra: d.SecondaryNumbers || [], extraName: d.ProductId === "Powerball" ? "Powerball" : d.ProductId === "SetForLife744" ? "Bonus" : "Supps" })).sort((a, b) => b.date.localeCompare(a.date));
     if (draws.length) await env.DATA.put("lotto", JSON.stringify({ asof: new Date().toISOString(), draws }));
   } catch (e) {}
 }
