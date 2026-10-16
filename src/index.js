@@ -201,7 +201,6 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
 ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>` : ""}
 </div><ul id="wxtips" class="wxtips" aria-live="polite"></ul></section>
-${live.alerts}
 ${live.news}
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${await memoryBlock(env)}
@@ -242,7 +241,8 @@ ${await lottoBlock(env)}
 <p class="src">Info from <a href="https://open-meteo.com" rel="noopener">Open-Meteo</a> (modelled, updated hourly). Not for navigation.</p>
 <script>(function(){var t=${JSON.stringify({ lat: t.lat, lon: t.lon, mlat: t.mlat, mlon: t.mlon })},$=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v},D=['N','NE','E','SE','S','SW','W','NW'],dir=function(d){return D[Math.round(d/45)%8]};
 fetch('https://marine-api.open-meteo.com/v1/marine?latitude='+t.mlat+'&longitude='+t.mlon+'&current=wave_height,wave_direction,wave_period,sea_surface_temperature&timezone=Australia%2FSydney').then(function(r){return r.json()}).then(function(j){var c=j.current||{};if(c.sea_surface_temperature!=null)$('b-sst',Math.round(c.sea_surface_temperature)+'°C');if(c.wave_height!=null){$('b-wave',c.wave_height.toFixed(1)+' m');$('b-wave2',dir(c.wave_direction)+' · '+Math.round(c.wave_period)+' s')}}).catch(function(){});
-fetch('https://api.open-meteo.com/v1/forecast?latitude='+t.lat+'&longitude='+t.lon+'&current=wind_speed_10m,wind_direction_10m&daily=uv_index_max&timezone=Australia%2FSydney&forecast_days=1').then(function(r){return r.json()}).then(function(j){var c=j.current||{},u=(j.daily||{}).uv_index_max;if(c.wind_speed_10m!=null){$('b-wind',Math.round(c.wind_speed_10m)+' km/h');$('b-wind2',dir(c.wind_direction_10m)+' wind')}if(u&&u[0]!=null){var v=Math.round(u[0]);$('b-uv',v);$('b-uv2',v>=11?'Extreme UV':v>=8?'Very high UV':v>=6?'High UV':v>=3?'Moderate UV':'Low UV')}}).catch(function(){});})();</script></section></div>
+fetch('https://api.open-meteo.com/v1/forecast?latitude='+t.lat+'&longitude='+t.lon+'&current=wind_speed_10m,wind_direction_10m&daily=uv_index_max&timezone=Australia%2FSydney&forecast_days=1').then(function(r){return r.json()}).then(function(j){var c=j.current||{},u=(j.daily||{}).uv_index_max;if(c.wind_speed_10m!=null){$('b-wind',Math.round(c.wind_speed_10m)+' km/h');$('b-wind2',dir(c.wind_direction_10m)+' wind')}if(u&&u[0]!=null){var v=Math.round(u[0]);$('b-uv',v);$('b-uv2',v>=11?'Extreme UV':v>=8?'Very high UV':v>=6?'High UV':v>=3?'Moderate UV':'Low UV')}}).catch(function(){});})();</script></section>
+${live.alerts}</div>
 <p><a class="card" href="/me">🎤 <b>Make this page yours</b> Just tell Mav what you want to see →</a></p>
 ${PUSH_JS()}${rally(nLocals, pc)}
 <script>
@@ -288,7 +288,7 @@ var nav=document.createElement('div');nav.className='pills';var secs=Array.proto
 var PR=['events','memory','lotto','puzzles','stars','sea','fuel','beaches','sport','flights','holidays','kids','council','know','tools','surfcams'];if(!o)secs.sort(function(a,b){var x=PR.indexOf(a.id),y=PR.indexOf(b.id);return (x<0?99:x)-(y<0?99:y)});
 secs.forEach(function(el){el.hidden=true;el.classList.add('panel');var b=document.createElement('button');b.type='button';b.textContent=el.querySelector('h2').textContent;
 b.onclick=function(){var open=!el.hidden;secs.forEach(function(x){x.hidden=true});nav.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(!open){el.hidden=false;b.classList.add('on');f.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'start'})}};nav.appendChild(b)});
-var td=document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling)})();
+var td=document.getElementById('news')||document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling)})();
 var $=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v};
 var W={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Cloudy'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Drizzle'],61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Storms'],96:['⛈️','Storms'],99:['⛈️','Storms']};
 var dirs=['N','NE','E','SE','S','SW','W','NW'],tm=function(s){return new Date(s).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'})};
