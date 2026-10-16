@@ -485,10 +485,10 @@ const about = async env => { const n = await localsCount(env), locals = n >= 10 
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
 <p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no fees to list your event, club or notice. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
 <h2>How we'll keep the lights on</h2><p>Our goal is to reach as many locals as a local weekly paper: about <b>15,000 people</b>. ${locals}</p>
-<p>When we get there, we'll offer a small number of advertising spots so local businesses can reach that audience. They'll be <b>selective</b> (local and relevant to you), <b>fairly priced</b> and <b>never packed in</b>: a few clearly labelled ads, never mixed into the listings, never using your personal details.</p>
+<p>When we get there, local businesses will be able to reach that audience through a few ads in our <b>daily email</b>, and only there. <b>This site stays ad-free.</b> The ads will be <b>selective</b> (local and relevant to you), <b>fairly priced</b> and <b>clearly labelled</b>. Advertisers never get your name or email address, and we never sell your details.</p>
 <p>We're not here to build an empire off our community. Just to make a fair living doing something genuinely useful for it.</p>
-<p><i>Global vision, local thinking.</i> ${R.brand} is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
-<p>Big tech divided us. ${R.brand} brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>${R.sign}</i></p>
+<p><i>Global vision, local thinking.</i> The ${R.code} Gazette is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
+<p>Big tech divided us. The ${R.code} Gazette brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>${R.sign}</i></p>
 <h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`); };
 
 const ICON = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">${R.code}</text></svg>`;
