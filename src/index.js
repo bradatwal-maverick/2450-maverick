@@ -438,6 +438,11 @@ async function admin(req, env) {
     if (act === "vadd" && /^https:\/\//.test(u) && !L.some(x => x.url === u)) L.push({ name: String(f.get("vname") || u).slice(0, 60), url: u.slice(0, 300), venue: String(f.get("vname") || "").slice(0, 60) || undefined });
     await env.DATA.put("vsrc:list", JSON.stringify(act === "vdel" ? L.filter(x => x.url !== u) : L));
   }
+  if (act === "stats") {
+    const rows = (await Promise.all((await listAll(env, "stats:")).map(k => env.DATA.get(k.name, "json")))).filter(Boolean).sort((a, b) => a.date.localeCompare(b.date));
+    const cols = statCols(), csv = [cols.join(","), ...rows.map(r => cols.map(c => r[c] ?? "").join(","))].join("\n");
+    return new Response(csv, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${R.code}-daily-stats-${todayISO()}.csv"` } });
+  }
   if (act === "export") {
     const rows = new Map();
     for (const { name } of await listAll(env, "user:")) { const u = await env.DATA.get(name, "json"); if (u) rows.set(u.email, { ...u, weekly: "no" }); }
@@ -513,7 +518,7 @@ const picks = {}; for (const { name } of await listAll(env, "sub:")) { const v =
 <h2>📅 Venue pages we read</h2><p class="mute">Add a pub, club or market's own "what's on" or "specials" page. We read it twice a day.</p><ul>${(await Promise.all((await venueSources(env)).map(async v => { const d = await env.DATA.get(vkey(v.url), "json"); return `<li>${esc(v.name)} · ${d ? `${d.items.length} items${d.asof ? ", updated " + esc(asOf(d.asof)) : ""}` : "not read yet"} <a href="${esc(v.url)}" rel="noopener">page</a>${(R.venues || []).some(x => x.url === v.url) ? "" : ` <form method="post" style="display:inline"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="vdel"><input type="hidden" name="vurl" value="${esc(v.url)}"><button>Remove</button></form>`}</li>`; }))).join("")}</ul>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="vadd"><input name="vname" placeholder="Venue name" maxlength="60"> <input name="vurl" type="url" placeholder="https://… their what's on page" required style="width:100%"> <button>Add venue page</button></form>
 <h2>📮 Postcode requests</h2><ul>${(await Promise.all((await listAll(env, "pcsug:")).map(k => env.DATA.get(k.name, "json")))).filter(Boolean).sort((a, b) => b.count - a.count).map(x => `<li><b>${esc(x.pc)}</b> ${esc(x.towns.join(", "))} · asked ${x.count}× · ${x.emails.length} emails${x.notes.length ? `<br><span class="mute">${esc(x.notes.join(" | "))}</span>` : ""}</li>`).join("") || "<li class=mute>None yet.</li>"}</ul>
-<h2>👥 People</h2><p>${(await listAll(env, "user:")).length} signed in · ${(await listAll(env, "sub:")).length} on the weekly email · ${await localsCount(env)} locals in total.</p><form method="post"><input type="hidden" name="key" value="${esc(String(f.get("key")))}"><input type="hidden" name="act" value="export"><button>Download people (CSV)</button></form>
+<h2>👥 People</h2><p>${(await listAll(env, "user:")).length} signed in · ${(await listAll(env, "sub:")).length} on the weekly email · ${await localsCount(env)} locals in total.</p><form method="post"><input type="hidden" name="key" value="${esc(String(f.get("key")))}"><input type="hidden" name="act" value="export"><button>Download people (CSV)</button></form><form method="post"><input type="hidden" name="key" value="${esc(String(f.get("key")))}"><input type="hidden" name="act" value="stats"><button>Download daily stats (CSV)</button></form>
 <h2>🔔 Send a phone alert</h2><p class="mute">Goes to everyone who turned on alerts. ${(await env.DATA.list({ prefix: "psub:" })).keys.length} phones signed up.</p>
 <form method="post"><input type="hidden" name="key" value="${key}"><input type="hidden" name="act" value="alert"><input name="text" maxlength="160" placeholder="e.g. All fields closed tonight due to rain" style="width:100%" required>
 <div class="row"><select name="topic"><option value="fields">Field closures</option><option value="alerts">General alert</option></select><button>Send alert</button></div></form>
@@ -562,6 +567,19 @@ const TIPPERS = [["mav", "🤖 Mav", "everyday life"], ["johal", "📖 Jargon Jo
   ["sam", "🗓️ Strategi Sam", "saving time"], ["anne", "🔍 Anne Audit", "checking AI is right"], ["leaf", "🌿 Leaf", "doing the right thing"]];
 const tipPick = v => (TIPPERS.some(t => t[0] === v) ? v : "mav");
 const TIPS_PICK = `<fieldset class="tipsp"><legend>Who'd you like your AI tips from?</legend>${TIPPERS.map(([k, n, d], i) => `<label><input type="radio" name="tips" value="${k}"${i ? "" : " checked"}> <b>${n}</b> <span class="mute">${d}</span></label>`).join("")}</fieldset>`;
+
+// ---- Daily stats snapshot, kept forever, for the one-year "what we built" press release.
+// Once a day (first cron after midnight Sydney): people, list size, how they joined, tips picks, clicks to Maverick Digital.
+const statCols = () => ["date", "locals", "signed_in", "weekly_email", "via_google", "via_email", ...TIPPERS.map(t => "tips_" + t[0]), ...Object.keys(GO).map(k => "clicks_" + k)];
+async function dailyStats(env) {
+  const day = todayISO(); if (await env.DATA.get(`stats:${day}`)) return;
+  const users = await listAll(env, "user:"), subs = await listAll(env, "sub:"), row = { date: day, locals: await localsCount(env), signed_in: users.length, weekly_email: subs.length, via_google: 0, via_email: 0 };
+  for (const { name } of users) { const u = await env.DATA.get(name, "json"); if (u) row[u.via === "google" ? "via_google" : "via_email"]++; }
+  for (const t of TIPPERS) row["tips_" + t[0]] = 0;
+  for (const { name } of subs) { const v = await env.DATA.get(name, "json"); if (v?.tips) row["tips_" + v.tips]++; }
+  for (const k of Object.keys(GO)) { let n = 0; for (const { name } of await listAll(env, `click:${k}:`)) n += +(await env.DATA.get(name)) || 0; row["clicks_" + k] = n; }
+  await env.DATA.put(`stats:${day}`, JSON.stringify(row));
+}
 
 // ---- Tracked links to Maverick Digital (key conversion events). Counts clicks per day, then adds UTM tags
 // so the Maverick Digital site and ActiveCampaign can see which Gazette and section the lead came from.
@@ -1599,6 +1617,7 @@ export default {
     // One cron per Worker (the free plan allows 5 across the account): every 5 minutes for push alerts,
     // and every half hour the rest of the work.
     ctx.waitUntil(pushBatch(env));
+    ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
