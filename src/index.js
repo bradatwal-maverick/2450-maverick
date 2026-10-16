@@ -35,7 +35,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
-.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
+.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
 
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
@@ -101,7 +101,7 @@ async function town(pc, env) {
 
   const cc = clockChange();
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  const SECTIONS = [["today", "At a glance"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["council", "Council"], ["sport", "Sport"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+  const SECTIONS = [["today", "At a glance"], ["alerts", "Alerts"], ["events", "What's on"], ["news", "News"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your 2450"], ["council", "Council"], ["sport", "Sport"], ["holidays", "Holidays"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
   return page(`${pc} ${t.name} — what's on`, `
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
 <p class="mute" id="date"></p>
@@ -125,6 +125,25 @@ ${soon("news", "News", "Local headlines from Coffs news outlets, linked to the f
 ${soon("fuel", "Fuel", "Cheapest petrol and diesel in 2450 today, coming soon.", "https://www.fuelcheck.nsw.gov.au", "NSW FuelCheck")}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
+<section id="know"><h2>Know your 2450</h2><p class="mute">The handy stuff, all in one place. Last checked 16 Oct 2026.</p>
+<details open><summary><b>Who runs the place</b></summary><ul>
+<li>Mayor: <b>Cr Nikki Williams</b> · Deputy Mayor: <b>Cr George Cecato</b></li>
+<li>Councillors: Cath Fowler, Gurminder Saro, Jonathan Cassell, Julie Sechi, Les Oxford, Paul Amos, Tony Judge. <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">Contact them</a></li>
+<li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul></details>
+<details><summary><b>Bins &amp; rubbish</b></summary><ul>
+<li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app (App Store or Google Play)</li>
+<li>Bulky goods (old couch, mattress): book a kerbside pick-up or get free tip vouchers on <a href="tel:1800265495">1800 265 495</a>. Vouchers are posted, so allow 2 weeks</li>
+<li>Tip: Englands Road Waste Management Facility</li>
+<li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul></details>
+<details><summary><b>Got a problem?</b></summary><ul>
+<li>Pothole, broken footpath, streetlight, overgrown block: <a href="https://forms.coffsharbour.nsw.gov.au/RunForm.aspx?formId=1366" rel="noopener">Council request form</a></li>
+<li>Pollution or environmental issue: <a href="https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" rel="noopener">Report it</a></li>
+<li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a></li></ul></details>
+<details><summary><b>Contact council</b></summary><ul>
+<li>📞 <a href="tel:0266484000">02 6648 4000</a>, weekdays 8:30am–4:30pm. Same number 24/7 for urgent water, sewer, pollution or animal attacks</li>
+<li>✉️ <a href="mailto:coffs.council@chcc.nsw.gov.au">coffs.council@chcc.nsw.gov.au</a></li>
+<li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul></details>
+<p class="mute">Spotted something out of date? <a href="/submit?pc=2450">Let us know</a>.</p></section>
 ${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
 ${soon("sport", "Sport", "Field closures, local games and fixtures, coming soon. Clubs will be able to post them here free.")}
 ${soon("holidays", "Holidays", "Public and school holiday dates, coming soon.", "https://education.nsw.gov.au/schooling/calendar", "NSW school calendar")}
