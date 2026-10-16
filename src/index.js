@@ -57,6 +57,18 @@ async function listEvents(env, prefix) {
   return out.sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
 }
 
+// NSW daylight saving: clocks forward 2am first Sunday of October, back 3am first Sunday of April.
+function clockChange() {
+  const today = todayISO(), y = +today.slice(0, 4);
+  const firstSun = (yr, m) => { const d = new Date(Date.UTC(yr, m, 1)); d.setUTCDate(1 + (7 - d.getUTCDay()) % 7); return d.toISOString().slice(0, 10); };
+  const opts = [[firstSun(y, 3), "back"], [firstSun(y, 9), "forward"], [firstSun(y + 1, 3), "back"]].filter(([d]) => d >= today);
+  const [date, dir] = opts[0];
+  const days = Math.round((new Date(date) - new Date(today)) / 864e5);
+  const what = dir === "back" ? "go back 1 hour at 3am (to 2am). Extra sleep!" : "go forward 1 hour at 2am (to 3am). Lose an hour's sleep.";
+  const when = days === 0 ? "Today" : days === 1 ? "Tonight / tomorrow morning" : fmtDate(date);
+  return { soon: days <= 14, text: `<b>Clocks ${dir === "back" ? "go back" : "go forward"}</b> ${esc(when)}${days > 1 ? ` (in ${days} days)` : ""}: ${what.replace(/^go (back|forward) /, "")}` };
+}
+
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
 const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b> — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
 
@@ -72,10 +84,12 @@ async function town(pc, env) {
     + (feed.length ? `<h3>More around town</h3><ul>${feed.map(evItem).join("")}</ul>` : "")
     || `<p>Nothing listed yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`;
 
+  const cc = clockChange();
   return page(`${pc} ${t.name} — what's on`, `
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
+${cc.soon ? `<p style="border:1px solid var(--accent);border-radius:8px;padding:10px">⏰ ${cc.text}</p>` : ""}
 <p class="pins mute">Show: <label><input type="checkbox" data-s="today" checked> Today</label><label><input type="checkbox" data-s="sea" checked> Tides &amp; swell</label><label><input type="checkbox" data-s="events" checked> What's on</label></p>
-<section id="today"><h2>Today</h2><p id="wx" class="mute">Loading weather…</p></section>
+<section id="today"><h2>Today</h2><p id="wx" class="mute">Loading weather…</p>${cc.soon ? "" : `<p class="mute">${cc.text}</p>`}</section>
 <section id="sea"><h2>Tides &amp; swell</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
