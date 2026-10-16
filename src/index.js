@@ -119,6 +119,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
 <a class="card" href="/genalpha">🗣️ <b>Gen Alpha interpreter</b> What did your kid just say? Jimmy Joel translates →</a>
+<a class="card" href="/rip">🕊️ <b>In memory</b> Remembering locals who have recently passed →</a>
 <a class="card" href="/school">🚸 <b>School run report</b> Weather and traffic for your school drop-off and pick-up →</a>
 <details class="pins mute"><summary>Customise this page</summary>${SECTIONS.map(([id, l]) => `<label><input type="checkbox" data-s="${id}" checked> ${esc(l)}</label>`).join("")}<br><small>Saved on your phone only.</small></details>
 ${soon("alerts", "Alerts", "Bushfires, road closures and floods near 2450, coming soon.", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", "Fires Near Me (NSW Rural Fire Service)")}
@@ -226,6 +227,10 @@ async function admin(req, env) {
   const f = await req.formData();
   if (f.get("key") !== env.ADMIN_KEY) return page("Admin", `<h1>Admin</h1><p>Wrong key.</p>${login}`);
   const act = f.get("act"), k = String(f.get("k") || "");
+  if (k.startsWith("rpending:")) {
+    if (act === "approve") { const v = await env.DATA.get(k); if (v) await env.DATA.put("rip:" + k.slice(9), v); }
+    await env.DATA.delete(k);
+  }
   if (k.startsWith("bpending:")) {
     if (act === "approve") { const v = await env.DATA.get(k); if (v) await env.DATA.put("bday:" + k.slice(9), v); }
     await env.DATA.delete(k);
@@ -252,7 +257,9 @@ async function admin(req, env) {
   const btnB = (a, l, name) => `<form method="post" style="display:inline"><input type="hidden" name="key" value="${key}"><input type="hidden" name="k" value="${esc(name)}"><input type="hidden" name="act" value="${a}"><button>${l}</button></form>`;
   let bl = "";
   for (const { name } of (await env.DATA.list({ prefix: "bpending:" })).keys) { const o = await env.DATA.get(name, "json"); if (o) bl += `${offerItem(o).replace("</li>", "")}<br><span class="mute">from ${esc(o.contact)}</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
-  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
+  let rl = "";
+  for (const { name } of (await env.DATA.list({ prefix: "rpending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) rl += `${ripItem(n).replace("</li>", "")}<br><span class="mute">from ${esc(n.contact)}. Check with the funeral home first</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
+  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
 const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
@@ -517,11 +524,42 @@ r.innerHTML=h||'<p class="mute">Jimmy’s stumped on that one. <a href="/feedbac
 b1.onclick=function(){set(1)};b2.onclick=function(){set(2)};q.oninput=go;
 </script>`, "2450");
 
+// ---- In memory: local death notices, sourced from funeral homes (approved in admin; shown for 60 days) ----
+const ripItem = n => `<li><b>${esc(n.name)}</b>${n.age ? `, ${esc(n.age)}` : ""}<br><span class="mute">Passed ${esc(fmtDate(n.date))}${n.service ? ` · ${esc(n.service)}` : ""}</span><br>
+<span class="src">Source: ${n.link ? `<a href="${esc(n.link)}" rel="nofollow noopener">${esc(n.home)}</a>` : esc(n.home)}</span></li>`;
+async function ripPage(env, msg = "") {
+  const since = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10), list = [];
+  for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { if (name.split(":")[1] < since) continue; const n = await env.DATA.get(name, "json"); if (n) list.push(n); }
+  list.sort((a, b) => b.date.localeCompare(a.date));
+  return page("In memory", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🕊️ In memory</h1>
+<p>Remembering locals who have passed away in the last two months. Rest in peace.</p>${msg}
+<ul>${list.map(ripItem).join("") || '<li class="mute">No notices listed yet.</li>'}</ul>
+<p class="mute">Every notice is sourced from the funeral home and links to their official notice for full service details.</p>
+<h2>Funeral homes and families</h2><p>List a notice free. We check every notice with the funeral home before it goes up.</p>
+<details><summary><b>Add a notice</b></summary><form method="post" action="/rip"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<label>Full name *</label><input name="name" required maxlength="100" style="width:100%">
+<div class="row"><div><label>Age</label><input name="age" maxlength="10"></div><div><label>Date of passing *</label><input type="date" name="date" required max="${todayISO()}"></div></div>
+<label>Service (date, time, place)</label><input name="service" maxlength="200" style="width:100%">
+<label>Funeral home *</label><input name="home" required maxlength="100" style="width:100%">
+<label>Link to the funeral home's notice *</label><input type="url" name="link" required maxlength="300" style="width:100%">
+<label>Your email (to confirm, never shown) *</label><input type="email" name="contact" required style="width:100%">
+<p><button>Submit notice</button></p></form></details>`, "2450");
+}
+async function lodgeRip(req, env) {
+  const f = await req.formData(), date = String(f.get("date") || ""), link = String(f.get("link") || "");
+  if (f.get("website") || !f.get("name") || !f.get("home") || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^https?:\/\//.test(link)) return ripPage(env, `<p class="note">Please fill in the required details.</p>`);
+  const n = { name: String(f.get("name")).slice(0, 100), age: String(f.get("age") || "").slice(0, 10), date, service: String(f.get("service") || "").slice(0, 200),
+    home: String(f.get("home")).slice(0, 100), link: link.slice(0, 300), contact: String(f.get("contact") || "").slice(0, 120), at: new Date().toISOString() };
+  await env.DATA.put(`rpending:${date}:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify(n));
+  return ripPage(env, `<p class="note">Thank you. We'll confirm with the funeral home and add the notice soon.</p>`);
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home();
     if (p === "/about") return about();
+    if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
     if (p === "/genalpha") return genAlpha();
     if (p === "/charter") return charter();
     if (p === "/privacy") return privacy();
