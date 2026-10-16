@@ -33,7 +33,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:var(--soft);border-color:transparent!important}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
@@ -271,6 +271,13 @@ async function admin(req, env) {
   const f = await req.formData();
   if (f.get("key") !== env.ADMIN_KEY) return page("Admin", `<h1>Admin</h1><p>Wrong key.</p>${login}`);
   const act = f.get("act"), k = String(f.get("k") || "");
+  if (k.startsWith("ipending:")) {
+    if (act === "approve") { const v = await env.DATA.get(k); if (v) await env.DATA.put("idea:" + k.slice(9), v); }
+    await env.DATA.delete(k);
+  }
+  if (k.startsWith("idea:") && (act === "building" || act === "done" || act === "open" || act === "remove")) {
+    const v = await env.DATA.get(k, "json"); if (v) act === "remove" ? await env.DATA.delete(k) : await env.DATA.put(k, JSON.stringify({ ...v, status: act }));
+  }
   if (k.startsWith("rpending:")) {
     if (act === "approve") { const v = await env.DATA.get(k); if (v) await env.DATA.put("rip:" + k.slice(9), v); }
     await env.DATA.delete(k);
@@ -303,7 +310,10 @@ async function admin(req, env) {
   for (const { name } of (await env.DATA.list({ prefix: "bpending:" })).keys) { const o = await env.DATA.get(name, "json"); if (o) bl += `${offerItem(o).replace("</li>", "")}<br><span class="mute">from ${esc(o.contact)}</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
   let rl = "";
   for (const { name } of (await env.DATA.list({ prefix: "rpending:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) rl += `${ripItem(n).replace("</li>", "")}<br><span class="mute">from ${esc(n.contact)}. Check with the funeral home first</span><br>${btnB("approve", "Approve", name)} ${btnB("delete", "Delete", name)}</li>`; }
-  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
+  let il = "";
+  for (const { name } of (await env.DATA.list({ prefix: "ipending:" })).keys) { const i = await env.DATA.get(name, "json"); if (i) il += `<li>${esc(i.text)}<br>${btnB("approve", "Approve for voting", name)} ${btnB("delete", "Delete", name)}</li>`; }
+  const board = (await ideas(env)).map(i => `<li>👍 ${i.votes} · ${esc(i.text)} ${STATUS[i.status] || ""}<br>${btnB("building", "Building", "idea:" + i.id)} ${btnB("done", "Done", "idea:" + i.id)} ${btnB("open", "Reopen", "idea:" + i.id)} ${btnB("remove", "Remove", "idea:" + i.id)}</li>`).join("");
+  return page("Admin", `<h1>Admin</h1><p>${subs} email subscribers.</p><h2>Ideas waiting</h2><ul>${il || "<li>None</li>"}</ul><h2>Idea board (most votes first)</h2><ul>${board || "<li>None</li>"}</ul><h2>In memory notices waiting</h2><ul>${rl || "<li>None</li>"}</ul><h2>Birthday offers waiting</h2><ul>${bl || "<li>None</li>"}</ul><h2>Latest feedback</h2><ul>${fbl || "<li>None</li>"}</ul><h2>Events waiting (${keys.length})</h2><ul>${rows || "<li>None</li>"}</ul>`);
 }
 
 const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
@@ -423,21 +433,48 @@ sel.onchange=show;show();
 </script>`, "2450"); };
 
 // ---- Feedback: saved, then emailed to Brad ----
-const feedbackPage = (msg = "") => page("Make 2450 better", `<h1>💬 Make 2450 better</h1>
-<p>This site is for locals, so tell us what would make it more useful. Every message is read by a real person.</p>${msg}
+const GOAL = 30, STATUS = { open: "", building: "🔨 Being built", done: "✅ Done" };
+async function ideas(env) {
+  const out = [];
+  for (const { name } of (await env.DATA.list({ prefix: "idea:" })).keys) { const i = await env.DATA.get(name, "json"); if (i) out.push({ id: name.slice(5), ...i }); }
+  return out.sort((a, b) => (a.status === "done") - (b.status === "done") || b.votes - a.votes);
+}
+const ideaItem = i => `<li class="idea"><button type="button" class="vote" data-id="${esc(i.id)}"${i.status === "done" ? " disabled" : ""}>👍 <b>${i.votes}</b></button>
+<div><span>${esc(i.text)}</span>${STATUS[i.status] ? ` <span class="tagg">${STATUS[i.status]}</span>` : ""}
+<div class="bar"><i style="width:${Math.min(100, Math.round(i.votes / GOAL * 100))}%"></i></div><small class="mute">${i.votes >= GOAL ? "🎉 Hit " + GOAL + " votes. On the build list!" : (GOAL - i.votes) + " more votes to get it built"}</small></div></li>`;
+const feedbackPage = async (env, msg = "") => { const list = await ideas(env); return page("Make 2450 better", `<h1>💬 Make 2450 better</h1>
+<p>2450 is built by the community. Suggest an idea or vote for one you like. When an idea hits <b>${GOAL} votes</b>, it goes on the build list.</p>${msg}
+<h2>Ideas from locals</h2><ul class="ideas">${list.map(ideaItem).join("") || '<li class="mute">No ideas yet. Be the first!</li>'}</ul>
+<h2>Suggest something</h2><p class="mute">Ideas are checked, then added to the list above for voting. Everything else comes straight to the team.</p>
 <form method="post" action="/feedback"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>What's it about?</label><select name="kind" style="width:100%"><option>An idea for the site</option><option>Something's wrong or out of date</option><option>Add my club, group or event source</option><option>Just saying g'day</option></select>
 <label>Your message *</label><textarea name="msg" rows="5" maxlength="2000" required></textarea>
 <div class="row"><input name="name" placeholder="Name (optional)" maxlength="60"><input type="email" name="email" placeholder="Email if you'd like a reply" maxlength="120"></div>
-<p><button>Send</button></p></form>`);
+<p><button>Send</button></p></form>
+<script>
+var voted;try{voted=JSON.parse(localStorage.getItem('voted')||'[]')}catch(e){voted=[]}
+document.querySelectorAll('.vote').forEach(function(b){if(voted.indexOf(b.dataset.id)>-1)b.classList.add('on');
+b.onclick=function(){if(b.classList.contains('on'))return;b.disabled=true;fetch('/vote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:b.dataset.id})})
+.then(function(r){return r.json()}).then(function(j){if(j.votes!=null)b.querySelector('b').textContent=j.votes;b.classList.add('on');voted.push(b.dataset.id);try{localStorage.setItem('voted',JSON.stringify(voted))}catch(e){}}).catch(function(){}).then(function(){b.disabled=false})}});
+</script>`); };
+
+async function vote(req, env) {
+  let id = ""; try { id = String((await req.json()).id || "").slice(0, 20); } catch (e) {}
+  const i = await env.DATA.get("idea:" + id, "json"); if (!i) return Response.json({ error: "not found" }, { status: 404 });
+  const ip = req.headers.get("cf-connecting-ip") || "x", h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip + id)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
+  if (await env.DATA.get(`vote:${id}:${h}`)) return Response.json({ votes: i.votes, already: true });
+  await env.DATA.put(`vote:${id}:${h}`, "1"); i.votes++; await env.DATA.put("idea:" + id, JSON.stringify(i));
+  return Response.json({ votes: i.votes });
+}
 
 async function feedback(req, env, ctx) {
   const f = await req.formData();
-  if (f.get("website")) return feedbackPage(`<p class="note">Thanks!</p>`);
+  if (f.get("website")) return feedbackPage(env, `<p class="note">Thanks!</p>`);
   const fb = { kind: String(f.get("kind") || "").slice(0, 60), msg: String(f.get("msg") || "").slice(0, 2000),
     name: String(f.get("name") || "").slice(0, 60), email: String(f.get("email") || "").slice(0, 120), at: new Date().toISOString() };
-  if (!fb.msg.trim()) return feedbackPage(`<p class="note">Please add a message.</p>`);
+  if (!fb.msg.trim()) return feedbackPage(env, `<p class="note">Please add a message.</p>`);
   await env.DATA.put(`fb:${fb.at}:${crypto.randomUUID().slice(0, 6)}`, JSON.stringify(fb));
+  if (fb.kind.startsWith("An idea")) await env.DATA.put(`ipending:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify({ text: fb.msg.slice(0, 280), votes: 0, status: "open", at: fb.at }));
   if (env.MAILER && env.FEEDBACK_TO) ctx.waitUntil((async () => {
     try {
       const { EmailMessage } = await import("cloudflare:email");
@@ -449,7 +486,7 @@ async function feedback(req, env, ctx) {
       await env.MAILER.send(new EmailMessage(from, env.FEEDBACK_TO, raw));
     } catch (e) { console.log("feedback email failed", e); }
   })());
-  return feedbackPage(`<p class="note">Thanks${fb.name ? ", " + esc(fb.name) : ""}! It's on its way to us.</p>`);
+  return feedbackPage(env, `<p class="note">Thanks${fb.name ? ", " + esc(fb.name) : ""}! It's on its way to us.${fb.kind.startsWith("An idea") ? " Once it's checked it'll appear in the list for voting." : ""}</p>`);
 }
 
 // ---- Birthday deals (birthday saved on the phone only; offers lodged by businesses, approved in admin) ----
@@ -673,7 +710,8 @@ export default {
     if (p === "/charter") return charter();
     if (p === "/privacy") return privacy();
     if (p === "/birthday") return req.method === "POST" ? lodgeOffer(req, env) : birthdayPage(env);
-    if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage();
+    if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage(env);
+    if (p === "/vote" && req.method === "POST") return vote(req, env);
     if (p === "/school") return schoolPage();
     if (p === "/fridge") return (await member(req, env)) ? fridgePage() : unlockPage();
     if (p === "/unlock" && req.method === "POST") return unlock(req, env);
