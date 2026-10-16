@@ -778,30 +778,46 @@ ${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<p class="mute">School holi
 
 // ---- FuelCheck (NSW Government API; needs free FUEL_KEY + FUEL_SECRET secrets) ----
 const FUELS = { E10: "E10", U91: "Unleaded 91", P95: "Premium 95", P98: "Premium 98", DL: "Diesel" };
+// Quota-safe: API.NSW allows 2,500 calls a month. We pull ALL current NSW prices in one call at most every 2 hours (~360 calls/month),
+// keep only stations within 60 km of Coffs, and answer every visitor (any fuel type, any location) from that cached copy.
+async function fuelToken(env) {
+  let tok = await env.DATA.get("fuel:token");
+  if (!tok) {
+    const t = await (await fetch("https://api.onegov.nsw.gov.au/oauth/client_credential/accesstoken?grant_type=client_credentials", { headers: { authorization: "Basic " + btoa(env.FUEL_KEY + ":" + env.FUEL_SECRET) } })).json();
+    tok = t.access_token; if (!tok) throw new Error("no token"); await env.DATA.put("fuel:token", tok, { expirationTtl: 36000 });
+  }
+  return tok;
+}
+function fuelTs() { const n = new Date(), p = x => String(x).padStart(2, "0"), h = n.getUTCHours() % 12 || 12;
+  return `${p(n.getUTCDate())}/${p(n.getUTCMonth() + 1)}/${n.getUTCFullYear()} ${p(h)}:${p(n.getUTCMinutes())}:${p(n.getUTCSeconds())} ${n.getUTCHours() < 12 ? "AM" : "PM"}`; }
+async function fuelData(env) {
+  const c = await env.DATA.get("fuel:local", "json");
+  if (c && Date.now() - new Date(c.asof) < 2 * 36e5) return c;
+  if (await env.DATA.get("fuel:lock")) return c;                  // another request is already refreshing
+  await env.DATA.put("fuel:lock", "1", { expirationTtl: 120 });
+  try {
+    const tok = await fuelToken(env);
+    const r = await (await fetch("https://api.onegov.nsw.gov.au/FuelPriceCheck/v1/fuel/prices", { headers: { "content-type": "application/json", apikey: env.FUEL_KEY,
+      authorization: "Bearer " + tok, transactionid: crypto.randomUUID(), requesttimestamp: fuelTs() } })).json();
+    const stations = (r.stations || []).map(s => ({ code: String(s.code), name: s.name, brand: s.brand, address: s.address, lat: +s.location?.latitude, lon: +s.location?.longitude }))
+      .filter(s => s.lat && km(HOME, s) <= 60);
+    const codes = new Set(stations.map(s => s.code));
+    const prices = (r.prices || []).filter(p => codes.has(String(p.stationcode))).map(p => ({ code: String(p.stationcode), type: p.fueltype, price: p.price, updated: p.lastupdated }));
+    if (!stations.length) throw new Error("empty");
+    const out = { stations, prices, asof: new Date().toISOString() };
+    await env.DATA.put("fuel:local", JSON.stringify(out));
+    return out;
+  } catch (e) { return c; }
+}
 async function fuelApi(req, env) {
   const u = new URL(req.url), type = FUELS[u.searchParams.get("t")] ? u.searchParams.get("t") : "U91";
-  const lat = Math.round((+u.searchParams.get("lat") || HOME.lat) * 100) / 100, lon = Math.round((+u.searchParams.get("lon") || HOME.lon) * 100) / 100;
   if (!env.FUEL_KEY || !env.FUEL_SECRET) return Response.json({ error: "not_set_up" });
-  const ck = `fuel:${type}:${lat}:${lon}`, cached = await env.DATA.get(ck, "json");
-  if (cached) return Response.json(cached);
-  try {
-    let tok = await env.DATA.get("fuel:token");
-    if (!tok) {
-      const t = await (await fetch("https://api.onegov.nsw.gov.au/oauth/client_credential/accesstoken?grant_type=client_credentials", { headers: { authorization: "Basic " + btoa(env.FUEL_KEY + ":" + env.FUEL_SECRET) } })).json();
-      tok = t.access_token; if (!tok) throw new Error("no token"); await env.DATA.put("fuel:token", tok, { expirationTtl: 36000 });
-    }
-    const now = new Date(), pad = n => String(n).padStart(2, "0"), h = now.getUTCHours() % 12 || 12;
-    const ts = `${pad(now.getUTCDate())}/${pad(now.getUTCMonth() + 1)}/${now.getUTCFullYear()} ${pad(h)}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())} ${now.getUTCHours() < 12 ? "AM" : "PM"}`;
-    const r = await (await fetch("https://api.onegov.nsw.gov.au/FuelPriceCheck/v2/fuel/prices/nearby", { method: "POST",
-      headers: { "content-type": "application/json", apikey: env.FUEL_KEY, authorization: "Bearer " + tok, transactionid: crypto.randomUUID(), requesttimestamp: ts },
-      body: JSON.stringify({ fueltype: type, latitude: String(lat), longitude: String(lon), radius: "15", sortby: "Price", sortascending: "true" }) })).json();
-    const st = Object.fromEntries((r.stations || []).map(s => [s.code, s]));
-    const list = (r.prices || []).filter(p => st[p.stationcode]).slice(0, 6).map(p => { const s = st[p.stationcode];
-      return { name: s.name, brand: s.brand, address: s.address, km: s.location?.distance, price: p.price, updated: p.lastupdated }; });
-    const out = { type, label: FUELS[type], list, asof: now.toISOString() };
-    await env.DATA.put(ck, JSON.stringify(out), { expirationTtl: 1800 });
-    return Response.json(out);
-  } catch (e) { return Response.json({ error: "unreachable" }); }
+  const d = await fuelData(env); if (!d) return Response.json({ error: "unreachable" });
+  const here = { lat: +u.searchParams.get("lat") || HOME.lat, lon: +u.searchParams.get("lon") || HOME.lon };
+  const st = Object.fromEntries(d.stations.map(s => [s.code, s]));
+  const list = d.prices.filter(p => p.type === type && st[p.code]).map(p => { const s = st[p.code]; return { name: s.name, brand: s.brand, address: s.address, km: km(here, s), price: p.price, updated: p.updated }; })
+    .filter(x => x.km <= 15).sort((a, b) => a.price - b.price || a.km - b.km).slice(0, 6);
+  return Response.json({ type, label: FUELS[type], list, asof: d.asof });
 }
 const fuelBlock = () => `<section id="fuel"><h2>Fuel</h2>
 <div class="row"><select id="ft" aria-label="Fuel type">${Object.entries(FUELS).map(([k, l]) => `<option value="${k}"${k === "U91" ? " selected" : ""}>${l}</option>`).join("")}</select>
