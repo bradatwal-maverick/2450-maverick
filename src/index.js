@@ -977,8 +977,8 @@ const srcLine = (name, url, iso, note = "") => `<p class="src">Info from <a href
 const dec = x => String(x || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(n)).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
   .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#039;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
 const tag = (x, t) => dec((x.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)) || [])[1]);
-const rss = xml => [...xml.matchAll(/<item[\s>][\s\S]*?<\/item>/g)].map(m => ({ title: tag(m[0], "title"), link: tag(m[0], "link"), date: tag(m[0], "pubDate"),
-  desc: tag(m[0], "description").replace(/<[^>]+>/g, " ").slice(0, 400), cats: [...m[0].matchAll(/<category[^>]*>([\s\S]*?)<\/category>/g)].map(c => dec(c[1])).join(" | ") }));
+const rss = xml0 => { const xml = String(xml0).replace(/<content:encoded>[\s\S]*?<\/content:encoded>/g, "").slice(0, 120000); return [...xml.matchAll(/<item[\s>][\s\S]*?<\/item>/g)].map(m => ({ title: tag(m[0], "title"), link: tag(m[0], "link"), date: tag(m[0], "pubDate"),
+  desc: tag(m[0], "description").replace(/<[^>]+>/g, " ").slice(0, 400), cats: [...m[0].matchAll(/<category[^>]*>([\s\S]*?)<\/category>/g)].map(c => dec(c[1])).join(" | ") })); };
 const km = (a, b) => { const r = Math.PI / 180, d = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(d)); };
 const firstPoint = g => !g ? null : g.type === "Point" ? { lon: g.coordinates[0], lat: g.coordinates[1] } : (g.geometries || []).map(firstPoint).find(Boolean) || null;
 
@@ -1012,7 +1012,7 @@ async function refreshSource(env, key) {
 async function getSource(env, ctx, key) {
   const v = await env.DATA.get("src:" + key, "json");
   if (!v) return refreshSource(env, key);
-  if (Date.now() - new Date(v.asof) > 45 * 6e4 && ctx) ctx.waitUntil(refreshSource(env, key));
+  // The 30-minute schedule keeps sources fresh; page views never do the heavy lifting.
   return v;
 }
 async function liveBlocks(env, ctx, at = HOME) {
