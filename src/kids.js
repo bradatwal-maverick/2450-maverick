@@ -2,7 +2,7 @@
 // Nothing is sent or stored on the server: no accounts, no chat, no ads, no names or ages collected.
 // The grown-up's OK and game progress live only in this browser (localStorage).
 
-export const KID_CSS = `.kz{max-width:640px}.kz .big{font-size:1.1rem}.kz .card2{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+export const KID_CSS = `.kpromise{margin:14px 0;padding:12px 14px;border:2px dashed currentColor;border-radius:14px;line-height:1.5}.kpromise ul{margin:6px 0 8px;padding-left:4px;list-style:none}.kz{max-width:640px}.kz .big{font-size:1.1rem}.kz .card2{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
 .kz .row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.kz .row button{border-radius:12px;padding:10px 14px}
 .kz .alt{background:var(--soft);color:var(--fg)}.kz .promise li{margin:6px 0}.kz .bubble{background:var(--soft);border-radius:16px 16px 16px 4px;padding:12px 14px;margin:10px 0;max-width:90%}
 .kz .from{font-size:.8rem;color:var(--mute)}.kz .fb{border-left:4px solid var(--gold);padding:8px 12px;margin:10px 0}.kz .ok{border-color:#2e9d5b}.kz .no{border-color:#d0453a}
@@ -34,6 +34,7 @@ export const kidsHub = back => shell(back, "🧒 Kid Zone", "Fun games for kids 
 `<a class="card" href="/kids/safe">🛡️ <b>Safe or Sus?</b> Someone sends you a message. What do you do? →</a>
 <a class="card" href="/kids/robot">🤖 <b>Robot Builder</b> Tell the robot what to build in as few goes as you can. Learn how AI thinks →</a>
 <a class="card" href="/kids/pet">🐾 <b>Pet Pal</b> Build your dream pet, then feed it, wash it, walk it and get it to bed on time →</a>
+<div class="kpromise"><b>Every game in the Kid Zone must:</b><ul><li>🛡️ teach online safety</li><li>🚀 set kids up for a digital future</li><li>🎉 be fun</li></ul>The grown-ups check every game is safe and parent-friendly. Then our Quality Control Officer (a real kid) has to give it the <b>⭐ Fun Guarantee</b>. No guarantee, no game.</div>
 <p class="mute2">More games are on the way. Grown-ups can suggest one on the <a href="/feedback">ideas page</a>.</p>`, `kzGate(function(){})`);
 
 // Safe or Sus? Ten everyday message situations. Pattern-level, age-appropriate.
