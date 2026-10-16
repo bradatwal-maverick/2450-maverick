@@ -43,7 +43,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
-.hdr{display:flex;gap:8px;align-items:center}.signin{font-weight:600}.gbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1f1f1f;text-decoration:none;font-weight:600}.away{font-size:.8rem;color:var(--mute);background:var(--soft);border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap}.towns{margin:0 0 6px;font-size:.9rem}.towns select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-left:4px}.mast{font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:1.5rem;text-align:center;margin:4px 0 0;letter-spacing:.3px;border-top:3px double var(--fg);border-bottom:1px solid var(--fg);padding:6px 0}.edition{text-align:center;font-size:.75rem;color:var(--mute);margin:4px 0 10px;text-transform:uppercase;letter-spacing:1px}.cw{border-collapse:collapse;margin:10px auto}.cw td{width:min(34px,7.6vw);height:min(34px,7.6vw);border:1px solid var(--fg);position:relative;padding:0}.cw td.bk{border:0;background:transparent}.cw input{width:100%;height:100%;border:0;border-radius:0;text-align:center;font-size:1.1rem;text-transform:uppercase;padding:0;background:var(--bg)}.cw input.bad{color:#d93025}.cn{position:absolute;top:1px;left:2px;font-size:.55rem;color:var(--mute)}.cwl>div{flex:1;min-width:220px}.cwl ol{padding-left:0;list-style:none}.ghost{background:var(--soft);color:var(--fg)}.snap span{display:inline-block;margin:8px 0 4px;background:var(--accent);color:var(--bg);border-radius:20px;padding:10px 18px;cursor:pointer;font-weight:bold}.rally{background:#fbf5e6;border:1px dashed #e6d6ad;border-radius:6px;padding:10px 14px;margin:28px 0 18px;font-size:.8rem;color:var(--mute)}.rally p{margin:5px 0}.rally b{color:var(--mute)}.rallyh{margin:0 0 2px;font-size:.85rem;font-weight:600;color:var(--mute)}.rally input,.rally button{font-size:.85rem}.bar{display:block;height:5px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--mute);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:2px 0 8px;font-size:.8rem}.rallystrip{display:block;text-decoration:none;font-size:.72rem;margin:0 0 8px;opacity:.8}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}.rally{background:#211c12!important;border-color:#4a3f26!important}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
+.hdr{display:flex;gap:8px;align-items:center}.signin{font-weight:600}.gbtn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1f1f1f;text-decoration:none;font-weight:600}.away{font-size:.8rem;color:var(--mute);background:var(--soft);border-radius:99px;padding:1px 8px;margin-left:4px;white-space:nowrap}.towns{margin:0 0 6px;font-size:.9rem}.towns select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);margin-left:4px}.mast{font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:1.5rem;text-align:center;margin:4px 0 0;letter-spacing:.3px;border-top:3px double var(--fg);border-bottom:1px solid var(--fg);padding:6px 0}.edition{text-align:center;font-size:.75rem;color:var(--mute);margin:4px 0 10px;text-transform:uppercase;letter-spacing:1px}.cw{border-collapse:collapse;margin:10px auto}.cw td{width:min(34px,7.6vw);height:min(34px,7.6vw);border:1px solid var(--fg);position:relative;padding:0}.cw td.bk{border:0;background:transparent}.cw input{width:100%;height:100%;border:0;border-radius:0;text-align:center;font-size:1.1rem;text-transform:uppercase;padding:0;background:var(--bg)}.cw input.bad{color:#d93025}.cn{position:absolute;top:1px;left:2px;font-size:.55rem;color:var(--mute)}.cwl>div{flex:1;min-width:220px}.cwl ol{padding-left:0;list-style:none}.ghost{background:var(--soft);color:var(--fg)}.snap span{display:inline-block;margin:8px 0 4px;background:var(--accent);color:var(--bg);border-radius:20px;padding:10px 18px;cursor:pointer;font-weight:bold}.ball{display:inline-block;min-width:28px;height:28px;line-height:28px;border-radius:50%;background:var(--gold);color:#12233f;text-align:center;font-weight:bold;font-size:.85rem;margin:3px 2px 0 0}.ball.alt{background:var(--soft);color:var(--fg)}.lotto{list-style:none;padding:0}.lotto li{margin:10px 0}.rally{background:#fbf5e6;border:1px dashed #e6d6ad;border-radius:6px;padding:10px 14px;margin:28px 0 18px;font-size:.8rem;color:var(--mute)}.rally p{margin:5px 0}.rally b{color:var(--mute)}.rallyh{margin:0 0 2px;font-size:.85rem;font-weight:600;color:var(--mute)}.rally input,.rally button{font-size:.85rem}.bar{display:block;height:5px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--mute);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:2px 0 8px;font-size:.8rem}.rallystrip{display:block;text-decoration:none;font-size:.72rem;margin:0 0 8px;opacity:.8}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}.rally{background:#211c12!important;border-color:#4a3f26!important}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
 
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
@@ -218,10 +218,16 @@ ${await fieldsBlock(env, ctx)}
 <p class="mute">Or see everything coming and going at <a href="${R.airport.url}" rel="noopener">${esc(R.airport.name)}</a> (live board on FlightAware).</p></section>
 ${live.holidays}
 <section id="puzzles"><h2>🧩 Crossword</h2><p>Today&rsquo;s ${esc(R.short)} crossword: eight words, a few minutes, no sign-up. <a href="/crossword"><b>Play today&rsquo;s →</b></a></p></section>
-<section id="lotto"><h2>🎱 Lotto results</h2><details><summary>Tap to show</summary><p>Latest draws for Saturday Lotto, Oz Lotto, Powerball, Set for Life and the rest, straight from the official source: <a href="https://www.thelott.com/results" rel="noopener">The Lott results</a>.</p>
-<p class="mute">Play for fun. If it&rsquo;s stopped being fun, call Gambling Help on <a href="tel:1800858858">1800 858 858</a> (free, 24/7) or visit <a href="https://www.gambleaware.nsw.gov.au" rel="noopener">GambleAware</a>.</p></details></section>
+${await lottoBlock(env)}
 <section id="surfcams"><h2>Surf cams</h2><p class="mute">Coastalwatch charges for its live surf cam feed, so we can&rsquo;t show it here. Nobody pays to be on this site, and we don&rsquo;t pay to show other people&rsquo;s paid content either. Have a look on their site: <a href="https://www.coastalwatch.com" rel="noopener">Coastalwatch</a>.</p></section>
-${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}</div>
+<section id="beaches"><h2>🏖️ Beach &amp; surf</h2><div class="tiles" id="bch">
+<div class="tile"><span class="ico">🌡️</span><b id="b-sst">–</b><small>Water temp</small></div><div class="tile"><span class="ico">🌊</span><b id="b-wave">–</b><small id="b-wave2">Waves</small></div>
+<div class="tile"><span class="ico">💨</span><b id="b-wind">–</b><small id="b-wind2">Wind</small></div><div class="tile"><span class="ico">☀️</span><b id="b-uv">–</b><small id="b-uv2">UV today</small></div></div>
+<p class="mute">Swim between the red and yellow flags. Patrol times and beach-by-beach info: <a href="https://beachsafe.org.au" rel="noopener">Beachsafe</a>.</p>
+<p class="src">Info from <a href="https://open-meteo.com" rel="noopener">Open-Meteo</a> (modelled, updated hourly). Not for navigation.</p>
+<script>(function(){var t=${JSON.stringify({ lat: t.lat, lon: t.lon, mlat: t.mlat, mlon: t.mlon })},$=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v},D=['N','NE','E','SE','S','SW','W','NW'],dir=function(d){return D[Math.round(d/45)%8]};
+fetch('https://marine-api.open-meteo.com/v1/marine?latitude='+t.mlat+'&longitude='+t.mlon+'&current=wave_height,wave_direction,wave_period,sea_surface_temperature&timezone=Australia%2FSydney').then(function(r){return r.json()}).then(function(j){var c=j.current||{};if(c.sea_surface_temperature!=null)$('b-sst',Math.round(c.sea_surface_temperature)+'°C');if(c.wave_height!=null){$('b-wave',c.wave_height.toFixed(1)+' m');$('b-wave2',dir(c.wave_direction)+' · '+Math.round(c.wave_period)+' s')}}).catch(function(){});
+fetch('https://api.open-meteo.com/v1/forecast?latitude='+t.lat+'&longitude='+t.lon+'&current=wind_speed_10m,wind_direction_10m&daily=uv_index_max&timezone=Australia%2FSydney&forecast_days=1').then(function(r){return r.json()}).then(function(j){var c=j.current||{},u=(j.daily||{}).uv_index_max;if(c.wind_speed_10m!=null){$('b-wind',Math.round(c.wind_speed_10m)+' km/h');$('b-wind2',dir(c.wind_direction_10m)+' wind')}if(u&&u[0]!=null){var v=Math.round(u[0]);$('b-uv',v);$('b-uv2',v>=11?'Extreme UV':v>=8?'Very high UV':v>=6?'High UV':v>=3?'Moderate UV':'Low UV')}}).catch(function(){});})();</script></section></div>
 <p><a class="card" href="/me">🎤 <b>Make this page yours</b> Just tell Mav what you want to see →</a></p>
 ${PUSH_JS()}${rally(nLocals, pc)}
 <script>
@@ -814,20 +820,77 @@ b1.onclick=function(){set(1)};b2.onclick=function(){set(2)};q.oninput=go;
 // ---- In memory: local death notices, sourced from funeral homes (approved in admin; shown for 60 days) ----
 const ripItem = n => `<li><b>${esc(n.name)}</b>${n.age ? `, ${esc(n.age)}` : ""}<br><span class="mute">Passed ${esc(fmtDate(n.date))}${n.service ? ` · ${esc(n.service)}` : ""}</span><br>
 <span class="src">Info from ${n.link ? `<a href="${esc(n.link)}" rel="nofollow noopener">${esc(n.home)}</a>` : esc(n.home)}</span></li>`;
+// Funeral directors publish notices on their own sites. We read those pages a few times a day, pull out
+// the names and dates with Cloudflare's AI, and keep only names that appear word-for-word on the page.
+// Lotto: latest draw results from The Lott, refreshed every 3 hours. If it can't be reached, the section links out.
+const LOTTO = { TattsLotto: "Saturday Lotto", OzLotto: "Oz Lotto", Powerball: "Powerball", MonWedLotto: "Mon & Wed Lotto", SetForLife744: "Set for Life" };
+async function refreshLotto(env) {
+  const old = await env.DATA.get("lotto", "json");
+  if (old && Date.now() - new Date(old.asof) < 3 * 3600e3) return;
+  try {
+    const r = await fetch("https://data.api.thelott.com/sales/vmax/web/data/lotto/latestresults", { method: "POST", headers: { ...UA, "content-type": "application/json" },
+      body: JSON.stringify({ CompanyId: "NSWLotteries", MaxDrawCountPerProduct: 1, OptionalProductFilter: Object.keys(LOTTO) }) });
+    const j = await r.json(), draws = (j.DrawResults || []).filter(d => LOTTO[d.ProductId]).map(d => ({ game: LOTTO[d.ProductId], date: String(d.DrawDate || "").slice(0, 10), no: d.DrawNumber,
+      main: d.PrimaryNumbers || [], extra: d.SecondaryNumbers || [], extraName: d.ProductId === "Powerball" ? "Powerball" : "Supps" }));
+    if (draws.length) await env.DATA.put("lotto", JSON.stringify({ asof: new Date().toISOString(), draws }));
+  } catch (e) {}
+}
+async function lottoBlock(env) {
+  const l = await env.DATA.get("lotto", "json");
+  const ball = n => `<span class="ball">${esc(String(n))}</span>`;
+  const body = l?.draws?.length ? `<ul class="lotto">${l.draws.map(d => `<li><b>${esc(d.game)}</b> <span class="mute">draw ${esc(String(d.no))}, ${esc(fmtDate(d.date))}</span><br>${d.main.map(ball).join("")}${d.extra.length ? ` <span class="mute">${d.extraName}</span> ${d.extra.map(n => `<span class="ball alt">${esc(String(n))}</span>`).join("")}` : ""}</li>`).join("")}</ul>
+<p class="src">Info from <a href="https://www.thelott.com/results" rel="noopener">The Lott</a>. Updated ${esc(asOf(l.asof))}. Always check your ticket with The Lott.</p>`
+    : `<p>Latest draws for Saturday Lotto, Oz Lotto, Powerball and Set for Life: <a href="https://www.thelott.com/results" rel="noopener">The Lott results</a>.</p>`;
+  return `<section id="lotto"><h2>🎱 Lotto results</h2><details><summary>Tap to show this week&rsquo;s numbers</summary>${body}
+<p class="mute">Play for fun. If it&rsquo;s stopped being fun, call Gambling Help on <a href="tel:1800858858">1800 858 858</a> (free, 24/7) or visit <a href="https://www.gambleaware.nsw.gov.au" rel="noopener">GambleAware</a>.</p></details></section>`;
+}
+async function refreshObits(env) {
+  const old = await env.DATA.get("obits", "json");
+  if (old && Date.now() - new Date(old.asof) < 6 * 3600e3) return;
+  const items = [];
+  for (const f of R.funerals || []) {
+    try {
+      const html = await (await fetch(f.url, { headers: UA })).text();
+      const txt = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<nav[\s\S]*?<\/nav>|<footer[\s\S]*?<\/footer>/g, " ").replace(/<[^>]+>/g, " ");
+      const txt2 = dec(txt.replace(/&nbsp;/g, " ").replace(/&rsquo;|&lsquo;/g, "'").replace(/&ldquo;|&rdquo;/g, '"')).replace(/\s+/g, " ").slice(0, 9000);
+      const today = todayISO();
+      const ask = { messages: [
+        { role: "system", content: "You extract funeral notices from web page text. Output ONLY JSON." },
+        { role: "user", content: `Today is ${today}. From this funeral director's page, list the people named in notices, newest first, at most 12. For each give: "name" (exactly as written on the page), "passed" (date of death as YYYY-MM-DD, or null), "service" (date of the funeral or service as YYYY-MM-DD, or null), "where" (service place in a few words, or null). Never invent people or dates. Reply as {"notices":[...]}.\n\nPAGE:\n${txt2}` }], max_tokens: 1200 };
+      let out; try { out = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { out = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", ask); }
+      const raw = typeof out?.response === "string" ? out.response : JSON.stringify(out?.response || {});
+      const list = (JSON.parse(raw.match(/\{[\s\S]*\}/)[0]).notices || []);
+      const isDate = d => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : null;
+      for (const n of list) {
+        const name = String(n.name || "").trim();
+        if (!name || name.length > 80 || !txt2.includes(name)) continue; // only names really on the page
+        items.push({ name, passed: isDate(n.passed), service: isDate(n.service), where: n.where ? String(n.where).slice(0, 80) : null, home: f.name, link: f.url });
+      }
+    } catch (e) {}
+  }
+  if (items.length || !old) await env.DATA.put("obits", JSON.stringify({ asof: new Date().toISOString(), items }));
+}
+async function obitsWithin(env, days) {
+  const o = await env.DATA.get("obits", "json"), t = todayISO();
+  const lo = new Date(Date.now() + 11 * 3600e3 - days * 864e5).toISOString().slice(0, 10), hi = new Date(Date.now() + 11 * 3600e3 + 7 * 864e5).toISOString().slice(0, 10);
+  const manual = [];
+  for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { const n = await env.DATA.get(name, "json"); if (n) manual.push({ name: n.name, passed: n.date, service: null, where: n.service || null, home: n.home, link: n.link }); }
+  const seen = new Set();
+  return [...manual, ...(o?.items || [])].filter(n => (n.passed && n.passed >= lo && n.passed <= t) || (n.service && n.service >= lo && n.service <= hi))
+    .filter(n => !seen.has(n.name.toLowerCase()) && seen.add(n.name.toLowerCase()))
+    .sort((a, b) => (b.passed || b.service).localeCompare(a.passed || a.service));
+}
+const obitItem = n => `<li><b>${esc(n.name)}</b><br><span class="mute">${n.passed ? `Passed ${esc(fmtDate(n.passed))}` : ""}${n.passed && n.service ? " · " : ""}${n.service ? `Service ${esc(fmtDate(n.service))}${n.where ? `, ${esc(n.where)}` : ""}` : ""}</span><br><span class="src">Notice from <a href="${esc(n.link)}" rel="noopener">${esc(n.home)}</a></span></li>`;
 async function memoryBlock(env) {
-  const since = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10), list = [];
-  for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { if (name.split(":")[1] < since) continue; const n = await env.DATA.get(name, "json"); if (n) list.push(n); }
-  list.sort((a, b) => b.date.localeCompare(a.date));
-  const notices = `<a href="https://www.google.com/search?q=${encodeURIComponent("funeral notices " + R.place)}" rel="noopener">funeral notices for ${esc(R.place)}</a>`;
-  return `<section id="memory"><h2>🕊️ In memory</h2><p class="mute">Remembering locals who have recently passed. Our thoughts are with their families and friends.</p>${list.length ? `<ul>${list.slice(0, 5).map(ripItem).join("")}</ul><p><a href="/rip">More notices</a></p>` : ""}<p class="mute">For service details, see the latest ${notices} from local funeral directors.</p></section>`;
+  const list = await obitsWithin(env, 5);
+  return `<section id="memory"><h2>🕊️ In memory</h2><p class="mute">Remembering locals who have recently passed. Our thoughts are with their families and friends.</p>
+${list.length ? `<ul>${list.slice(0, 8).map(obitItem).join("")}</ul>` : `<p class="mute">No new notices in the last five days.</p>`}<p><a href="/rip">All recent notices →</a></p></section>`;
 }
 async function ripPage(env, msg = "") {
-  const since = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10), list = [];
-  for (const { name } of (await env.DATA.list({ prefix: "rip:" })).keys) { if (name.split(":")[1] < since) continue; const n = await env.DATA.get(name, "json"); if (n) list.push(n); }
-  list.sort((a, b) => b.date.localeCompare(a.date));
+  const list = await obitsWithin(env, 60);
   return page("In memory", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🕊️ In memory</h1>
 <p>Remembering locals who have passed away in the last two months. Rest in peace.</p>${msg}
-<ul>${list.map(ripItem).join("") || '<li class="mute">No notices listed yet.</li>'}</ul>
+<ul>${list.map(obitItem).join("") || '<li class="mute">No notices in the last two months.</li>'}</ul>
 <p class="mute">Every notice is sourced from the funeral home and links to their official notice for full service details.</p>
 <p class="mute">For service details, see the latest <a href="https://www.google.com/search?q=${encodeURIComponent("funeral notices " + R.place)}" rel="noopener">funeral notices for ${esc(R.place)}</a> from local funeral directors.</p>
 <details><summary class="mute">For funeral directors</summary><p class="mute">If a family would like a notice shared here, you can add it below. We confirm every notice with you before it appears.</p><form method="post" action="/rip"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1351,7 +1414,7 @@ export default {
   async scheduled(evt, env, ctx) {
     initRegion(env);
     if (evt.cron === "*/5 * * * *") return ctx.waitUntil(pushBatch(env));
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(k => refreshSource(env, k)), checkFields(env), checkWatched(env)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(k => refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
