@@ -180,7 +180,7 @@ var IDX=[["weather temperature rain wind forecast","Weather today","Today's weat
 ["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
 ["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
 ["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
-["feedback idea suggestion contact brad","Make 2450 better","Send Brad your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
+["feedback idea suggestion contact","Make 2450 better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
 var qs=document.getElementById('qs'),qr=document.getElementById('qs-res'),qv=document.getElementById('qs-saved');
 function esc2(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function saved(){try{return JSON.parse(localStorage.getItem('saved_q')||'[]')}catch(e){return[]}}
@@ -189,7 +189,7 @@ qv.onclick=function(e){var x=e.target.dataset.x;if(x){try{localStorage.setItem('
 var l=e.target.closest('.sq');if(l){qs.value=l.firstChild.textContent.trim();find()}};
 function find(){var v=qs.value.toLowerCase().trim();if(v.length<2){qr.innerHTML='';return}var w=v.split(/\s+/),hits=IDX.map(function(r){var sc=w.filter(function(x){return (r[0]+' '+r[1].toLowerCase()).indexOf(x)>-1}).length;return[sc,r]}).filter(function(x){return x[0]}).sort(function(a,b){return b[0]-a[0]}).slice(0,4).map(function(x){return x[1]});
 document.querySelectorAll('#events li').forEach(function(li){if(hits.length<6&&li.textContent.toLowerCase().indexOf(v)>-1)hits.push(['',li.querySelector('b')?li.textContent.slice(0,60):'Event',li.textContent.slice(0,140),'#events'])});
-qr.innerHTML=(hits.length?hits.map(function(r){return '<a class="card qhit" href="'+r[3]+'"><b>'+esc2(r[1])+'</b><br><span class="mute">'+esc2(r[2])+'</span></a>'}).join(''):'<p class="mute">Nothing yet. <a href="/feedback">Tell Brad what you were looking for</a>.</p>')
+qr.innerHTML=(hits.length?hits.map(function(r){return '<a class="card qhit" href="'+r[3]+'"><b>'+esc2(r[1])+'</b><br><span class="mute">'+esc2(r[2])+'</span></a>'}).join(''):'<p class="mute">Nothing yet. <a href="/feedback">Tell us what you were looking for</a>.</p>')
 +'<p class="mute"><a href="#" id="qs-save">☆ Save this search</a> · ⏰ Schedule it: coming soon in your weekly email</p>';
 document.getElementById('qs-save').onclick=function(e){e.preventDefault();var a=saved();if(a.indexOf(v)<0){a.unshift(v);a=a.slice(0,8)}try{localStorage.setItem('saved_q',JSON.stringify(a))}catch(_){}drawSaved();this.textContent='★ Saved'}}
 qr.onclick=function(e){var a=e.target.closest('a.qhit');if(a&&a.getAttribute('href').charAt(0)=='#'){var t=document.querySelector(a.getAttribute('href'));if(t){t.hidden=false;t.querySelectorAll('details').forEach(function(d){d.open=true})}}};
@@ -309,7 +309,7 @@ async function admin(req, env) {
 const about = () => page("Nobody pays to be here", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Nobody pays to be here.</h1>
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
 <p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no paid listings. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
-<p>Big tech divided us. 2450 Maverick brings communities back together.</p><p><i>Born and built in 2450, raised by the world.</i><br>Brad, <a href="https://maverickdigital.com.ai">Maverick Digital</a></p>
+<p>Big tech divided us. 2450 Maverick brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>Born and built in 2450, raised by the world.</i></p>
 <h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`);
 
 const ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">2450</text></svg>`;
@@ -394,7 +394,7 @@ const SCHOOLS = ["Coffs Harbour Public School","Narranga Public School","Boambee
 const schoolPage = () => { const t = TOWNS["2450"]; return page("School run report", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p>
 <h1>🚸 School run report</h1><p>Pick your school once and this page becomes your morning and afternoon check before the school run.</p>
 <label>Your school</label><select id="sch" style="width:100%"><option value="">Choose…</option>${SCHOOLS.map(x => `<option>${esc(x)}</option>`).join("")}</select>
-<p class="mute">Saved on your phone only. We never ask for or store anything about your kids.</p>
+<p class="mute">Saved on your phone only.</p>
 <div id="rep" hidden>
 <div class="tiles"><div class="tile"><span class="ico">🌅</span><b id="am">–</b><small>Drop-off weather</small></div>
 <div class="tile"><span class="ico">🏫</span><b id="pm">–</b><small>Pick-up weather</small></div>
@@ -424,12 +424,12 @@ sel.onchange=show;show();
 
 // ---- Feedback: saved, then emailed to Brad ----
 const feedbackPage = (msg = "") => page("Make 2450 better", `<h1>💬 Make 2450 better</h1>
-<p>This site is for locals, so tell me what would make it more useful. Every message comes straight to me.<br><i>Brad</i></p>${msg}
+<p>This site is for locals, so tell us what would make it more useful. Every message is read by a real person.</p>${msg}
 <form method="post" action="/feedback"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>What's it about?</label><select name="kind" style="width:100%"><option>An idea for the site</option><option>Something's wrong or out of date</option><option>Add my club, group or event source</option><option>Just saying g'day</option></select>
 <label>Your message *</label><textarea name="msg" rows="5" maxlength="2000" required></textarea>
 <div class="row"><input name="name" placeholder="Name (optional)" maxlength="60"><input type="email" name="email" placeholder="Email if you'd like a reply" maxlength="120"></div>
-<p><button>Send to Brad</button></p></form>`);
+<p><button>Send</button></p></form>`);
 
 async function feedback(req, env, ctx) {
   const f = await req.formData();
@@ -449,7 +449,7 @@ async function feedback(req, env, ctx) {
       await env.MAILER.send(new EmailMessage(from, env.FEEDBACK_TO, raw));
     } catch (e) { console.log("feedback email failed", e); }
   })());
-  return feedbackPage(`<p class="note">Thanks${fb.name ? ", " + esc(fb.name) : ""}! It's on its way to me.</p>`);
+  return feedbackPage(`<p class="note">Thanks${fb.name ? ", " + esc(fb.name) : ""}! It's on its way to us.</p>`);
 }
 
 // ---- Birthday deals (birthday saved on the phone only; offers lodged by businesses, approved in admin) ----
@@ -509,7 +509,7 @@ const charter = () => page("Our charter", `<p class="mute"><a href="/">2450 Mave
 <h2>8. Fair play</h2><p>Please don't misuse the site, scrape it in bulk, try to break it or post on someone else's behalf without permission.</p>
 <h2>9. The legal bit</h2><p>The site is provided free and as is. To the extent the law allows, we're not liable for loss from using it. Nothing here limits your rights under the Australian Consumer Law. These terms are governed by the laws of New South Wales.</p>
 <h2>10. Changes</h2><p>If we change this charter, we'll update the date at the top. Rule 1 won't change.</p>
-<p>Questions? <a href="/feedback">Talk to me</a>. <i>Brad, Maverick Digital</i></p>`);
+<p>Questions? <a href="/feedback">Talk to us</a>. <i>Maverick Digital</i></p>`);
 
 const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 Maverick</a></p><h1>Privacy policy</h1>
 <p class="mute">Plain English. Last updated ${UPDATED}.</p>
@@ -520,7 +520,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 M
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
 <li><b>Feedback:</b> your message, and your name and email only if you add them.</li>
 <li><b>Fridge login:</b> one cookie that keeps the fridge tool unlocked on your phone for up to a year.</li></ul>
-<p>We don't ask for, and don't want, anything about your kids.</p>
+<p>We don't ask for anything about your family or personal life beyond the basic contact details needed to make the site work.</p>
 <h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details.</p>
 <h2>Who else is involved</h2><ul>
 <li><b>Cloudflare</b> hosts the site, stores our data and sends our emails. Like any website host, it processes basic visit data such as your internet address.</li>
@@ -530,7 +530,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">2450 M
 <li>Unsubscribe from any email at any time.</li>
 <li>Ask what we hold about you, ask us to fix it, or ask us to delete it, through the <a href="/feedback">feedback form</a>. We'll sort it within 30 days.</li>
 <li>Email sign-ups are for people aged 16 and over.</li></ul>
-<h2>Keeping it safe</h2><p>Data is stored on Cloudflare's secure systems and only Brad can access the admin area. If something ever goes wrong with your data, we'll tell you.</p>
+<h2>Keeping it safe</h2><p>Data is stored on Cloudflare's secure systems and only Maverick Digital can access the admin area. If something ever goes wrong with your data, we'll tell you.</p>
 <h2>Not happy?</h2><p>Tell us first through the <a href="/feedback">feedback form</a>. You can also contact the <a href="https://www.oaic.gov.au" rel="noopener">Office of the Australian Information Commissioner</a>.</p>`);
 
 // ---- Gen Alpha interpreter, hosted by Jimmy Joel (both directions; clean terms only) ----
