@@ -37,7 +37,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
-.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
+.rally{border:2px solid var(--accent);border-radius:12px;padding:14px;margin:18px 0}.bar{display:block;height:14px;border-radius:99px;background:rgba(128,128,128,.2);overflow:hidden}.bar>span{display:block;height:100%;background:var(--gold);border-radius:99px}.bar.sm{height:6px;margin-top:6px}.barlab{margin:6px 0 12px}.rallystrip{display:block;text-decoration:none;color:inherit;font-size:.9rem;margin:4px 0 12px}.note{border:1px solid var(--accent);border-radius:8px;padding:10px}details.pins{margin:8px 0}#know details{margin:6px 0}.src{font-size:.75rem;color:var(--mute);margin:2px 0 8px}.src.warn{color:#9a5b00}@media(prefers-color-scheme:dark){.src.warn{color:#f0b35a}}#know summary{cursor:pointer;padding:6px 0}details.pins label{display:inline-block;margin:4px 12px 0 0}.pins label{display:inline;margin-right:12px;font-size:.9rem}`;
 
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
@@ -133,9 +133,11 @@ async function town(pc, env, ctx, isRoot = false) {
     || `<p>Nothing listed yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`;
 
   const cc = clockChange(), ann = await annBanner(env), live = await liveBlocks(env, ctx, { lat: t.lat, lon: t.lon });
+  const nLocals = await localsCount(env);
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
   return page(`${pc} ${t.name} — what's on`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='2450')location.replace('/'+sp)}catch(e){}</script>` : ""}
 <p class="mute towns">Town: ${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<b>${esc(k)} ${esc(v.name)}</b>` : `<a href="/${esc(k)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join(" · ")} · <a href="/towns">Other postcode</a></p><h1>${esc(t.name)} ${esc(pc)}</h1>
+${rallyStrip(nLocals)}
 <div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
 ${ann}<p class="mute"><span id="date"></span> · <a href="#" class="useloc">📍 Use my location</a> · <a href="/me" class="openmav">💬 Make this page yours</a></p>
@@ -196,7 +198,7 @@ ${live.holidays}
 ${soon("surfcams", "Surf cams", "Check the waves live before you head down.", "https://www.coastalwatch.com", "Coastalwatch")}
 ${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}</div>
 <p><a class="card" href="/me">🎤 <b>Make this page yours</b> Just tell Mav what you want to see →</a></p>
-${PUSH_JS}<h2>This week in ${esc(pc)}</h2><p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
+${PUSH_JS}${rally(nLocals, pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
 var IDX=[["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
@@ -269,6 +271,16 @@ document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return
 </script>`, pc);
 }
 
+const LOCALS_GOAL = 15000;
+const localsCount = async env => (await env.DATA.list({ prefix: "sub:" })).keys.length + (await env.DATA.list({ prefix: "psub:" })).keys.length;
+const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100); return `<section id="join" class="rally"><h2>Help a brother out 🙏</h2>
+<p>This brother's helping you, for free, forever. Now help this brother out: <b>just subscribe.</b></p>
+<p>Once 2450 reaches <b>${LOCALS_GOAL.toLocaleString("en-AU")} locals</b>, about as many as a local weekly paper, a few local ads can keep the lights on. Nobody ever pays to be listed. Every sign-up gets us closer.</p>
+<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${LOCALS_GOAL}" aria-valuenow="${n}" aria-label="Locals signed up"><span style="width:${Math.max(pct, 1.5).toFixed(1)}%"></span></div>
+<p class="barlab"><b>${n.toLocaleString("en-AU")}</b> of ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${pct < 1 && n > 0 ? "under 1" : Math.floor(pct)}% there${n < 50 ? ". Be one of the first!" : ". Come on, Coffs!"}</p>
+<p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
+<p class="mute">Know someone in ${esc(pc)}? <a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'2450 Maverick',text:'Everything on in Coffs, free. Help them get to ${LOCALS_GOAL.toLocaleString("en-AU")} locals!',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied!'}">Share it with them</a>.</p></section>`; };
+const rallyStrip = (n) => `<a class="rallystrip" href="#join"><span>🙏 Help a brother out: <b>${n.toLocaleString("en-AU")}</b> of ${LOCALS_GOAL.toLocaleString("en-AU")} locals signed up</span><span class="bar sm"><span style="width:${Math.max(Math.min(100, n / LOCALS_GOAL * 100), 1.5).toFixed(1)}%"></span></span></a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <input type="email" name="email" placeholder="Your email" required aria-label="Your email"><button>Sign me up</button></form>
