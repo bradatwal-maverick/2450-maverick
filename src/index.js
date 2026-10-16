@@ -272,13 +272,17 @@ document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return
 }
 
 const LOCALS_GOAL = 15000;
+// Free gift for subscribers: Maverick Digital's guide to AI in everyday life. Set the URL once the article is live.
+const GIFT_URL = "";
+const GIFT_LINE = `🎁 <b>Free when you subscribe:</b> a guide from <a href="https://maverickdigital.com.ai" rel="noopener">Maverick Digital</a> on how AI can help in your everyday life. No sales pitch. We're not here to sell you AI, just to show you how to use it.`;
 const localsCount = async env => (await env.DATA.list({ prefix: "sub:" })).keys.length + (await env.DATA.list({ prefix: "psub:" })).keys.length;
 const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100); return `<section id="join" class="rally"><h2>Help a brother out 🙏</h2>
 <p>This brother's helping you, for free, forever. Now help this brother out: <b>just subscribe.</b></p>
 <p>Once 2450 reaches <b>${LOCALS_GOAL.toLocaleString("en-AU")} locals</b>, about as many as a local weekly paper, a few local ads can keep the lights on. Nobody ever pays to be listed. Every sign-up gets us closer.</p>
 <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${LOCALS_GOAL}" aria-valuenow="${n}" aria-label="Locals signed up"><span style="width:${Math.max(pct, 1.5).toFixed(1)}%"></span></div>
 <p class="barlab"><b>${n.toLocaleString("en-AU")}</b> of ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${pct < 1 && n > 0 ? "under 1" : Math.floor(pct)}% there${n < 50 ? ". Be one of the first!" : ". Come on, Coffs!"}</p>
-<p>One short email a week with what's on. No spam, unsubscribe any time.</p>${signup(pc)}
+<p>One short email a week with what's on. No spam, unsubscribe any time.</p>
+<p class="note">${GIFT_LINE}</p>${signup(pc)}
 <p class="mute">Know someone in ${esc(pc)}? <a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'2450 Maverick',text:'Everything on in Coffs, free. Help them get to ${LOCALS_GOAL.toLocaleString("en-AU")} locals!',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied!'}">Share it with them</a>.</p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip" href="#join"><span>🙏 Help a brother out: <b>${n.toLocaleString("en-AU")}</b> of ${LOCALS_GOAL.toLocaleString("en-AU")} locals signed up</span><span class="bar sm"><span style="width:${Math.max(Math.min(100, n / LOCALS_GOAL * 100), 1.5).toFixed(1)}%"></span></span></a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
@@ -319,7 +323,8 @@ async function handleSubscribe(req, env) {
   const pc = String(f.get("pc") || "2450").slice(0, 4), email = String(f.get("email") || "").trim().toLowerCase();
   if (!f.get("website") && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
     await env.DATA.put(`sub:${email}`, JSON.stringify({ email, pc, consent: true, at: new Date().toISOString() }));
-  return page("You're in", `<h1>You're in!</h1><p>Watch for "This week in ${esc(pc)}".</p><p><a href="/${esc(pc)}">Back to ${esc(pc)}</a></p>`, pc);
+  return page("You're in", `<h1>You're in!</h1><p>Thanks for helping a brother out. Watch for "This week in ${esc(pc)}".</p>
+<p class="note">🎁 ${GIFT_URL ? `Your free guide: <a href="${GIFT_URL}" rel="noopener"><b>how AI can help in your everyday life</b></a>, from Maverick Digital.` : `Your free guide from Maverick Digital, <b>how AI can help in your everyday life</b>, arrives with your first weekly email.`}</p><p><a href="/${esc(pc)}">Back to ${esc(pc)}</a></p>`, pc);
 }
 
 async function admin(req, env) {
