@@ -33,7 +33,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:var(--soft);border-color:transparent!important}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.9rem;background:var(--soft);padding:6px 10px;border-radius:16px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:8px 14px;font-size:.95rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.fuel{padding-left:20px}.fuel li{margin:8px 0}h3{font-size:1rem;margin:14px 0 4px}.md svg{width:24px;height:21px}.brand .mark{height:22px;width:26px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.tile b{font-size:1.25rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1.6rem}
@@ -107,7 +107,7 @@ function clockChange() {
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
 const evItem = e => `<li><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b> — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
 
-async function town(pc, env) {
+async function town(pc, env, ctx) {
   const t = TOWNS[pc];
   if (!t || !t.live) return page(`${pc} — coming soon`, `<h1>${esc(pc)}${t ? " " + esc(t.name) : ""}</h1>
 <p>Not live yet. 2450 Coffs Harbour is first. Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/2450">See 2450 Coffs Harbour</a></p>`, pc);
@@ -119,7 +119,7 @@ async function town(pc, env) {
     + (feed.length ? `<h3>More around town</h3><ul>${feed.map(evItem).join("")}</ul>` : "")
     || `<p>Nothing listed yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`;
 
-  const cc = clockChange(), ann = await annBanner(env);
+  const cc = clockChange(), ann = await annBanner(env), live = await liveBlocks(env, ctx);
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
   return page(`${pc} ${t.name} — what's on`, `
 <p class="mute"><a href="/">2450 Maverick</a> › ${esc(pc)}</p><h1>${esc(t.name)} ${esc(pc)}</h1>
@@ -144,10 +144,10 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <a class="card" href="/rip">🕊️ <b>In memory</b> Remembering locals who have recently passed →</a>
 <a class="card" href="/school">🚸 <b>School run report</b> Weather and traffic for your school drop-off and pick-up →</a>
 </section>
-${soon("alerts", "Alerts", "Bushfires, road closures and floods near 2450, coming soon.", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", "Fires Near Me (NSW Rural Fire Service)")}
+${live.alerts}
 <section id="events"><h2>What's on</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
-${soon("news", "News", "Local headlines from Coffs news outlets, linked to the full story, coming soon.")}
-${soon("fuel", "Fuel", "Cheapest petrol and diesel in 2450 today, coming soon.", "https://www.fuelcheck.nsw.gov.au", "NSW FuelCheck")}
+${live.news}
+${fuelBlock()}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
 <section id="know"><h2>Know your 2450</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it, we just tell you where it&rsquo;s from and how current it is.</p>
@@ -171,7 +171,7 @@ ${soon("fuel", "Fuel", "Cheapest petrol and diesel in 2450 today, coming soon.",
 <p class="mute">Spotted something out of date? <a href="/feedback">Let me know</a>.</p></section>
 ${soon("council", "Council", "Council news, public notices and road works, coming soon.", "https://www.coffsharbour.nsw.gov.au", "Coffs Harbour City Council")}
 ${soon("sport", "Sport", "Field closures, local games and fixtures, coming soon. Clubs will be able to post them here free.")}
-${soon("holidays", "Holidays", "Public and school holiday dates, coming soon.", "https://education.nsw.gov.au/schooling/calendar", "NSW school calendar")}
+${live.holidays}
 ${soon("surfcams", "Surf cams", "Check the waves live before you head down.", "https://www.coastalwatch.com", "Coastalwatch")}
 ${soon("beaches", "Beaches", "Patrolled beaches and conditions, coming soon.", "https://beachsafe.org.au", "Beachsafe")}</div>
 <p><a class="card" href="/me">🎤 <b>Make this page yours</b> Just tell Mav what you want to see →</a></p>
@@ -721,12 +721,109 @@ document.getElementById('reset').onclick=function(e){e.preventDefault();p('order
 draw();
 </script>`, "2450");
 
+// ---- Live sources: fetched by the Worker (every 30 min via cron, or on demand), cached in KV, always shown with "current as of" + source link ----
+const HOME = { lat: -30.2963, lon: 153.1135 };
+const asOf = iso => new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", weekday: "short", day: "numeric", month: "short" });
+const srcLine = (name, url, iso, note = "") => `<p class="src">${iso ? `Current as of ${esc(asOf(iso))} · ` : ""}Source: <a href="${url}" rel="noopener">${name}</a>${note ? " · " + note : ""}</p>`;
+const dec = x => String(x || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(n)).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
+  .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#039;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+const tag = (x, t) => dec((x.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)) || [])[1]);
+const rss = xml => [...xml.matchAll(/<item[\s>][\s\S]*?<\/item>/g)].map(m => ({ title: tag(m[0], "title"), link: tag(m[0], "link"), date: tag(m[0], "pubDate") }));
+const km = (a, b) => { const r = Math.PI / 180, d = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(d)); };
+const firstPoint = g => !g ? null : g.type === "Point" ? { lon: g.coordinates[0], lat: g.coordinates[1] } : (g.geometries || []).map(firstPoint).find(Boolean) || null;
+const UA = { "user-agent": "2450-maverick.live community site (Maverick Digital)" };
+
+const SOURCES = {
+  news: { name: "News Of The Area, Coffs Coast", url: "https://coffscoast.newsofthearea.com.au", get: async () =>
+    rss(await (await fetch("https://coffscoast.newsofthearea.com.au/feed", { headers: UA })).text()).filter(i => !/^PROPERTY:/i.test(i.title)).slice(0, 8) },
+  fires: { name: "NSW Rural Fire Service, Fires Near Me", url: "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", get: async () => {
+    const j = await (await fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.json", { headers: UA })).json();
+    return (j.features || []).map(f => { const p = f.properties || {}, pt = firstPoint(f.geometry), d = p.description || "", g = k => (d.match(new RegExp(k + ":\\s*([^<]*)")) || [])[1]?.trim() || "";
+      return { title: (p.title || "").trim(), level: p.category || g("ALERT LEVEL"), where: g("LOCATION"), status: g("STATUS"), size: g("SIZE"), link: p.link, km: pt ? Math.round(km(HOME, pt)) : 999 }; })
+      .filter(f => f.km <= 100).sort((a, b) => a.km - b.km).slice(0, 8); } },
+  warnings: { name: "Bureau of Meteorology, NSW warnings", url: "http://www.bom.gov.au/nsw/warnings/", get: async () =>
+    rss(await (await fetch("http://www.bom.gov.au/fwo/IDZ00054.warnings_nsw.xml", { headers: UA })).text()).filter(i => /mid north coast|coffs|northern tablelands|coastal waters|marine/i.test(i.title)).slice(0, 6) },
+  holidays: { name: "Nager.Date public holidays", url: "https://date.nager.at", get: async () => {
+    const y = new Date().getFullYear(), all = [];
+    for (const yr of [y, y + 1]) all.push(...await (await fetch(`https://date.nager.at/api/v3/PublicHolidays/${yr}/AU`, { headers: UA })).json());
+    const t = todayISO(); return all.filter(h => h.date >= t && (!h.counties || h.counties.includes("AU-NSW"))).slice(0, 4).map(h => ({ date: h.date, name: h.localName })); } },
+};
+async function refreshSource(env, key) {
+  const S = SOURCES[key];
+  try { const items = await S.get(); const v = { items, asof: new Date().toISOString(), ok: true }; await env.DATA.put("src:" + key, JSON.stringify(v)); return v; }
+  catch (e) { const old = await env.DATA.get("src:" + key, "json"); return old ? { ...old, stale: true } : { items: [], ok: false }; }
+}
+async function getSource(env, ctx, key) {
+  const v = await env.DATA.get("src:" + key, "json");
+  if (!v) return refreshSource(env, key);
+  if (Date.now() - new Date(v.asof) > 45 * 6e4 && ctx) ctx.waitUntil(refreshSource(env, key));
+  return v;
+}
+async function liveBlocks(env, ctx) {
+  const [news, fires, warn, hol] = await Promise.all(["news", "fires", "warnings", "holidays"].map(k => getSource(env, ctx, k)));
+  const S = SOURCES, fail = s => `<p class="mute">Couldn't reach the source just now.</p>`;
+  const alerts = `<section id="alerts"><h2>Alerts</h2><p class="mute">In an emergency call <a href="tel:000">000</a>.</p>
+<h3>🔥 Fires within 100 km</h3>${fires.ok === false ? fail() : fires.items.length ? `<ul>${fires.items.map(f => `<li><b>${esc(f.title)}</b> <span class="tagg">${esc(f.level)}</span><br><span class="mute">${esc(f.where)} · ${f.km} km away${f.status ? " · " + esc(f.status) : ""}${f.size ? " · " + esc(f.size) : ""}</span></li>`).join("")}</ul>` : "<p>✅ No fires listed within 100 km.</p>"}
+${srcLine(S.fires.name, S.fires.url, fires.asof)}
+<h3>⚠️ Weather warnings</h3>${warn.ok === false ? fail() : warn.items.length ? `<ul>${warn.items.map(w => `<li>${w.link ? `<a href="${esc(w.link)}" rel="noopener">${esc(w.title)}</a>` : esc(w.title)}</li>`).join("")}</ul>` : "<p>✅ No current warnings for our area.</p>"}
+${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
+<p class="mute">Roads and traffic: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a> (live feed coming soon).</p></section>`;
+  const newsB = `<section id="news"><h2>News</h2><p class="mute">Local headlines. Tap to read the full story at the source.</p>
+${news.ok === false ? fail() : `<ul>${news.items.map(n => `<li><a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a><br><span class="mute">${esc(n.date ? new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" }) : "")}</span></li>`).join("")}</ul>`}
+${srcLine(S.news.name, S.news.url, news.asof)}</section>`;
+  const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}</li>`).join("")}</ul>`}
+${srcLine(S.holidays.name, S.holidays.url, hol.asof)}<p class="mute">School holidays: <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW school calendar</a>.</p></section>`;
+  return { alerts, news: newsB, holidays: holB };
+}
+
+// ---- FuelCheck (NSW Government API; needs free FUEL_KEY + FUEL_SECRET secrets) ----
+const FUELS = { E10: "E10", U91: "Unleaded 91", P95: "Premium 95", P98: "Premium 98", DL: "Diesel" };
+async function fuelApi(req, env) {
+  const u = new URL(req.url), type = FUELS[u.searchParams.get("t")] ? u.searchParams.get("t") : "U91";
+  const lat = Math.round((+u.searchParams.get("lat") || HOME.lat) * 100) / 100, lon = Math.round((+u.searchParams.get("lon") || HOME.lon) * 100) / 100;
+  if (!env.FUEL_KEY || !env.FUEL_SECRET) return Response.json({ error: "not_set_up" });
+  const ck = `fuel:${type}:${lat}:${lon}`, cached = await env.DATA.get(ck, "json");
+  if (cached) return Response.json(cached);
+  try {
+    let tok = await env.DATA.get("fuel:token");
+    if (!tok) {
+      const t = await (await fetch("https://api.onegov.nsw.gov.au/oauth/client_credential/accesstoken?grant_type=client_credentials", { headers: { authorization: "Basic " + btoa(env.FUEL_KEY + ":" + env.FUEL_SECRET) } })).json();
+      tok = t.access_token; if (!tok) throw new Error("no token"); await env.DATA.put("fuel:token", tok, { expirationTtl: 36000 });
+    }
+    const now = new Date(), pad = n => String(n).padStart(2, "0"), h = now.getUTCHours() % 12 || 12;
+    const ts = `${pad(now.getUTCDate())}/${pad(now.getUTCMonth() + 1)}/${now.getUTCFullYear()} ${pad(h)}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())} ${now.getUTCHours() < 12 ? "AM" : "PM"}`;
+    const r = await (await fetch("https://api.onegov.nsw.gov.au/FuelPriceCheck/v2/fuel/prices/nearby", { method: "POST",
+      headers: { "content-type": "application/json", apikey: env.FUEL_KEY, authorization: "Bearer " + tok, transactionid: crypto.randomUUID(), requesttimestamp: ts },
+      body: JSON.stringify({ fueltype: type, latitude: String(lat), longitude: String(lon), radius: "15", sortby: "Price", sortascending: "true" }) })).json();
+    const st = Object.fromEntries((r.stations || []).map(s => [s.code, s]));
+    const list = (r.prices || []).filter(p => st[p.stationcode]).slice(0, 6).map(p => { const s = st[p.stationcode];
+      return { name: s.name, brand: s.brand, address: s.address, km: s.location?.distance, price: p.price, updated: p.lastupdated }; });
+    const out = { type, label: FUELS[type], list, asof: now.toISOString() };
+    await env.DATA.put(ck, JSON.stringify(out), { expirationTtl: 1800 });
+    return Response.json(out);
+  } catch (e) { return Response.json({ error: "unreachable" }); }
+}
+const fuelBlock = () => `<section id="fuel"><h2>Fuel</h2>
+<div class="row"><select id="ft" aria-label="Fuel type">${Object.entries(FUELS).map(([k, l]) => `<option value="${k}"${k === "U91" ? " selected" : ""}>${l}</option>`).join("")}</select>
+<button type="button" id="fnear">📍 Near me</button></div><div id="fout" class="mute">Loading cheapest fuel…</div>
+<p class="src" id="fsrc">Source: <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a></p>
+<script>(function(){var ft=document.getElementById('ft'),fo=document.getElementById('fout'),pos=null;try{ft.value=localStorage.getItem('fuel')||'U91'}catch(e){}
+function load(){try{localStorage.setItem('fuel',ft.value)}catch(e){}fo.textContent='Loading…';var q='/api/fuel?t='+ft.value+(pos?'&lat='+pos[0]+'&lon='+pos[1]:'');
+fetch(q).then(function(r){return r.json()}).then(function(j){if(j.error){fo.innerHTML=j.error=='not_set_up'?'Live prices coming soon. For now, check <a href="https://www.fuelcheck.nsw.gov.au">NSW FuelCheck</a>.':'Couldn’t reach FuelCheck just now.';return}
+if(!j.list.length){fo.textContent='No prices found nearby.';return}
+fo.innerHTML='<ol class="fuel">'+j.list.map(function(s,i){return '<li><b>'+(s.price/100).toFixed(2).replace(/^/,'$')+'</b> '+(i==0?'⭐ ':'')+s.name+'<br><span class="mute">'+(s.address||'')+(s.km!=null?' · '+(+s.km).toFixed(1)+' km':'')+'</span></li>'}).join('')+'</ol>';
+document.getElementById('fsrc').innerHTML='Current as of '+new Date(j.asof).toLocaleString('en-AU',{hour:'numeric',minute:'2-digit',weekday:'short'})+' · Source: <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a> · Prices per litre';}).catch(function(){fo.textContent='Couldn’t reach FuelCheck just now.'})}
+ft.onchange=load;document.getElementById('fnear').onclick=function(){if(!navigator.geolocation)return;this.textContent='📍 Finding you…';var b=this;
+navigator.geolocation.getCurrentPosition(function(p){pos=[p.coords.latitude.toFixed(2),p.coords.longitude.toFixed(2)];b.textContent='📍 Near you';load()},function(){b.textContent='📍 Near me'})};load()})();</script></section>`;
+
 export default {
+  async scheduled(evt, env, ctx) { ctx.waitUntil(Promise.all(Object.keys(SOURCES).map(k => refreshSource(env, k)))); },
   async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return home(env);
     if (p === "/new") return newPage(env);
     if (p === "/about") return about();
+    if (p === "/api/fuel") return fuelApi(req, env);
     if (p === "/me") return mePage();
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
@@ -746,7 +843,7 @@ export default {
     if (p === "/manifest.webmanifest") return new Response(MANIFEST, { headers: { "content-type": "application/manifest+json" } });
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "text/javascript" } });
     const m = p.match(/^\/(\d{4})\/?$/);
-    if (m) return town(m[1], env);
+    if (m) return town(m[1], env, ctx);
     return page("Not found", `<h1>Not found</h1><p><a href="/">Find your postcode</a></p>`);
   },
 };

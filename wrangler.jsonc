@@ -8,6 +8,8 @@
   // Lets the site email feedback to Brad (address kept in the FEEDBACK_TO secret, not in this public repo)
   "send_email": [ { "name": "MAILER" } ],
   // Free daily AI allowance powers "Tell Mav" setup
-  "ai": { "binding": "AI" }
-  // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO
+  "ai": { "binding": "AI" },
+  // Refresh news, fires, warnings and holidays every 30 minutes
+  "triggers": { "crons": [ "*/30 * * * *" ] }
+  // Secrets (set in Cloudflare dashboard, never in this repo): ADMIN_KEY, FEEDBACK_TO, FUEL_KEY, FUEL_SECRET
 }
