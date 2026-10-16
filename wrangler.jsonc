@@ -1,0 +1,9 @@
+{
+  "name": "2450-maverick",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "kv_namespaces": [
+    { "binding": "DATA", "id": "17b9dc394f2345f79dc5ad071cc3b3d9" }
+  ]
+  // Secret (set in Cloudflare dashboard, never in this repo): ADMIN_KEY
+}
