@@ -92,7 +92,7 @@ document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classLis
 document.getElementById('rwrong').onclick=function(e){e.preventDefault();f.hidden=false;document.getElementById('rnote').focus()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote').value.trim();if(!n)return;send({note:n,email:document.getElementById('remail').value.trim()});f.hidden=true;say('Thanks for telling us. We read every one and fix what we got wrong.')}})();</script>
 <footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a> · <a href="/faq">FAQ</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
-<p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p><p class="policy">One policy: no BS. We don't report the news, we gather it from local sources and name every one. No opinions, no spin.</p>
+<p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Our towns: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
 <p class="aoc">🙏🏽 ${R.ack}<br><a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
