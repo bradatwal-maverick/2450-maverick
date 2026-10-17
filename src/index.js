@@ -3,6 +3,7 @@
 import { REGIONS } from "./regions.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
+import { photoOfDay } from "./potd.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
@@ -74,7 +75,8 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #flow>#news>h2::before{display:none}
 #tonight{--acc:#0f766e!important}#events,#kids{--acc:#0f766e!important}
 #alerts{--acc:#b42318!important}
-#memory{--acc:#6b7280!important}#joy,#love{--acc:#c2417a!important}#bdm{--acc:#6b7280!important}
+#memory{--acc:#6b7280!important}#joy,#love{--acc:#c2417a!important}
+.potd{margin:10px 0 14px;border-radius:14px;overflow:hidden;background:var(--soft)}.potd img{display:block;width:100%;height:auto;max-height:62vh;object-fit:cover}.potd figcaption{padding:8px 12px 10px;font-size:.95rem;line-height:1.4}.potd figcaption b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}.potd small{display:block;font-size:.75rem;color:var(--mute);margin-top:4px}#bdm{--acc:#6b7280!important}
 #numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#rates{--acc:#15803d!important}
 #flights,#bypass,#sea,#beaches{--acc:#1d6fb8!important}
 #puzzles,#stars,#holidays{--acc:#b45309!important}
@@ -249,6 +251,7 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
 <p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> No opinions. Make your own.</p><details class="usp"><summary id="uspl">📱 One page instead of ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your page saves you checking "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
+${await potdBlock(env, pc)}
 <div class="qs" hidden><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
 ${ann}${live.alertNote}
@@ -2091,6 +2094,10 @@ ${G.map(([h, L]) => `<h2>${h}</h2>${L.map(([u, n, d]) => `<a class="card" href="
 // ---- Why Coffs: fun facts, every one sourced ----
 // Each postcode's own reasons to love it (src/love.js): only things that postcode has and its neighbours don't. Every fact sourced.
 const factLi = ([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`;
+async function potdBlock(env, pc) { const t = TOWNS[pc]; let ph = null;
+  try { ph = await photoOfDay(env, pc, t, HOME, todayISO(), UA); } catch (e) { ph = null; } if (!ph) return "";
+  return `<figure class="potd"><a href="${esc(ph.page)}" rel="noopener" data-noutm><img src="${esc(ph.src)}" width="${ph.w}" height="${ph.h}" alt="${esc(ph.caption)}" fetchpriority="high" decoding="async"></a>
+<figcaption><b>📸 Your place today</b> ${esc(ph.caption)}<small>Photo: ${esc(ph.artist)} · ${ph.licenseUrl ? `<a href="${esc(ph.licenseUrl)}" rel="noopener license" data-noutm>${esc(ph.license)}</a>` : esc(ph.license)} · <a href="${esc(ph.page)}" rel="noopener" data-noutm>Wikimedia Commons</a>. Got a better shot of ${esc(LOVE[pc]?.name || t.name)}? <a href="https://commons.wikimedia.org/wiki/Special:UploadWizard" rel="noopener" data-noutm>Share it free</a> and it could be here.</small></figcaption></figure>`; }
 function loveBlock(pc) { const L = LOVE[pc]; if (!L?.facts?.length) return "";
   return `<section id="love"><h2>❤️ Why you'll love ${esc(L.name)}</h2><p class="mute">What ${esc(pc)} has that nowhere else does. Every fact sourced.</p>
 <ul class="ideas">${dayMix(L.facts, "love" + pc).slice(0, 3).map(factLi).join("")}</ul><p><a href="/${R.why.slug}?pc=${pc}">All the reasons to love ${esc(L.name)} →</a></p></section>`; }
@@ -2312,6 +2319,7 @@ export default {
     ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     ctx.waitUntil(acSync(env).catch(() => {}));
+    ctx.waitUntil(Promise.all(Object.entries(TOWNS).filter(([, t]) => t.live).map(([pc, t]) => photoOfDay(env, pc, t, HOME, todayISO(), UA).catch(() => {}))));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60, neo: 12 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshVenues(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
