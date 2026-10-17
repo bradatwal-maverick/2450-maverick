@@ -1637,8 +1637,9 @@ const crosswordPage = (url) => {
 <div id="cwstats" class="cwstats"></div>
 <table class="cw" role="grid" style="--n:${grid[0].length}">${grid.map((row, r) => `<tr>${row.map((ch, c) => cell(ch, r, c)).join("")}</tr>`).join("")}</table>
 <p><button type="button" id="cwcheck">Check</button> <button type="button" id="cwshow" class="ghost">Show answers</button> <span id="cwtime" class="mute">⏱️ 0:00</span> <span id="cwmsg" class="mute"></span></p>
+<div id="cwboard"></div>
 <div class="row cwl"><div><h2>Across</h2><ol>${list("across")}</ol></div><div><h2>Down</h2><ol>${list("down")}</ol></div></div>
-<style>.cwlv{padding:5px 12px;border-radius:99px;background:var(--soft);color:var(--fg);text-decoration:none;font-size:.9rem}.cwlv.on{background:var(--fg);color:var(--bg)}.cw input.giv{color:var(--mute)}.cwstats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem;margin:4px 0 6px}.cwstats:empty{display:none}.cwstats b{font-family:Georgia,serif}</style>
+<style>.cwlv{padding:5px 12px;border-radius:99px;background:var(--soft);color:var(--fg);text-decoration:none;font-size:.9rem}.cwlv.on{background:var(--fg);color:var(--bg)}.cw input.giv{color:var(--mute)}.cwstats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9rem;margin:4px 0 6px}.cwstats:empty{display:none}.cwstats b{font-family:Georgia,serif}#cwboard{margin:10px 0}#cwboard ol{padding-left:22px;margin:4px 0}#cwboard li{padding:3px 0}#cwboard li.me{font-weight:700}#cwboard .t{float:right;font-family:Georgia,serif}</style>
 <script>(function(){var DAY='${day}',LV='${lv}',SHOW=${L.showWrong},NM=${JSON.stringify(Object.fromEntries(Object.entries(LEVELS).map(([k, x]) => [k, x.emoji + " " + x.name])))};
 var I=[].slice.call(document.querySelectorAll('.cw input')),M=document.getElementById('cwmsg'),T=document.getElementById('cwtime'),ST=document.getElementById('cwstats');
 var IN=/(?:^|; )m2450n=/.test(document.cookie),t0=null,tick=null,checks=0,done=false,shown=false;
@@ -1654,8 +1655,13 @@ function local(){var L=g('cwlog')||{},best={},days=Object.keys(L).sort(),n=0,st=
 var d=new Date(DAY+'T00:00:00');if(!L[DAY])d.setDate(d.getDate()-1);while(L[d.toISOString().slice(0,10)]){st++;d.setDate(d.getDate()-1)}return{solved:n,best:best,streak:st}}
 if(IN){var lg=g('cwlog');fetch('/api/cw',lg?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({import:lg})}:{}).then(function(r){return r.json()}).then(function(j){if(j.ok){if(lg)try{localStorage.removeItem('cwlog')}catch(e){}stats(j)}}).catch(function(){})}else stats(local());
 I.forEach(function(x,i){x.onfocus=start;x.oninput=function(){start();x.value=x.value.toUpperCase().replace(/[^A-Z]/g,'');x.classList.remove('bad');var n=i+1;while(I[n]&&I[n].readOnly)n++;if(x.value&&I[n])I[n].focus()}});
+function board(){fetch('/api/cwboard?l='+LV).then(function(r){return r.json()}).then(function(j){var B=document.getElementById('cwboard'),h='<h2>🏆 Today\u2019s '+NM[LV]+' leaderboard</h2>';
+if(!j.n){B.innerHTML=h+'<p class="mute">No one\u2019s on the board yet. Be the first'+(IN?'!':': <a href="/signin?next=/crossword?l='+LV+'">sign in free</a> and solve it.')+'</p>';return}
+B.innerHTML=h+'<p class="mute">'+j.n+' local'+(j.n>1?'s have':' has')+' solved it today.'+(j.me?' You\u2019re <b>#'+j.me.rank+'</b>.':IN?'':' <a href="/signin?next=/crossword?l='+LV+'">Sign in free</a> to get on the board.')+'</p><ol>'+j.top.map(function(x){return '<li'+(x.me?' class="me"':'')+'>'+e(x.n)+(x.me?' (you)':'')+' <span class="t">'+mmss(x.s)+'</span></li>'}).join('')+'</ol>'}).catch(function(){})}
+function e(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+board();
 function solved(){done=true;clearInterval(tick);var s=Math.max(secs(),1);M.textContent='🎉 Solved in '+mmss(s)+'! Same time tomorrow?';
-if(IN)fetch('/api/cw',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({day:DAY,level:LV,secs:s,checks:checks})}).then(function(r){return r.json()}).then(function(j){if(j.ok){stats(j);if(j.pb)M.textContent+=' 🏅 New personal best!'}}).catch(function(){});
+if(IN)fetch('/api/cw',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({day:DAY,level:LV,secs:s,checks:checks})}).then(function(r){return r.json()}).then(function(j){if(j.ok){stats(j);board();if(j.pb)M.textContent+=' 🏅 New personal best!'}}).catch(function(){});
 else{var L=g('cwlog')||{};L[DAY]=L[DAY]||{};var pb=!local().best[LV]||s<local().best[LV];if(!L[DAY][LV]||s<L[DAY][LV])L[DAY][LV]=s;p('cwlog',L);stats(local());M.innerHTML+=(pb?' 🏅 New personal best!':'')+' <a href="/signin?next=/crossword">Sign in free</a> to keep your streak on any phone.'}}
 document.getElementById('cwcheck').onclick=function(){if(done)return;checks++;var bad=0,empty=0;I.forEach(function(x){if(!x.value)empty++;else if(x.value!==x.dataset.a){bad++;if(SHOW)x.classList.add('bad')}});
 if(!bad&&!empty){if(shown){M.textContent='Answers were shown, so this one doesn\\u2019t count. A fresh one tomorrow.'}else solved();return}
@@ -1671,7 +1677,10 @@ async function cwApi(req, env) {
   if (req.method === "POST") {
     const j = await req.json().catch(() => ({}));
     if (j.import && typeof j.import === "object") for (const [d, v] of Object.entries(j.import).slice(-120)) if (d <= day && v && typeof v === "object") for (const [lv, s] of Object.entries(v)) add(d, lv, +s);
-    if (j.day === day && LEVELS[j.level]) { const before = Math.min(...Object.values(r.days).map(x => x[j.level]).filter(Boolean)); if (add(day, j.level, +j.secs) && +j.secs < before) pb = true; }
+    if (j.day === day && LEVELS[j.level]) { const before = Math.min(...Object.values(r.days).map(x => x[j.level]).filter(Boolean)); if (add(day, j.level, +j.secs)) { if (+j.secs < before) pb = true;
+      const u = await env.DATA.get(`user:${em}`, "json"), bk = `cwb:${day}:${j.level}`, b = ((await env.DATA.get(bk, "json")) || []).filter(x => x.e !== em);
+      b.push({ e: em, n: String(u?.name || "").split(" ")[0].slice(0, 20) || "A local", s: r.days[day][j.level] }); b.sort((x, y) => x.s - y.s);
+      await env.DATA.put(bk, JSON.stringify(b.slice(0, 200)), { expirationTtl: 3456000 }); } }
     const ds = Object.keys(r.days).sort(); for (const d of ds.slice(0, -400)) delete r.days[d]; // keep about a year
     await env.DATA.put(key, JSON.stringify(r));
   }
@@ -1680,6 +1689,12 @@ async function cwApi(req, env) {
   let streak = 0; const d = new Date(day + "T00:00:00Z"); if (!r.days[day]) d.setUTCDate(d.getUTCDate() - 1);
   while (r.days[d.toISOString().slice(0, 10)]) { streak++; d.setUTCDate(d.getUTCDate() - 1); }
   return Response.json({ ok: true, solved, best, streak, pb, today: r.days[day] || {} });
+}
+// Today's community leaderboard for one level: first names only, fastest first. Anyone can see it; sign in to get on it.
+async function cwBoard(url, req, env) {
+  const lv = LEVELS[url.searchParams.get("l")] ? url.searchParams.get("l") : "easy", em = await member(req, env);
+  const b = (await env.DATA.get(`cwb:${todayISO()}:${lv}`, "json")) || [], me = em ? b.findIndex(x => x.e === em) : -1;
+  return Response.json({ n: b.length, top: b.slice(0, 10).map(x => ({ n: x.n, s: x.s, me: x.e === em })), me: me >= 0 ? { rank: me + 1, s: b[me].s } : null }, { headers: { "cache-control": "no-store" } });
 }
 
 // ---- My home: bin night + a house-sitter sheet. Everything stays on the phone; nothing is sent to us. ----
@@ -1791,6 +1806,7 @@ async function route(req, env, ctx) {
     if (p === "/" + R.why.slug) return whyPage();
     if (p === "/crossword") return crosswordPage(url);
     if (p === "/api/cw") return cwApi(req, env);
+    if (p === "/api/cwboard") return cwBoard(url, req, env);
     if (p === "/kids" || p === "/kids/") return page(`Kid Zone: ${R.code} Maverick`, `<style>${KID_CSS}</style>` + kidsHub("/" + R.code));
     if (p === "/kids/parent") return kzParent(req, env);
     if (p === "/kids/log") return page(`What the kids did: Kid Zone`, `<style>${KID_CSS}</style>` + kidsLog("/" + R.code));
