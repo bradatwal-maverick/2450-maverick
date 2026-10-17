@@ -7,6 +7,7 @@ import { QUOTES } from "./quotes.js";
 import { KID_CSS, kidsLog, kidsHub, safePage, petPage, robotPage, certPage } from "./kids.js";
 import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
+import { rentGroups, jobGroups, directoryBody } from "./directory.js";
 import { WEST, EAST, VEDIC, STARTS, VSTARTS, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
 function initRegion(env) {
   if (R && R.code === (env.REGION || "2450")) return;
@@ -20,7 +21,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -249,6 +250,8 @@ ${await bdmBlock(env, ctx)}
 <a class="card" href="/kids">🧒 <b>Kid Zone</b> Games for kids 12 and under, with a grown-up&rsquo;s OK. No chat, no ads, nothing collected →</a>
 <a class="card" href="/genalpha">🗣️ <b>Gen Alpha interpreter</b> What did your kid just say? Jimmy Joel translates →</a>
 <a class="card" href="/bdm">📰 <b>Births, Deaths and Marriages</b> Family notices, filtered by what you&rsquo;re looking for →</a>
+<a class="card" href="/rent">🏠 <b>Renting</b> Every rental site, plus your rights and bond help, in one place →</a>
+<a class="card" href="/jobs">💼 <b>Jobs</b> Every job site in one place, already searched for ${esc(R.place)} →</a>
 <a class="card" href="/school">🚸 <b>School run check</b> Weather and traffic for your school drop-off and pick-up →</a>
 </section>
 ${fuelBlock(t)}
@@ -261,6 +264,8 @@ ${await projectBlock(env)}
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p>${fishBlock()}</section>
 <section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it. We tell you where it&rsquo;s from and how well the owner keeps it up to date.</p>
 ${R.know(W, accLine)}<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
+${dirSection("rent", "🏠 Renting", `Looking for a place in ${R.place}? Every rental site, already searched for you.`, rentGroups(R), "/rent", "Every rental site, your rights and bond help")}
+${dirSection("jobs", "💼 Jobs", `Looking for work in ${R.place}? Every job site, already searched for you.`, jobGroups(R), "/jobs", "Every job site, plus council, harvest and local employers")}
 ${await councilBlock(env)}
 ${await kidsBlock(local, feed, pc)}
 ${R.fields ? `<section id="sport"><h2>Sport &amp; field closures</h2>
@@ -307,7 +312,7 @@ var IDX=[...${JSON.stringify(R.idx)},["weather temperature rain wind forecast","
 ["fuel petrol diesel servo cheap","Fuel","Cheapest fuel: NSW FuelCheck for now.","#fuel"],["fire fires bushfire flood alert alerts emergency","Alerts","Fires Near Me for now. Emergencies: call 000.","#alerts"],
 ["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run check","Weather and traffic for your school run.","/school"],
 ["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],
-["kids kid zone games game children child pet online safety robot ai","🧒 Kid Zone","Games for kids 12 and under, with a grown-up's OK.","/kids"],["dog dogs dog beach dog beaches off leash off-leash dog park dog parks dog friendly pet friendly","🐕 Dog beaches & parks","Off-leash beaches and dog parks near you.","/open?c=dogs"],["dog friendly cafe cafes pub pubs pet friendly bring my dog","🐶 Dog-friendly cafés & pubs","Places happy to see your dog.","/open?c=petfriendly"],["lgbtq lgbt lgbtqi gay lesbian queer trans rainbow pride inclusive welcoming","🏳️‍🌈 LGBTQ+ friendly","Local places that welcome everyone.","/open?c=lgbtq"],["pet shop pet shops groomer grooming animal shelter rescue adopt boarding kennel cattery pets animals","🐾 Pets & animals","Pet shops, groomers, shelters and boarding.","/open?c=pets"],["lgbtq lgbtqi lgbtqia gay lesbian queer trans bi rainbow pride friendly inclusive","🏳️‍🌈 LGBTQ+ friendly","Places that welcome everyone.","/open?c=lgbtq"],["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
+["kids kid zone games game children child pet online safety robot ai","🧒 Kid Zone","Games for kids 12 and under, with a grown-up's OK.","/kids"],["dog dogs dog beach dog beaches off leash off-leash dog park dog parks dog friendly pet friendly","🐕 Dog beaches & parks","Off-leash beaches and dog parks near you.","/open?c=dogs"],["dog friendly cafe cafes pub pubs pet friendly bring my dog","🐶 Dog-friendly cafés & pubs","Places happy to see your dog.","/open?c=petfriendly"],["lgbtq lgbt lgbtqi gay lesbian queer trans rainbow pride inclusive welcoming","🏳️‍🌈 LGBTQ+ friendly","Local places that welcome everyone.","/open?c=lgbtq"],["pet shop pet shops groomer grooming animal shelter rescue adopt boarding kennel cattery pets animals","🐾 Pets & animals","Pet shops, groomers, shelters and boarding.","/open?c=pets"],["lgbtq lgbtqi lgbtqia gay lesbian queer trans bi rainbow pride friendly inclusive","🏳️‍🌈 LGBTQ+ friendly","Places that welcome everyone.","/open?c=lgbtq"],["rent rental rentals renting lease tenant tenants bond house flat unit room share house flatmates real estate","🏠 Renting","Every rental site, your rights and bond help.","/rent"],["job jobs work employment career careers hiring vacancy vacancies seek apprenticeship traineeship harvest picking","💼 Jobs","Every job site in one place.","/jobs"],["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
 ["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["births birth baby babies marriage marriages wedding engaged engagement anniversary celebrations hatches matches","Births, Deaths and Marriages","New babies, engagements and weddings. Share your news free.","/bdm?f=births"],["obituary obituaries funeral died death passed rip memory","Births, Deaths and Marriages","Recent local death notices.","/bdm?f=deaths"],
 ["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
 ["feedback idea suggestion contact","Make ${R.code} better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
@@ -1681,6 +1686,7 @@ MAV'S RULES (never break these):
 4. Never ask for personal details. First names (theirs or a friend's), a friend's city, bin night, school and birthday day and month are fine. Never ask for an address, phone number, email, year of birth or anything private.
 5. Only take actions when they ask for a change, and say in the reply what you changed. Settings follow them when signed in; location, birthday, school and friends stay on their phone.
 ${MAV_KB}
+Also on every Daily Maverick: /rent Renting (every rental site searched for this town, renters' rights, bond and rent help); /jobs Jobs (every job site searched for this town, council and government jobs, harvest work); My shopping list in Supermarket watch (tell Mav what to watch).
 Parental safety: grown-ups set, change or remove a Kid Zone secret word at /kids/parent (signed in). When it's set, kids must type it to open Kid Zone on that account; wrong guesses are shown to the grown-up. If someone asks about kids, parental controls or keeping Kid Zone safe, point them to /kids/parent.
 The person is viewing area ${pc}. Their settings now: ${st}
 Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6):
@@ -1689,14 +1695,19 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6
 {"type":"sign","system":"w|v|e","value":"sign or animal"} (w Western by birthday, v Vedic Indian, e Chinese by birth year); {"type":"weather","pc":"${live.join("|")}"} or {"type":"weather","here":true};
 {"type":"bins","day":"Monday"}; {"type":"school","value":"exact name from: ${SCHOOLS.join("; ")}"}; {"type":"birthday","day":1-31,"month":1-12}; {"type":"search","value":"a few words"};
 {"type":"alerts","topic":"alerts|fields"} (alerts = fires and weather warnings, fields = sport field closures; shows a button they tap); {"type":"events","likes":[${LIKES.join(",")}]} (what they like doing: tailors What's on, with their picks first as "For you", and Community events; [] shows all; when they tell you their interests, set this);
-{"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"}.
+{"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"};
+{"type":"watch","item":"brand, product and size, e.g. Vegemite 380g"} adds it to their shopping list in Supermarket watch (prices checked twice a day at Woolworths and ALDI; free members watch 1 item, premium members up to 20; signed in only); {"type":"unwatch","item":"..."}. If they ask to watch something vague like "cheese", ask which brand and size before adding it.
 Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
   try {
     const ask = { max_tokens: 450, messages: [{ role: "system", content: sys }, ...msgs] };
     let r; try { r = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", ask); }
     const raw = typeof r.response === "string" ? r.response : JSON.stringify(r.response || {}), m = raw.match(/\{[\s\S]*\}/);
     let out; try { out = JSON.parse(m[0]); } catch (e) { out = { reply: raw.replace(/[{}"]/g, "").slice(0, 400), actions: [] }; }
-    return Response.json({ reply: String(out.reply || "Done!").slice(0, 500), actions: cleanActs(out.actions, ids, live) });
+    let acts = cleanActs(out.actions, ids, live), reply = String(out.reply || "Done!").slice(0, 500);
+    const wa = acts.filter(a => a.type === "watch" || a.type === "unwatch");
+    if (wa.length) { acts = acts.filter(a => !wa.includes(a)); const em = await member(req, env);
+      if (!em) reply = "Sign in free and I'll watch that price for you, twice a day: /signin"; else { const said = await applyWatch(env, em, wa); if (said.length) reply = said.join(" "); } }
+    return Response.json({ reply, actions: acts });
   } catch (e) { return Response.json(fallback()); }
 }
 // Everything Mav sets is checked here first. Anything not on this list is dropped.
@@ -1729,6 +1740,7 @@ function cleanActs(list, ids, live) {
         return { type: "friend", name: n, tz, city: String(a.city || "").replace(/[<>]/g, "").slice(0, 40) }; }
       case "unfriend": return nm(a.name) ? { type: "unfriend", name: nm(a.name) } : null;
       case "link": return /^\/[a-z0-9/#?=&-]*$/i.test(a.url || "") ? { type: "link", url: a.url } : null;
+      case "watch": case "unwatch": { const v = String(a.item || "").replace(/[<>]/g, "").trim().slice(0, 50); return v.length > 2 ? { type: a.type, item: v } : null; }
       default: return null;
     }
   }).filter(Boolean).slice(0, 8);
@@ -1738,6 +1750,66 @@ const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav"
 <div id="mavlog"></div><div class="mavtalk"><button type="button" id="mavbig" class="micb">🎤 Tap and tell Mav</button><small class="mute">Talk or type what you want on your page. No settings to find. <a href="/me" class="mavall">See everything</a></small></div><div class="chips" id="mavchips"><label>Set up my morning</label><label>What's open now?</label><label>Cheapest fuel</label><label>Add a friend's clock</label><label>I love trivia and live music</label></div>
 <form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Ask Mav anything…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
 <script>${MAV_JS}<\/script>`;
+
+// ---- Renting and Jobs: every site in one place, searched for this town. We only link; nobody pays to be listed. ----
+function dirSection(id, title, intro, groups, href, more) {
+  const top = groups[0][3].slice(0, 4);
+  return `<section id="${id}"><h2>${title}</h2><p class="mute">${esc(intro)}</p><ul>${top.map(([n, u, d]) => `<li><a href="${esc(u)}" rel="noopener">${esc(n)}</a>: ${esc(d)}</li>`).join("")}</ul><p><a href="${href}"><b>${esc(more)} →</b></a></p></section>`;
+}
+function dirPage(kind) {
+  const rent = kind === "rent", groups = rent ? rentGroups(R) : jobGroups(R);
+  return page(`${rent ? "Renting" : "Jobs"} in ${R.place}: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
+<h1>${rent ? "🏠 Renting in " : "💼 Jobs in "}${esc(R.place)}</h1>
+<p>${rent ? `There are so many rental sites out there. Here they all are in one place, already searched for ${esc(R.place)}, plus where to go for your rights, your bond and help with rent.` : `There are so many job sites out there, and plenty of local employers only post jobs on their own websites. Here they all are in one place, already searched for ${esc(R.place)}.`}</p>
+${directoryBody(groups, esc)}
+<div class="note">${rent ? "Know a rental site or local agent we've missed?" : "Local business with jobs on your own website? Know a job site we've missed?"} <a href="/feedback">Tell us and we'll add it</a>. Free, always.</div>
+<p class="src">We only link to these sites; we don&rsquo;t edit or check their listings. Nobody pays to be here. Links checked 17 October 2026.</p>`);
+}
+
+// ---- My shopping list: signed-in readers ask Mav to watch prices. Free members watch 1 item, paid members 20. ----
+// A user record with plan: "paid" gets the bigger list (set when payments go live). Prices are checked twice a day, a few items each run.
+const LIST_CAP = { free: 1, paid: 20 };
+const itemKey = s => String(s || "").toLowerCase().replace(/(\d)\s+(g|kg|ml|l|pk|pack)\b/g, "$1$2").replace(/[^a-z0-9.\- ]/g, " ").replace(/\s+/g, " ").trim().slice(0, 50);
+async function planOf(env, em) { const u = await env.DATA.get(`user:${em}`, "json"); return u && u.plan === "paid" ? "paid" : "free"; }
+async function applyWatch(env, em, acts) {
+  let list = (await env.DATA.get(`shoplist:${em}`, "json")) || [];
+  const plan = await planOf(env, em), cap = LIST_CAP[plan], pool = (await env.DATA.get("shopwatch", "json")) || {}, say = [];
+  for (const a of acts) {
+    const k = itemKey(a.item); if (k.length < 3) continue;
+    if (a.type === "unwatch") { const gone = list.filter(x => x === k || x.includes(k) || k.includes(x)); list = list.filter(x => !gone.includes(x)); gone.forEach(x => { pool[x] = (pool[x] || 1) - 1; if (pool[x] <= 0) delete pool[x]; }); say.push(gone.length ? `Done, I've stopped watching ${gone.join(", ")}.` : `You weren't watching ${k}.`); continue; }
+    if (list.includes(k)) { say.push(`You're already watching ${k}.`); continue; }
+    if (list.length >= cap) { say.push(plan === "free" ? `Free members can watch 1 item, and you're watching ${list[0]}. Premium members watch up to 20 items, coming soon. Want me to swap it for ${k}?` : `You're watching ${cap} items, the most you can. Tell me one to drop first.`); continue; }
+    list.push(k); pool[k] = (pool[k] || 0) + 1;
+    say.push(`Done, I'm watching ${k} for you. Prices update twice a day: see My shopping list in Supermarket watch. Coles blocks our checks, so it's Woolworths and ALDI.`);
+  }
+  await env.DATA.put(`shoplist:${em}`, JSON.stringify(list)); await env.DATA.put("shopwatch", JSON.stringify(pool));
+  return say;
+}
+async function refreshShopList(env) { // a few watched items per run; each one is checked once per half-day (6am and 2pm)
+  const pool = (await env.DATA.get("shopwatch", "json")) || {}, keys = Object.keys(pool).sort((a, b) => pool[b] - pool[a]).slice(0, 300);
+  if (!keys.length) return;
+  const x = (await env.DATA.get("shopx", "json")) || {}, slot = d => { const t = new Date(new Date(d).toLocaleString("en-US", { timeZone: "Australia/Sydney" })), h = t.getHours(); if (h < 6) t.setDate(t.getDate() - 1); return t.toDateString() + (h >= 6 && h < 14 ? " am" : " pm"); };
+  const due = keys.filter(k => !x[k] || slot(x[k].at) !== slot(Date.now())).slice(0, 8); if (!due.length) return;
+  for (const k of due) {
+    const words = k.split(" ").filter(w => w.length > 1), re = { test: n => { const t = itemKey(n); return words.every(w => t.includes(w)); } }, it = { q: k, re }, now = new Date().toISOString(), row = { at: now };
+    for (const st of ["w", "a"]) { let r = null; try { r = st === "w" ? await shopWoolies(it) : await shopAldi(it); } catch (e) {}
+      const prev = x[k] && x[k][st]; if (r) row[st] = { ...r, prev: prev && prev.price !== r.price ? prev.price : (prev && prev.prev) || 0 }; else if (prev) row[st] = { ...prev, stale: true }; }
+    x[k] = row;
+  }
+  Object.keys(x).forEach(k => pool[k] || delete x[k]);
+  await env.DATA.put("shopx", JSON.stringify(x));
+}
+async function myListApi(req, env) {
+  const em = await member(req, env); if (!em) return Response.json({ signedIn: false });
+  const list = (await env.DATA.get(`shoplist:${em}`, "json")) || [], x = (await env.DATA.get("shopx", "json")) || {}, plan = await planOf(env, em);
+  return Response.json({ signedIn: true, plan, cap: LIST_CAP[plan], items: list.map(k => ({ label: k, w: x[k]?.w || null, a: x[k]?.a || null, at: x[k]?.at || null })) }, { headers: { "cache-control": "no-store" } });
+}
+const MYLIST_JS = `(function(){var B=document.getElementById('mylist');if(!B)return;var m=function(n){return '$'+Number(n).toFixed(2)},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+fetch('/api/mylist',{credentials:'same-origin'}).then(function(r){return r.json()}).then(function(j){
+if(!j.signedIn){B.innerHTML='<h3>My shopping list</h3><p class="mute">Want to watch the price of something you buy every week? <a href="/signin?next='+encodeURIComponent(location.pathname)+'">Sign in free</a>, then tell Mav what to watch, like &ldquo;Mav, watch Vegemite 380g&rdquo;.</p>';return}
+var h='<h3>My shopping list</h3>';if(!j.items.length){B.innerHTML=h+'<p class="mute">Tell Mav what to watch, like &ldquo;Mav, watch Vegemite 380g&rdquo;. '+(j.plan==='paid'?'You can watch up to '+j.cap+' items.':'Free members watch 1 item; premium members watch up to 20.')+'</p>';return}
+var cell=function(x,lo){if(!x)return '<td class="mute">checking</td>';return '<td class="'+(x.price===lo?'cheap':'')+'" title="'+e(x.name)+'">'+m(x.price)+(x.prev&&x.prev!==x.price?'<br><small class="mute">'+(x.price>x.prev?'▲':'▼')+' '+m(x.prev)+'</small>':'')+'</td>'};
+B.innerHTML=h+'<div class="tscroll"><table class="shopt"><thead><tr><th></th><th>Woolworths</th><th>ALDI</th></tr></thead><tbody>'+j.items.map(function(i){var v=[i.w,i.a].filter(Boolean).map(function(x){return x.price}),lo=v.length>1?Math.min.apply(null,v):-1;return '<tr><th scope="row">'+e(i.label)+'</th>'+cell(i.w,lo)+cell(i.a,lo)+'</tr>'}).join('')+'</tbody></table></div><p class="mute">Your items, checked twice a day. Coles blocks our checks. Ask Mav to add, swap or stop watching an item.'+(j.plan==='paid'?'':' Free members watch 1 item; premium members watch up to 20.')+'</p>'}).catch(function(){})})();`;
 
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
@@ -1950,7 +2022,7 @@ export default {
     ctx.waitUntil(acSync(env).catch(() => {}));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60, neo: 12 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshShopList(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
@@ -1987,6 +2059,9 @@ async function route(req, env, ctx) {
     if (p === "/kids/certificate") return page(`Certified Mini Maverick: Kid Zone`, `<style>${KID_CSS}</style>` + certPage("/" + R.code, R.code));
     if (p === "/kids/robot") return page(`Robot Builder: Kid Zone`, `<style>${KID_CSS}</style>` + robotPage("/" + R.code));
     if (p === "/home") return homePage();
+    if (p === "/rent") return dirPage("rent");
+    if (p === "/jobs") return dirPage("jobs");
+    if (p === "/api/mylist") return myListApi(req, env);
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
     if (p === "/about") return about(env);
     if (p === "/api/fuel") return fuelApi(req, env);
@@ -2272,7 +2347,7 @@ ${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details clas
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
+  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
@@ -2420,7 +2495,7 @@ async function shopBlock(env) {
   return `<section id="shop"><h2>Supermarket watch</h2><p class="mute">The everyday basics at each supermarket today. Cheapest in green. We update these prices <b>twice a day</b>, around 6am and 2pm, so you always know how fresh they are.</p>
 ${best ? `<p class="note">Cheapest basket today (milk, bread, eggs, chocolate): <b>${STORES[best]}</b> at ${money(tot[best])}${ks.filter(k => k !== best && tot[k] != null).map(k => `, ${STORES[k]} ${money(tot[k])}`).join("")}.</p>` : ""}
 <div class="tscroll"><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${STORES[k]}${blk[k] ? `<br><small class="mute">blocks us</small>` : ""}</th>`).join("")}</tr></thead><tbody>${SHOP.map(row).join("")}</tbody></table></div>
-${Object.keys(blk).length ? `<p class="note"><b>${Object.keys(blk).map(k => STORES[k]).join(" and ")} ${Object.keys(blk).length > 1 ? "don&rsquo;t" : "doesn&rsquo;t"} let us check ${Object.keys(blk).length > 1 ? "their" : "its"} prices.</b> ${Object.keys(blk).length > 1 ? "Their websites block" : "Its website blocks"} automatic price checks, so we can&rsquo;t show ${Object.keys(blk).length > 1 ? "them" : "it"} side by side with the others. That&rsquo;s ${Object.keys(blk).length > 1 ? "their" : "its"} choice, not ours. We show what we can find, and we tell you when we can&rsquo;t.</p>` : ""}<p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
+${Object.keys(blk).length ? `<p class="note"><b>${Object.keys(blk).map(k => STORES[k]).join(" and ")} ${Object.keys(blk).length > 1 ? "don&rsquo;t" : "doesn&rsquo;t"} let us check ${Object.keys(blk).length > 1 ? "their" : "its"} prices.</b> ${Object.keys(blk).length > 1 ? "Their websites block" : "Its website blocks"} automatic price checks, so we can&rsquo;t show ${Object.keys(blk).length > 1 ? "them" : "it"} side by side with the others. That&rsquo;s ${Object.keys(blk).length > 1 ? "their" : "its"} choice, not ours. We show what we can find, and we tell you when we can&rsquo;t.</p>` : ""}<div id="mylist"></div><script>${MYLIST_JS}</script><p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
 }
 
 // ---- Big local projects (e.g. the Coffs Harbour bypass): the latest weekly update from the project's own page ----
