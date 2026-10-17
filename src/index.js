@@ -90,7 +90,7 @@ function page(title, body, pc = "") {
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.">
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
-<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><span class="hdr"><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></span></header>
+<style>${CSS}</style></head><body><header class="top"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><span class="hdr"><a href="/all" class="my">☰ Everything</a><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></span></header>
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}";var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onerror=function(){im.remove()};a.textContent=a.textContent.replace("💬 ","");a.prepend(im)}}}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
@@ -104,7 +104,7 @@ document.querySelectorAll('#rate button[data-v]').forEach(function(b){if(done===
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down'){f.hidden=false;document.getElementById('rnote').focus()}else{f.hidden=true;say('Thanks! Glad it helped.')}}});
 document.getElementById('rwrong').onclick=function(e){e.preventDefault();f.hidden=false;document.getElementById('rnote').focus()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote').value.trim();if(!n)return;send({note:n,email:document.getElementById('remail').value.trim()});f.hidden=true;say('Thanks for telling us. We read every one and fix what we got wrong.')}})();</script>
-<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/timesaved", "Time saved"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
+<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/timesaved", "Time saved"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Supporting regional Australia: ${abc(Object.values(REGIONS), x => x.code).map(x => x.code === R.code ? `<b title="${esc(x.place)}">${x.code}</b>` : `<a href="https://${x.domain}" title="${esc(x.place)}">${x.code}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
@@ -251,6 +251,7 @@ ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${await bdmBlock(env, ctx)}
 <section id="tools"><h2>Handy tools</h2>
+<a class="card" href="/all">☰ <b>Everything on the Daily Maverick</b> Every page we have, in one place →</a>
 ${await tsLine(env)}
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
@@ -2005,6 +2006,18 @@ async function awardPage(req, env, ctx) {
 <p class="src">Local regional businesses only. No fast food, no multinationals.</p>`);
 }
 
+// ---- Everything: every page on the Daily Maverick, in one place, so nothing is hidden ----
+function allPage() {
+  const G = [["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
+    ["🧰 Handy tools", [["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
+    ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
+    ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
+    ["👤 You", [["/me", "My page", "Your settings and what Mav knows"], ["/signin", "Sign in", "Free, one tap"]]],
+    ["ℹ️ About us", [["/about", "Nobody pays to be here", "How we stay free"], ["/charter", "Our charter", "No BS, no opinions, just sources"], ["/status", "What's done", "Live now and coming soon"], ["/timesaved", "Time saved", "How much time we give back"], ["/new", "What's new", "Latest changes"], ["/ai-log", "AI log", "What our AI does, in the open"], ["/faq", "FAQ", "Common questions"], ["/privacy", "Privacy", "What we keep, and don't"]]]];
+  return page(`Everything on ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>Everything on the Daily Maverick</h1><p class="mute">Every page we have, in one place.</p>
+${G.map(([h, L]) => `<h2>${h}</h2>${L.map(([u, n, d]) => `<a class="card" href="${u}"><b>${esc(n)}</b> ${esc(d)} →</a>`).join("")}`).join("\n")}`);
+}
+
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
 <p>${R.why.intro}</p>
@@ -2256,6 +2269,7 @@ async function route(req, env, ctx) {
     if (p === "/home") return homePage();
     if (p === "/rent") return dirPage("rent");
     if (p === "/timesaved") return timeSavedPage(env);
+    if (p === "/all" || p === "/everything") return allPage();
     if (p === "/award") return awardPage(req, env, ctx);
     if (p === "/api/beer") return beerApi(req, env, url);
     if (p === "/status") return statusPage(env);
@@ -2546,7 +2560,7 @@ ${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details clas
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/award", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
+  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/award", "/all", "/celebrations", "/ai-log", "/new", "/towns", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
