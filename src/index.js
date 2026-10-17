@@ -73,6 +73,8 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .mavtalk{padding:0 14px 8px;display:flex;flex-direction:column;gap:4px}.mavtalk small{font-size:.75rem}.pinlab{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:14px 0 4px}.pinlab b{color:var(--fg)}.frs{list-style:none;padding:0;margin:0 0 8px}.frs li{padding:6px 0;border-bottom:1px solid var(--line);font-size:.92rem}.frs small{font-size:.8rem}.frx{padding:0 8px;margin-left:4px}.me .row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}.me .row input{flex:1 1 130px}.me .row label{flex:1 1 140px}.me .row select{width:100%}.rules li{margin:4px 0}#sq li{display:flex;justify-content:space-between;align-items:center}
 `;
 
+// Footer lists always read A to Z
+const abc = (list, key) => [...list].sort((a, b) => key(a).localeCompare(key(b), "en-AU", { sensitivity: "base" }));
 function page(title, body, pc = "") {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
@@ -92,10 +94,10 @@ document.querySelectorAll('#rate button[data-v]').forEach(function(b){if(done===
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down'){f.hidden=false;document.getElementById('rnote').focus()}else{f.hidden=true;say('Thanks! Glad it helped.')}}});
 document.getElementById('rwrong').onclick=function(e){e.preventDefault();f.hidden=false;document.getElementById('rnote').focus()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote').value.trim();if(!n)return;send({note:n,email:document.getElementById('remail').value.trim()});f.hidden=true;say('Thanks for telling us. We read every one and fix what we got wrong.')}})();</script>
-<footer><p><a href="/about">Nobody pays to be here</a> · <a href="/feedback">Make ${R.code} better</a> · <a href="/charter">Charter</a> · <a href="/privacy">Privacy</a> · <a href="/faq">FAQ</a>${pc ? ` · <a href="/submit?pc=${pc}">Add an event</a>` : ""}</p>
+<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
-<p class="gaz">Our towns: ${Object.values(REGIONS).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
+<p class="gaz">Our towns: ${abc(Object.values(REGIONS), x => x.place).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
 <p class="aoc">🙏🏽 ${R.ack}<br><a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></p></footer>
 <script>window.M2C=${JSON.stringify({ code: R.code, secs: SECTIONS, towns: Object.fromEntries(Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => [k, [v.name, v.lat, v.lon]])) }).replace(/</g, "\\u003c")}<\/script><script>${PERSONAL_JS}<\/script>
