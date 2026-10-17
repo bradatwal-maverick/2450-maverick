@@ -1,3 +1,4 @@
+import { look } from "./vision.js";
 // ---- Locals' photos: signed-in locals share a photo of their postcode. A free AI check screens every one
 // (a real place, safe, no close-up faces) so nothing needs a person to approve it. Approved photos queue up
 // and each gets its own day as "Your place today", with the local's first name on it. Anyone can report one:
@@ -14,10 +15,8 @@ unsafe = true if there is nudity, violence, blood, weapons, drugs, rude gestures
 what = a short plain description, like "sunrise over the beach".`;
 
 async function screen(env, buf) {
-  const model = "@cf/meta/llama-3.2-11b-vision-instruct", ask = { messages: [{ role: "user", content: CHECK }], image: [...new Uint8Array(buf)], max_tokens: 120 };
-  let out; try { out = await env.AI.run(model, ask); }
-  catch (e) { if (/agree/i.test(String(e))) { await env.AI.run(model, { prompt: "agree" }); out = await env.AI.run(model, ask); } else throw e; }
-  const s = String(out?.response || ""), j = (() => { try { return JSON.parse(s.match(/\{[\s\S]*\}/)?.[0] || ""); } catch (e) { return null; } })();
+  const out = await look(env, CHECK, buf, 120);
+  const s = out, j = (() => { try { return JSON.parse(s.match(/\{[\s\S]*\}/)?.[0] || ""); } catch (e) { return null; } })();
   if (!j) return { ok: false, why: "check" };
   const yes = v => v === true || v === "true";
   if (yes(j.unsafe)) return { ok: false, why: "unsafe" };

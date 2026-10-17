@@ -1,3 +1,4 @@
+import { look } from "./vision.js";
 // ---- Your place today: one photo a day for each postcode, before any news.
 // Free-licensed photos from Wikimedia Commons taken within 10 km of the postcode, with the photographer credited.
 // Commons' own Quality, Valued and Featured picks come first. No repeats for 60 days. Picked once a day, cached.
@@ -22,9 +23,8 @@ Score 1 if it's a sign, a map, blurry or dark.
 Reply with ONLY the number.`;
 export async function rate(env, url, UA) {
   try { const r = await fetch(url, { headers: UA }); if (!r.ok) return 0; const buf = await r.arrayBuffer(); if (buf.byteLength > 1.5e6) return 0;
-    const model = "@cf/meta/llama-3.2-11b-vision-instruct", ask = { messages: [{ role: "user", content: RATE }], image: [...new Uint8Array(buf)], max_tokens: 5 };
-    let out; try { out = await env.AI.run(model, ask); } catch (e) { if (/agree/i.test(String(e))) { await env.AI.run(model, { prompt: "agree" }); out = await env.AI.run(model, ask); } else throw e; }
-    return Math.min(10, +(String(out?.response || "").match(/\d+/)?.[0] || 0));
+    const out = await look(env, RATE, buf, 5);
+    return Math.min(10, +(out.match(/\d+/)?.[0] || 0));
   } catch (e) { return 0; } }
 export const small = u => String(u || "").replace(/\/(\d+)px-/, "/500px-"); // standard Wikimedia width only
 
@@ -90,8 +90,7 @@ export async function photoCheck(env, lat, lon, UA) {
   const c = candidates(await search(lat, lon, UA)), out = { candidates: c.length, ai: !!env.AI, tried: [] };
   for (const x of c.slice(0, 3)) { const u = small(x.i.thumburl || x.i.url), t = { title: x.p.title, kw: x.s };
     try { const r = await fetch(u, { headers: UA }); t.img = r.status; if (r.ok) { const buf = await r.arrayBuffer(); t.bytes = buf.byteLength;
-      const model = "@cf/meta/llama-3.2-11b-vision-instruct", ask = { messages: [{ role: "user", content: RATE }], image: [...new Uint8Array(buf)], max_tokens: 5 };
-      try { const o = await env.AI.run(model, ask); t.ai = String(o?.response || "").slice(0, 40); } catch (e) { t.err = String(e).slice(0, 200); } } } catch (e) { t.err = String(e).slice(0, 200); }
+      try { t.ai = (await look(env, RATE, buf, 5)).slice(0, 40); } catch (e) { t.err = String(e).slice(0, 200); } } } catch (e) { t.err = String(e).slice(0, 200); }
     out.tried.push(t); }
   return out;
 }
