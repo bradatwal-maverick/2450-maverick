@@ -426,7 +426,7 @@ async function handleSubscribe(req, env) {
   const f = await req.formData();
   const pc = String(f.get("pc") || R.code).slice(0, 4), email = String(f.get("email") || "").trim().toLowerCase();
   if (!f.get("website") && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
-    await env.DATA.put(`sub:${email}`, JSON.stringify({ email, pc, consent: true, at: new Date().toISOString() }));
+    { await env.DATA.put(`sub:${email}`, JSON.stringify({ email, pc, consent: true, at: new Date().toISOString() })); await acQueue(env, email); }
   return page("You're in", `<h1>You're in!</h1><p>Thanks for helping a brother out. Watch for "This week in ${esc(pc)}".</p>
 <p class="note">🎁 ${GIFT_URL ? `Your free guide: <a href="${GIFT_URL}" rel="noopener"><b>how AI can help in your everyday life</b></a>, from Maverick Digital.` : `Your free guide from Maverick Digital, <b>how AI can help in your everyday life</b>, arrives with your first weekly email.`}</p><p><a href="/${esc(pc)}">Back to ${esc(pc)}</a></p>`, pc);
 }
@@ -636,6 +636,52 @@ async function goLink(slug, env) {
   return new Response(null, { status: 302, headers: { location: to, "cache-control": "no-store" } });
 }
 
+// ---- ActiveCampaign: everyone who signs in or subscribes goes to AC, tagged with the postcode of the Daily Maverick they joined from.
+// Secrets on each Worker: AC_URL (e.g. https://youraccount.api-us1.com) and AC_KEY. Off until both are set.
+// Only people who ticked yes to the weekly email (a sub: record) go on list 4, so we stay on the right side of the Spam Act.
+// Google sign-ins who haven't opted in yet are still added as contacts (with postcode), just not to the list.
+// New people are queued (acq:) and sent every half hour. The first run also queues everyone already signed up.
+const AC_LIST = 4, AC_PC = "DAILY_MAVERICK_POSTCODE";
+const acQueue = (env, email) => env.DATA.put(`acq:${email}`, "1").catch(() => {});
+async function ac(env, path, body, method) {
+  const r = await fetch(`${env.AC_URL.replace(/\/+$/, "")}/api/3/${path}`, { method: method || (body ? "POST" : "GET"), headers: { "Api-Token": env.AC_KEY, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  if (!r.ok && r.status !== 422) throw new Error(`AC ${path} ${r.status}`);
+  return r.json().catch(() => ({}));
+}
+async function acFieldId(env) { // finds (or makes, once) the "Daily Maverick postcode" field, shared by every town's site
+  let id = await env.DATA.get("ac:field"); if (id) return id;
+  const f = (await ac(env, `fields?limit=100&filters[perstag]=${AC_PC}`)).fields?.find(x => x.perstag === AC_PC);
+  if (f) id = f.id;
+  else { id = (await ac(env, "fields", { field: { type: "text", title: "Daily Maverick postcode", perstag: AC_PC, description: "Which Daily Maverick site they joined from" } })).field?.id; if (id) await ac(env, "fieldRels", { fieldRel: { field: id, relid: 0 } }); }
+  if (id) await env.DATA.put("ac:field", String(id));
+  return id;
+}
+async function acTagId(env, name) {
+  let id = await env.DATA.get(`ac:tag:${name}`); if (id) return id;
+  id = (await ac(env, `tags?search=${encodeURIComponent(name)}`)).tags?.find(t => t.tag === name)?.id || (await ac(env, "tags", { tag: { tag: name, tagType: "contact", description: "Daily Maverick AI tips pick" } })).tag?.id;
+  if (id) await env.DATA.put(`ac:tag:${name}`, String(id));
+  return id;
+}
+async function acSync(env) {
+  if (!env.AC_URL || !env.AC_KEY) return;
+  if (!(await env.DATA.get("ac:backfill"))) { for (const pre of ["user:", "sub:"]) for (const { name } of await listAll(env, pre)) await acQueue(env, name.slice(pre.length)); await env.DATA.put("ac:backfill", new Date().toISOString()); }
+  const q = (await env.DATA.list({ prefix: "acq:", limit: 40 })).keys; if (!q.length) return;
+  const field = await acFieldId(env);
+  for (const { name } of q) {
+    const email = name.slice(4);
+    try {
+      const u = await env.DATA.get(`user:${email}`, "json"), sub = await env.DATA.get(`sub:${email}`, "json");
+      if (u || sub) {
+        const pc = String(sub?.pc || R.code), first = String(sub?.name || u?.name || "").slice(0, 40);
+        const c = (await ac(env, "contact/sync", { contact: { email, ...(first ? { firstName: first } : {}), ...(field ? { fieldValues: [{ field: String(field), value: pc }] } : {}) } })).contact;
+        if (c?.id && sub?.consent) await ac(env, "contactLists", { contactList: { list: AC_LIST, contact: c.id, status: 1 } });
+        if (c?.id && sub?.tips) { const t = await acTagId(env, `Tips: ${TIPPERS.find(x => x[0] === sub.tips)?.[1].replace(/^\S+\s/, "") || sub.tips}`); if (t) await ac(env, "contactTags", { contactTag: { contact: c.id, tag: t } }); }
+      }
+      await env.DATA.delete(name);
+    } catch (e) { break; } // AC hiccup or rate limit: leave the rest queued for the next run
+  }
+}
+
 // ---- Gravatar: a public photo and first name from just an email (GRAVATAR_API_KEY secret).
 // Only public profile data. Cached a week per email hash (misses too), so we rarely call Gravatar.
 const okPic = u => (typeof u === "string" && /^https:\/\/([\w-]+\.)*(gravatar\.com|googleusercontent\.com)\//.test(u) ? u.slice(0, 300) : "");
@@ -712,6 +758,7 @@ async function finishGoogle(req, url, env) {
   const name = String(c.given_name || c.name || "").slice(0, 40), now = new Date().toISOString();
   const prev = await env.DATA.get(`user:${email}`, "json");
   await env.DATA.put(`user:${email}`, JSON.stringify({ email, name, fullName: String(c.name || "").slice(0, 80), picture: c.picture || "", via: "google", first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
+  if (!prev) await acQueue(env, email);
   const tok = crypto.randomUUID();
   await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
   const subbed = await env.DATA.get(`sub:${email}`);
@@ -728,7 +775,7 @@ const welcomePage = (url) => { const next = safeNext(url.searchParams.get("next"
 
 async function optin(req, env) {
   const f = await req.formData(), next = safeNext(String(f.get("next") || "/")), email = await member(req, env);
-  if (email) { const u = await env.DATA.get(`user:${email}`, "json"); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name: u?.name || "", pc: R.code, consent: true, source: "google", tips: tipPick(f.get("tips")), at: new Date().toISOString() })); }
+  if (email) { const u = await env.DATA.get(`user:${email}`, "json"); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name: u?.name || "", pc: R.code, consent: true, source: "google", tips: tipPick(f.get("tips")), at: new Date().toISOString() })); await acQueue(env, email); }
   return new Response(null, { status: 303, headers: { location: next } });
 }
 
@@ -775,6 +822,7 @@ async function unlock(req, env) {
   const name = String(f.get("name") || g?.first || "").slice(0, 40), tok = crypto.randomUUID();
   await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: R.code, consent: true, source: "fridge", tips: tipPick(f.get("tips")), at: new Date().toISOString() }));
   await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
+  await acQueue(env, email);
   const prev = await env.DATA.get(`user:${email}`, "json"), now = new Date().toISOString();
   await env.DATA.put(`user:${email}`, JSON.stringify({ ...(prev || {}), email, name: name || prev?.name || "", picture: prev?.picture || g?.photo || "", via: prev?.via || "email", first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
   return new Response(null, { status: 303, headers: sessionHeaders(tok, name, f.get("next") ? safeNext(String(f.get("next"))) : "/fridge", prev?.picture || g?.photo) });
@@ -1669,6 +1717,7 @@ export default {
     ctx.waitUntil(pushBatch(env));
     ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
+    ctx.waitUntil(acSync(env).catch(() => {}));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
