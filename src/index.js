@@ -94,7 +94,7 @@ document.querySelectorAll('#rate button[data-v]').forEach(function(b){if(done===
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down'){f.hidden=false;document.getElementById('rnote').focus()}else{f.hidden=true;say('Thanks! Glad it helped.')}}});
 document.getElementById('rwrong').onclick=function(e){e.preventDefault();f.hidden=false;document.getElementById('rnote').focus()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote').value.trim();if(!n)return;send({note:n,email:document.getElementById('remail').value.trim()});f.hidden=true;say('Thanks for telling us. We read every one and fix what we got wrong.')}})();</script>
-<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
+<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/timesaved", "Time saved"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Our towns: ${abc(Object.values(REGIONS), x => x.place).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
@@ -102,6 +102,7 @@ f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote')
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></p></footer>
 <script>window.M2C=${JSON.stringify({ code: R.code, secs: SECTIONS, towns: Object.fromEntries(Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => [k, [v.name, v.lat, v.lon]])) }).replace(/</g, "\\u003c")}<\/script><script>${PERSONAL_JS}<\/script>
 ${MAV_WIDGET()}
+<script>${TS_JS}<\/script>
 <script>/* External links: open in a new tab and tell the site the visit came from this Daily Maverick (UTM tags), so their analytics credit us. */
 function m2utm(a){try{var u=new URL(a.href,location.href);if(!/^https?:$/.test(u.protocol)||u.host===location.host||u.host==="accounts.google.com"||(/(^|\\.)google\\./.test(u.host)&&/^\\/maps/.test(u.pathname))||u.searchParams.has("utm_source")||a.dataset.noutm!=null)return u;
 var s=a.closest("section[id]");u.searchParams.set("utm_source",location.host);u.searchParams.set("utm_medium","referral");u.searchParams.set("utm_campaign","daily-maverick");if(s)u.searchParams.set("utm_content",s.id);a.href=u.toString();return u}catch(_){return null}}
@@ -239,6 +240,7 @@ ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${await bdmBlock(env, ctx)}
 <section id="tools"><h2>Handy tools</h2>
+${await tsLine(env)}
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
 <a class="card" href="/${R.why.slug}">🌊 <b>${R.why.title}</b> ${R.why.card} →</a>
@@ -1814,6 +1816,51 @@ var h='<h3>My shopping list</h3>';if(!j.items.length){B.innerHTML=h+'<p class="m
 var cell=function(x,lo){if(!x)return '<td class="mute">checking</td>';return '<td class="'+(x.price===lo?'cheap':'')+'" title="'+e(x.name)+'">'+m(x.price)+(x.prev&&x.prev!==x.price?'<br><small class="mute">'+(x.price>x.prev?'▲':'▼')+' '+m(x.prev)+'</small>':'')+'</td>'};
 B.innerHTML=h+'<div class="tscroll"><table class="shopt"><thead><tr><th></th><th>Woolworths</th><th>ALDI</th></tr></thead><tbody>'+j.items.map(function(i){var v=[i.w,i.a].filter(Boolean).map(function(x){return x.price}),lo=v.length>1?Math.min.apply(null,v):-1;return '<tr><th scope="row">'+e(i.label)+'</th>'+cell(i.w,lo)+cell(i.a,lo)+'</tr>'}).join('')+'</tbody></table></div><p class="mute">Your items, checked twice a day. Coles blocks our checks. Ask Mav to add, swap or stop watching an item.'+(j.plan==='paid'?'':' Free members watch 1 item; premium members watch up to 20.')+'</p>'}).catch(function(){})})();`;
 
+// ---- Time saved: people tell us how long a job took before and how long it takes now with our tool. We add it up and show it. ----
+const TS_TOOLS = { daily: "Your Daily Maverick", "/open": "Open now?", "/fridge": "What's in your fridge?", "/school": "School run check", "/birthday": "Birthday deals",
+  "/rent": "Renting", "/jobs": "Jobs", "/genalpha": "Gen Alpha interpreter", "/home": "My home", "/notices": "Community notice board", "/bdm": "Births, Deaths and Marriages", "/watch": "What to watch tonight" };
+const tsHours = m => { const h = m / 60; return h >= 10 ? Math.round(h).toLocaleString("en-AU") : h >= 1 ? h.toFixed(1) : Math.round(m) + " min"; };
+const tsH = m => { const t = tsHours(m); return /min$/.test(t) ? t : t + (t === "1.0" ? " hour" : " hours"); };
+async function timeApi(req, env, url) {
+  if (req.method !== "POST") {
+    const t = url.searchParams.get("tool"), tot = (await env.DATA.get("ts:total", "json")) || { n: 0, mins: 0 };
+    const a = TS_TOOLS[t] ? await env.DATA.get("ts:" + t, "json") : null;
+    return Response.json({ total: tot, tool: a && a.n >= 3 ? { n: a.n, before: Math.round(a.before / a.n), after: Math.round(a.after / a.n), mins: a.mins } : null }, { headers: { "cache-control": "no-store" } });
+  }
+  let j = {}; try { j = await req.json(); } catch (e) {}
+  const t = String(j.tool || ""), b = Math.round(+j.before), a = Math.round(+j.after), f = +j.freq;
+  if (!TS_TOOLS[t] || !(b >= 1 && b <= 600) || !(a >= 0 && a <= b) || ![7, 3, 1, 0.25].includes(f)) return Response.json({ error: "Check your numbers" }, { status: 400 });
+  let id = cookie(req, "tsid"); const fresh = !/^[a-f0-9-]{36}$/.test(id || ""); if (fresh) id = crypto.randomUUID();
+  const k = `tsv:${t}:${id}`, prev = await env.DATA.get(k, "json"), w = (b - a) * f, now = { b, a, f, w, at: new Date().toISOString() };
+  const agg = (await env.DATA.get("ts:" + t, "json")) || { n: 0, mins: 0, before: 0, after: 0 }, tot = (await env.DATA.get("ts:total", "json")) || { n: 0, mins: 0 };
+  if (prev) { agg.n--; agg.mins -= prev.w; agg.before -= prev.b; agg.after -= prev.a; tot.n--; tot.mins -= prev.w; }
+  agg.n++; agg.mins += w; agg.before += b; agg.after += a; tot.n++; tot.mins += w;
+  await Promise.all([env.DATA.put(k, JSON.stringify(now)), env.DATA.put("ts:" + t, JSON.stringify(agg)), env.DATA.put("ts:total", JSON.stringify(tot))]);
+  const h = new Headers({ "content-type": "application/json" }); if (fresh) h.append("set-cookie", `tsid=${id}; Path=/; Max-Age=63072000; Secure; SameSite=Lax`);
+  return new Response(JSON.stringify({ ok: true, week: w, total: tot }), { headers: h });
+}
+async function tsLine(env) {
+  const t = await env.DATA.get("ts:total", "json");
+  return t && t.mins > 0 ? `<p class="note">⏱️ Locals have saved <b>${tsH(t.mins)} a week</b> with these tools, about <b>${tsH(t.mins * 52)} a year</b>. <a href="/timesaved">See where the time goes</a></p>` : "";
+}
+async function timeSavedPage(env) {
+  const tot = (await env.DATA.get("ts:total", "json")) || { n: 0, mins: 0 }, rows = [];
+  for (const [k, n] of Object.entries(TS_TOOLS)) { const a = await env.DATA.get("ts:" + k, "json"); if (a && a.n > 0) rows.push([k, n, a]); }
+  rows.sort((x, y) => y[2].mins - x[2].mins);
+  return page(`Time saved: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>⏱️ Time saved</h1>
+<p>Every tool here exists to give you time back. So we ask: how long did this take you before, and how long now? Here&rsquo;s what locals have told us.</p>
+${tot.mins > 0 ? `<div class="tiles"><div class="tile"><b>${tsHours(tot.mins)}</b><small>${/min$/.test(tsHours(tot.mins)) ? "saved a week" : "hours saved a week"}</small></div><div class="tile"><b>${tsHours(tot.mins * 52)}</b><small>${/min$/.test(tsHours(tot.mins * 52)) ? "saved a year" : "hours saved a year"}</small></div><div class="tile"><b>${tot.n}</b><small>answers so far</small></div></div>` : `<p class="note">No answers yet. Use a tool, then tell us how much time it saved you at the bottom of its page.</p>`}
+${rows.length ? `<div class="tscroll"><table class="shopt"><thead><tr><th>Tool</th><th>Before</th><th>Now</th><th>Saved a week</th></tr></thead><tbody>${rows.map(([k, n, a]) => `<tr><th scope="row">${k === "daily" ? esc(n) : `<a href="${k}">${esc(n)}</a>`}</th>${a.n >= 3 ? `<td>${Math.round(a.before / a.n)} min</td><td>${Math.round(a.after / a.n)} min</td>` : `<td class="mute" colspan="2">needs 3 answers</td>`}<td>${tsH(a.mins)}</td></tr>`).join("")}</tbody></table></div>` : ""}
+<p class="src">From what people tell us at the bottom of each tool. Averages show once a tool has 3 answers, so nobody&rsquo;s own answer can be picked out. One answer per tool per device; answering again replaces your last one.</p>`);
+}
+const TS_JS = `(function(){var T=${JSON.stringify(TS_TOOLS)},p=location.pathname.replace(/\\/$/,'')||'/',k=T[p]?p:(/^\\/(\\d{4})?$/.test(p)?'daily':null);if(!k)return;var f=document.querySelector('footer');if(!f)return;
+var d=document.createElement('section');d.id='timesaved';d.className='tsbox';d.innerHTML='<h2>⏱️ How much time did this save you?</h2><p class="mute">Tell us and we&rsquo;ll add it to the time we&rsquo;ve saved locals. Takes 10 seconds.</p><form class="tsf"><label>Before, it took me <input name="b" type="number" min="1" max="600" inputmode="numeric" required style="width:5em"> min</label><label>Now it takes <input name="a" type="number" min="0" max="600" inputmode="numeric" required style="width:5em"> min</label><label>I do this <select name="f"><option value="7">every day</option><option value="3">a few times a week</option><option value="1" selected>once a week</option><option value="0.25">once a month</option></select></label><button>Count my time saved</button></form><p class="tsmsg mute"></p>';
+f.parentNode.insertBefore(d,f);var M=d.querySelector('.tsmsg'),H=function(m){var h=m/60;return h>=10?Math.round(h)+' hours':h>=1?h.toFixed(1)+' hours':Math.round(m)+' min'};
+fetch('/api/timesaved?tool='+encodeURIComponent(k)).then(function(r){return r.json()}).then(function(j){var s=[];if(j.tool)s.push('Locals say this used to take '+j.tool.before+' min and now takes '+j.tool.after+' min.');if(j.total&&j.total.mins>0)s.push('All up, locals have saved '+H(j.total.mins)+' a week.');if(s.length)M.textContent=s.join(' ')}).catch(function(){});
+d.querySelector('form').addEventListener('submit',function(e){e.preventDefault();var F=e.target,b=+F.b.value,a=+F.a.value;if(a>b){M.textContent='Now should be less than before. If it takes longer, tell us how to fix it at /feedback.';return}
+fetch('/api/timesaved',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tool:k,before:b,after:a,freq:+F.f.value})}).then(function(r){return r.json()}).then(function(j){if(!j.ok){M.textContent=j.error||'Something went wrong.';return}
+M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b> Thanks for telling us. All up, locals have saved '+H(j.total.mins)+' a week.'}).catch(function(){M.textContent='Something went wrong. Try again?'})})})();`;
+
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
 <p>${R.why.intro}</p>
@@ -2063,6 +2110,8 @@ async function route(req, env, ctx) {
     if (p === "/kids/robot") return page(`Robot Builder: Kid Zone`, `<style>${KID_CSS}</style>` + robotPage("/" + R.code));
     if (p === "/home") return homePage();
     if (p === "/rent") return dirPage("rent");
+    if (p === "/timesaved") return timeSavedPage(env);
+    if (p === "/api/timesaved") return timeApi(req, env, url);
     if (p === "/jobs") return dirPage("jobs");
     if (p === "/api/mylist") return myListApi(req, env);
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
@@ -2350,7 +2399,7 @@ ${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details clas
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
+  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
