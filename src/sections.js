@@ -6,12 +6,14 @@ export const NAV = [
     ["#news", "📰", "Local news", "Today's local headlines, each with its source"],
     ["#alerts", "🚨", "Alerts", "Fires, floods, storms and road closures"],
     ["#numbers", "🔢", "News in numbers", "The day's news, by the numbers"],
-    ["#council", "🏛️", "Council watch", "Next meeting, how to complain, what was promised"],
     ["#bypass", "🛣️", "Bypass updates", "Progress on the bypass, from the source"],
     ["#aigb", "🤖", "AI for good, AI for bad", "What AI did this week, both sides"],
+  ] },
+  { slug: "council", icon: "🏛️", name: "Council Watch", blurb: "Holding the decision-makers to account. We source, you decide.", items: [
+    ["#council", "🏛️", "Council watch today", "Next meeting, how to complain, what was promised"],
     ["/au", "🗳️", "Who represents you", "Your council, MPs and senators, fact-checked"],
   ] },
-  { slug: "community", icon: "🤝", name: "Community", blurb: "Your town's notice board, family news and the locals making it happen.", items: [
+  { slug: "community", icon: "🤝", name: "Community", blurb: "Your town's notice board, family news, what's on and where to meet people.", items: [
     ["#events", "🎪", "Community events", "What's on, local submissions first"],
     ["/notices", "📌", "Notice board", "Lost pets, volunteers, clubs and classes"],
     ["/bdm", "📰", "Births, Deaths and Marriages", "Family notices in one place"],
@@ -21,8 +23,6 @@ export const NAV = [
     ["/photos", "📸", "Locals' photos", "Your place, through locals' eyes"],
     ["#radio", "📻", "Local radio", "Community and public radio, one tap to listen"],
     ["/feedback", "💡", "Ideas and votes", "30 votes and we build it"],
-  ] },
-  { slug: "social", icon: "🍻", name: "Social", blurb: "Where to go, who to meet and what's on tonight.", items: [
     ["#tonight", "📅", "What's on tonight", "Pub specials, trivia, bingo, gigs and markets"],
     ["/singles", "💘", "Singles", "Meet people in real life"],
     ["/lgbtqia", "🏳️‍🌈", "LGBTQIA+", "Your town, for everyone"],

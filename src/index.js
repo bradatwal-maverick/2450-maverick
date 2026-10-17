@@ -2435,6 +2435,7 @@ async function route(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
+    if (p === "/social" || p === "/social/") return Response.redirect(new URL("/community", url).toString(), 301);
     if (NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) return sectionPage(p.replace(/^\/|\/$/g, ""), { page, esc, R });
     if (p === "/signin") return signinPage(env, safeNext(url.searchParams.get("next") || "/"));
     if (p === "/auth/google") return startGoogle(url, env);
