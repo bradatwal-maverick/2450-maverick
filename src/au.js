@@ -62,7 +62,7 @@ function statePage(s, h) {
 ${finder(h, s)}
 <p>${h.esc(g.hog.title)}: <b>${h.esc(g.hog.name)}</b> (${h.esc(g.hog.party)}) · Next state election: ${h.esc(nextElection(g.next))}</p>
 <h2>Regional councils</h2><ul class="heads">${list.map(([k, c]) => `<li><a href="/au/${k}">${h.esc(c.name)}</a> <span class="mute">${c.pcs.join(", ")}</span></li>`).join("")}</ul>
-<p class="src">Postcodes are matched to the council that covers the main town. Source: ABS Local Government Areas, councils from the ${STATE_NAMES[s]} government directory. Checked ${AS_OF}.</p>`);
+<p class="src">Postcodes are matched to the council that covers the main town. <span class="srcw">Source:</span> ABS Local Government Areas, councils from the ${STATE_NAMES[s]} government directory. Checked ${AS_OF}.</p>`);
 }
 
 const src = (h, items) => `<p class="src">${items.filter(Boolean).map(([t, u]) => u ? `<a href="${h.esc(u)}" rel="noopener">${h.esc(t)}</a>` : h.esc(t)).join(" · ")}. Checked ${AS_OF}.</p>`;
