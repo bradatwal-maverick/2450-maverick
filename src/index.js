@@ -210,7 +210,7 @@ async function town(pc, env, ctx, isRoot = false) {
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
   return page(`Daily ${pc} Maverick: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<p class="mast">Daily ${esc(pc)} Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised daily news.</b> We don't write the news, we gather it. No opinions. Make your own.</p><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised daily news."}}catch(e){}<\/script>${quoteBlock()}
+<p class="mast">Daily ${esc(pc)} Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised daily news.</b> We don't write the news, we gather it. No opinions. Make your own.</p><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised daily news."}}catch(e){}<\/script>
 <h1>${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
 ${rallyStrip(nLocals)}
@@ -228,6 +228,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
 ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>` : ""}
 </div><p class="mute tloc"><a href="#" class="useloc">📍 Use my location for weather</a></p><div id="frs"></div></section>
+${quoteBlock()}
 ${live.news}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
@@ -1752,10 +1753,10 @@ const AU_HELPERS = {
   liveGazette: pc => { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc] && x.towns[pc].live); return r ? { name: `The ${r.code} Gazette`, url: `https://${r.domain}/${pc}` } : null; },
 };
 
-// A new thought every visit. Who said it shows on hover, so the quote does the talking.
+// A new thought every visit, credited underneath (who said it, and where).
 function quoteBlock() {
   const [q, who, ref] = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-  return `<blockquote class="quote" title="${esc(who + (ref ? " · " + ref : ""))}">“${esc(q)}”</blockquote>`;
+  return `<blockquote class="quote">“${esc(q)}”<cite>— ${esc(who)}${ref ? `, <i>${esc(ref)}</i>` : ""}</cite></blockquote>`;
 }
 
 // Email us (feedback, postcode requests). Never blocks the page.
