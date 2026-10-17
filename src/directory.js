@@ -18,7 +18,7 @@ const COUNCIL_JOBS = {
   "2454": [["Bellingen Shire Council: working with us", "https://www.bellingen.nsw.gov.au/Your-Council/About-Us/Working-with-us", "Jobs and traineeships at council."]],
 };
 const LOCAL_JOBS = {
-  "2450": [["Chandler Macleod: Coffs Harbour", "https://www.chandlermacleod.com/for-jobseekers/job-results/coffs-harbour", "Recruitment agency with local temp and permanent roles."]],
+  "2450": [],
 };
 
 export function rentGroups(R) {
@@ -26,7 +26,7 @@ export function rentGroups(R) {
   return [
     ["🔎", "Find a rental", `Every big rental site, already searched for ${p}. Check them all: some agents only list on one.`, [
       [`Rentals in ${p} on realestate.com.au`, `https://www.realestate.com.au/rent/in-${p.toLowerCase().replace(/ /g, "+")},+nsw+${pc}/list-1`, "Australia's biggest property site."],
-      [`Rentals in ${p} on Domain`, `https://www.domain.com.au/rent/${hy(p)}-nsw-${pc}/`, "The other big one. Includes Allhomes listings."],
+      [`Rentals in ${p} on Domain`, `https://www.domain.com.au/rent/${hy(p)}-nsw-${pc}/`, "The other big one."],
       [`Rentals in ${p} on Rent.com.au`, `https://www.rent.com.au/properties/${hy(p)}-nsw-${pc}`, "Rentals only, with a free renter résumé to send agents."],
       [`Rentals in ${p} on Homely`, `https://www.homely.com.au/for-rent/${hy(p)}-nsw-${pc}/real-estate`, "Rentals plus honest local reviews of each street."],
       [`Rentals on Facebook Marketplace`, "https://www.facebook.com/marketplace/category/propertyrentals", "Private landlords often list here. Never pay a deposit before you've seen the place."],
@@ -47,8 +47,9 @@ export function rentGroups(R) {
       ["Rent Check (NSW Government)", "https://www.nsw.gov.au/rent-check", "Is the rent fair? Compare it with what others pay in " + p + "."],
       ["Smart Rental Bonds", "https://www.nsw.gov.au/housing-and-construction/renting-a-place-to-live/residential-rental-bonds/smart-rental-bonds", "Moving? Take your bond with you instead of paying two at once. Now available across NSW."],
       ["Homes NSW: private rental assistance", "https://www.nsw.gov.au/departments-and-agencies/homes-nsw/social-housing-resources/private-rental-assistance", "Interest-free bond loans (Rentstart), advance rent and help with arrears, if you're eligible."],
-      ["Rent Choice", "https://www.service.nsw.gov.au/transaction/access-the-rent-choice-subsidy", "Help paying rent for up to 3 years after a setback, for young people, veterans or anyone escaping violence."],
-      ["Housing Response Centre", "tel:1800422322", "Call 1800 422 322 to ask what help you can get, or if you need a roof tonight.", true],
+      ["Rent Choice", "https://www.service.nsw.gov.au/transaction/access-the-rent-choice-subsidy", "Rent subsidies for eligible young people (16 to 24), veterans and people escaping domestic or family violence."],
+      ["Housing Response Centre", "tel:1800422322", "Call 1800 422 322 to ask what housing help you can get.", true],
+      ["Link2home", "tel:1800152152", "Call 1800 152 152, 24/7, if you need somewhere to stay tonight.", true],
     ]],
   ];
 }
@@ -92,11 +93,11 @@ ${items.map(([n, u, d, raw]) => `<a class="card" href="${esc(u)}" rel="noopener"
 // Local community radio in each region's shire. From the CBAA list of community broadcasters and the ACMA-based station list (checked 17 Oct 2026).
 const RADIO = {
   "2450": [["CHY FM", "104.1 FM", "https://www.chyfm.org.au", "Coffs Harbour"], ["2AIR FM", "107.9 FM", "http://www.2airfm.com.au", "Coffs Harbour"]],
-  "2454": [["2BBB (2 Triple B)", "107.3 FM", "http://www.2bbb.net.au/", "Bellingen"]],
+  "2454": [["2BBB (2 Triple B)", "107.3 FM (93.3 FM Dorrigo)", "http://www.2bbb.net.au/", "Bellingen"]],
   "2481": [["BayFM", "99.9 FM", "https://www.bayfm.org/", "Byron Bay"]],
   "2485": [["Mayhem Radio", "101.3 FM", "https://mayhemradio.com.au/", "Tweed Heads West"]],
   "2430": [["2BOB Radio", "104.7 FM", "http://www.2bobradio.org.au", "Taree"], ["Radio Ngarralinyi", "103.3 FM", "https://ngarralinyi.com.au/", "Taree, Aboriginal community radio"], ["Bucketts Radio", "104.1 FM", "http://buckettsradio.com.au/", "Gloucester"]],
-  "2350": [["2ARM", "92.1 FM", "http://www.2arm.net.au", "Armidale"], ["TUNE! FM", "online", "http://www.tunefm.net", "UNE student radio, Armidale"]],
+  "2350": [["2ARM", "92.1 FM", "http://www.2arm.net.au", "Armidale"], ["TuneFM", "106.9 FM", "http://www.tunefm.net", "UNE student radio, Armidale"]],
   "2444": [["2WAY FM", "103.9 FM", "http://2wayfm.com.au", "Wauchope, for Port Macquarie-Hastings"], ["Rhema FM", "99.9 FM", "https://rhema999.com.au", "Port Macquarie, Christian community radio"]],
 };
 export function radioSection(R, esc) {
