@@ -11,6 +11,7 @@ import { localToday, photosApi } from "./photos.js";
 import { sidePics, withPics, SIDE_CSS, THEMES } from "./sidepics.js";
 import { numbersApi } from "./numbers.js";
 import { edData, edBlock } from "./ed.js";
+import { trafficNear, trafficList } from "./traffic.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -1051,7 +1052,7 @@ document.getElementById('out').scrollIntoView({behavior:'smooth'})};
 </script>`);
 
 // ---- School run check (school choice saved on the phone only; nothing about kids is stored by us) ----
-const schoolPage = () => { const t = TOWNS[R.code]; return page("School run check", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
+const schoolPage = async (env) => { const t = TOWNS[R.code]; let tr = null; try { tr = await trafficNear(env, HOME); } catch (e) { tr = null; } return page("School run check", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
 <h1>🚸 School run check</h1><p>Pick your school once and this page becomes your morning and afternoon check before the school run.</p>
 <label>Your school</label><select id="sch" style="width:100%"><option value="">Choose…</option>${SCHOOLS.map(x => `<option>${esc(x)}</option>`).join("")}</select>
 <p class="mute">Saved on your phone only. <a href="#" class="useloc">📍 Use my location</a> for weather where you are.</p>
@@ -1061,14 +1062,14 @@ const schoolPage = () => { const t = TOWNS[R.code]; return page("School run chec
 <div class="tile"><span class="ico">🚸</span><b>8–9:30am</b><small>School zone 40 km/h</small></div>
 <div class="tile"><span class="ico">🚸</span><b>2:30–4pm</b><small>School zone 40 km/h</small></div></div>
 <p id="tip" class="note"></p>
-<h2>On your route</h2>${wip(`Crashes, roadworks and closures near <span id="sn"></span>`, "https://www.livetraffic.com", "Live Traffic NSW")}
+<h2>On the roads near you</h2>${trafficList(tr, esc)}
 <h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. <span class="srcw">Source:</span> <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a>.</p>
 <h2>Field closures &amp; weekend sport</h2>${wip("Wet-weather field closures and junior sport fixtures. Clubs will be able to post closures here free", R.council.url, R.council.name)}
 <h2>Bell times</h2>${wip("Your school's own bell times. Check the school newsletter or website for now")}</div>
 <script>
 var sel=document.getElementById('sch');try{sel.value=localStorage.getItem('school')||''}catch(e){}
 function show(){var v=sel.value;try{v?localStorage.setItem('school',v):localStorage.removeItem('school')}catch(e){}
-document.getElementById('rep').hidden=!v;document.getElementById('sn').textContent=v;if(!v)return;
+document.getElementById('rep').hidden=!v;var sn=document.getElementById('sn');if(sn)sn.textContent=v;if(!v)return;
 var LOC=null;try{LOC=JSON.parse(localStorage.getItem('loc'))}catch(e){};var LAT=LOC?LOC[0]:${t.lat},LON=LOC?LOC[1]:${t.lon};
 fetch('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&hourly=temperature_2m,precipitation_probability&forecast_days=1&timezone=Australia%2FSydney')
 .then(function(r){return r.json()}).then(function(d){var h=d.hourly,am=8,pm=15,ra=h.precipitation_probability[am],rp=h.precipitation_probability[pm];
@@ -1558,6 +1559,7 @@ function skyFortnight(neo) {
   return { events, rocks, banner };
 }
 async function liveBlocks(env, ctx, at = HOME) {
+  let tr = null; try { tr = await trafficNear(env, at); } catch (e) { tr = null; }
   const [news, fires, warn, hol, fdr, neo] = await Promise.all(["news", "fires", "warnings", "holidays", "fdr", "neo"].map(k => getSource(env, ctx, k)));
   const S = SOURCES, fail = s => wip("We couldn't reach the source just now, so we'll try again within 30 minutes");
   const alerts = `<section id="alerts"><h2>Alerts</h2><p class="mute">In an emergency call <a href="tel:000">000</a>.</p>
@@ -1566,7 +1568,7 @@ ${fdrBlock(fdr)}
 ${srcLine(S.fires.name, S.fires.url, fires.asof)}
 <h3>⚠️ Weather warnings</h3>${warn.ok === false ? fail() : warn.items.length ? `<ul>${warn.items.map(w => `<li>${w.link ? `<a href="${esc(w.link)}" rel="noopener">${esc(w.title)}</a>` : esc(w.title)}</li>`).join("")}</ul>` : "<p>✅ No current warnings for our area.</p>"}
 ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
-${wip("A live roads and traffic feed", "https://www.livetraffic.com", "Live Traffic NSW")}</section>`;
+<h3>🚗 Roads now</h3>${trafficList(tr, esc)}</section>`;
   const ago2 = n => { if (!n.date) return ""; const m = Math.round((Date.now() - new Date(n.date)) / 6e4); return m < 1 ? "just now" : m < 60 ? m + "m ago" : m < 24 * 60 ? Math.round(m / 60) + "h ago" : m < 48 * 60 ? "yesterday" : nd(n); };
   const nd = n => n.date ? esc(new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" })) : "";
   const nsrc = n => n.src ? `<span class="kick"><span class="srcw">Source:</span> ${esc(n.src)}</span>` : "";
@@ -2205,7 +2207,8 @@ function statusPage(env) {
     ["Open now?", "What's open near you"], ["What's in your fridge?", "Dinner ideas"], ["Birthday deals", "Say \"Maverick\""], ["Kid Zone", "Safe games, with a grown-up's OK"], ["Crossword", "Three levels, every day"], ["Mav", "Talk or type to set up your page"]];
   if (R.fields) done.push(["Sport & field closures", "With phone alerts"]);
   if (env.FUEL_KEY) done.push(["Fuel", "Cheapest near you"]);
-  const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["Live roads and traffic", "Crashes and roadworks on your route"], ["School bell times", "Your school's own times"],
+  done.push(["Roads now", "Crashes, floods, fires and roadwork within 40 km, from Live Traffic NSW"]);
+  const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["School bell times", "Your school's own times"],
     ["Memberships", "Some Cool Things $49 and Every Cool Thing $99 a year, 14 days free, no card, 7-day money-back. Founding Members pay $50 for life"], ["Saved searches by email", "Your searches, in your weekly email"]];
   if (!R.fields) todo.push(["Sport & field closures", "Field closures and local fixtures"]);
   if (!env.FUEL_KEY) todo.push(["Live fuel prices", "Cheapest fuel near you"]);
@@ -2709,7 +2712,7 @@ async function route(req, env, ctx) {
     if (p === "/suggest") return req.method === "POST" ? suggest(req, env, ctx) : suggestPage();
     if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage(env);
     if (p === "/vote" && req.method === "POST") return vote(req, env);
-    if (p === "/school") return schoolPage();
+    if (p === "/school") return schoolPage(env);
     if (p === "/fridge") { const em = await member(req, env); return !em ? unlockPage() : (await hasTier(env, em, "every")) ? fridgePage() : new Response(null, { status: 303, headers: { location: "/membership?need=every" } }); }
     if (p === "/unlock" && req.method === "POST") return unlock(req, env);
     if (p === "/api/hello" && req.method === "POST") return helloApi(req, env);
