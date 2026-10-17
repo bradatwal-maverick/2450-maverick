@@ -1,6 +1,7 @@
 
 // One engine, many towns: each Worker sets REGION (default 2450) and gets that town's settings from regions.js.
 import { REGIONS } from "./regions.js";
+import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionPage } from "./sections.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
@@ -114,13 +115,13 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 
 // Footer lists always read A to Z
 const abc = (list, key) => [...list].sort((a, b) => key(a).localeCompare(key(b), "en-AU", { sensitivity: "base" }));
-function page(title, body, pc = "") {
+function page(title, body, pc = "", opts = {}) {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
-<meta name="description" content="Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.">
+<meta name="description" content="${esc(opts.desc || "Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.")}">${opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : ""}
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>${CSS}</style></head><body><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>
+<style>${CSS}${NAV_CSS}</style></head><body><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}";var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onerror=function(){im.remove()};a.textContent=a.textContent.replace("💬 ","");a.prepend(im)}}}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${body}</main>
 <div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
@@ -271,7 +272,7 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const nLocals = await localsCount(env);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
-  return page(`The Daily Maverick: ${t.name} ${pc}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
+  return page(`The Daily Maverick: ${t.name} ${pc}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
 <p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath" id="pers">${dailyLine()}</p><details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent="✨ "+pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
@@ -2172,7 +2173,7 @@ ${await plusList(env)}
 
 // ---- Everything: every page on the Daily Maverick, in one place, so nothing is hidden ----
 function allPage() {
-  const G = [["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
+  const G = [["🗞️ Sections", NAV.map(x => [`/${x.slug}`, `${x.icon} ${x.name}`, x.blurb])], ["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
     ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Everything membership", "Founding Members: $50 a year for life"]]],
     ["🧰 Handy tools", [["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
@@ -2433,6 +2434,7 @@ async function route(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname;
     if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
+    if (NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) return sectionPage(p.replace(/^\/|\/$/g, ""), { page, esc, R });
     if (p === "/signin") return signinPage(env, safeNext(url.searchParams.get("next") || "/"));
     if (p === "/auth/google") return startGoogle(url, env);
     if (p === "/auth/google/callback") return finishGoogle(req, url, env);
@@ -2781,7 +2783,7 @@ ${towns.length ? `<p class="mute">The same answers apply to ${towns.map(esc).joi
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/award", "/all", "/celebrations", "/ai-log", "/new", "/towns", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
+  const b = `https://${R.domain}`, paths = ["/", ...NAV_SLUGS.map(x => "/" + x), ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/award", "/all", "/celebrations", "/ai-log", "/new", "/towns", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
