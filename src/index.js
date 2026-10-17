@@ -2,6 +2,7 @@
 // One engine, many towns: each Worker sets REGION (default 2450) and gets that town's settings from regions.js.
 import { REGIONS } from "./regions.js";
 import { ICONS } from "./icons.js";
+import { LOVE } from "./love.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
@@ -23,7 +24,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["wine", "Wine watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["love", "Why you'll love it"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["wine", "Wine watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -73,7 +74,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #flow>#news>h2::before{display:none}
 #tonight{--acc:#0f766e!important}#events,#kids{--acc:#0f766e!important}
 #alerts{--acc:#b42318!important}
-#memory{--acc:#6b7280!important}#joy{--acc:#c2417a!important}#bdm{--acc:#6b7280!important}
+#memory{--acc:#6b7280!important}#joy,#love{--acc:#c2417a!important}#bdm{--acc:#6b7280!important}
 #numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#rates{--acc:#15803d!important}
 #flights,#bypass,#sea,#beaches{--acc:#1d6fb8!important}
 #puzzles,#stars,#holidays{--acc:#b45309!important}
@@ -265,6 +266,7 @@ ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b
 ${oneAppBlock(nLocals)}
 ${live.alerts}
 ${live.news}
+${loveBlock(pc)}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${await bdmBlock(env, ctx)}
@@ -273,7 +275,7 @@ ${await bdmBlock(env, ctx)}
 ${await tsLine(env)}
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
-<a class="card" href="/${R.why.slug}">🌊 <b>${R.why.title}</b> ${R.why.card} →</a>
+<a class="card" href="/${R.why.slug}${LOVE[pc] ? "?pc=" + pc : ""}">❤️ <b>${LOVE[pc] ? `Why ${esc(LOVE[pc].name)}?` : R.why.title}</b> ${LOVE[pc] ? `What ${esc(pc)} has that nowhere else does, plus the whole area` : R.why.card} →</a>
 <a class="card" href="/open">🟢 <b>What&rsquo;s open?</b> Local or visiting: pharmacies, doctors, servos, cafés, mechanics and more. Open ones first →</a>
 <a class="card" href="/open?c=dogs">🐕 <b>Dog beaches & parks</b> Off-leash spots near you →</a>
 <a class="card" href="/open?c=petfriendly">🐶 <b>Dog-friendly cafés & pubs</b> Places happy to see your dog →</a>
@@ -2087,10 +2089,19 @@ ${G.map(([h, L]) => `<h2>${h}</h2>${L.map(([u, n, d]) => `<a class="card" href="
 }
 
 // ---- Why Coffs: fun facts, every one sourced ----
-const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
+// Each postcode's own reasons to love it (src/love.js): only things that postcode has and its neighbours don't. Every fact sourced.
+const factLi = ([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`;
+function loveBlock(pc) { const L = LOVE[pc]; if (!L?.facts?.length) return "";
+  return `<section id="love"><h2>❤️ Why you'll love ${esc(L.name)}</h2><p class="mute">What ${esc(pc)} has that nowhere else does. Every fact sourced.</p>
+<ul class="ideas">${dayMix(L.facts, "love" + pc).slice(0, 3).map(factLi).join("")}</ul><p><a href="/${R.why.slug}?pc=${pc}">All the reasons to love ${esc(L.name)} →</a></p></section>`; }
+const whyPage = (url) => { const pc = url.searchParams.get("pc"), L = TOWNS[pc]?.live && LOVE[pc];
+  return page(L ? `Why ${L.name}` : R.why.title.replace("?", ""), `<p class="mute"><a href="/${L ? pc : R.code}">‹ ${L ? `${pc} ${esc(L.name)}` : `${R.code} ${R.place}`}</a></p>
+${L ? `<h1>❤️ Why ${esc(L.name)}?</h1><p>What ${esc(pc)} has that nowhere else does. Every fact sourced.</p><ul class="ideas">${dayMix(L.facts, "love" + pc).map(factLi).join("")}</ul>
+<nav class="towns" aria-label="Other postcodes">${Object.entries(TOWNS).filter(([k, v]) => v.live && LOVE[k]).map(([k, v]) => k === pc ? `<span class="pc on">${k}</span>` : `<a class="pc" href="/${R.why.slug}?pc=${k}" title="${esc(v.name)}">${k}</a>`).join("")}</nav>
+<h2>🌊 And the whole area: ${R.why.title}</h2>` : `<h1>🌊 ${R.why.title}</h1>`}
 <p>${R.why.intro}</p>
 <ul class="ideas">${dayMix(FACTS, "facts").map(([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`).join("")}</ul>
-<p class="mute">Know a fact we've missed? <a href="/feedback">Tell us</a>.</p>`, R.code);
+<p class="mute">Know a fact we've missed? <a href="/feedback">Tell us</a>.</p>`, L ? pc : R.code); };
 
 // ---- Daily crossword: three levels, the same puzzle for everyone per level per day.
 // Anyone can play. Signed-in locals get their streak, solved count and best times saved (cwr:email) on any phone.
@@ -2328,7 +2339,7 @@ async function route(req, env, ctx) {
     if (p === "/open") return openPage();
     if (p === "/whatsopen" || p === "/visiting") return Response.redirect(new URL("/open", url).toString(), 302);
     if (p === "/api/open") return openApi(req, env);
-    if (p === "/" + R.why.slug) return whyPage();
+    if (p === "/" + R.why.slug) return whyPage(url);
     if (p === "/crossword") return crosswordPage(url);
     if (p === "/api/cw") return cwApi(req, env);
     if (p === "/api/cwboard") return cwBoard(url, req, env);
