@@ -1965,16 +1965,20 @@ document.getElementById('beerf').onsubmit=function(ev){ev.preventDefault();var v
 const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$50 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
 <p class="mute">Kindness, courage, trying hard, helping out. Anything worth encouraging. Grown-ups nominate; kids don&rsquo;t sign up themselves.</p>`;
 const awardBlock = () => `<section id="award"><h2>🏅 Mini Maverick Encouragement Award</h2>${AWARD_INFO.replace("${R.place}", esc(R.place))}<p><a href="/award"><b>Nominate a local kid →</b></a> · <a href="/award#apply">Clubs and local businesses: apply</a></p></section>`;
+async function plusList(env) {
+  const A = ((await env.DATA.get("award:apps", "json")) || []).filter(x => x.plus10 && x.pc === R.code);
+  return `<h2>💪 Making it go 10% further</h2>${A.length ? `<p class="mute">These local businesses add 10% when a winner spends their award with them.</p><ul class="fls">${A.map(x => `<li><b>${esc(x.org)}</b>${x.sub ? `, ${esc(x.sub)}` : ""}</li>`).join("")}</ul>` : `<p class="mute">No local business has signed up yet. Be the first: tick the 10% box below.</p>`}`;
+}
 async function awardPage(req, env, ctx) {
   const head = `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🏅 Mini Maverick Encouragement Award</h1>${AWARD_INFO.replace("${R.place}", esc(R.place))}`;
   if (req.method === "POST") {
     const f = await req.formData(); if (f.get("website")) return page("Thanks", head + `<p class="note">Thanks, it&rsquo;s in.</p>`);
     const v = k => String(f.get(k) || "").replace(/[<>]/g, "").trim();
     if (f.get("form") === "apply") {
-      const org = v("org").slice(0, 80), kind = v("kind").slice(0, 40), who = v("who").slice(0, 40), mail = v("aemail").slice(0, 80), more = v("more").slice(0, 600);
+      const org = v("org").slice(0, 80), sub = v("asub").slice(0, 40), plus10 = f.get("plus10") === "yes", kind = v("kind").slice(0, 40), who = v("who").slice(0, 40), mail = v("aemail").slice(0, 80), more = v("more").slice(0, 600);
       if (!org || !kind || !who || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return page("Nearly there", head + `<p class="note">Please fill in every field marked *.</p>`);
-      const A = (await env.DATA.get("award:apps", "json")) || []; await env.DATA.put("award:apps", JSON.stringify([{ org, kind, who, mail, more, pc: R.code, at: new Date().toISOString() }, ...A].slice(0, 500)));
-      mailUs(env, ctx, `Encouragement Award application: ${org} (${kind}, ${R.code})`, `Organisation: ${org}\nType: ${kind}\nContact: ${who}\nEmail: ${mail}\n\n${more}\n\nDaily Maverick: ${R.code}`, mail);
+      const A = (await env.DATA.get("award:apps", "json")) || []; await env.DATA.put("award:apps", JSON.stringify([{ org, sub, plus10, kind, who, mail, more, pc: R.code, at: new Date().toISOString() }, ...A.filter(x => x.org.toLowerCase() !== org.toLowerCase())].slice(0, 500)));
+      mailUs(env, ctx, `Encouragement Award application: ${org} (${kind}, ${R.code})`, `Organisation: ${org}${sub ? " (" + sub + ")" : ""}\nType: ${kind}\nMakes it go 10% further: ${plus10 ? "YES" : "no"}\nContact: ${who}\nEmail: ${mail}\n\n${more}\n\nDaily Maverick: ${R.code}`, mail);
       return page("Application in", head + `<p class="note">Thanks, ${esc(who)}! ${esc(org)}&rsquo;s application is in. We&rsquo;ll be in touch by email.</p>`);
     }
     const kid = v("kid").slice(0, 30), where = v("where").slice(0, 60), why = v("why").slice(0, 600), me = v("me").slice(0, 40), email = v("email").slice(0, 80), role = v("role").slice(0, 40);
@@ -1994,13 +1998,16 @@ async function awardPage(req, env, ctx) {
 <label><input type="checkbox" name="ok" value="yes" required> I&rsquo;m an adult, and the kid&rsquo;s parent or carer is OK with this nomination</label>
 <button>Nominate</button></form>
 <p class="src">We only ever show a winner&rsquo;s first name, with their parent or carer&rsquo;s OK. Nominations go straight to us and are never shared.</p>
+${await plusList(env)}
 <h2 id="apply">Clubs, schools and local businesses: apply</h2>
-<p>Run a junior sporting club or association? Swap the fast-food voucher for the <b>Mini Maverick Encouragement Award</b> at your presentations or player of the week. Run a local business? Apply to be a place where winners can spend their $50.</p>
+<p>Run a junior sporting club or association? Swap the fast-food voucher for the <b>Mini Maverick Encouragement Award</b> at your presentations or player of the week. Run a local business? Apply to be a place where winners can spend their $50, and <b>make it go 10% further</b>: $55 of goods for the winner, and your name on this page.</p>
 <form method="post"><input type="hidden" name="form" value="apply"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>Club, school or business name *</label><input name="org" maxlength="80" required>
+<label>Suburb</label><input name="asub" maxlength="40">
 <label>You are a… *</label><select name="kind" required><option value="">Choose</option><option>Sporting club or association</option><option>School</option><option>Community group</option><option>Local business (where winners can spend it)</option></select>
 <label>Your name *</label><input name="who" maxlength="40" required>
 <label>Your email *</label><input name="aemail" type="email" maxlength="80" required>
+<label><input type="checkbox" name="plus10" value="yes"> 💪 We&rsquo;ll make it go <b>10% further</b>: a winner spending their $50 with us gets $55 worth</label>
 <label>Tell us a bit more (optional)</label><textarea name="more" rows="3" maxlength="600" placeholder="e.g. Under 9s to under 14s, about 200 kids, presentations in September"></textarea>
 <button>Apply</button></form>
 <p class="src">Local regional businesses only. No fast food, no multinationals.</p>`);
