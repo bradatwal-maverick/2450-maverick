@@ -2,6 +2,7 @@
 // Same rules as Your place today (src/potd.js): only free-licensed Wikimedia Commons photos (CC BY, CC BY-SA, CC0
 // or public domain) taken within 10 km of the postcode, photographer and licence credited under every one.
 // Each section only gets a photo that matches it (a beach shot for Beaches, a jetty for Tides). No match, no photo.
+// Wikimedia only serves standard thumbnail widths (250, 500, 960, 1280…); anything else fails to load.
 // Picked once a day per postcode, cached, never the same as today's big photo.
 import { search, candidates, shape } from "./potd.js";
 
@@ -19,9 +20,9 @@ function seed(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0)
 
 // { sectionId: photo } for one postcode today.
 export async function sidePics(env, pc, town, day, UA) {
-  const k = `spics:${pc}:${day}`, hit = await env.DATA.get(k, "json");
+  const k = `spics2:${pc}:${day}`, hit = await env.DATA.get(k, "json");
   if (hit) return hit;
-  const hero = await env.DATA.get(`potd2:${pc}:${day}`, "json"), recent = (await env.DATA.get(`potd:recent:${pc}`, "json")) || [];
+  const hero = await env.DATA.get(`potd3:${pc}:${day}`, "json"), recent = (await env.DATA.get(`potd:recent:${pc}`, "json")) || [];
   let out = {};
   try {
     const c = candidates(await search(town.lat, town.lon, UA), [hero?.title, ...recent].filter(Boolean));
@@ -32,7 +33,7 @@ export async function sidePics(env, pc, town, day, UA) {
       const top = fit.slice(0, 8), x = top[seed(pc + day + id) % top.length];
       used.add(x.p.title);
       const ph = shape(x);
-      out[id] = { ...ph, src: String(ph.src).replace(/\/\d+px-/, "/640px-"), w: 640, h: Math.round(640 * ph.h / ph.w) };
+      out[id] = { ...ph, src: String(ph.src).replace(/\/\d+px-/, "/500px-"), w: 500, h: Math.round(500 * ph.h / ph.w) };
     }
   } catch (e) { out = {}; }
   await env.DATA.put(k, JSON.stringify(out), { expirationTtl: Object.keys(out).length ? 2 * 86400 : 3 * 3600 });

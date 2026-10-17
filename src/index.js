@@ -2364,7 +2364,7 @@ const aboutLinks = pc => `<a href="${wikiUrl(TOWNS[pc].name)}" rel="noopener" da
 // ---- Photo credits: every photo on today's paper, who took it and its free licence, plus how locals can keep their place up to date.
 async function creditsPage(env, url) {
   const q = (url.searchParams.get("pc") || R.code).replace(/\D/g, "").slice(0, 4), pc = TOWNS[q]?.live ? q : R.code, t = TOWNS[pc], day = todayISO(), nm = esc(t.name);
-  const hero = await env.DATA.get(`potd2:${pc}:${day}`, "json"), side = (await env.DATA.get(`spics:${pc}:${day}`, "json")) || {};
+  const hero = await env.DATA.get(`potd3:${pc}:${day}`, "json"), side = (await env.DATA.get(`spics2:${pc}:${day}`, "json")) || {};
   const label = Object.fromEntries(THEMES.map(([id]) => [id, (NAV.flatMap(n => n.items).find(i => i[0] === "#" + id) || [])[2] || id]));
   const row = (where, ph) => `<li><b>${esc(where)}</b>: <a href="${esc(ph.page)}" rel="noopener" data-noutm>${esc(ph.caption)}</a><br><span class="mute">Photo: ${esc(ph.artist)} · ${ph.licenseUrl ? `<a href="${esc(ph.licenseUrl)}" rel="noopener license" data-noutm>${esc(ph.license)}</a>` : esc(ph.license)} · Wikimedia Commons</span></li>`;
   const rows = [...(hero && !hero.none ? [row("Your place today", hero)] : []), ...Object.entries(side).map(([id, ph]) => row(label[id], ph))];

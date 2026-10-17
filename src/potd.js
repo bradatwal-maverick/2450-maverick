@@ -24,7 +24,7 @@ async function rate(env, url, UA) {
     let out; try { out = await env.AI.run(model, ask); } catch (e) { if (/agree/i.test(String(e))) { await env.AI.run(model, { prompt: "agree" }); out = await env.AI.run(model, ask); } else throw e; }
     return Math.min(10, +(String(out?.response || "").match(/\d+/)?.[0] || 0));
   } catch (e) { return 0; } }
-const small = u => String(u || "").replace(/\/(\d+)px-/, "/512px-");
+const small = u => String(u || "").replace(/\/(\d+)px-/, "/500px-"); // standard Wikimedia width only
 
 export function candidates(pages, recent = []) {
   return Object.values(pages || {}).map(p => ({ p, i: p.imageinfo?.[0] })).filter(({ p, i }) => i && /jpe?g$/i.test(p.title)
@@ -62,7 +62,7 @@ export function pickPhoto(pages, recent = [], salt = "") {
 
 export async function search(lat, lon, UA) {
   const q = new URLSearchParams({ action: "query", format: "json", generator: "geosearch", ggscoord: `${lat}|${lon}`, ggsradius: "10000", ggslimit: "500", ggsnamespace: "6",
-    prop: "imageinfo|categories", iiprop: "url|size|extmetadata", iiurlwidth: "1400", iiextmetadatafilter: "Artist|LicenseShortName|LicenseUrl|ObjectName|ImageDescription",
+    prop: "imageinfo|categories", iiprop: "url|size|extmetadata", iiurlwidth: "1280", iiextmetadatafilter: "Artist|LicenseShortName|LicenseUrl|ObjectName|ImageDescription",
     clcategories: "Category:Quality images|Category:Featured pictures on Wikimedia Commons|Category:Valued images", cllimit: "max", origin: "*" });
   const r = await fetch(`${API}?${q}`, { headers: UA, cf: { cacheTtl: 3600 } });
   if (!r.ok) return {};
@@ -71,7 +71,7 @@ export async function search(lat, lon, UA) {
 
 // Today's photo for one postcode (cached a day). Returns null if Commons has nothing suitable nearby.
 export async function photoOfDay(env, pc, town, home, day, UA) {
-  const k = `potd2:${pc}:${day}`, hit = await env.DATA.get(k, "json");
+  const k = `potd3:${pc}:${day}`, hit = await env.DATA.get(k, "json");
   if (hit) return hit.none ? null : hit;
   const rk = `potd:recent:${pc}`, recent = (await env.DATA.get(rk, "json")) || [];
   let pick = null;
