@@ -8,6 +8,7 @@ import { KID_CSS, kidsLog, kidsHub, safePage, petPage, robotPage, certPage } fro
 import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
 import { rentGroups, jobGroups, directoryBody, radioSection } from "./directory.js";
+import { EXTRA_PLACES } from "./places.js";
 import { WEST, EAST, VEDIC, STARTS, VSTARTS, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
 function initRegion(env) {
   if (R && R.code === (env.REGION || "2450")) return;
@@ -1664,10 +1665,16 @@ const OPEN_CATS = { pharmacy: ["💊 Pharmacies", 'nwr["amenity"="pharmacy"]'], 
   pub: ["🍺 Pubs & bars", 'nwr["amenity"~"^(pub|bar)$"]'], cafe: ["☕ Cafés", 'nwr["amenity"="cafe"]'], food: ["🍔 Takeaway & restaurants", 'nwr["amenity"~"^(fast_food|restaurant)$"]'],
   vet: ["🐾 Vets", 'nwr["amenity"="veterinary"]'], dogs: ["🐕 Dog beaches & parks", 'nwr["leisure"="dog_park"];nwr["natural"="beach"]["dog"~"^(yes|leashed|unleashed|designated)$"];nwr["dog"~"^(unleashed|designated)$"]["leisure"~"^(park|beach_resort)$"]'], petfriendly: ["🐶 Dog-friendly cafés & pubs", 'nwr["amenity"~"^(cafe|restaurant|pub|bar|fast_food)$"]["dog"~"^(yes|leashed|outside)$"]'], pets: ["🐾 Pet shops, groomers & shelters", 'nwr["shop"~"^(pet|pet_grooming)$"];nwr["amenity"~"^(animal_shelter|animal_boarding)$"]'],
   lgbtq: ["🏳️‍🌈 LGBTQ+ friendly", 'nwr["lgbtq"~"^(welcome|primary|friendly|yes)$"]'], hardware: ["🔨 Hardware", 'nwr["shop"~"^(hardware|doityourself)$"]'] };
+// Add the places we found on the web, skipping any the map already has
+function withExtras(cat, out) {
+  const ex = (EXTRA_PLACES[R.code] || {})[cat] || []; if (!ex.length || !out || out.error) return out;
+  const key = n => String(n).toLowerCase().replace(/[^a-z0-9]/g, ""), have = new Set((out.items || []).map(x => key(x.name)));
+  return { ...out, items: [...(out.items || []), ...ex.filter(x => !have.has(key(x.name))).map(x => ({ name: x.name, hours: x.hours || "", phone: "", lat: x.lat, lon: x.lon, addr: x.addr || "", web: x.web || "", note: x.note || "", src: x.src, url: x.url }))], extra: true };
+}
 async function openApi(req, env) {
   const cat = new URL(req.url).searchParams.get("c"); if (!OPEN_CATS[cat]) return Response.json({ error: "bad" }, { status: 400 });
   const c = await env.DATA.get("osm:" + cat, "json");
-  if (c && Date.now() - new Date(c.asof) < 864e5) return Response.json(c);
+  if (c && Date.now() - new Date(c.asof) < 864e5) return Response.json(withExtras(cat, c));
   try {
     const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1].split(";").map(s => s + `(${R.bbox});`).join("")});out center tags;`;
     const j = await (await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) })).json();
@@ -1676,8 +1683,8 @@ async function openApi(req, env) {
         addr: [t["addr:housenumber"], t["addr:street"], t["addr:suburb"] || t["addr:city"]].filter(Boolean).join(" "), web: t.website || t["contact:website"] || "", osm: `${e.type}/${e.id}` }; });
     const out = { cat, items, asof: new Date().toISOString() };
     await env.DATA.put("osm:" + cat, JSON.stringify(out));
-    return Response.json(out);
-  } catch (e) { return Response.json(c || { error: "unreachable" }); }
+    return Response.json(withExtras(cat, out));
+  } catch (e) { return Response.json(withExtras(cat, c) || { error: "unreachable" }); }
 }
 const openPage = () => page(`What's open in ${R.place}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🟢 What&rsquo;s open in ${esc(R.place)}</h1>
 <p>Local or just visiting? Pick what you need. Open places come first, nearest at the top. <a href="#" class="useloc">📍 Use my location</a></p>
@@ -1704,7 +1711,7 @@ function load(c,btn){document.querySelectorAll('#cats button').forEach(function(
 fetch('/api/open?c='+c).then(function(r){return r.json()}).then(function(j){if(j.error){ol.innerHTML='<p class="mute">Couldn\\u2019t reach the map data just now.</p>';return}
 var rank={open:0,shut:1,unk:2},it=j.items.map(function(x){x.s=status(x.hours);x.d=x.lat?km(HOME,[x.lat,x.lon]):999;return x}).filter(function(x){return x.d<40}).sort(function(a,b){return rank[a.s.c]-rank[b.s.c]||a.d-b.d}).slice(0,40);
 ol.innerHTML=it.length?'<ul class="openl">'+it.map(function(x){return '<li class="'+x.s.c+'"><span class="dot"></span><div><b>'+e(x.name)+'</b><br><span class="st">'+e(x.s.t)+'</span><br><span class="mute">'+e(x.addr||'')+(x.d<999?' · '+x.d.toFixed(1)+' km':'')+'</span><br>'
-+(x.phone?'<a href="tel:'+e(x.phone.replace(/[^+\\d]/g,''))+'">📞 Call</a> · ':'')+'<a href="https://www.google.com/maps/dir/?api=1&destination='+x.lat+','+x.lon+'" rel="noopener">🧭 Directions</a>'+(x.web?' · <a href="'+e(x.web)+'" rel="noopener">Website</a>':'')+'</div></li>'}).join('')+'</ul>':(c=='lgbtq'?'<p>No places tagged as LGBTQ+ friendly nearby yet. Know one? <a href="/feedback">Tell us</a> and we\\u2019ll get it on the map.</p>':'<p>Nothing listed nearby yet. Know one? <a href="/feedback">Tell us</a>.</p>');
++(x.phone?'<a href="tel:'+e(x.phone.replace(/[^+\\d]/g,''))+'">📞 Call</a> · ':'')+'<a href="https://www.google.com/maps/dir/?api=1&destination='+x.lat+','+x.lon+'" rel="noopener">🧭 Directions</a>'+(x.web?' · <a href="'+e(x.web)+'" rel="noopener">Website</a>':'')+(x.note?'<br><small>'+e(x.note)+'</small>':'')+(x.src?'<br><small class="mute">Found on <a href="'+e(x.url)+'" rel="noopener">'+e(x.src)+'</a></small>':'')+'</div></li>'}).join('')+'</ul>':(c=='lgbtq'?'<p>No places tagged as LGBTQ+ friendly nearby yet. Know one? <a href="/feedback">Tell us</a> and we\\u2019ll get it on the map.</p>':'<p>Nothing listed nearby yet. Know one? <a href="/feedback">Tell us</a>.</p>');
 document.getElementById('osrc').innerHTML='Info from <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>, a free map anyone can add to (© OpenStreetMap contributors). Updated '+new Date(j.asof).toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+'. Hours can be wrong, so call ahead if it matters. Wrong or missing hours? <a href="https://www.openstreetmap.org" rel="noopener">Anyone can fix them</a> or <a href="/feedback">tell us</a>.'})
 .catch(function(){ol.innerHTML='<p class="mute">Couldn\\u2019t load just now.</p>'})}
 document.querySelectorAll('#cats button').forEach(function(b){b.onclick=function(){load(b.dataset.c,b)}});
