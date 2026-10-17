@@ -22,7 +22,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["beer", "Beer watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -287,6 +287,7 @@ ${fuelBlock(t)}
 ${await numbersBlock(env)}
 ${await aiBlock(env)}
 ${await shopBlock(env)}
+${beerBlock()}
 ${await ratesBlock(env)}
 ${await projectBlock(env)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
@@ -1664,7 +1665,9 @@ const OPEN_CATS = { pharmacy: ["💊 Pharmacies", 'nwr["amenity"="pharmacy"]'], 
   grocery: ["🛒 Supermarkets", 'nwr["shop"~"^(supermarket|convenience)$"]'], bottle: ["🍷 Bottle shops", 'nwr["shop"="alcohol"]'],
   pub: ["🍺 Pubs & bars", 'nwr["amenity"~"^(pub|bar)$"]'], cafe: ["☕ Cafés", 'nwr["amenity"="cafe"]'], food: ["🍔 Takeaway & restaurants", 'nwr["amenity"~"^(fast_food|restaurant)$"]'],
   vet: ["🐾 Vets", 'nwr["amenity"="veterinary"]'], dogs: ["🐕 Dog beaches & parks", 'nwr["leisure"="dog_park"];nwr["natural"="beach"]["dog"~"^(yes|leashed|unleashed|designated)$"];nwr["dog"~"^(unleashed|designated)$"]["leisure"~"^(park|beach_resort)$"]'], petfriendly: ["🐶 Dog-friendly cafés & pubs", 'nwr["amenity"~"^(cafe|restaurant|pub|bar|fast_food)$"]["dog"~"^(yes|leashed|outside)$"]'], pets: ["🐾 Pet shops, groomers & shelters", 'nwr["shop"~"^(pet|pet_grooming)$"];nwr["amenity"~"^(animal_shelter|animal_boarding)$"]'],
-  lgbtq: ["🏳️‍🌈 LGBTQ+ friendly", 'nwr["lgbtq"~"^(welcome|primary|friendly|yes)$"]'], hardware: ["🔨 Hardware", 'nwr["shop"~"^(hardware|doityourself)$"]'] };
+  lgbtq: ["🏳️‍🌈 LGBTQ+ friendly", 'nwr["lgbtq"~"^(welcome|primary|friendly|yes)$"]'], nudist: ["🏖️ Clothing-optional beaches", 'nwr["natural"="beach"]["nudism"~"^(yes|designated|customary|permissive)$"]'], hardware: ["🔨 Hardware", 'nwr["shop"~"^(hardware|doityourself)$"]'] };
+// Local businesses only: in these categories, big-brand chains (anything the map tags with a brand) are left out. Essentials like pharmacies and servos stay.
+const LOCAL_ONLY = ["cafe", "food", "pub", "bottle", "petfriendly", "lgbtq", "pets"];
 // Add the places we found on the web, skipping any the map already has
 function withExtras(cat, out) {
   const ex = (EXTRA_PLACES[R.code] || {})[cat] || []; if (!ex.length || !out || out.error) return out;
@@ -1673,16 +1676,16 @@ function withExtras(cat, out) {
 }
 async function openApi(req, env) {
   const cat = new URL(req.url).searchParams.get("c"); if (!OPEN_CATS[cat]) return Response.json({ error: "bad" }, { status: 400 });
-  const c = await env.DATA.get("osm:" + cat, "json");
+  const c = await env.DATA.get("osm2:" + cat, "json");
   if (c && Date.now() - new Date(c.asof) < 864e5) return Response.json(withExtras(cat, c));
   try {
     const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1].split(";").map(s => s + `(${R.bbox});`).join("")});out center tags;`;
     const j = await (await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) })).json();
-    const items = (j.elements || []).filter(e => e.tags?.name).map(e => { const t = e.tags;
+    const items = (j.elements || []).filter(e => e.tags?.name && !(LOCAL_ONLY.includes(cat) && (e.tags["brand:wikidata"] || e.tags.brand))).map(e => { const t = e.tags;
       return { name: t.name, hours: t.opening_hours || "", phone: t.phone || t["contact:phone"] || "", lat: e.lat ?? e.center?.lat, lon: e.lon ?? e.center?.lon,
         addr: [t["addr:housenumber"], t["addr:street"], t["addr:suburb"] || t["addr:city"]].filter(Boolean).join(" "), web: t.website || t["contact:website"] || "", osm: `${e.type}/${e.id}` }; });
     const out = { cat, items, asof: new Date().toISOString() };
-    await env.DATA.put("osm:" + cat, JSON.stringify(out));
+    await env.DATA.put("osm2:" + cat, JSON.stringify(out));
     return Response.json(withExtras(cat, out));
   } catch (e) { return Response.json(withExtras(cat, c) || { error: "unreachable" }); }
 }
@@ -1709,9 +1712,9 @@ function km(a,b){var r=Math.PI/180,x=Math.sin((b[0]-a[0])*r/2),y=Math.sin((b[1]-
 function e(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function load(c,btn){document.querySelectorAll('#cats button').forEach(function(b){b.classList.toggle('on',b==btn)});try{localStorage.setItem('opencat',c)}catch(_){}ol.innerHTML='<p class="mute">Loading…</p>';
 fetch('/api/open?c='+c).then(function(r){return r.json()}).then(function(j){if(j.error){ol.innerHTML='<p class="mute">Couldn\\u2019t reach the map data just now.</p>';return}
-var rank={open:0,shut:1,unk:2},it=j.items.map(function(x){x.s=status(x.hours);x.d=x.lat?km(HOME,[x.lat,x.lon]):999;return x}).filter(function(x){return x.d<40}).sort(function(a,b){return rank[a.s.c]-rank[b.s.c]||a.d-b.d}).slice(0,40);
+var rank={open:0,shut:1,unk:2},it=j.items.filter(function(x){return c!='nudist'||!/tyagarah/i.test(x.name)}).map(function(x){x.s=status(x.hours);x.d=x.lat?km(HOME,[x.lat,x.lon]):999;return x}).filter(function(x){return x.d<40}).sort(function(a,b){return rank[a.s.c]-rank[b.s.c]||a.d-b.d}).slice(0,40);
 ol.innerHTML=it.length?'<ul class="openl">'+it.map(function(x){return '<li class="'+x.s.c+'"><span class="dot"></span><div><b>'+e(x.name)+'</b><br><span class="st">'+e(x.s.t)+'</span><br><span class="mute">'+e(x.addr||'')+(x.d<999?' · '+x.d.toFixed(1)+' km':'')+'</span><br>'
-+(x.phone?'<a href="tel:'+e(x.phone.replace(/[^+\\d]/g,''))+'">📞 Call</a> · ':'')+'<a href="https://www.google.com/maps/dir/?api=1&destination='+x.lat+','+x.lon+'" rel="noopener">🧭 Directions</a>'+(x.web?' · <a href="'+e(x.web)+'" rel="noopener">Website</a>':'')+(x.note?'<br><small>'+e(x.note)+'</small>':'')+(x.src?'<br><small class="mute">Found on <a href="'+e(x.url)+'" rel="noopener">'+e(x.src)+'</a></small>':'')+'</div></li>'}).join('')+'</ul>':(c=='lgbtq'?'<p>No places tagged as LGBTQ+ friendly nearby yet. Know one? <a href="/feedback">Tell us</a> and we\\u2019ll get it on the map.</p>':'<p>Nothing listed nearby yet. Know one? <a href="/feedback">Tell us</a>.</p>');
++(x.phone?'<a href="tel:'+e(x.phone.replace(/[^+\\d]/g,''))+'">📞 Call</a> · ':'')+'<a href="https://www.google.com/maps/dir/?api=1&destination='+x.lat+','+x.lon+'" rel="noopener">🧭 Directions</a>'+(x.web?' · <a href="'+e(x.web)+'" rel="noopener">Website</a>':'')+(x.note?'<br><small>'+e(x.note)+'</small>':'')+(x.src?'<br><small class="mute">Found on <a href="'+e(x.url)+'" rel="noopener">'+e(x.src)+'</a></small>':'')+'</div></li>'}).join('')+'</ul>':(c=='nudist'?'<p><b>No legal clothing-optional beaches in this area.</b> Tyagarah Beach near Byron Bay lost its clothing-optional status on 30 August 2024.</p>':c=='lgbtq'?'<p>No places tagged as LGBTQ+ friendly nearby yet. Know one? <a href="/feedback">Tell us</a> and we\\u2019ll get it on the map.</p>':'<p>Nothing listed nearby yet. Know one? <a href="/feedback">Tell us</a>.</p>');
 document.getElementById('osrc').innerHTML='Info from <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>, a free map anyone can add to (© OpenStreetMap contributors). Updated '+new Date(j.asof).toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+'. Hours can be wrong, so call ahead if it matters. Wrong or missing hours? <a href="https://www.openstreetmap.org" rel="noopener">Anyone can fix them</a> or <a href="/feedback">tell us</a>.'})
 .catch(function(){ol.innerHTML='<p class="mute">Couldn\\u2019t load just now.</p>'})}
 document.querySelectorAll('#cats button').forEach(function(b){b.onclick=function(){load(b.dataset.c,b)}});
@@ -1755,7 +1758,7 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6
 {"type":"bins","day":"Monday"}; {"type":"school","value":"exact name from: ${SCHOOLS.join("; ")}"}; {"type":"birthday","day":1-31,"month":1-12}; {"type":"search","value":"a few words"};
 {"type":"alerts","topic":"alerts|fields"} (alerts = fires and weather warnings, fields = sport field closures; shows a button they tap); {"type":"events","likes":[${LIKES.join(",")}]} (what they like doing: tailors What's on, with their picks first as "For you", and Community events; [] shows all; when they tell you their interests, set this);
 {"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"};
-{"type":"watch","item":"brand, product and size, e.g. Vegemite 380g"} adds it to their shopping list in Supermarket watch (prices checked twice a day at Woolworths and ALDI; free members watch 1 item, premium members up to 20; signed in only); {"type":"unwatch","item":"..."}. If they ask to watch something vague like "cheese", ask which brand and size before adding it.
+{"type":"beer","value":"beer name and pack, e.g. Great Northern Original 24 pack"} sets the beer they watch in Beer watch (local bottle shops only; default Tooheys New 24 cans); {"type":"watch","item":"brand, product and size, e.g. Vegemite 380g"} adds it to their shopping list in Supermarket watch (prices checked twice a day at Woolworths and ALDI; free members watch 1 item, premium members up to 20; signed in only); {"type":"unwatch","item":"..."}. If they ask to watch something vague like "cheese", ask which brand and size before adding it.
 Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
   try {
     const ask = { max_tokens: 450, messages: [{ role: "system", content: sys }, ...msgs] };
@@ -1799,6 +1802,7 @@ function cleanActs(list, ids, live) {
         return { type: "friend", name: n, tz, city: String(a.city || "").replace(/[<>]/g, "").slice(0, 40) }; }
       case "unfriend": return nm(a.name) ? { type: "unfriend", name: nm(a.name) } : null;
       case "link": return /^\/[a-z0-9/#?=&-]*$/i.test(a.url || "") ? { type: "link", url: a.url } : null;
+      case "beer": { const v = String(a.value || "").replace(/[<>]/g, "").trim().slice(0, 60); return v.length > 2 ? { type: "beer", value: v } : null; }
       case "watch": case "unwatch": { const v = String(a.item || "").replace(/[<>]/g, "").trim().slice(0, 50); return v.length > 2 ? { type: a.type, item: v } : null; }
       default: return null;
     }
@@ -1950,6 +1954,35 @@ function oneAppBlock(nLocals) {
 <div class="oapps">${a.map(x => `<span>${esc(x)}</span>`).join("")}</div><p class="oeq">= <b>1 Daily Maverick</b></p>
 ${checks ? `<p class="note">With ${nLocals.toLocaleString("en-AU")} locals on board, that&rsquo;s <b>${checks.toLocaleString("en-AU")} app checks saved every day</b>.</p>` : ""}</section>`;
 }
+
+// ---- Beer watch: local bottle shops post their own price for a beer, cheapest local first. No big chains: local only. Default: Tooheys New, 24 cans. ----
+const BEER_DEFAULT = "Tooheys New 24 cans";
+const beerWords = q => String(q).toLowerCase().replace(/\b(x|cans?|bottles?|ml|pack|carton|block|case|stubbies)\b/g, " ").split(/\W+/).filter(w => w.length > 1 && !/^\d+$/.test(w));
+async function beerApi(req, env, url) {
+  const L = ((await env.DATA.get("beerlocal", "json")) || []).filter(x => Date.now() - new Date(x.at) < 30 * 864e5);
+  if (req.method === "POST") {
+    const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: `/${R.code}#beer` } });
+    const shop = String(f.get("shop") || "").replace(/[<>]/g, "").trim().slice(0, 60), sub = String(f.get("suburb") || "").replace(/[<>]/g, "").trim().slice(0, 40),
+      beer = String(f.get("beer") || BEER_DEFAULT).replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
+    if (!shop || !sub || !(price > 5 && price < 400) || f.get("ok") !== "yes") return page("Check your details", `<h1>Nearly</h1><p>Please add the shop, suburb, a price, and tick the box. <a href="/${R.code}#beer">Back</a></p>`);
+    const k = (shop + "|" + beer).toLowerCase(), rest = L.filter(x => (x.shop + "|" + x.beer).toLowerCase() !== k);
+    await env.DATA.put("beerlocal", JSON.stringify([{ shop, sub, beer, price, at: new Date().toISOString() }, ...rest].slice(0, 300)));
+    return page("Price posted", `<h1>Thanks, it&rsquo;s up!</h1><p>${esc(shop)}: ${esc(beer)} at $${price.toFixed(2)}. It shows for 30 days, so post again whenever it changes.</p><p><a href="/${R.code}#beer">See Beer watch</a></p>`);
+  }
+  const q = String(url.searchParams.get("q") || BEER_DEFAULT).slice(0, 60), w = beerWords(q);
+  return Response.json({ q, items: L.filter(x => { const t = x.beer.toLowerCase(); return w.every(y => t.includes(y)); }).sort((a, b) => a.price - b.price) }, { headers: { "cache-control": "no-store" } });
+}
+const beerBlock = () => `<section id="beer"><h2>🍺 Beer watch</h2><p class="mute">The cheapest price for your beer at <b>local</b> bottle shops, posted by the shops themselves. No big chains, local only. <span id="beerq"></span></p><div id="beerout" class="mute">Checking…</div>
+<form id="beerf" class="row"><input id="beerin" maxlength="60" placeholder="Your beer, e.g. Great Northern 24 cans" aria-label="Your beer"><button>Watch this beer</button></form>
+<details><summary><b>Own a local bottle shop? Post your price free</b></summary><form method="post" action="/api/beer"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="row"><input name="shop" maxlength="60" placeholder="Shop name *" required><input name="suburb" maxlength="40" placeholder="Suburb *" required></div>
+<div class="row"><input name="beer" maxlength="60" value="${BEER_DEFAULT}" aria-label="Beer and pack"><input name="price" type="number" step="0.01" min="5" max="400" placeholder="Price $ *" required></div>
+<label><input type="checkbox" name="ok" value="yes" required> I run or work at this shop, and this is our current price</label><br><button>Post my price</button></form></details>
+<p class="src">Prices posted by local shops, with the date they posted. Shown for 30 days. Please drink responsibly.</p>
+<script>(function(){var D=${JSON.stringify(BEER_DEFAULT)},q=D;try{q=localStorage.getItem('beer')||D}catch(e){}var O=document.getElementById('beerout'),m=function(n){return '$'+Number(n).toFixed(2)},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})},ago=function(d){var x=Math.round((Date.now()-new Date(d))/864e5);return x<1?'today':x==1?'yesterday':x+' days ago'};
+function go(){document.getElementById('beerq').textContent='Watching: '+q+'.';fetch('/api/beer?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){
+O.innerHTML=j.items.length?'<ol class="fls">'+j.items.map(function(x,i){return '<li'+(i?'':' class="hit"')+'><b>'+e(x.shop)+'</b>, '+e(x.sub)+': '+m(x.price)+(i?'':' <span class="fl ok">cheapest local</span>')+'<br><small class="mute">'+e(x.beer)+' · posted '+ago(x.at)+'</small></li>'}).join('')+'</ol>':${JSON.stringify(wip("No local bottle shop has posted a price for this beer yet. Own one? Post yours free below"))}}).catch(function(){O.textContent='Couldn’t check just now.'})}
+document.getElementById('beerf').onsubmit=function(ev){ev.preventDefault();var v=document.getElementById('beerin').value.trim();if(!v)return;q=v;try{localStorage.setItem('beer',v)}catch(_){}go()};go()})();</script></section>`;
 
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
@@ -2202,6 +2235,7 @@ async function route(req, env, ctx) {
     if (p === "/home") return homePage();
     if (p === "/rent") return dirPage("rent");
     if (p === "/timesaved") return timeSavedPage(env);
+    if (p === "/api/beer") return beerApi(req, env, url);
     if (p === "/status") return statusPage(env);
     if (p === "/api/timesaved") return timeApi(req, env, url);
     if (p === "/jobs") return dirPage("jobs");

@@ -98,6 +98,7 @@ else if(a.type=='weather'){if(a.here&&navigator.geolocation){navigator.geolocati
 else if(a.type=='bins'){p('bin_bday',a.day);reload=true}
 else if(a.type=='school'){p('school',a.value)}
 else if(a.type=='birthday'){p('bday',JSON.stringify([String(a.day),String(a.month-1)]))}
+else if(a.type=='beer'){p('beer',a.value);reload=true}
 else if(a.type=='search'){L=j('saved_q',[]).filter(function(x){return x!==a.value});L.unshift(a.value);p('saved_q',JSON.stringify(L.slice(0,8)));reload=true}
 else if(a.type=='events'){p('ev_like',a.likes.length?JSON.stringify(a.likes):null);reload=true}
 else if(a.type=='friend'){L=j('friends',[]).filter(function(f){return f.n.toLowerCase()!==a.name.toLowerCase()});L.push({n:a.name,tz:a.tz,c:a.city||''});p('friends',JSON.stringify(L.slice(-12)));reload=true}
