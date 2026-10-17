@@ -1961,8 +1961,8 @@ function go(){document.getElementById('beerq').textContent='Watching: '+q+'.';fe
 O.innerHTML=j.items.length?'<ol class="fls">'+j.items.map(function(x,i){return '<li'+(i?'':' class="hit"')+'><b>'+e(x.shop)+'</b>, '+e(x.sub)+': '+m(x.price)+(i?'':' <span class="fl ok">cheapest local</span>')+'<br><small class="mute">'+e(x.beer)+' · posted '+ago(x.at)+'</small></li>'}).join('')+'</ol>':${JSON.stringify(wip("No local bottle shop has posted a price for this beer yet. Own one? Post yours free below"))}}).catch(function(){O.textContent='Couldn’t check just now.'})}
 document.getElementById('beerf').onsubmit=function(ev){ev.preventDefault();var v=document.getElementById('beerin').value.trim();if(!v)return;q=v;try{localStorage.setItem('beer',v)}catch(_){}go()};go()})();</script></section>`;
 
-// ---- Mini Maverick Encouragement Award: grown-ups nominate a local kid; the winner gets $10 to spend at a local business of their choice. Never fast food. ----
-const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$10 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
+// ---- Mini Maverick Encouragement Award: grown-ups nominate a local kid; the winner gets $50 to spend at a local business of their choice. Never fast food. ----
+const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$50 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
 <p class="mute">Kindness, courage, trying hard, helping out. Anything worth encouraging. Grown-ups nominate; kids don&rsquo;t sign up themselves.</p>`;
 const awardBlock = () => `<section id="award"><h2>🏅 Mini Maverick Encouragement Award</h2>${AWARD_INFO.replace("${R.place}", esc(R.place))}<p><a href="/award"><b>Nominate a local kid →</b></a> · <a href="/award#apply">Clubs and local businesses: apply</a></p></section>`;
 async function awardPage(req, env, ctx) {
@@ -1982,7 +1982,7 @@ async function awardPage(req, env, ctx) {
     const n = { kid, where, why, me, email, role, pc: R.code, at: new Date().toISOString() }, L = (await env.DATA.get("award:noms", "json")) || [];
     await env.DATA.put("award:noms", JSON.stringify([n, ...L].slice(0, 500)));
     mailUs(env, ctx, `Encouragement Award nomination: ${kid} (${R.code})`, `Kid's first name: ${kid}\nSchool, club or group: ${where}\nWhy: ${why}\n\nNominated by: ${me} (${role})\nEmail: ${email}\nDaily Maverick: ${R.code}`, email);
-    return page("Nomination in", head + `<p class="note">Thanks, ${esc(me)}! ${esc(kid)}&rsquo;s nomination is in. If they win, we&rsquo;ll email you to sort out the $10 with their parent or carer.</p>`);
+    return page("Nomination in", head + `<p class="note">Thanks, ${esc(me)}! ${esc(kid)}&rsquo;s nomination is in. If they win, we&rsquo;ll email you to sort out the $50 with their parent or carer.</p>`);
   }
   return page(`Mini Maverick Encouragement Award: ${R.brand}`, head + `<form method="post"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>Kid&rsquo;s first name only *</label><input name="kid" maxlength="30" required>
@@ -1995,7 +1995,7 @@ async function awardPage(req, env, ctx) {
 <button>Nominate</button></form>
 <p class="src">We only ever show a winner&rsquo;s first name, with their parent or carer&rsquo;s OK. Nominations go straight to us and are never shared.</p>
 <h2 id="apply">Clubs, schools and local businesses: apply</h2>
-<p>Run a junior sporting club or association? Swap the fast-food voucher for the <b>Mini Maverick Encouragement Award</b> at your presentations or player of the week. Run a local business? Apply to be a place where winners can spend their $10.</p>
+<p>Run a junior sporting club or association? Swap the fast-food voucher for the <b>Mini Maverick Encouragement Award</b> at your presentations or player of the week. Run a local business? Apply to be a place where winners can spend their $50.</p>
 <form method="post"><input type="hidden" name="form" value="apply"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>Club, school or business name *</label><input name="org" maxlength="80" required>
 <label>You are a… *</label><select name="kind" required><option value="">Choose</option><option>Sporting club or association</option><option>School</option><option>Community group</option><option>Local business (where winners can spend it)</option></select>
