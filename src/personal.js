@@ -91,13 +91,13 @@ B.onclick=open;document.getElementById('mavx').onclick=function(){P.hidden=true;
 document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('a[href^="/me"],.openmav');if(!a||a.classList.contains('mavall')||location.pathname==='/me')return;ev.preventDefault();open()});
 // Start fresh: wipes this person's page settings here and on every phone they're signed in on.
 function resetAll(){var keys=[];try{for(var i=0;i<localStorage.length;i++)keys.push(localStorage.key(i))}catch(_){}
-keys.forEach(function(k){if(/^(order|pin|name|fuel|z_w|z_v|z_e|z_tab|saved_q|ev_like|friends|loc|beer|wine|prefs_h|profile|reads|hide_[a-z]+)$/.test(k))p(k,null)});
+keys.forEach(function(k){if(/^(order|pin|name|fuel|z_w|z_v|z_e|z_tab|saved_q|ev_like|friends|people|loc|beer|wine|prefs_h|profile|reads|hide_[a-z]+)$/.test(k))p(k,null)});
 var at=Date.now();p('prefs_at',at);if(M.signed)return fetch('/api/prefs',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({prefs:{},at:at}),keepalive:true}).catch(function(){});return Promise.resolve()}
 window.mavReset=resetAll;
 document.getElementById('mavreset').onclick=function(){if(!confirm('Start your page fresh? Everything Mav set goes back to normal.'))return;resetAll().then(function(){H=[{role:'assistant',content:'Done, your page is back to normal. Tell me what you care about and I’ll make it about you.'}];draw();if(/^\/\d{4}\/?$/.test(location.pathname)||location.pathname=='/')setTimeout(function(){location.reload()},700)})};
 function state(){var hidden=[];(C.secs||[]).forEach(function(s){if(g('hide_'+s[0]))hidden.push(s[0])});var b=j('bday',null);
 return {hidden:hidden,name:g('name')||'',fuel:g('fuel')||'',signs:{w:g('z_w'),v:g('z_v'),e:g('z_e')},likes:j('ev_like',[]),friends:j('friends',[]).map(function(f){return f.n+' ('+f.tz+')'}),
-profile:j('profile',{}),reads:j('reads',{}),bins:g('bin_bday'),school:g('school')||'',birthday:b?(+b[0])+'/'+(+b[1]+1):'',saved:j('saved_q',[]),weather:g('loc')?'set':'town centre'}}
+profile:j('profile',{}),reads:j('reads',{}),people:j('people',[]).map(function(x){return x.n+' '+x.d+'/'+x.m+(x.l?' likes '+x.l:'')}),bins:g('bin_bday'),school:g('school')||'',birthday:b?(+b[0])+'/'+(+b[1]+1):'',saved:j('saved_q',[]),weather:g('loc')?'set':'town centre'}}
 function apply(acts){var reload=false,go=null;(acts||[]).forEach(function(a){var L;
 if(a.type=='hide'){a.ids.forEach(function(i){p('hide_'+i,'1')});L=j('pin',[]).filter(function(i){return a.ids.indexOf(i)<0});p('pin',L.length?JSON.stringify(L):null);reload=true}
 else if(a.type=='show'){a.ids.forEach(function(i){p('hide_'+i,null)});reload=true}
@@ -114,6 +114,8 @@ else if(a.type=='wine'){p('wine',a.value);reload=true}
 else if(a.type=='search'){L=j('saved_q',[]).filter(function(x){return x!==a.value});L.unshift(a.value);p('saved_q',JSON.stringify(L.slice(0,8)));reload=true}
 else if(a.type=='events'){p('ev_like',a.likes.length?JSON.stringify(a.likes):null);reload=true}
 else if(a.type=='friend'){L=j('friends',[]).filter(function(f){return f.n.toLowerCase()!==a.name.toLowerCase()});L.push({n:a.name,tz:a.tz,c:a.city||''});p('friends',JSON.stringify(L.slice(-12)));reload=true}
+else if(a.type=='person'){L=j('people',[]).filter(function(x){return x.n.toLowerCase()!==a.name.toLowerCase()});L.push({n:a.name,d:a.day,m:a.month,l:a.likes||''});p('people',JSON.stringify(L.slice(-20)));reload=true}
+else if(a.type=='unperson'){L=j('people',[]).filter(function(x){return x.n.toLowerCase()!==a.name.toLowerCase()});p('people',L.length?JSON.stringify(L):null);reload=true}
 else if(a.type=='unfriend'){L=j('friends',[]).filter(function(f){return f.n.toLowerCase()!==a.name.toLowerCase()});p('friends',L.length?JSON.stringify(L):null);reload=true}
 else if(a.type=='alerts'){var w=document.createElement('p');w.className='mm mav';w.innerHTML='<button type="button" class="pushbtn" data-topic="'+a.topic+'">🔔 Turn on '+(a.topic=='fields'?'field closure':'fire &amp; weather')+' alerts</button><br><small class="mute pushmsg"></small>';LOG.appendChild(w);M.pushBind(w.querySelector('button'));LOG.scrollTop=1e6}
 else if(a.type=='area'){p('pc',a.pc);go='/'+a.pc}else if(a.type=='link'){go=a.url}});
@@ -184,7 +186,10 @@ draw()})();`;
 // "About you" answers build a little profile; Mav can pre-fill the sections from it, and they can override anything.
 export const SETTINGS_JS = String.raw`(function(){var C=window.M2C,M=window.M2,g=M.g,p=M.p,j=M.j,F=document.getElementById('setf'),msg=document.getElementById('setmsg'),dirty=false;
 function q(s){return F.querySelectorAll(s)}
-function load(){var pr=j('profile',{});F.name.value=g('name')||'';['music','tv','weekend'].forEach(function(k){F[k].value=pr[k]||''});
+var PPL=[];function drawP(){var M3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];document.getElementById('ppl').innerHTML=PPL.length?PPL.map(function(x,i){return '<li><span>🎂 <b>'+M.esc(x.n)+'</b> '+x.d+' '+M3[x.m-1]+(x.l?' · likes '+M.esc(x.l):'')+'</span><button type="button" class="ghost" data-px="'+i+'" aria-label="Remove">×</button></li>'}).join(''):'<li class="mute">No one yet. Add Mum, Dad, the kids, your best mate…</li>'}
+document.getElementById('ppl').onclick=function(e){var i=e.target.dataset.px;if(i===undefined)return;PPL.splice(+i,1);drawP();mark()};
+document.getElementById('padd').onclick=function(){var n=F.pn.value.trim().replace(/[<>]/g,'').slice(0,24),d=+F.pd.value,m=+F.pm.value,l=F.pl.value.trim().replace(/[<>]/g,'').slice(0,80);if(!n||!d||!m){msg.textContent='Add a name, day and month.';return}PPL=PPL.filter(function(x){return x.n.toLowerCase()!==n.toLowerCase()});PPL.push({n:n,d:d,m:m,l:l});F.pn.value=F.pl.value='';F.pd.value=F.pm.value='';drawP();mark()};
+function load(){var pr=j('profile',{});PPL=j('people',[]);drawP();F.name.value=g('name')||'';['music','tv','weekend'].forEach(function(k){F[k].value=pr[k]||''});
 q('[name=readfor]').forEach(function(c){c.checked=(pr.readfor||[]).indexOf(c.value)>-1});F.kids.value=pr.kids||'';F.dog.value=pr.dog||'';
 var L=j('ev_like',[]);q('[name=like]').forEach(function(c){c.checked=L.indexOf(c.value)>-1});
 q('[name=sec]').forEach(function(c){c.checked=!g('hide_'+c.value)});F.zw.value=g('z_w')||'';F.fuel.value=g('fuel')||'';F.bins.value=g('bin_bday')||'';dirty=false;msg.textContent=''}
@@ -194,7 +199,7 @@ function vals(n){var o=[];q('[name='+n+']:checked').forEach(function(c){o.push(c
 function profile(){return {readfor:vals('readfor'),music:F.music.value.trim().slice(0,80),tv:F.tv.value.trim().slice(0,80),weekend:F.weekend.value.trim().slice(0,160),kids:F.kids.value,dog:F.dog.value}}
 F.onsubmit=function(ev){ev.preventDefault();p('profile',JSON.stringify(profile()));p('name',F.name.value.trim().slice(0,24)||null);
 var L=vals('like');p('ev_like',L.length?JSON.stringify(L):null);q('[name=sec]').forEach(function(c){p('hide_'+c.value,c.checked?null:'1')});
-p('z_w',F.zw.value===''?null:F.zw.value);p('fuel',F.fuel.value||null);p('bin_bday',F.bins.value===''?null:F.bins.value);M.up();dirty=false;msg.innerHTML='✓ Saved. <a href="/'+C.code+'#foryou">See your page →</a>'};
+p('people',PPL.length?JSON.stringify(PPL.slice(-20)):null);p('z_w',F.zw.value===''?null:F.zw.value);p('fuel',F.fuel.value||null);p('bin_bday',F.bins.value===''?null:F.bins.value);M.up();dirty=false;msg.innerHTML='✓ Saved. <a href="/'+C.code+'#foryou">See your page →</a>'};
 document.getElementById('mavfill').onclick=function(){var b=this,pr=profile();b.disabled=true;b.textContent='Mav is thinking…';
 fetch('/api/mav/suggest',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile:pr,reads:j('reads',{})})}).then(function(r){return r.json()}).then(function(x){
 if(x.error){msg.textContent=x.error;return}(x.hide||[]).forEach(function(id){var c=F.querySelector('[name=sec][value="'+id+'"]');if(c)c.checked=false});(x.show||[]).forEach(function(id){var c=F.querySelector('[name=sec][value="'+id+'"]');if(c)c.checked=true});
@@ -217,6 +222,11 @@ var nm=g('name')||decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;
 var cards=[];want.forEach(function(id){if(cards.length>=5||g('hide_'+id))return;var el=document.getElementById(id);if(!el)return;var h=el.querySelector('h2');
 var items=Array.prototype.filter.call(el.querySelectorAll('li'),function(li){return !li.hidden&&li.textContent.trim().length>8}).slice(0,2);if(!items.length){var pp=el.querySelector('p:not(.src):not(.mute)');if(pp)items=[pp]}if(!items.length)return;
 cards.push('<div class="fyc"><b>'+esc(h?h.textContent:id)+'</b><ul>'+items.map(function(x){return '<li>'+x.innerHTML+'</li>'}).join('')+'</ul><a href="#'+id+'" data-open="'+id+'" class="mute">More →</a></div>')});
+var GIFTS=[[/fish|tackle|boat/i,'🎣 Local tackle shops','/open?c=fishing'],[/book|read/i,'📚 Local bookshops','/open?c=books'],[/garden|plant|grow/i,'🌱 Local nurseries','/open?c=garden'],[/music|sing|guitar|band|country/i,'🎸 Local music shops','/open?c=music'],[/sport|footy|golf|surf|run|cycl|tennis/i,'🏉 Local sports shops','/open?c=sports'],[/craft|knit|sew|paint|art/i,'🎨 Local craft & art shops','/open?c=crafts'],[/coffee|cafe/i,'☕ A local café voucher','/open?c=cafe'],[/beer|wine|whisky|rum/i,'🍷 Local bottle shops','/open?c=bottle'],[/dog|pet/i,'🐾 Local pet shops','/open?c=pets'],[/food|cook|eat|dinner/i,'🍽️ Dinner at a local spot','/open?c=food'],[/flower/i,'💐 Local florists','/open?c=florist']];
+var now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate()),DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],bd=[];
+j('people',[]).forEach(function(x){var d=new Date(t0.getFullYear(),x.m-1,x.d);if(d<t0)d.setFullYear(d.getFullYear()+1);var n=Math.round((d-t0)/864e5);if(n<=14)bd.push([n,x,d])});
+bd.sort(function(a,b){return a[0]-b[0]}).slice(0,3).forEach(function(b){var x=b[1],n=b[0],when=n===0?'today 🎉':n===1?'tomorrow':n<7?'on '+DN[b[2].getDay()]:'in '+n+' days',gi=GIFTS.filter(function(g){return x.l&&g[0].test(x.l)}).slice(0,3);if(!gi.length)gi=[['💐 Local florists','/open?c=florist'],['🎁 Local gift shops','/open?c=gifts']].map(function(a){return [0,a[0],a[1]]});
+cards.unshift('<div class="fyc fybd"><b>🎂 '+esc(x.n)+'’s birthday is '+when+'</b>'+(x.l?'<br><small class="mute">Likes '+esc(x.l)+'</small>':'')+'<ul>'+gi.map(function(g){return '<li><a href="'+g[2]+'">'+g[1]+'</a></li>'}).join('')+'</ul><small class="mute">Gift ideas from local businesses only. Buy local, it stays here.</small></div>')});
 var box=document.createElement('section');box.id='foryou';box.className='foryou';
 box.innerHTML='<h2>🎧 '+(nm?esc(nm)+', here’s':'Here’s')+' what Mav thinks you’ll want to know</h2>'+(cards.length?cards.join(''):'<p>Tell Mav what you’re into, or fill in <a href="/me" class="mavall">About you</a>, and this spot fills up each morning with what matters to you.</p>')+'<p class="mute fynote">Picked from today’s paper, based on what you’ve told Mav and what you read. Bookmark this spot. <a href="/me" class="mavall">Change</a></p>';
 var td=document.getElementById('today');if(td&&td.parentNode===f)f.insertBefore(box,td.nextSibling);else f.insertBefore(box,f.firstChild);
