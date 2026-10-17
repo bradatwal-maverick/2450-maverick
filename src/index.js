@@ -20,7 +20,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Weekend for kids"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -1315,15 +1315,17 @@ document.getElementById('fsrc').innerHTML='Info from <a href="https://www.fuelch
 ft.onchange=load;document.getElementById('fnear').onclick=function(){if(!navigator.geolocation)return;this.textContent='📍 Finding you…';var b=this;
 navigator.geolocation.getCurrentPosition(function(p){pos=[+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)];try{localStorage.setItem('loc',JSON.stringify(pos))}catch(e){}b.textContent='📍 Near you';load()},function(){b.textContent='📍 Near me'})};load()})();</script></section>`;
 
-// ---- Weekend for kids: free or under $50 a kid. Locals' events tagged "good for kids" + local favourites ----
+// ---- Get outside this weekend: outdoor, free or under $50 a kid. Locals' events tagged "good for kids" + local favourites ----
 function weekendDates() { const t = new Date(todayISO() + "T00:00:00Z"), d = t.getUTCDay(), sat = new Date(t); sat.setUTCDate(t.getUTCDate() + (d === 0 ? -1 : 6 - d));
   const sun = new Date(sat); sun.setUTCDate(sat.getUTCDate() + 1); return [sat.toISOString().slice(0, 10), sun.toISOString().slice(0, 10)]; }
+// Kids and families: we only promote affordable things to do outside. Arcades, bowling, cinemas and the like are a Google search away.
+const INDOOR = /\b(arcade|bowling|bowl|cinema|movies?|film screening|laser ?tag|trampoline|escape room|indoor|play ?centre|gaming|video games?|bingo|pokies|casino)\b/i;
 async function kidsBlock(local, feed, pc = R.code) {
-  const [sat, sun] = weekendDates(), wk = [...local, ...feed].filter(e => e.kids && (e.cost == null || e.cost <= 50) && e.date >= sat && e.date <= sun);
-  return `<section id="kids"><h2>Weekend for kids</h2><p class="mute">Free or under $50 a kid. This weekend: ${esc(fmtDate(sat))} and ${esc(fmtDate(sun))}.</p>
+  const [sat, sun] = weekendDates(), wk = [...local, ...feed].filter(e => e.kids && (e.cost == null || e.cost <= 50) && e.date >= sat && e.date <= sun && !INDOOR.test(`${e.title} ${e.venue || ""} ${e.desc || ""}`));
+  return `<section id="kids"><h2>🌳 Get outside this weekend</h2><p class="mute">Things for kids and families to do outdoors, free or under $50 a kid. This weekend: ${esc(fmtDate(sat))} and ${esc(fmtDate(sun))}.</p>
 ${wk.length ? `<h3>On this weekend</h3><ul>${wk.map(evItem).join("")}</ul>` : `<p>No kids' events listed for this weekend yet. Running one? <a href="/submit?pc=${pc}">Add it free</a> and tick "Good for kids".</p>`}
 <h3>Always-good local favourites</h3><ul>${dayMix(FAVES, "faves").map(([n, c, d]) => `<li><b>${esc(n)}</b> <span class="tagg">${c}</span><br><span class="mute">${esc(d)}</span></li>`).join("")}</ul>
-<p class="src">Picked by locals. Check times and prices before you go · <a href="/feedback">Suggest one</a></p></section>`;
+<p class="src">Outdoor and affordable, picked by locals. Check times and prices before you go · <a href="/feedback">Suggest one</a></p></section>`;
 }
 
 // ---- Field closures: watch the council page for changes; alerts go out by push to anyone who opted in ----
@@ -1902,7 +1904,7 @@ function faqList() {
       [`Is there a local crossword for ${T}?`, `Yes. ${G} has a free daily crossword with local clues, the same for everyone each day. See ${base}/crossword.`],
       [`Where can I read today's horoscope in ${T}?`, `${G} has free daily horoscopes (Western, Vedic Indian and Chinese), always on the bright side. See ${u}#stars.`],
       [`What's open now in ${T}?`, `${G} shows pharmacies, mechanics, servos, cafés and more near ${T}, with open places first. See ${base}/open.`],
-      [`What can kids do in ${T} this weekend?`, `${G} has a Weekend for kids section with free playgrounds, library activities and family events near ${T}. See ${u}#kids.`],
+      [`What can kids do in ${T} this weekend?`, `${G} has a Get outside this weekend section with free playgrounds, walks, beaches and outdoor family events near ${T}. See ${u}#kids.`],
       [`How do I report a lost or found pet in ${T}?`, `Post it free on the ${G} community notice board, which also lists volunteers, clubs and classes. See ${base}/notices.`],
       [`Are there any bushfires near ${T}?`, `${G} lists fires within 100 km of ${T} from NSW Rural Fire Service, and current Bureau of Meteorology weather warnings. In an emergency, call 000. See ${u}#alerts.`],
       [`Whose traditional land is ${T} on?`, `${R.ack.replace(/^\d+ Maverick acknowledges/, "We acknowledge").replace(" and pays respect", " and pay respect")} You can explore the Map of Indigenous Australia at aiatsis.gov.au.`],

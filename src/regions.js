@@ -81,8 +81,7 @@ export const REGIONS = {
   "Orara High School","Coffs Harbour Senior College","Bishop Druitt College","John Paul College","Coffs Harbour Christian Community School"],
     faves: [["Muttonbird Island walk","Free","Short walk from the Jetty foreshore out along the breakwall. Whale-spotting in season."],
   ["Jetty foreshores & beach","Free","Playground, picnic spots and calm water by the jetty."],["North Coast Regional Botanic Garden","Free","Boardwalks, sensory garden and Coffs Creek walks."],
-  ["Forest Sky Pier, Sealy Lookout","Free","Walk out over the treetops with views of the whole coast."],["Yarrila Arts and Museum (YAM)","Free","Gallery and museum in Yarrila Place, often with kids' activities."],
-  ["Library story time","Free","Regular sessions for little ones at Coffs Harbour library. Check times."],["Coffs Creek walk & cycleway","Free","Flat, shady path, great for scooters and bikes."]],
+  ["Forest Sky Pier, Sealy Lookout","Free","Walk out over the treetops with views of the whole coast."],["Coffs Creek walk & cycleway","Free","Flat, shady path, great for scooters and bikes."]],
     facts: [
   ["🗺️", "It's named after a spelling mistake", "Ship owner John Korff sheltered here from a storm in 1847 and called it Korff's Harbour. In 1861 a Crown surveyor wrote it down wrong, and Coffs stuck.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
   ["🌏", "Gumbaynggirr Country", "Coffs is on Gumbaynggirr Country. The harbour's Gumbaynggirr name is Gitten Mirreh, meaning big moon.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
@@ -98,7 +97,7 @@ Pages: /2450 /2452 /2456 area pages; /open what's open now (pharmacies, doctors,
 /school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
 Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; fuel=cheapest fuel near you;
 sea=tides & fishing; know=Know your area (mayor Cr Nikki Williams, deputy Cr George Cecato, council 02 6648 4000 incl. 24/7 urgent water/sewer/pollution/animal attacks, bins via Coffs Coast Waste Services app, bulky goods 1800 265 495, tip at Englands Road, council request form, NSW Ombudsman);
-council=council news; kids=Weekend for kids (free or under $50); sport=Sport & field closures with phone alerts; holidays=public holidays; surfcams=surf cams; beaches=beaches.
+council=council news; kids=Get outside this weekend (outdoor things for kids and families, free or under $50; we don't list arcades, bowling or cinemas); sport=Sport & field closures with phone alerts; holidays=public holidays; surfcams=surf cams; beaches=beaches.
 Every piece of information has an ⓘ Source button showing where it comes from and how current it is.
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
@@ -173,7 +172,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     schools: ["Byron Bay Public School","Byron Bay High School","St Finbarr's Catholic Primary School","Cape Byron Rudolf Steiner School"],
     faves: [["Cape Byron walking track","Free","Loop up to the lighthouse and the most easterly point of mainland Australia. Whale-spotting in season."],
       ["The Pass & Clarkes Beach","Free","Sheltered end of the bay. Swim between the flags."],["Arakwal National Park & Tallow Beach","Free","Bush tracks and a long, quieter beach."],
-      ["Railway Park","Free","Playground and shade right in the middle of town."],["Byron Bay Library","Free","Story time and holiday activities for little ones. Check times."]],
+      ["Railway Park","Free","Playground and shade right in the middle of town."]],
     facts: [
       ["📜", "Named after the wrong Byron", "Captain Cook named Cape Byron in 1770 after Vice Admiral John Byron. A Sydney clerk later assumed it honoured his grandson, the poet Lord Byron, which is why the streets are named after poets like Keats, Jonson and Shelley.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
       ["🌏", "Arakwal Country", "Byron Bay is on the land of the Arakwal people of the Bundjalung Nation. The traditional name, Cavvanbah, means meeting place.", "https://www.byron.nsw.gov.au/Council/About-Byron-Shire/Aboriginal-Torres-Strait-Communities/Welcome-to-Country-Acknowledgement-of-Country-Protocols", "Byron Shire Council"],
@@ -186,7 +185,7 @@ Pages: /2481 /2479 /2480 /2482 /2483 area pages; /open what's open now (pharmaci
 /school school run report; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /crossword daily crossword; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
 Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; memory=In memory (death notices); fuel=cheapest fuel near you;
 sea=tides & fishing; know=Know your area (mayor Cr Sarah Ndiaye, deputy Cr Jack Dods, Byron Shire Council 02 6626 7000, after hours emergencies 02 6622 7022, bins via the Recycle Coach app, annual free drop-off at the Byron Resource Recovery Centre, missed bins 1300 652 625, NSW Ombudsman);
-council=council news; kids=Weekend for kids (free or under $50); holidays=public and school holidays; puzzles=daily crossword; lotto=lotto results link; surfcams=surf cams; beaches=beaches.
+council=council news; kids=Get outside this weekend (outdoor things for kids and families, free or under $50; we don't list arcades, bowling or cinemas); holidays=public and school holidays; puzzles=daily crossword; lotto=lotto results link; surfcams=surf cams; beaches=beaches.
 Every piece of information has an ⓘ Where from? button showing where it comes from and how current it is.
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
