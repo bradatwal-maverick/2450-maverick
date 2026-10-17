@@ -25,15 +25,15 @@ export function rentGroups(R) {
   const p = R.place, pc = R.code, t = TAAS[pc];
   return [
     ["🔎", "Find a rental", `Every big rental site, already searched for ${p}. Check them all: some agents only list on one.`, [
-      ["realestate.com.au", `https://www.realestate.com.au/rent/in-${p.toLowerCase().replace(/ /g, "+")},+nsw+${pc}/list-1`, "Australia's biggest property site."],
-      ["Domain", `https://www.domain.com.au/rent/${hy(p)}-nsw-${pc}/`, "The other big one. Includes Allhomes listings."],
-      ["Rent.com.au", `https://www.rent.com.au/properties/${hy(p)}-nsw-${pc}`, "Rentals only, with a free renter résumé to send agents."],
-      ["Homely", `https://www.homely.com.au/for-rent/${hy(p)}-nsw-${pc}/real-estate`, "Rentals plus honest local reviews of each street."],
-      ["Facebook Marketplace: rentals", "https://www.facebook.com/marketplace/category/propertyrentals", "Private landlords often list here. Never pay a deposit before you've seen the place."],
-      ["Gumtree: property for rent", "https://www.gumtree.com.au/s-property-for-rent/c18364", "Private rentals. Set your location to " + p + "."],
+      [`Rentals in ${p} on realestate.com.au`, `https://www.realestate.com.au/rent/in-${p.toLowerCase().replace(/ /g, "+")},+nsw+${pc}/list-1`, "Australia's biggest property site."],
+      [`Rentals in ${p} on Domain`, `https://www.domain.com.au/rent/${hy(p)}-nsw-${pc}/`, "The other big one. Includes Allhomes listings."],
+      [`Rentals in ${p} on Rent.com.au`, `https://www.rent.com.au/properties/${hy(p)}-nsw-${pc}`, "Rentals only, with a free renter résumé to send agents."],
+      [`Rentals in ${p} on Homely`, `https://www.homely.com.au/for-rent/${hy(p)}-nsw-${pc}/real-estate`, "Rentals plus honest local reviews of each street."],
+      [`Rentals on Facebook Marketplace`, "https://www.facebook.com/marketplace/category/propertyrentals", "Private landlords often list here. Never pay a deposit before you've seen the place."],
+      [`Rentals on Gumtree`, "https://www.gumtree.com.au/s-property-for-rent/c18364", "Private rentals. Set your location to " + p + "."],
     ]],
     ["🛏️", "Rooms & share houses", "Cheaper than renting a whole place.", [
-      ["Flatmates.com.au", `https://flatmates.com.au/rooms/${hy(p)}-${pc}`, "Rooms and share houses near " + p + "."],
+      [`Rooms in ${p} on Flatmates.com.au`, `https://flatmates.com.au/rooms/${hy(p)}-${pc}`, "Rooms and share houses near " + p + "."],
       ["Southern Cross University: student stays", "https://unistays.scu.edu.au/", "Student rentals and rooms near campus."],
     ]],
     ["⚖️", "Know your rights", "NSW renting rules changed in 2025 and 2026. Know where you stand before you sign.", [
@@ -57,16 +57,16 @@ export function jobGroups(R) {
   const p = R.place, pc = R.code, loc = p + " NSW";
   return [
     ["🔎", "Job sites, already searched for " + p, "Same job, many sites. We've lined them all up so you don't miss the one only listed in one place.", [
-      ["SEEK", `https://www.seek.com.au/jobs/in-${Hy(p)}-NSW-${pc}`, "Australia's biggest job site."],
-      ["Indeed", `https://au.indeed.com/jobs?l=${enc(loc)}`, "Pulls jobs from employers' own websites too."],
-      ["Jora", `https://au.jora.com/j?q=&l=${enc(loc)}`, "Searches lots of job sites at once."],
-      ["LinkedIn Jobs", `https://www.linkedin.com/jobs/search/?location=${enc(p + ", New South Wales, Australia")}`, "Professional and office roles."],
-      ["Workforce Australia", "https://www.workforceaustralia.gov.au/individuals/jobs/search", "The Australian Government's free job board."],
-      ["Gumtree Jobs", "https://www.gumtree.com.au/s-jobs/c9302", "Casual, cash and small-business jobs. Set your location to " + p + "."],
+      [`Jobs in ${p} on SEEK`, `https://www.seek.com.au/jobs/in-${Hy(p)}-NSW-${pc}`, "Australia's biggest job site."],
+      [`Jobs in ${p} on Indeed`, `https://au.indeed.com/jobs?l=${enc(loc)}`, "Pulls jobs from employers' own websites too."],
+      [`Jobs in ${p} on Jora`, `https://au.jora.com/j?q=&l=${enc(loc)}`, "Searches lots of job sites at once."],
+      [`Jobs in ${p} on LinkedIn`, `https://www.linkedin.com/jobs/search/?location=${enc(p + ", New South Wales, Australia")}`, "Professional and office roles."],
+      [`Jobs on Workforce Australia`, "https://www.workforceaustralia.gov.au/individuals/jobs/search", "The Australian Government's free job board."],
+      [`Jobs on Gumtree`, "https://www.gumtree.com.au/s-jobs/c9302", "Casual, cash and small-business jobs. Set your location to " + p + "."],
     ]],
     ["🏛️", "Council, government & big local employers", "Many of the biggest local employers only advertise on their own websites.", [
       ...(COUNCIL_JOBS[pc] || []),
-      ["Careers at Council", `https://www.careersatcouncil.com.au/nsw/${hy(p)}/`, "Every council job in the area, in one place."],
+      [`Council jobs near ${p} on Careers at Council`, `https://www.careersatcouncil.com.au/nsw/${hy(p)}/`, "Every council job in the area, in one place."],
       ["I Work for NSW", "https://iworkfor.nsw.gov.au", "All NSW Government jobs: schools, police, transport and more."],
       ["NSW Health jobs", "https://jobs.health.nsw.gov.au", "Hospital and health jobs. Search for your local health district."],
       ["APS Jobs", "https://www.apsjobs.gov.au", "Australian Government jobs, including work-from-home roles."],
@@ -75,7 +75,7 @@ export function jobGroups(R) {
     ]],
     ["🫐", "Farm, harvest & seasonal work", "Picking, packing and farm work. Seasonal, but there's plenty of it around here.", [
       ["Harvest Trail", "https://www.harvesttrail.gov.au/individuals", "The Government's harvest job board. Free help finding farm work."],
-      ["Backpacker Job Board", `https://www.backpackerjobboard.com.au/jobs-in/${hy(p)}/`, "Short-term and seasonal jobs near " + p + "."],
+      [`Seasonal jobs in ${p} on Backpacker Job Board`, `https://www.backpackerjobboard.com.au/jobs-in/${hy(p)}/`, "Short-term and seasonal jobs near " + p + "."],
     ]],
     ["🤝", "Community & not-for-profit", "Jobs that do good.", [
       ["Ethical Jobs", "https://www.ethicaljobs.com.au", "Community, environment, health and not-for-profit jobs."],
