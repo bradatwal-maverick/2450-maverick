@@ -27,7 +27,7 @@ export const NAV = [
     ["/photos", "📸", "Locals' photos", "Your place, through locals' eyes"],
     ["#radio", "📻", "Local radio", "Community and public radio, one tap to listen"],
     ["/feedback", "💡", "Ideas and votes", "30 votes and we build it"],
-    ["#tonight", "📅", "What's on tonight", "Pub specials, trivia, bingo, gigs and markets"],
+    ["#tonight", "📅", "What's on tonight", "Pub specials, trivia, gigs and markets"],
     ["/singles", "💘", "Singles", "Meet people in real life"],
     ["#lgbtq", "🏳️‍🌈", "LGBTQ+ friendly places", "Local places that welcome everyone"],
     ["/lgbtqia", "🏳️‍🌈", "LGBTQIA+", "Your town, for everyone"],

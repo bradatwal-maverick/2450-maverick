@@ -283,7 +283,7 @@ const SKY = [
   { name: "Orionid meteor shower peaks (look north-east after midnight)", md: "10-21" },
   { name: "Leonid meteor shower peaks", md: "11-17" },
   { name: "Geminid meteor shower peaks (the year's best, look north after 11pm)", md: "12-14", major: true },
-  { name: "Total solar eclipse across Australia: total in Sydney, partial everywhere else", date: "2028-07-22", major: true },
+  { name: "Total solar eclipse across Australia: total along a path from the Kimberley through the NT, south-west Queensland and NSW, including Sydney; partial everywhere else in Australia", date: "2028-07-22", major: true },
   { name: "Halley's Comet returns (closest to the Sun)", date: "2061-07-28" },
 ];
 const skyNext = () => { const t = todayISO(), y = +t.slice(0, 4);
@@ -440,18 +440,18 @@ try{localStorage.setItem('pc','${pc}')}catch(e){}
 var IDX=[...${JSON.stringify(R.idx)},["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
 ["sunrise sunset moon","Sunrise, sunset and moon","See the tiles at the top of the page.","#today"],
 ["tide tides fishing fish swell waves boat","Tides & fishing","Next high and low tides, waves and swell. Modelled estimates, not for navigation.","#sea"],
-["surf cam beach waves","Surf cams","Live cams via Coastalwatch, in Beach & surf.","#beaches"],["beach patrol lifeguard swim","Beaches","Patrolled beaches via Beachsafe.","#beaches"],
+["surf cam beach waves","Surf cams","Where to find live surf cams, in Beach & surf.","#beaches"],["beach patrol lifeguard swim","Beaches","Patrolled beaches via Beachsafe.","#beaches"],
 ["event events whats on what's on markets gig music things to do weekend","What's on","Local events, with locals' submissions first.","#events"],
 ["add event submit list my event","Add an event","List your event free, checked before it goes live.","/submit?pc=${pc}"],
 ["dumping illegal dumped","Illegal dumping","Report it online via the NSW EPA (Environment Protection Authority).","#know"],
 ["pothole footpath streetlight report problem fix overgrown","Report a problem","Use the council request form.","#know"],
 ["complaint complain ombudsman unhappy","Complaints","Council first; then the NSW Ombudsman.","#know"],
-["fuel petrol diesel servo cheap","Fuel","Cheapest fuel: NSW FuelCheck for now.","#fuel"],["fire fires bushfire flood alert alerts emergency","Alerts","Fires Near Me for now. Emergencies: call 000.","#alerts"],
+["fuel petrol diesel servo cheap","Fuel","Cheapest fuel: NSW FuelCheck for now.","#fuel"],["fire fires bushfire flood alert alerts emergency","Alerts","Fires from the NSW RFS (Rural Fire Service); get the Hazards Near Me app for warnings. Emergencies: call 000.","#alerts"],
 ["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run check","Weather and traffic for your school run.","/school"],
 ["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],
 ["kids kid zone games game children child pet online safety robot ai","🧒 Kid Zone","Games for kids 12 and under, with a grown-up's OK.","/kids"],["dog dogs dog beach dog beaches off leash off-leash dog park dog parks dog friendly pet friendly","🐕 Dog beaches & parks","Off-leash beaches and dog parks near you.","/open?c=dogs"],["dog friendly cafe cafes pub pubs pet friendly bring my dog","🐶 Dog-friendly cafés & pubs","Places happy to see your dog.","/open?c=petfriendly"],["lgbtq lgbt lgbtqi gay lesbian queer trans rainbow pride inclusive welcoming","🏳️‍🌈 LGBTQ+ friendly","Local places that welcome everyone.","/open?c=lgbtq"],["pet shop pet shops groomer grooming animal shelter rescue adopt boarding kennel cattery pets animals","🐾 Pets & animals","Pet shops, groomers, shelters and boarding.","/open?c=pets"],["lgbtq lgbtqi lgbtqia gay lesbian queer trans bi rainbow pride friendly inclusive","🏳️‍🌈 LGBTQ+ friendly","Places that welcome everyone.","/open?c=lgbtq"],["radio community radio station fm listen live music local radio","📻 Local radio","Community radio stations in the shire.","#radio"],["rent rental rentals renting lease tenant tenants bond house flat unit room share house flatmates real estate","🏠 Renting","Every rental site, your rights and bond help.","/rent"],["job jobs work employment career careers hiring vacancy vacancies seek apprenticeship traineeship harvest picking","💼 Jobs","Every job site in one place.","/jobs"],["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
 ["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["births birth baby babies marriage marriages wedding engaged engagement anniversary celebrations hatches matches","Births, Deaths and Marriages","New babies, engagements and weddings. Share your news free.","/bdm?f=births"],["baby name names ideas popular trending top girls boys generator meaning my name","👶 Baby names","Trending names, your name's history and name ideas with Mav.","/names"],["obituary obituaries funeral died death passed rip memory","Births, Deaths and Marriages","Recent local death notices.","/bdm?f=deaths"],
-["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
+["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local news is live: the latest local headlines.","#news"],
 ["feedback idea suggestion contact","Make ${R.code} better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
 var qs=document.getElementById('qs'),qr=document.getElementById('qs-res'),qv=document.getElementById('qs-saved');
 function esc2(x){return String(x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -549,7 +549,7 @@ const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goa
 <p class="barlab">${n.toLocaleString("en-AU")} of ${goal} locals</p>
 <p>Sign up for one short email a week with what's on, plus a free Maverick Digital guide to using AI in everyday life.</p>${signup(pc)}
 <p class="rallyl"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>
-<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$50 a year, for life</h3><p>The first ${goal} locals to sign up lock in $50 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a>${R.code === "2450" ? ` · <a href="/localsforlife">Born at the old Coffs hospital?</a>` : ""}</p></section>`; };
+<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$50 a year, for life</h3><p>The first ${goal} locals to sign in free lock in $50 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a>${R.code === "2450" ? ` · <a href="/localsforlife">Born at the old Coffs hospital?</a>` : ""}</p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip mute" href="#join">Target: ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${n.toLocaleString("en-AU")} so far</a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -699,7 +699,7 @@ const picks = {}; for (const { name } of await listAll(env, "sub:")) { const v =
 const about = async env => { const n = await localsCount(env), locals = n >= 10 ? `We're at <b>${n.toLocaleString("en-AU")}</b> so far. Every share helps.` : "We're just getting started, so every share helps."; return page("Nobody pays to be here", `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Nobody pays to be here.</h1>
 <p>Every event, business and listing on this site is here because it's happening in your community, not because anyone paid for it.</p>
 <h2>We gather, we don't report</h2><p>${R.code} Maverick is an aggregator. We don't write news stories or create the information you see here. We gather it from local news outlets, councils, government services, venues, funeral directors and local families, and every item names its source and links back to it. The information belongs to them. If you're a source and want something changed or removed, <a href="/feedback">tell us</a> and we'll fix it straight away.</p>
-<p><b>This site will never charge you.</b> Not now, not ever. No paywalls, no subscriptions, no fees to list your event, club or notice. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
+<p><b>The local information here will always be free.</b> No paywall on it, ever, and no fees to list your event, club or notice. Optional paid extras (personal tools) are there for those who want them, and help keep it running. That's the deal, and it's written into <a href="/charter">our charter</a>.</p>
 <h2>How we'll keep the lights on</h2><p>Our goal is to reach as many locals as a local weekly paper: about <b>15,000 people</b>. ${locals}</p>
 <p>When we get there, local businesses will be able to reach that audience through a few ads in our <b>email</b>, and only there. <b>This site stays ad-free.</b> The ads will be <b>selective</b> (local and relevant to you), <b>fairly priced</b> and <b>clearly labelled</b>. Advertisers never get your name or email address, and we never sell your details.</p>
 <p>We're not here to build an empire off our community. Just to make a fair living doing something genuinely useful for it.</p>
@@ -901,13 +901,13 @@ function sessionHeaders(tok, name, next, pic = "") {
   return h;
 }
 const JOIN_WHY = () => `<ul class="why">
-<li>💬 <b>Unlimited Mav.</b> Tell him about your day and he sets up your page in seconds.</li>
-<li>📱 <b>Your page on any phone.</b> Your pins, stars, bin night and saved searches follow you.</li>
-<li>🧊 <b>What's in your fridge?</b> Snap it, get dinner ideas.</li>
+<li>💬 <b>Mav.</b> Tell him about your day and he sets up your page in seconds. Signed-in members get more; paid members get unlimited Mav.</li>
+<li>📱 <b>Your page on any phone.</b> Your pins, stars, bin night and saved searches follow you (Some Cool Things members).</li>
+<li>🧊 <b>What's in your fridge?</b> Snap it, get dinner ideas (Every Cool Thing members).</li>
 <li>🙌 <b>You count.</b> You're one of the locals helping a brother out.</li></ul>
 <div class="note"><b>🧠 Plus, free tips on using AI in everyday life</b> from our friends at Maverick Digital. The better you get at telling AI what you want, the better your Daily Maverick gets, because Mav works the same way: just tell him.</div>`;
 const signinPage = (env, next = "/", msg = "") => page(`Join ${R.brand}`, `<h1>Join your Daily Maverick</h1>
-<p><b>Free, forever. One tap.</b> Here's what you get:</p>${JOIN_WHY()}${msg}
+<p><b>Signing in is free, forever. One tap.</b> Here's what you can get:</p>${JOIN_WHY()}${msg}
 ${env.GOOGLE_CLIENT_ID ? `<p><a class="gbtn" href="/auth/google?next=${encodeURIComponent(next)}"><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continue with Google</a></p><p class="mute">— or use your email —</p>` : ""}
 <form method="post" action="/unlock"><input type="hidden" name="next" value="${esc(next)}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
@@ -973,7 +973,7 @@ const FOODS = ["chicken","beef mince","sausages","steak","bacon","ham","fish","p
 
 const unlockPage = (msg = "") => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
 <p>Tell us what you've got, how many you're feeding and what you like. Get dinner ideas in seconds, with links to the recipes.</p>
-<p><b>Free for ${R.code} members.</b> Pop in your email to unlock it (and get the weekly "This week in ${R.code}" email).</p>${msg}
+<p><b>Part of Every Cool Thing membership.</b> Pop in your email to sign in first (and get the weekly "This week in ${R.code}" email).</p>${msg}
 <form method="post" action="/unlock"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
 ${TIPS_PICK}<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from ${R.brand} (Maverick Digital). Unsubscribe any time.</label>
@@ -1066,7 +1066,7 @@ const schoolPage = async (env) => { const t = TOWNS[R.code]; let tr = null; try 
 <div class="tile"><span class="ico">🚸</span><b>2:30–4pm</b><small>School zone 40 km/h</small></div></div>
 <p id="tip" class="note"></p>
 <h2>On the roads near you</h2>${trafficList(tr, esc)}
-<h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. <span class="srcw">Source:</span> <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a>.</p>
+<h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. <span class="srcw">Source:</span> <a href="https://education.nsw.gov.au/schooling/calendars" rel="noopener">NSW Department of Education</a>.</p>
 <h2>Field closures &amp; weekend sport</h2>${wip("Wet-weather field closures and junior sport fixtures. Clubs will be able to post closures here free", R.council.url, R.council.name)}
 <h2>Bell times</h2>${wip("Your school's own bell times. Check the school newsletter or website for now")}</div>
 <script>
@@ -1098,7 +1098,7 @@ const ideaItem = i => `<li class="idea"><button type="button" class="vote" data-
 <div><span>${esc(i.text)}</span>${STATUS[i.status] ? ` <span class="tagg">${STATUS[i.status]}</span>` : ""}
 <div class="bar"><i style="width:${Math.min(100, Math.round(i.votes / GOAL * 100))}%"></i></div><small class="mute">${i.votes >= GOAL ? "🎉 Hit " + GOAL + " votes. On the build list!" : (GOAL - i.votes) + " more votes to get it built"}</small></div></li>`;
 const feedbackPage = async (env, msg = "") => { const list = await ideas(env); return page(`Make ${R.code} better`, `<h1>💬 Make ${R.code} better</h1>
-<p>${R.code} is built by the community. Suggest an idea or vote for one you like. When an idea hits <b>${GOAL} votes</b>, it goes on the build list.</p>${msg}
+<p>${R.code} is built by the community. Suggest an idea or vote for one you like. <b>${GOAL} votes and we build it.</b></p>${msg}
 <h2>Ideas from locals</h2><ul class="ideas">${list.map(ideaItem).join("") || '<li class="mute">No ideas yet. Be the first!</li>'}</ul>
 <h2>Suggest something</h2><p class="mute">Ideas are checked, then added to the list above for voting. Everything else comes straight to the team.</p>
 <form method="post" action="/feedback"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1178,7 +1178,7 @@ async function lodgeOffer(req, env) {
 const UPDATED = "16 October 2026";
 const charter = () => page("Our charter", `<p class="mute"><a href="/">${R.brand}</a></p><h1>Our charter</h1>
 <p class="mute">Our terms, in plain English. Last updated ${UPDATED}.</p>
-<h2>1. Free for locals, forever</h2><p>${R.brand} will never charge you to use it. No paywalls, no subscriptions, and no fees to list an event, club, notice or offer. It's run by <a href="https://maverickdigital.com.ai">Maverick Digital</a> as a free gift to the community.</p>
+<h2>1. Free for locals, forever</h2><p>The local information on ${R.brand} will always be free. No paywall on it, ever, and no fees to list an event, club, notice or offer. Optional paid extras (personal tools) are there for those who want them, and help keep it running. It's run by <a href="https://maverickdigital.com.ai">Maverick Digital</a> as a free gift to the community.</p>
 <h2>2. Nobody pays to be listed</h2><p>Every event, offer and listing is here because it's happening locally, never because someone paid. We don't sell placement, rankings or reviews.</p>
 <h2>2a. Advertising, one day</h2><p>Once we reach about 15,000 locals, we'll sell a small number of advertising spots so the site can pay its way. Ads will be clearly labelled, kept separate from listings, selective, fairly priced and never packed in. Advertisers never get your personal details.</p>
 <h2>3. We source, we don't spin</h2><p>Information like council details, weather and tides comes from other organisations. We show it as they publish it, name the source, and show how current the source says it is. If a source is out of date or wrong, we'll say so factually. We don't rewrite their information.</p>
@@ -1186,7 +1186,7 @@ const charter = () => page("Our charter", `<p class="mute"><a href="/">${R.brand
 <ul><li><b>Emergencies:</b> this site is not an emergency service. Call <a href="tel:000">000</a>.</li>
 <li><b>Tides and swell</b> are modelled estimates, not for navigation. Check the Bureau of Meteorology before boating.</li>
 <li><b>Fires, floods and roads:</b> follow official sources and emergency services.</li></ul>
-<h2>5. What you post</h2><p>When you add an event, offer or feedback, you confirm it's true, local and yours to share, and you let us show it on this site. We check everything before it goes live and may edit for length, decline or remove anything, including anything misleading, hateful, illegal, spammy or unsafe.</p>
+<h2>5. What you post</h2><p>When you add an event, offer or feedback, you confirm it's true, local and yours to share, and you let us show it on this site. Everything here is sourced and labelled with where it's from. Things locals post (prices, picks, events) are screened automatically and can be reported, and come down if they're wrong. We may edit for length, decline or remove anything, including anything misleading, hateful, illegal, spammy or unsafe.</p>
 <h2>6. Birthday deals and other offers</h2><p>Offers are made by the businesses, not us. Each business sets its own conditions and decides whether to honour them. Saying &ldquo;Maverick&rdquo; is just how you let them know where you found the deal.</p>
 <h2>7. Links to other sites</h2><p>We link to lots of useful websites. They're not ours and we're not responsible for them. If something there charges, that's between you and them.</p>
 <h2>8. Fair play</h2><p>Please don't misuse the site, scrape it in bulk, try to break it or post on someone else's behalf without permission.</p>
@@ -1205,13 +1205,14 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">${R.br
 <li><b>Fridge photo:</b> if you snap your fridge, the photo goes to Cloudflare&rsquo;s AI just long enough to spot the food, then it&rsquo;s gone. We never store it.</li>
 <li><b>Kid Zone activity:</b> visits, answers, scores and time spent in Kid Zone are saved only in that device's browser, so grown-ups can see them at /kids/log. They never come to us.</li>
 <li><b>Kid Zone secret word:</b> if a grown-up sets one, we keep only a scrambled version of it on their account (never the word itself), plus a count of wrong guesses so they can see them. Remove it any time.</li>
-<li><b>Signing in:</b> your name, email and, if you use Google, your Google profile photo, plus, if you sign in with email, the public photo and first name from your <a href="https://gravatar.com" rel="noopener">Gravatar</a> profile if you have one (only what you've already made public there), plus when you first and last signed in. Google only tells us those basics, never your password. One cookie keeps you signed in on that phone for up to a year. Sign out any time.</li></ul>
-<p>We don't ask for anything about your family or personal life beyond the basic contact details needed to make the site work.</p>
+<li><b>Signing in:</b> your name, email and, if you use Google, your Google profile photo, plus, if you sign in with email, the public photo and first name from your <a href="https://gravatar.com" rel="noopener">Gravatar</a> profile if you have one (only what you've already made public there), plus when you first and last signed in. Google only tells us those basics, never your password. A few small cookies keep you signed in and remember your settings on that phone for up to a year. Sign out any time.</li></ul>
+<p>Anything personal (like kids at home, a dog, favourite music or family birthdays) is optional, only used to personalise your page, and you can delete it any time.</p>
 <h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details, and when we carry ads one day, advertisers will never get your personal details or use them to target you.</p>
 <h2>Who else is involved</h2><ul>
 <li><b>Cloudflare</b> hosts the site, stores our data and sends our emails. Like any website host, it processes basic visit data such as your internet address.</li>
 <li><b>Open-Meteo</b> provides weather and tides. Your browser asks it for ${R.place}'s forecast, so it sees a request from your device, but no personal details from us.</li>
-<li>If we move our email list to a mailing service, we'll name it here.</li></ul>
+<li><b>ActiveCampaign</b> is the email service your sign-up details (email, first name, postcode) are sent to, so we can send the weekly email you asked for.</li>
+<li><b>Stripe</b> processes payments for paid members. Your card details go straight to Stripe; we never see or store them.</li></ul>
 <h2>Your choices</h2><ul>
 <li>Unsubscribe from any email at any time.</li>
 <li>Ask what we hold about you, ask us to fix it, or ask us to delete it, through the <a href="/feedback">feedback form</a>. We'll sort it within 30 days.</li>
@@ -1375,7 +1376,7 @@ const mePage = (name = "") => page(`My ${R.code}`, `<div class="me"><h1>⚙️ $
 <ul id="frl" class="frs"></ul>
 <form id="fra" class="row"><input id="frn" maxlength="24" placeholder="First name" aria-label="Friend's first name"><input id="frz" list="tzl" placeholder="City, e.g. London" aria-label="Their city or time zone"><datalist id="tzl"></datalist><button>Add</button></form><p id="frm" class="mute"></p>
 <h2 id="likes-h">🎯 What you like doing</h2><p class="mute">What&rsquo;s on shows these first, marked ⭐ For you. Community events show just these, with a one-tap Show all.</p>
-<div id="likes" class="pins">${LIKES.map(l => `<label><input type="checkbox" value="${l}"> ${{ free: "🆓 Free", kids: "🧒 Kids", music: "🎸 Music", markets: "🧺 Markets", sport: "🏉 Sport", food: "🍽️ Food & drink", arts: "🎨 Arts", outdoors: "🌿 Outdoors", trivia: "🧠 Trivia", bingo: "🎱 Bingo", comedy: "😂 Comedy", raffles: "🎁 Raffles & meat trays", deals: "🎟️ Members deals & specials" }[l]}</label>`).join("")}</div>
+<div id="likes" class="pins">${LIKES.map(l => `<label><input type="checkbox" value="${l}"> ${{ free: "🆓 Free", kids: "🧒 Kids", music: "🎸 Music", markets: "🧺 Markets", sport: "🏉 Sport", food: "🍽️ Food & drink", arts: "🎨 Arts", outdoors: "🌿 Outdoors", trivia: "🧠 Trivia", comedy: "😂 Comedy", deals: "🎟️ Members deals & specials" }[l]}</label>`).join("")}</div>
 <h2>✨ Your stars</h2><div class="row">
 <label>Western<br><select id="zw"><option value="">Pick…</option>${WEST.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label>
 <label>Vedic (Indian)<br><select id="zv"><option value="">Pick…</option>${VEDIC.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label>
@@ -1494,8 +1495,8 @@ const SOURCES = {
     const tag = (d, t) => ((d.match(new RegExp(`<${t}>([\\s\\S]*?)</${t}>`)) || [])[1] || "").replace(/<!\[CDATA\[|\]\]>/g, "").trim();
     const d = (x.match(/<District>[\s\S]*?<\/District>/g) || []).find(d => tag(d, "Councils").toLowerCase().includes(want)); if (!d) throw new Error("no district");
     return [{ district: tag(d, "Name"), today: tag(d, "DangerLevelToday"), tomorrow: tag(d, "DangerLevelTomorrow"), banToday: /^yes/i.test(tag(d, "FireBanToday")), banTomorrow: /^yes/i.test(tag(d, "FireBanTomorrow")) }]; } },
-  warnings: { name: "Bureau of Meteorology, NSW warnings", url: "http://www.bom.gov.au/nsw/warnings/", get: async () =>
-    rss(await (await fetch("http://www.bom.gov.au/fwo/IDZ00054.warnings_nsw.xml", { headers: UA })).text()).filter(i => R.warnRe.test(i.title)).slice(0, 6) },
+  warnings: { name: "Bureau of Meteorology, NSW warnings", url: "https://www.bom.gov.au/nsw/warnings/", get: async () =>
+    rss(await (await fetch("https://www.bom.gov.au/fwo/IDZ00054.warnings_nsw.xml", { headers: UA })).text()).filter(i => R.warnRe.test(i.title)).slice(0, 6) },
   babynames: { name: "NSW Registry of Births, Deaths and Marriages (Data.NSW)", url: "https://www.nsw.gov.au/family-and-relationships/births/popular-baby-names", get: async () => {
     let csvUrl = "https://data.nsw.gov.au/data/dataset/a677cbe2-91e1-4e45-b771-08830d3d9e41/resource/2adcb228-9101-4c95-a786-b3216539b4a2/download/popular_baby_names_1952_to_2025.csv";
     try { // the file name changes each year, so ask the catalogue for the current CSV first
@@ -1527,7 +1528,7 @@ const SOURCES = {
       e[i] += (e[i] ? "," : "") + r.y + ":" + r.rank; }
     out._side = { "names:idx": { from: Y0, to: Y, names } };
     return out; } },
-  neo: { name: "NASA JPL Center for Near-Earth Object Studies", url: "https://cneos.jpl.nasa.gov/ca/", get: async () => {
+  neo: { name: "NASA's Jet Propulsion Laboratory Center for Near-Earth Object Studies", url: "https://cneos.jpl.nasa.gov/ca/", get: async () => {
     // Asteroids passing within 0.05 au (about 20 times the Moon's distance) in the next 14 days.
     const j = await (await fetch("https://ssd-api.jpl.nasa.gov/cad.api?date-min=now&date-max=%2B14&dist-max=0.05&sort=dist", { headers: UA })).json();
     const f = j.fields || [], at = k => f.indexOf(k);
@@ -1577,7 +1578,7 @@ function fishBlock(t = HOME) {
   const biting = FISH_SEASON.filter(x => x[1].includes(m)).map(([n, , best]) => `<li>🐟 <b>${n}</b>${best && best.includes(m) ? " <span class=\"fl ok\">peak</span>" : ""}</li>`).join("");
   const map = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q + ", " + R.place + " NSW")}`;
   return `<h3>🎣 What's biting in ${esc(mn)}</h3><ul class="fls">${biting}</ul>${m >= 5 && m <= 8 ? `<p class="mute">Aussie bass and estuary perch: catch and release only until the end of August.</p>` : ""}
-<p class="src">Seasons: <span class="srcw">Source:</span> <a href="https://dpird-web.matrix.squiz.cloud/__data/assets/pdf_file/0010/1276660/16610-GoFishingGuide_CoffsCoastWeb-2024.pdf" rel="noopener">NSW DPIRD GoFishing guide (Coffs Coast)</a>${R.code === "2481" ? ", the nearest official guide" : ""} and <a href="https://www.coffscoast.com.au/article/fishing-on-the-coffs-coast/" rel="noopener">Coffs Coast tourism</a>.</p>
+<p class="src">Seasons: <span class="srcw">Source:</span> <a href="https://www.dpird.nsw.gov.au/__data/assets/pdf_file/0010/1276660/16610-GoFishingGuide_CoffsCoastWeb-2024.pdf" rel="noopener">NSW Department of Primary Industries and Regional Development GoFishing guide (Coffs Coast)</a>${R.code === "2481" ? ", the nearest official guide" : ""} and <a href="https://www.coffscoast.com.au/article/fishing-on-the-coffs-coast/" rel="noopener">Coffs Coast tourism</a>.</p>
 <h3>📍 Where to fish within 20 km</h3><ul class="fls" id="fishnear">${F.spots.map(([n, ty, sp, note]) => `<li${FISH_AT[n] ? ` data-at="${FISH_AT[n].join(",")}"` : ""}><b>${esc(n)}</b> <span class="mute">${esc(ty)}</span><span class="fkm mute"></span>${sp ? `<br>Known for: ${esc(sp)}` : ""}${note ? `<br><small>⚠️ ${esc(note)}</small>` : ""}<br><a href="${map(n)}" rel="noopener">🧭 Directions</a></li>`).join("")}</ul><p id="fishnone" class="mute" hidden>No listed shore spots within 20 km of you.</p><details id="fishfar" hidden><summary>Further than 20 km</summary><ul class="fls"></ul></details>
 <script>(function(){var T=[${t.lat},${t.lon}],L=null;try{L=JSON.parse(localStorage.getItem('loc'))}catch(e){}var km=function(a,b){var r=Math.PI/180,x=Math.sin((b[0]-a[0])*r/2),y=Math.sin((b[1]-a[1])*r/2);return 12742*Math.asin(Math.sqrt(x*x+Math.cos(a[0]*r)*Math.cos(b[0]*r)*y*y))};
 var H=L&&km(L,T)<=30?L:T,U=document.getElementById('fishnear'),F=document.getElementById('fishfar'),FL=F.querySelector('ul'),li=[].slice.call(U.children);li.forEach(function(x){var a=x.dataset.at;x._d=a?km(H,a.split(',').map(Number)):0;if(a)x.querySelector('.fkm').textContent=' · '+x._d.toFixed(1)+' km'});
@@ -1585,7 +1586,7 @@ li.sort(function(a,b){return a._d-b._d}).forEach(function(x){(x._d>20?FL:U).appe
 ${F.note ? `<p class="note">⚠️ ${esc(F.note)}</p>` : ""}
 <details><summary><b>Before you cast: licence, limits and no-fishing zones</b></summary><ul>
 <li>🪪 <b>You need a NSW fishing licence</b> (from $7 for 3 days). <a href="https://www.dpird.nsw.gov.au/fishing/recreational/recreational-fishing-fee" rel="noopener">Get one</a></li>
-<li>📏 <a href="https://www.dpi.nsw.gov.au/fishing/recreational/fishing-rules-and-regs/saltwater-bag-and-size-limits" rel="noopener">Bag and size limits</a>, or carry them in the free <a href="https://www.dpird.nsw.gov.au/fishing/recreational/resources/fishsmart-app" rel="noopener">FishSmart app</a> (it shows marine park zones too)</li>
+<li>📏 <a href="https://www.dpird.nsw.gov.au/fishing/recreational/fishing-rules-and-regs/saltwater-bag-and-size-limits" rel="noopener">Bag and size limits</a>, or carry them in the free <a href="https://www.dpird.nsw.gov.au/fishing/recreational/resources/fishsmart-app" rel="noopener">FishSmart app</a> (it shows marine park zones too)</li>
 ${F.park ? `<li>🚫 <b>${esc(F.park[0])}</b> has sanctuary zones where all fishing is banned. <a href="${F.park[1]}" rel="noopener">Zoning map</a></li>` : ""}
 <li>🦺 Rock fishing? A lifejacket is strongly recommended. <a href="https://www.nsw.gov.au/environment-land-and-water/coasts-waterways-and-marine/rock-fishing-lifejacket-law" rel="noopener">NSW rock fishing safety</a></li></ul></details>`;
 }
@@ -1598,9 +1599,9 @@ function fdrBlock(fdr) {
   const lv = t => FDR[String(t || "").toLowerCase()] || FDR["no rating"], pill = (t, ban) => { const [e, c] = lv(t); return `<span class="fdr" style="--c:${c}">${e} ${esc(t || "No rating")}</span>${ban ? ` <span class="fdr ban">🚫 Total Fire Ban</span>` : ""}`; };
   const ban = f.banToday, can = ban ? `<div class="fdrgrid"><div class="aib bad"><b>❌ Not allowed today</b><ul>
 <li>Wood, charcoal or heat-bead BBQs outside</li><li>Wood-fired pizza ovens outside</li><li>Campfires, fire pits and burning off</li><li>Welding, grinding or anything that sparks, outside</li></ul></div>
-<div class="aib good"><b>✅ Allowed, if you follow the rules</b><ul><li><b>Gas BBQ:</b> within 20 m of a house (or a council/NPWS-approved picnic area BBQ), an adult watching it the whole time, nothing that burns within 2 m, and a hose or water ready</li>
-<li><b>Electric BBQ:</b> an adult watching it, nothing that burns within 2 m</li></ul></div></div>
-<p class="mute">Fines start at $2,200 on the spot. <a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules" rel="noopener">Full Total Fire Ban rules (RFS)</a></p>`
+<div class="aib good"><b>✅ Allowed, if you follow the rules</b><ul><li><b>Gas BBQ:</b> only within 20 m of a home, or in a picnic area approved by council, NPWS (National Parks and Wildlife Service) or State Forests; an adult there at all times, nothing that burns within 2 m, and water ready</li>
+<li><b>Electric BBQ:</b> only within 20 m of a home, or in a picnic area approved by council, NPWS (National Parks and Wildlife Service) or State Forests; an adult there at all times, nothing that burns within 2 m, and water ready</li></ul></div></div>
+<p class="mute">On-the-spot fines start at $2,200; the maximum penalty is $132,000 and/or 14 years' jail. <a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules" rel="noopener">Full Total Fire Ban rules (RFS)</a> · <a href="https://www.rfs.nsw.gov.au/__data/assets/pdf_file/0016/9430/NSW-RFS-Total-Fire-Bans-A5-Factsheet.pdf" rel="noopener">RFS factsheet (PDF)</a></p>`
     : `<p>✅ <b>No Total Fire Ban today.</b> Gas, electric, wood and charcoal BBQs are fine with care: keep an adult on it, water handy and nothing that burns nearby. Burning off or a fire in the open? <a href="https://www.rfs.nsw.gov.au/fire-information/BFDP" rel="noopener">Check if you need a permit</a>.</p>`;
   return `<h3>🔥 Fire danger today</h3><p>${pill(f.today, f.banToday)} <b>${esc(lv(f.today)[2])}</b></p>${can}
 <p class="mute">Tomorrow: ${pill(f.tomorrow, f.banTomorrow)}</p>
@@ -1648,7 +1649,7 @@ ${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just n
   const newsLead = news.ok !== false && lead ? `<section id="lead" class="paper" aria-label="Top story">${story(lead, true)}</section>` : "";
   const sky = skyFortnight(neo);
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
-${srcLine(S.holidays.name, S.holidays.url, hol.asof)}${(() => { const up = sky.events, rocks = sky.rocks; return up.length || rocks.length ? `<h3 id="sky">🔭 In the sky, next 14 days</h3>${up.length ? `<ul>${up.map(e => `<li><b>${esc(fmtDate(e.d))}</b>: ${e.major ? "⭐ " : ""}${esc(e.name)}${away(e.d)}</li>`).join("")}</ul><p class="src">Dates are the usual peaks; meteor showers are best away from town lights. <span class="srcw">Source:</span> <a href="https://www.timeanddate.com/astronomy/meteor-shower/" rel="noopener">timeanddate.com</a>.</p>` : ""}${rocks.length ? `<h3>☄️ Asteroids passing by</h3><ul>${rocks.map(a => `<li><b>${esc(fmtDate(sydDate(a.when)))}</b>: ${a.major ? "⭐ " : ""}${esc(a.des)}, ${rockSize(a)}, passes ${rockDist(a)} at ${a.kms} km a second${away(sydDate(a.when))}</li>`).join("")}</ul>${srcLine(S.neo.name, S.neo.url, neo.asof, "None of these will hit Earth. Most are too faint to see without a big telescope")}` : ""}` : ""; })()}<h3>Next school holidays</h3>${schoolHols()}<p class="src">${R.schoolsArea}. <span class="srcw">Source:</span> <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
+${srcLine(S.holidays.name, S.holidays.url, hol.asof)}${(() => { const up = sky.events, rocks = sky.rocks; return up.length || rocks.length ? `<h3 id="sky">🔭 In the sky, next 14 days</h3>${up.length ? `<ul>${up.map(e => `<li><b>${esc(fmtDate(e.d))}</b>: ${e.major ? "⭐ " : ""}${esc(e.name)}${away(e.d)}</li>`).join("")}</ul><p class="src">Dates are the usual peaks; meteor showers are best away from town lights. <span class="srcw">Source:</span> <a href="https://www.timeanddate.com/astronomy/meteor-shower/" rel="noopener">timeanddate.com</a>.</p>` : ""}${rocks.length ? `<h3>☄️ Asteroids passing by</h3><ul>${rocks.map(a => `<li><b>${esc(fmtDate(sydDate(a.when)))}</b>: ${a.major ? "⭐ " : ""}${esc(a.des)}, ${rockSize(a)}, passes ${rockDist(a)} at ${a.kms} km a second${away(sydDate(a.when))}</li>`).join("")}</ul>${srcLine(S.neo.name, S.neo.url, neo.asof, "None of these will hit Earth. Most are too faint to see without a big telescope")}` : ""}` : ""; })()}<h3>Next school holidays</h3>${schoolHols()}<p class="src">${R.schoolsArea}. <span class="srcw">Source:</span> <a href="https://education.nsw.gov.au/schooling/calendars" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
   const nf = fires.ok === false ? 0 : fires.items.length, nw = warn.ok === false ? 0 : warn.items.length;
   const alertNote = nf || nw ? `<p class="note alertnote">⚠️ <b>Live alerts:</b> ${[nf ? `${nf} fire${nf > 1 ? "s" : ""} within 100 km` : "", nw ? `${nw} weather warning${nw > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}. <a href="#alerts" data-open="alerts">See alerts →</a></p>`
     : `<p class="mute alertnote">✅ No fires or weather warnings near us right now. <a href="#alerts" data-open="alerts">Alerts</a></p>`;
@@ -1908,7 +1909,7 @@ async function mavChat(req, env) {
   const em = await member(req, env);
   if (em && (await hasTier(env, em, "some"))) return mavAnswer(req, env);
   if (em) return Response.json({ reply: cookie(req, "mav1") ? `Loved helping! Setting up your page with me is part of Some Cool Things. Try it free for 14 days, no card needed: /membership` : `G'day! Setting up your page with me is part of Some Cool Things. Try it free for 14 days, no card needed: /membership`, actions: [], member: true });
-  if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code}. It's free, takes one tap, and I'll remember how you like your page on any phone: /signin`, actions: [], signin: true });
+  if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code} (free, one tap), then Some Cool Things members get unlimited Mav. Try it free for 14 days: /signin`, actions: [], signin: true });
   const r = await mavAnswer(req, env), h = new Headers(r.headers);
   h.append("set-cookie", "mav1=1; Path=/; Max-Age=31536000; Secure; SameSite=Lax");
   return new Response(r.body, { status: r.status, headers: h });
@@ -2224,7 +2225,7 @@ ${card("every", "Every Cool Thing", `$${PRICE} a year <span class="mute">(Foundi
 <li>↩️ <b>7-day money-back.</b> Cancel within 7 days of paying and your money comes straight back. No forms, no questions</li>
 <li>🔓 <b>No lock-in.</b> Cancel or switch any time${tier !== "free" ? ` · <a href="#" id="manage">Manage my membership</a>` : ""}</li>
 <li>🔒 Secure payment by Stripe. We never see your card</li></ul>
-<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
+<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in free are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
 <p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p>${em ? "" : `<p><a href="/signin?next=/membership"><b>Sign in free to claim yours</b></a></p>`}</div>
 ${R.code === "2450" ? `<p><a class="card" href="/localsforlife">🏥 <b>Born at the old Coffs hospital?</b> Locals for Life: Every Cool Thing free for life, for the first 50 →</a></p>` : ""}
 <p class="mute" id="paymsg" role="status"></p>
@@ -2287,7 +2288,7 @@ function statusPage(env) {
 
 // ---- One app instead of many: every app or site this page saves you checking. Counted honestly from what's actually here. ----
 function appsSaved() { // [app, the section on this page that replaces it, where it lives]
-  const a = [["BOM Weather", "today", "https://www.bom.gov.au"], ["WillyWeather (tides)", "sea", "https://www.willyweather.com.au"], ["Hazards Near Me", "alerts", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me"],
+  const a = [["BOM (Bureau of Meteorology) Weather", "today", "https://www.bom.gov.au"], ["WillyWeather (tides)", "sea", "https://www.willyweather.com.au"], ["Hazards Near Me", "alerts", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me"],
     ["Live Traffic NSW", "alerts", "https://www.livetraffic.com"], ["FuelCheck", "fuel", "https://www.fuelcheck.nsw.gov.au"], ...R.news.map(n => [n.name, "news", n.url]),
     ["Facebook community groups", "events", "https://www.facebook.com/groups"], ["Eventbrite", "events", "https://www.eventbrite.com.au"], ["Council website", "know", R.council.url],
     ["realestate.com.au", "rent", "https://www.realestate.com.au"], ["Domain", "rent", "https://www.domain.com.au"], ["Rent.com.au", "rent", "https://www.rent.com.au"], ["Flatmates", "rent", "https://flatmates.com.au"],
@@ -2824,7 +2825,7 @@ async function route(req, env, ctx) {
 // Helpers the regional-Australia pages borrow from this engine.
 const AU_HELPERS = {
   page: (...a) => page(...a), esc: x => esc(x),
-  liveGazette: pc => { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc] && x.towns[pc].live); return r ? { name: `The ${r.code} Gazette`, url: `https://${r.domain}/${pc}` } : null; },
+  liveGazette: pc => { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc] && x.towns[pc].live); return r ? { name: `${r.brand} ${r.code}`, url: `https://${r.domain}/${pc}` } : null; },
 };
 
 // A new thought every visit, credited underneath (who said it, and where).
@@ -2866,7 +2867,7 @@ async function suggest(req, env, ctx) {
   const pc = String(f.get("pc") || "").trim(), town = String(f.get("town") || "").trim().slice(0, 60);
   const note = String(f.get("note") || "").slice(0, 600), email = String(f.get("email") || "").trim().slice(0, 120);
   if (!/^\d{4}$/.test(pc) || !town) return suggestPage(`<p class="note">Please add a 4-digit postcode and your town.</p>`);
-  if (LIVE_CODES().includes(pc)) { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc]); return suggestPage(`<p class="note">Good news: ${esc(pc)} is already covered by <a href="https://${esc(r.domain)}/${esc(pc)}">Your ${esc(r.code)} Maverick</a>.</p>`); }
+  if (LIVE_CODES().includes(pc)) { const r = Object.values(REGIONS).find(x => x.towns && x.towns[pc]); return suggestPage(`<p class="note">Good news: ${esc(pc)} is already covered by <a href="https://${esc(r.domain)}/${esc(pc)}">${esc(r.brand)} ${esc(r.code)}</a>.</p>`); }
   const k = "pcsug:" + pc, cur = (await env.DATA.get(k, "json")) || { pc, towns: [], count: 0, emails: [], notes: [] };
   cur.count++; cur.at = new Date().toISOString();
   if (!cur.towns.includes(town)) cur.towns = [...cur.towns, town].slice(-10);
@@ -3116,14 +3117,14 @@ function faqList() {
       [`How do I list an event in ${T}?`, `Add it free at ${base}/submit?pc=${pc}. Events must cost $50 or less per person.`],
       [`Which local places give birthday deals in ${T}?`, `${G} lists local places that look after you on your birthday. See ${base}/birthday.`],
       [`What can I cook for dinner tonight with what's in my fridge?`, `Tell ${G}'s fridge helper what you've got and how many you're feeding, and get dinner ideas in seconds. See ${base}/fridge.`],
-      [`When is the next full moon in ${T}?`, `${G} shows the moon phase and days until the next full moon, plus meteor showers and sky events in the next week. See ${u}.`],
+      [`When is the next full moon in ${T}?`, `${G} shows the moon phase and days until the next full moon, plus meteor showers and sky events in the next 14 days. See ${u}.`],
     ]]);
   }
   out.push([`About ${R.code} Maverick`, [
     [`What is ${G}?`, `${G} is a free daily community paper for ${R.place} and the shire: local news, events, alerts, tides, fuel, flights, a crossword, horoscopes, In memory, and births and marriages, all on one page. ${R.coverage}`],
     ...(R.status ? [[`Is ${R.place} a town or a city?`, `${R.status} People often still call it a town because of its relaxed feel. ${R.statusSrc ? "Source: " + R.statusSrc : ""}`.trim()]] : []),
     [`What is the population of ${R.place}?`, `The ABS (Australian Bureau of Statistics) publishes an estimated population for the whole ${R.council.name} area every year. ${G} shows the latest figure, plus median age, income and rent from the Census, in Know your ${R.code}. See ${base}/${R.code}#know.`],
-    [`Is ${G} free?`, `Yes, always. No paywalls, no subscriptions and no fees to list an event or notice. The website is ad-free.`],
+    [`Is ${G} free?`, `Yes. The local information is free forever, with no paywall on it and no fees to list an event or notice. Optional paid extras (personal tools) are there for those who want them. The website is ad-free.`],
     [`Who runs ${G}?`, `${G} is a free gift to the community from Maverick Digital, a Coffs Harbour business that uses big tech skills for the community.`],
     [`Does ${G} write its own news?`, `No. ${G} is an aggregator: it gathers information from local news outlets, councils, government services, venues and local families, and every item names and links to its source. The stories and information belong to those sources.`],
     [`Where does ${G} get its information?`, `Every item names its source and shows when it was last updated, from local news outlets, NSW Government services, the Bureau of Meteorology, NSW Rural Fire Service, local funeral directors and local families. One policy: no BS. No opinions, no spin.`],
@@ -3164,10 +3165,10 @@ function llmsTxt() {
 }
 
 // ---- What's on at the pubs, clubs and markets: we read each venue's own page twice a day and pull out
-// weekly specials (schnitzel night, members draw, bingo, trivia, raffles) and dated gigs. Only things that
+// weekly specials (schnitzel night, trivia) and dated gigs. No gambling (bingo, raffles, meat trays, draws). Only things that
 // really appear on the page are kept. Admin can add more venue pages. ----
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const KINDS = { meal: "🍽️", members: "🎟️", bingo: "🎱", raffle: "🎁", trivia: "🧠", music: "🎵", comedy: "😂", market: "🧺", kids: "🧒", sport: "🏉", other: "📌" };
+const KINDS = { meal: "🍽️", members: "🎟️", trivia: "🧠", music: "🎵", comedy: "😂", market: "🧺", kids: "🧒", sport: "🏉", other: "📌" };
 async function venueSources(env) { let extra = []; try { extra = (await env.DATA.get("vsrc:list", "json")) || []; } catch (e) {} return [...(R.venues || []), ...extra]; }
 const vkey = u => "venue:" + u.replace(/^https?:\/\//, "").replace(/[^a-z0-9]+/gi, "-").slice(0, 80);
 async function refreshVenues(env) {
@@ -3185,7 +3186,7 @@ async function refreshVenues(env) {
       const txt = dec(html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<nav[\s\S]*?<\/nav>|<footer[\s\S]*?<\/footer>|<header[\s\S]*?<\/header>/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&rsquo;|&lsquo;/g, "'").replace(/&ndash;|&mdash;/g, "-")).replace(/\s+/g, " ").slice(0, 12000);
       const ask = { messages: [
         { role: "system", content: "You extract what's on at local venues from web page text. Output ONLY JSON." },
-        { role: "user", content: `Today is ${today} (${DAYS[new Date(today + "T12:00:00Z").getUTCDay()]}). This page is from ${src.name}. List everything the public can go to: weekly specials (meal deals like schnitzel night), members draws, bingo, raffles, trivia, live music, comedy, markets, kids' activities and one-off events. Return {"items":[...]} with at most 40 items. Each item: "venue" (venue name as written), "what" (short title, words from the page), "detail" (price or one short detail from the page, or ""), "days" (array of weekdays it repeats on, from Mon Tue Wed Thu Fri Sat Sun, or [] if it's a one-off), "date" (YYYY-MM-DD for a one-off, choosing the next such date on or after today, else ""), "week" (for monthly things like "1st Sunday", the number 1-4, else 0), "time" (e.g. "6pm", or ""), "kind" (one of meal members bingo raffle trivia music comedy market kids sport other). Never invent anything that isn't on the page.\n\nPAGE:\n${txt}` },
+        { role: "user", content: `Today is ${today} (${DAYS[new Date(today + "T12:00:00Z").getUTCDay()]}). This page is from ${src.name}. List everything the public can go to: weekly specials (meal deals like schnitzel night), trivia, live music, comedy, markets, kids' activities and one-off events. Leave out bingo, raffles, meat trays, members draws, pokies and any other gambling. Return {"items":[...]} with at most 40 items. Each item: "venue" (venue name as written), "what" (short title, words from the page), "detail" (price or one short detail from the page, or ""), "days" (array of weekdays it repeats on, from Mon Tue Wed Thu Fri Sat Sun, or [] if it's a one-off), "date" (YYYY-MM-DD for a one-off, choosing the next such date on or after today, else ""), "week" (for monthly things like "1st Sunday", the number 1-4, else 0), "time" (e.g. "6pm", or ""), "kind" (one of meal members trivia music comedy market kids sport other). Never invent anything that isn't on the page.\n\nPAGE:\n${txt}` },
       ], max_tokens: 2500 };
       let out; try { out = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { out = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", ask); }
       const raw = typeof out?.response === "string" ? out.response : JSON.stringify(out?.response || {});
@@ -3213,7 +3214,7 @@ async function plannerData(env) {
 }
 async function plannerBlock(env) {
   const data = await plannerData(env);
-  return `<section id="tonight"><h2>📅 What's on</h2><p class="mute">Specials, members nights, bingo, trivia, live music, markets and events around ${esc(R.short)}, in one place.</p>
+  return `<section id="tonight"><h2>📅 What's on</h2><p class="mute">Specials, members nights, trivia, live music, markets and events around ${esc(R.short)}, in one place.</p>
 <div class="ptabs" role="tablist"><button type="button" data-p="0" class="on">Today</button><button type="button" data-p="1">Tomorrow</button><button type="button" data-p="w">This weekend</button><label class="pdate">Planning ahead? <input type="date" id="pdate" min="${todayISO()}"></label></div>
 <div id="pout"></div>
 ${data.blocked.length ? `<p class="note">🚫 These venues' websites block automatic reading, so we can't show their specials: ${data.blocked.map(esc).join(", ")}. Check with them directly.</p>` : ""}<p class="src">Read from each venue's own website twice a day. Specials can change, so check with the venue before you go. Know a venue we're missing? <a href="/feedback">Tell us</a>.</p>
@@ -3400,12 +3401,12 @@ async function healthMail(env, ctx) {
 const NUMBERS = [
   { d: "2026-06-30", g: "Big tech watch", a: ["People using ChatGPT", "900 million", "every week (February 2026)"], b: ["People using Facebook, Instagram, WhatsApp or Messenger", "3.6 billion", "every day (June 2026)"],
     src: [["OpenAI, via TechCrunch", "https://techcrunch.com/2026/02/27/chatgpt-reaches-900m-weekly-active-users"], ["Meta second quarter 2026 results", "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Second-Quarter-2026-Results/"]] },
-  { d: "2026-03-31", g: "Big tech watch", a: ["Australians using AI tools", "13.6 million", "58% of people 14+, in an average four weeks (Jan to Mar 2026)"], b: ["Kids' social media accounts shut down", "about 4.7 million", "under Australia's under-16 ban (reported January 2026)"],
+  { d: "2026-03-31", g: "Big tech watch", a: ["Australians using AI tools", "13.6 million", "58% of people 14+, in an average four weeks (Jan to Mar 2026)"], b: ["Kids' social media accounts deactivated or restricted", "about 4.7 million", "under Australia's under-16 ban (reported January 2026)"],
     src: [["Roy Morgan", "https://www.roymorgan.com/findings/10248-artificial-intelligence-ai-tools-usage-march-2026"], ["eSafety Commissioner, via Associated Press", "https://www.waff.com/2026/01/16/heres-how-many-social-media-accounts-platforms-removed-after-australia-banned-them-children"]] },
-  { d: "2026-06-30", g: "Big tech watch", a: ["Meta's revenue", "US$60.8 billion", "April to June 2026"], b: ["Meta's profit", "US$15.8 billion", "April to June 2026"],
+  { d: "2026-06-30", g: "Big tech watch", a: ["Meta's revenue", "US$60.8 billion", "April to June 2026"], b: ["Meta's profit", "US$15.85 billion", "April to June 2026"],
     src: [["Meta second quarter 2026 results", "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Second-Quarter-2026-Results/"]] },
   { d: "2023-12-31", g: "Life and death", a: ["Australians killed by animals", "34", "a year on average (2001 to 2021), all animals, horses to sharks"], b: ["Americans killed by guns", "46,728", "in 2023 (about 128 a day)"],
-    src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"], ["CDC data, via Johns Hopkins Bloomberg School of Public Health", "https://publichealth.jhu.edu/2025/new-report-highlights-us-2023-gun-deaths-suicide-by-firearm-at-record-levels-for-third-straight-year"]] },
+    src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"], ["US Centers for Disease Control and Prevention (CDC) data, via Johns Hopkins Bloomberg School of Public Health", "https://publichealth.jhu.edu/2025/new-report-highlights-us-2023-gun-deaths-suicide-by-firearm-at-record-levels-for-third-straight-year"]] },
   { d: "2021-12-31", g: "Life and death", a: ["Australians killed by horses", "222", "2001 to 2021"], b: ["Australians killed by sharks", "39", "2001 to 2021"],
     src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"]] },
   { d: "2021-12-31", g: "Life and death", a: ["Australians killed by spiders", "0", "2001 to 2021"], b: ["Australians killed by bees", "45", "2001 to 2021, all from allergic reactions"],

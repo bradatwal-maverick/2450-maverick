@@ -53,7 +53,7 @@ ${wip(`Singles nights and local, real-life dating events in ${esc(t.name)}, all 
     return page(`LGBTQIA+ in ${t.name}`, `${back(pc)}<h1>🏳️‍🌈 LGBTQIA+ in ${esc(t.name)}</h1><p>Your town, for everyone.</p>
 ${card("/open?c=lgbtq", "🏳️‍🌈", "LGBTQ+ friendly places", "Local spots that welcome everyone")}
 ${card(`/${pc}#events`, "🎪", "Community events", "What's on around town")}
-<h2>💬 Someone to talk to</h2><ul><li><b>QLife</b>: free, anonymous LGBTIQ+ peer support, 3pm to midnight every day. <a href="tel:1800184527">1800 184 527</a> or <a href="https://qlife.org.au" rel="noopener">chat online</a></li></ul>
+<h2>💬 Someone to talk to</h2><ul><li><b>QLife</b>: free, anonymous LGBTIQ+ peer support, 3pm to 9pm every day. <a href="tel:1800184527">1800 184 527</a> or <a href="https://qlife.org.au" rel="noopener">chat online</a></li></ul>
 ${wip(`Local LGBTQIA+ groups, social nights and events in ${esc(t.name)}, all in one list. Run one? You'll be able to add it free`, "/feedback", "telling us yours")}`, pc); };
 
   return { mums: url => parents(pcOf(url), "Mums"), dads: url => parents(pcOf(url), "Dads"), singles: url => singles(pcOf(url)), lgbtqia: url => lgbtqia(pcOf(url)) };

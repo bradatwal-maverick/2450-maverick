@@ -4,9 +4,9 @@
 
 // Settings that follow a signed-in local to any phone. Location, birthday, school and friends stay on the phone.
 export const SYNC_RE = /^(order|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|profile|reads|hide_[a-z]+)$/;
-export const LIKES = ["free", "kids", "music", "markets", "sport", "food", "arts", "outdoors", "trivia", "bingo", "comedy", "raffles", "deals"];
+export const LIKES = ["free", "kids", "music", "markets", "sport", "food", "arts", "outdoors", "trivia", "comedy", "deals"];
 // How each interest matches a What's on listing kind.
-export const LIKE_KINDS = { kids: "kids", music: "music", markets: "market", sport: "sport", food: "meal", trivia: "trivia", bingo: "bingo", comedy: "comedy", raffles: "raffle", deals: "members" };
+export const LIKE_KINDS = { kids: "kids", music: "music", markets: "market", sport: "sport", food: "meal", trivia: "trivia", comedy: "comedy", deals: "members" };
 
 export async function prefsApi(req, env, email) {
   const k = `prefs:${email}`;
