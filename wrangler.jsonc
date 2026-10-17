@@ -31,6 +31,42 @@
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
       "triggers": { "crons": [ "*/5 * * * *" ] }
+    },
+    "tweed": {
+      "name": "2485-maverick",
+      "vars": { "REGION": "2485" },
+      "routes": [ { "pattern": "2485-maverick.live", "custom_domain": true } ],
+      "kv_namespaces": [ { "binding": "DATA", "id": "88b7ca32e9af428ea7f89be4eb4fc0b2" } ],
+      "send_email": [ { "name": "MAILER" } ],
+      "ai": { "binding": "AI" },
+      "triggers": { "crons": [ "*/5 * * * *" ] }
+    },
+    "taree": {
+      "name": "2430-maverick",
+      "vars": { "REGION": "2430" },
+      "routes": [ { "pattern": "2430-maverick.live", "custom_domain": true } ],
+      "kv_namespaces": [ { "binding": "DATA", "id": "46257678f2034da0aa3ac90a743c823e" } ],
+      "send_email": [ { "name": "MAILER" } ],
+      "ai": { "binding": "AI" },
+      "triggers": { "crons": [ "*/5 * * * *" ] }
+    },
+    "armidale": {
+      "name": "2350-maverick",
+      "vars": { "REGION": "2350" },
+      "routes": [ { "pattern": "2350-maverick.live", "custom_domain": true } ],
+      "kv_namespaces": [ { "binding": "DATA", "id": "e5a1bcd842cd4063a4b520c14d48ec53" } ],
+      "send_email": [ { "name": "MAILER" } ],
+      "ai": { "binding": "AI" },
+      "triggers": { "crons": [ "*/5 * * * *" ] }
+    },
+    "portmac": {
+      "name": "2444-maverick",
+      "vars": { "REGION": "2444" },
+      "routes": [ { "pattern": "2444-maverick.live", "custom_domain": true } ],
+      "kv_namespaces": [ { "binding": "DATA", "id": "c9b5e850715a444f8b25d91e3bceb8ca" } ],
+      "send_email": [ { "name": "MAILER" } ],
+      "ai": { "binding": "AI" },
+      "triggers": { "crons": [ "*/5 * * * *" ] }
     }
   }
 }
