@@ -19,9 +19,9 @@ function seed(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0)
 
 // { sectionId: photo } for one postcode today.
 export async function sidePics(env, pc, town, day, UA) {
-  const k = `spics3:${pc}:${day}`, hit = await env.DATA.get(k, "json");
+  const k = `spics4:${pc}:${day}`, hit = await env.DATA.get(k, "json");
   if (hit) return hit;
-  const hero = await env.DATA.get(`potd4:${pc}:${day}`, "json"), recent = (await env.DATA.get(`potd:recent:${pc}`, "json")) || [], used = (await env.DATA.get(`pused:${day}`, "json")) || [];
+  const hero = await env.DATA.get(`potd5:${pc}:${day}`, "json"), recent = (await env.DATA.get(`potd:recent:${pc}`, "json")) || [], used = (await env.DATA.get(`pused:${day}`, "json")) || [];
   let out = {};
   try {
     const c = candidates(await search(town.lat, town.lon, UA), [hero?.title, ...recent, ...used].filter(Boolean));

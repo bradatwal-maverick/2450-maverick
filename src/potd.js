@@ -73,7 +73,7 @@ export async function search(lat, lon, UA) {
 
 // Today's photo for one postcode (cached a day). Returns null if Commons has nothing suitable nearby.
 export async function photoOfDay(env, pc, town, home, day, UA) {
-  const k = `potd4:${pc}:${day}`, hit = await env.DATA.get(k, "json");
+  const k = `potd5:${pc}:${day}`, hit = await env.DATA.get(k, "json");
   if (hit) return hit.none ? null : hit;
   const rk = `potd:recent:${pc}`, uk = `pused:${day}`, used = (await env.DATA.get(uk, "json")) || [], recent = [...((await env.DATA.get(rk, "json")) || []), ...used];
   let pick = null;
