@@ -21,7 +21,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -32,7 +32,8 @@ function wip(what, link, linkText) {
   const w = String(what).trim(), h = [...w].reduce((a, c) => a + c.charCodeAt(0), 0);
   return `<div class="wip"><span class="wipb">🚧 Coming soon</span><p><b>Team Smarketing is on it.</b></p><p>${w}${/[.!?]$/.test(w) ? "" : "."}</p>${link ? `<p>For now, try <a href="${link}" rel="noopener">${linkText}</a>.</p>` : ""}<p class="mute"><small>${WIP_LINES[h % WIP_LINES.length]}</small></p></div>`;
 }
-const CSS = `.wip{border:2px dashed var(--gold);border-radius:12px;padding:12px 14px;margin:12px auto;text-align:center;max-width:520px}.wip p{margin:4px 0}.wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}.done{display:inline-block;background:#1f8a4c;color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}
+const CSS = `.oapps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}.oapps span{background:var(--soft);color:var(--mute);border-radius:999px;padding:3px 10px;font-size:.8rem;text-decoration:line-through;text-decoration-color:var(--gold)}.oeq{text-align:center;font-size:1.5rem;margin:8px 0}.oeq b{background:var(--gold);color:#12233f;border-radius:12px;padding:4px 14px}
+.wip{border:2px dashed var(--gold);border-radius:12px;padding:12px 14px;margin:12px auto;text-align:center;max-width:520px}.wip p{margin:4px 0}.wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}.done{display:inline-block;background:#1f8a4c;color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}
 
 :root{--bg:#fff;--fg:#12233f;--gold:#f2b01e;--mute:#5a6578;--link:#2b4a7a;--line:#e2e7ef;--accent:#2b4a7a;--soft:#eef2f8}
 @media (prefers-color-scheme:dark){:root{--bg:#0B1526;--fg:#e8edf2;--gold:#f2b01e;--mute:#9aa6b4;--link:#9fb8e0;--line:#24324a;--accent:#7f9fd1;--soft:#13203a}}
@@ -241,6 +242,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
 ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>` : ""}
 </div><p class="mute tloc"><a href="#" class="useloc" data-on="🎯 Weather tuned to exactly where you are (reset)">🎯 We know you're in ${esc(t.name)}. But where exactly? Tap to fine-tune your weather to where you're standing right now.</a></p><div id="frs"></div></section>
+${oneAppBlock(nLocals)}
 ${live.alerts}
 ${live.news}
 ${await plannerBlock(env)}
@@ -1890,6 +1892,23 @@ function statusPage(env) {
 <p>We're rebuilding regional news from scratch, so here's exactly where it's at. No spin.</p>
 <h2>Live now</h2><ul class="fls">${li(done, "done", "✅ Live")}</ul>
 <h2>Coming soon</h2><p class="mute">Team Smarketing is on it. Want something here sooner, or something new? <a href="/feedback">Vote for it</a>: 30 votes and it gets built.</p><ul class="fls">${li(todo, "wipb", "🚧 Coming soon")}</ul>`);
+}
+
+// ---- One app instead of many: every app or site this page saves you checking. Counted honestly from what's actually here. ----
+function appsSaved() {
+  const a = ["BOM Weather", "WillyWeather (tides)", "Hazards Near Me", "Live Traffic NSW", "FuelCheck", "Woolworths", "ALDI", "Coles",
+    ...R.news.map(n => n.name), "Facebook community groups", "Eventbrite", "Council website", "realestate.com.au", "Domain", "Rent.com.au", "Flatmates",
+    "SEEK", "Indeed", "Jora", "LinkedIn Jobs", "Google Maps (what's open)", "The Lott", "Horoscope app", "Crossword app", "School holiday calendar", "Bank and rates news"];
+  if (R.surf) a.push("Surf report app");
+  if (R.airport) a.push("Flight tracker");
+  if (R.funerals) a.push(...R.funerals.map(f => f.name + " notices"));
+  return a;
+}
+function oneAppBlock(nLocals) {
+  const a = appsSaved(), n = a.length, checks = nLocals > 0 ? nLocals * n : 0;
+  return `<section id="oneapp"><h2>📱 One app instead of ${n}</h2><p>Stop checking ${n} apps and websites every morning. Everything below is on this page or one tap away.</p>
+<div class="oapps">${a.map(x => `<span>${esc(x)}</span>`).join("")}</div><p class="oeq">= <b>1 Daily Maverick</b></p>
+${checks ? `<p class="note">With ${nLocals.toLocaleString("en-AU")} locals on board, that&rsquo;s <b>${checks.toLocaleString("en-AU")} app checks saved every day</b>.</p>` : ""}</section>`;
 }
 
 // ---- Why Coffs: fun facts, every one sourced ----
