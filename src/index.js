@@ -1412,6 +1412,21 @@ const cut = (t, n) => { t = String(t || ""); if (t.length <= n) return t; const 
 const km = (a, b) => { const r = Math.PI / 180, d = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(d)); };
 const firstPoint = g => !g ? null : g.type === "Point" ? { lon: g.coordinates[0], lat: g.coordinates[1] } : (g.geometries || []).map(firstPoint).find(Boolean) || null;
 
+// ---- The good, the bad and the ugly: the free AI sorts each headline by what it's about, never by our opinion.
+// good = community, achievements, events, nature, good outcomes; bad = crime, crashes, emergencies, deaths, court;
+// ugly = politics and money (council, government, elections, budgets, prices, rates, business finance).
+const TONE_ASK = `Sort each news headline into one group. Reply with ONLY a JSON array of letters, one per headline, in order.
+G = good news: community, achievements, events, sport wins, nature, health or good outcomes.
+B = bad news: crime, court, crashes, fires, floods, emergencies, deaths, injuries.
+U = politics or money: council, government, elections, MPs, budgets, prices, rates, tax, business finance, property market.`;
+async function toneTag(env, list) {
+  if (!env?.AI || !list.length) return;
+  const q = list.map((n, i) => `${i + 1}. ${n.title}`).join("\n");
+  const r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", { max_tokens: 120, messages: [{ role: "system", content: TONE_ASK }, { role: "user", content: q }] });
+  const arr = JSON.parse(String(r?.response || "").match(/\[[\s\S]*\]/)?.[0] || "[]");
+  list.forEach((n, i) => { const t = String(arr[i] || "").toUpperCase(); n.tone = t === "G" ? "good" : t === "B" ? "bad" : t === "U" ? "ugly" : ""; });
+}
+
 // ---- National outlets: when the big papers and broadcasters mention one of our towns, it goes in the news too.
 // Headline and link only (their words stay on their site). Paywalled outlets are clearly labelled.
 const NATIONAL = [
@@ -1464,7 +1479,9 @@ const SOURCES = {
     } catch (e) {} }
     try { all.push(...await nationalNews(env)); } catch (e) {}
     if (!all.length) throw new Error("no news");
-    const seen = new Set(); return all.sort((x, y) => new Date(y.date || 0) - new Date(x.date || 0)).filter(i => { const k = i.title.toLowerCase().replace(/\W+/g, ""); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 14); } },
+    const seen = new Set(), list = all.sort((x, y) => new Date(y.date || 0) - new Date(x.date || 0)).filter(i => { const k = i.title.toLowerCase().replace(/\W+/g, ""); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 14);
+    try { await toneTag(env, list); } catch (e) {}
+    return list; } },
   fires: { name: "NSW Rural Fire Service, Fires Near Me", url: "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", get: async () => {
     const j = await (await fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.json", { headers: UA })).json();
     return (j.features || []).map(f => { const p = f.properties || {}, pt = firstPoint(f.geometry), d = p.description || "", g = k => (d.match(new RegExp(k + ":\\s*([^<]*)")) || [])[1]?.trim() || "";
@@ -1617,12 +1634,15 @@ ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
   const nd = n => n.date ? esc(new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" })) : "";
   const nsrc = n => n.src ? `<span class="kick"><span class="srcw">Source:</span> ${esc(n.src)}${n.gated ? ` <span class="gate">🔒 ${esc(n.gated)}</span>` : ""}</span>` : "";
   const nimg = (n, cls) => n.img ? `<img class="${cls}" src="${esc(n.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('wimg');this.remove()">` : "";
-  const story = (n, lead) => `<a class="story${lead ? " lead" : ""}${n.img ? " wimg" : ""}" href="${esc(n.link)}" rel="noopener">${nimg(n, "simg")}<span class="sbody">${nsrc(n)}<span class="hl">${esc(n.title)}</span>${n.desc ? `<span class="dek">${esc(lead ? n.desc : cut(n.desc, 95))}</span>` : ""}<span class="byl">${nd(n)} · Read the full story →</span></span></a>`;
+  const story = (n, lead) => `<a class="story${lead ? " lead" : ""}${n.img ? " wimg" : ""}" data-tone="${esc(n.tone || "")}" href="${esc(n.link)}" rel="noopener">${nimg(n, "simg")}<span class="sbody">${nsrc(n)}<span class="hl">${esc(n.title)}</span>${n.desc ? `<span class="dek">${esc(lead ? n.desc : cut(n.desc, 95))}</span>` : ""}<span class="byl">${nd(n)} · Read the full story →</span></span></a>`;
   const ni = news.ok === false ? [] : freshFirst(news.items, "news"), withImg = ni.findIndex(n => n.img), leadI = withImg > -1 && withImg < 3 ? withImg : 0;
   const lead = ni[leadI], rest = ni.filter((_, k) => k !== leadI), top = rest.slice(0, 4), more = rest.slice(4);
-  const newsB = `<section id="news" class="paper"><h2 class="sech">📰 More news today</h2>
-${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just now.</p>" : `<div class="grid2">${top.map(n => story(n, false)).join("")}</div>${quoteBlock()}${more.length ? `<h3 class="sub">More headlines</h3><ul class="heads">${more.map(n => `<li>${nsrc(n)}<a href="${esc(n.link)}" rel="noopener" title="${esc(n.title)}">${esc(n.title)}</a><time class="mute"${n.date ? ` datetime="${esc(new Date(n.date).toISOString())}"` : ""}>${ago2(n)}</time></li>`).join("")}</ul>` : ""}`}
-<p class="src">These stories are written and owned by ${R.news.map(n => esc(n.name)).join(", ")} and, when they mention your area, national outlets like the ABC, SBS and The Guardian, not us. We show the headline (and for local outlets a short summary); tap a story to read it in full on their site. 🔒 means that site may ask you to subscribe.${news.asof ? ` Updated ${esc(asOf(news.asof))}.` : ""}</p></section>`;
+  const toneBar = ni.some(n => n.tone) ? `<div class="tones" role="group" aria-label="Filter news"><button type="button" data-t="" class="on">All</button><button type="button" data-t="good">😊 The good</button><button type="button" data-t="bad">😟 The bad</button><button type="button" data-t="ugly">🏛️ The ugly <small>(politics &amp; money)</small></button></div>
+<script>(function(){var b=document.currentScript.previousElementSibling;b.addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;b.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===t)});var v=t.dataset.t;document.querySelectorAll('#news [data-tone],#lead [data-tone]').forEach(function(el){el.style.display=!v||el.dataset.tone===v?'':'none'})})})()<\/script>
+<style>.tones{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}.tones button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 12px;font-size:.85rem;cursor:pointer}.tones button.on{background:var(--fg);color:var(--bg)}.tones small{opacity:.7}</style>` : "";
+  const newsB = `<section id="news" class="paper"><h2 class="sech">📰 More news today</h2>${toneBar}
+${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just now.</p>" : `<div class="grid2">${top.map(n => story(n, false)).join("")}</div>${quoteBlock()}${more.length ? `<h3 class="sub">More headlines</h3><ul class="heads">${more.map(n => `<li data-tone="${esc(n.tone || "")}">${nsrc(n)}<a href="${esc(n.link)}" rel="noopener" title="${esc(n.title)}">${esc(n.title)}</a><time class="mute"${n.date ? ` datetime="${esc(new Date(n.date).toISOString())}"` : ""}>${ago2(n)}</time></li>`).join("")}</ul>` : ""}`}
+<p class="src">These stories are written and owned by ${R.news.map(n => esc(n.name)).join(", ")} and, when they mention your area, national outlets like the ABC, SBS and The Guardian, not us. We show the headline (and for local outlets a short summary); tap a story to read it in full on their site. 🔒 means that site may ask you to subscribe. The good, the bad and the ugly are sorted by a free AI from each headline&rsquo;s topic, not by our opinion.${news.asof ? ` Updated ${esc(asOf(news.asof))}.` : ""}</p></section>`;
   const newsLead = news.ok !== false && lead ? `<section id="lead" class="paper" aria-label="Top story">${story(lead, true)}</section>` : "";
   const sky = skyFortnight(neo);
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
