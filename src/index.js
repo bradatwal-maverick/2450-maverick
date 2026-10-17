@@ -212,8 +212,8 @@ async function town(pc, env, ctx, isRoot = false) {
   const nLocals = await localsCount(env);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
-  return page(`Daily ${pc} Maverick: ${t.name}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<p class="mast">Daily ${esc(pc)} Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> We don't write the news, we gather it. No opinions. Make your own.</p><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
+  return page(`The Daily Maverick: ${t.name} ${pc}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
+<p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> We don't write the news, we gather it. No opinions. Make your own.</p><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1>${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
 <div class="qs" hidden><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
@@ -557,7 +557,7 @@ const about = async env => { const n = await localsCount(env), locals = n >= 10 
 <h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`); };
 
 const ICON = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">${R.code}</text></svg>`;
-const MANIFEST = () => JSON.stringify({ name: R.brand, short_name: R.code, start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
+const MANIFEST = () => JSON.stringify({ name: `${R.brand} ${R.short}`, short_name: R.code, start_url: "/", display: "standalone", background_color: "#ffffff", theme_color: "#0B1526",
   icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }] });
 const SW = () => `self.addEventListener('push',e=>{e.waitUntil(fetch('/api/alert').then(r=>r.json()).then(a=>self.registration.showNotification(a.title,{body:a.body,icon:'/icon.svg',data:a.url||'/${R.code}'})))});
 self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow(e.notification.data||'/${R.code}'))});
@@ -739,8 +739,8 @@ const JOIN_WHY = () => `<ul class="why">
 <li>📱 <b>Your page on any phone.</b> Your pins, stars, bin night and saved searches follow you.</li>
 <li>🧊 <b>What's in your fridge?</b> Snap it, get dinner ideas.</li>
 <li>🙌 <b>You count.</b> You're one of the locals helping a brother out.</li></ul>
-<div class="note"><b>🧠 Plus, free tips on using AI in everyday life</b> from our friends at Maverick Digital. The better you get at telling AI what you want, the better your ${R.brand} gets, because Mav works the same way: just tell him.</div>`;
-const signinPage = (env, next = "/", msg = "") => page(`Join ${R.brand}`, `<h1>Join your ${R.brand}</h1>
+<div class="note"><b>🧠 Plus, free tips on using AI in everyday life</b> from our friends at Maverick Digital. The better you get at telling AI what you want, the better your Daily Maverick gets, because Mav works the same way: just tell him.</div>`;
+const signinPage = (env, next = "/", msg = "") => page(`Join ${R.brand}`, `<h1>Join your Daily Maverick</h1>
 <p><b>Free, forever. One tap.</b> Here's what you get:</p>${JOIN_WHY()}${msg}
 ${env.GOOGLE_CLIENT_ID ? `<p><a class="gbtn" href="/auth/google?next=${encodeURIComponent(next)}"><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continue with Google</a></p><p class="mute">— or use your email —</p>` : ""}
 <form method="post" action="/unlock"><input type="hidden" name="next" value="${esc(next)}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -782,7 +782,7 @@ async function finishGoogle(req, url, env) {
 
 const welcomePage = (url) => { const next = safeNext(url.searchParams.get("next") || "/"); return page(`Welcome to ${R.code}`, `<h1>You're in! 👋</h1>
 <p>Thanks for helping a brother out. You're now one of the locals.</p>
-<div class="rally"><p><b>One more tap?</b> Get "This week in ${R.code}" (one short email a week) plus free tips from our friends at Maverick Digital on using AI in everyday life. The better you get at telling AI what you want, the better your ${R.brand} gets.</p>
+<div class="rally"><p><b>One more tap?</b> Get "This week in ${R.code}" (one short email a week) plus free tips from our friends at Maverick Digital on using AI in everyday life. The better you get at telling AI what you want, the better your Daily Maverick gets.</p>
 <form method="post" action="/optin"><input type="hidden" name="next" value="${esc(next)}">${TIPS_PICK}<button>Yes please</button> <a href="${esc(next)}" class="mute" style="margin-left:12px">Not now</a></form>
 <p class="mute">Unsubscribe any time. <a href="/privacy">Privacy</a></p></div>`); };
 
@@ -2252,7 +2252,7 @@ function sitemapXml() {
 }
 function llmsTxt() {
   const g = faqList();
-  return new Response(`# Daily ${R.code} Maverick\n\n> A free daily community paper for ${R.place} and the shire (${Object.keys(TOWNS).join(", ")}), from Maverick Digital. Every item names its source. One policy: no BS.\n\n` +
+  return new Response(`# The Daily Maverick, ${R.code} ${R.place}\n\n> A free daily community paper for ${R.place} and the shire (${Object.keys(TOWNS).join(", ")}), from Maverick Digital. Every item names its source. One policy: no BS.\n\n` +
     g.map(([h, qs]) => `## ${h}\n\n` + qs.map(([q, a]) => `- ${q} ${a}`).join("\n")).join("\n\n") + "\n", { headers: { "content-type": "text/plain; charset=utf-8" } });
 }
 
