@@ -81,7 +81,7 @@ const href = (u, why) => u === "/why" ? "/" + why : u.startsWith("#") ? "/" + u 
 // The section row under the masthead. Scrolls sideways on phones, like a newspaper app.
 export function navBar() {
   return `<nav class="snav" aria-label="Sections"><div>${NAV.map(s => `<a href="/${s.slug}" data-s="${s.slug}">${s.name}</a>`).join("")}</div></nav>
-<script>(function(){var p=location.pathname.split('/')[1],n=document.querySelector('.snav');if(!n)return;n.querySelectorAll('a').forEach(function(a){if(a.dataset.s===p){a.classList.add('on');a.setAttribute('aria-current','page');a.scrollIntoView({inline:'center',block:'nearest'})}})})()<\/script>`;
+<script>(function(){var p=location.pathname.split('/')[1],n=document.querySelector('.snav');if(!p||/^\\d{4}$/.test(p))p='news';if(!n)return;n.querySelectorAll('a').forEach(function(a){if(a.dataset.s===p){a.classList.add('on');a.setAttribute('aria-current','page');a.scrollIntoView({inline:'center',block:'nearest'})}})})()<\/script>`;
 }
 
 export const NAV_CSS = `.snav{border-top:1px solid var(--line);border-bottom:3px solid var(--fg);max-width:640px;margin:0 auto}.snav div{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px}.snav div::-webkit-scrollbar{display:none}
