@@ -88,3 +88,20 @@ export function directoryBody(groups, esc) {
   return groups.map(([ico, h, intro, items]) => `<h2>${ico} ${esc(h)}</h2><p class="mute">${esc(intro)}</p>
 ${items.map(([n, u, d, raw]) => `<a class="card" href="${esc(u)}" rel="noopener"><b>${esc(n)}</b> ${raw ? d.replace(/<a [^>]*>|<\/a>/g, "") : esc(d)} →</a>`).join("\n")}`).join("\n");
 }
+
+// Local community radio in each region's shire. From the CBAA list of community broadcasters and the ACMA-based station list (checked 17 Oct 2026).
+const RADIO = {
+  "2450": [["CHY FM", "104.1 FM", "https://www.chyfm.org.au", "Coffs Harbour"], ["2AIR FM", "107.9 FM", "http://www.2airfm.com.au", "Coffs Harbour"]],
+  "2454": [["2BBB (2 Triple B)", "107.3 FM", "http://www.2bbb.net.au/", "Bellingen"]],
+  "2481": [["BayFM", "99.9 FM", "https://www.bayfm.org/", "Byron Bay"]],
+  "2485": [["Mayhem Radio", "101.3 FM", "https://mayhemradio.com.au/", "Tweed Heads West"]],
+  "2430": [["2BOB Radio", "104.7 FM", "http://www.2bobradio.org.au", "Taree"], ["Radio Ngarralinyi", "103.3 FM", "https://ngarralinyi.com.au/", "Taree, Aboriginal community radio"], ["Bucketts Radio", "104.1 FM", "http://buckettsradio.com.au/", "Gloucester"]],
+  "2350": [["2ARM", "92.1 FM", "http://www.2arm.net.au", "Armidale"], ["TUNE! FM", "online", "http://www.tunefm.net", "UNE student radio, Armidale"]],
+  "2444": [["2WAY FM", "103.9 FM", "http://2wayfm.com.au", "Wauchope, for Port Macquarie-Hastings"], ["Rhema FM", "99.9 FM", "https://rhema999.com.au", "Port Macquarie, Christian community radio"]],
+};
+export function radioSection(R, esc) {
+  const list = RADIO[R.code]; if (!list) return "";
+  return `<section id="radio"><h2>📻 Local radio</h2><p class="mute">Community radio from around the shire, run by locals, mostly volunteers. Tune in or listen live online.</p>
+<ul>${list.map(([n, f, u, w]) => `<li><b>${esc(n)}</b> ${esc(f)}, ${esc(w)}. <a href="${esc(u)}" rel="noopener">Listen live</a></li>`).join("")}</ul>
+<p class="src">Info from the <a href="https://www.cbaa.org.au" rel="noopener">Community Broadcasting Association of Australia</a> list of community stations and each station's own website. Missed a local station? <a href="/feedback">Tell us</a>.</p></section>`;
+}
