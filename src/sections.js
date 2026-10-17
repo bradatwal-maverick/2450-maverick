@@ -20,6 +20,7 @@ export const NAV = [
     ["#bdm", "📰", "Births, Deaths and Marriages", "Family notices in one place"],
     ["/celebrations", "🎉", "Celebrations", "New babies, engagements, weddings"],
     ["/rip", "🕊️", "Death notices", "Remembering locals"],
+    ["#love", "❤️", "Why you'll love it here", "What your place has that nowhere else does"],
     ["#award", "🏅", "Mini Maverick Encouragement Award", "$50 for a local kid to spend local"],
     ["/photos", "📸", "Locals' photos", "Your place, through locals' eyes"],
     ["#radio", "📻", "Local radio", "Community and public radio, one tap to listen"],
@@ -40,7 +41,6 @@ export const NAV = [
     ["#kids", "🧒", "Get outside this weekend", "Free or under $50 a kid, outdoors"],
     ["#sport", "⚽", "Sport & field closures", "Is the ground open?"],
     ["#dogs", "🐕", "Dog friendly", "Off-leash beaches, dog parks and dog-friendly cafés"],
-    ["#love", "❤️", "Why you'll love it here", "What your place has that nowhere else does"],
   ] },
   { slug: "health", icon: "🩺", name: "Health", blurb: "Help close to home, and the help regional locals often don't know about.", items: [
     ["/open?c=pharmacy", "💊", "Pharmacies", "Open ones first"],

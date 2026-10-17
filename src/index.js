@@ -343,7 +343,7 @@ ${oneAppBlock(nLocals)}
 ${live.alerts}
 ${live.news}
 ${hooksStrip(pc)}
-${loveBlock(pc)}
+${SH && SH.ids.includes("love") ? loveBlock(pc) : ""}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${await bdmBlock(env, ctx)}
