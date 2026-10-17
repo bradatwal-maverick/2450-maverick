@@ -4,6 +4,8 @@
 export const REGIONS = {
   "2450": {
     code: "2450", brand: "The Daily Maverick", place: "Coffs Harbour", short: "Coffs", domain: "2450-maverick.live",
+    status: "Officially a city. Coffs Harbour was proclaimed a city in May 1987, effective 1 September 1987, when the shire became the City of Coffs Harbour.",
+    statusSrc: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-our-city/Council-history",
     venues: [
       { name: "C.ex clubs (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
       { name: "C.ex clubs (free live music)", url: "https://cex.com.au/free-live/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },

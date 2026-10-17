@@ -12,6 +12,7 @@ import { QUOTES } from "./quotes.js";
 import { KID_CSS, kidsLog, kidsHub, safePage, petPage, robotPage, certPage } from "./kids.js";
 import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
+import { refreshABS, absBlock } from "./abs.js";
 import { rentGroups, jobGroups, directoryBody, radioSection } from "./directory.js";
 import { EXTRA_PLACES } from "./places.js";
 import { WEST, EAST, VEDIC, STARTS, VSTARTS, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
@@ -348,7 +349,7 @@ ${await projectBlock(env)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p>${fishBlock(t)}</section>
 <section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it. We tell you where it&rsquo;s from and how well the owner keeps it up to date.</p>
-${R.know(W, accLine)}<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
+${R.know(W, accLine)}${await absBlock(env, R.code, R, esc, fresh)}<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
 ${dirSection("rent", "🏠 Renting", `Looking for a place in ${R.place}? Every rental site, already searched for you.`, rentGroups(R), "/rent", "Every rental site, your rights and bond help")}
 ${dirSection("jobs", "💼 Jobs", `Looking for work in ${R.place}? Every job site, already searched for you.`, jobGroups(R), "/jobs", "Every job site, plus council, harvest and local employers")}
 ${radioSection(R, esc)}
@@ -2419,7 +2420,7 @@ export default {
     ctx.waitUntil(Promise.all(Object.entries(TOWNS).filter(([, t]) => t.live).map(([pc, t]) => localToday(env, pc, todayISO()).then(lo => lo || photoOfDay(env, pc, t, HOME, todayISO(), UA)).catch(() => {}))));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60, neo: 12 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshVenues(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshVenues(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshABS(env, R.code).catch(() => {}), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
@@ -2747,6 +2748,8 @@ function faqList() {
   }
   out.push([`About ${R.code} Maverick`, [
     [`What is ${G}?`, `${G} is a free daily community paper for ${R.place} and the shire: local news, events, alerts, tides, fuel, flights, a crossword, horoscopes, In memory, and births and marriages, all on one page. ${R.coverage}`],
+    ...(R.status ? [[`Is ${R.place} a town or a city?`, `${R.status} People often still call it a town because of its relaxed feel. ${R.statusSrc ? "Source: " + R.statusSrc : ""}`.trim()]] : []),
+    [`What is the population of ${R.place}?`, `The ABS (Australian Bureau of Statistics) publishes an estimated population for the whole ${R.council.name} area every year. ${G} shows the latest figure, plus median age, income and rent from the Census, in Know your ${R.code}. See ${base}/${R.code}#know.`],
     [`Is ${G} free?`, `Yes, always. No paywalls, no subscriptions and no fees to list an event or notice. The website is ad-free.`],
     [`Who runs ${G}?`, `${G} is a free gift to the community from Maverick Digital, a Coffs Harbour business that uses big tech skills for the community.`],
     [`Does ${G} write its own news?`, `No. ${G} is an aggregator: it gathers information from local news outlets, councils, government services, venues and local families, and every item names and links to its source. The stories and information belong to those sources.`],
