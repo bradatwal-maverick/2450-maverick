@@ -6,7 +6,7 @@ import { billingApi, tierOf, hasTier, paymentsOn, TIERS } from "./billing.js";
 import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionHead, fixSecLinks } from "./sections.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
-import { photoOfDay } from "./potd.js";
+import { photoOfDay, photoCheck } from "./potd.js";
 import { localToday, photosApi } from "./photos.js";
 import { sidePics, withPics, SIDE_CSS, THEMES } from "./sidepics.js";
 import { numbersApi } from "./numbers.js";
@@ -2730,6 +2730,7 @@ async function route(req, env, ctx) {
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/credits") return creditsPage(env, url);
+    if (p === "/api/photo-check") return Response.json(await photoCheck(env, HOME.lat, HOME.lon, UA));
     if (p === "/api/ed") { const d = await edData(env, R.code); return Response.json({ ok: !!d?.list?.length, n: d?.list?.length || 0, errs: d?.errs || [], at: d?.at }); }
     if (p === "/numbers" || p === "/api/numbers" || p === "/api/numbers-vote") { const N = numbersApi({ esc, page, R, fresh, member, cleanText, nameOf, TOWNS, todayISO });
       if (p === "/numbers") return N.view(req, env, url); if (req.method !== "POST") return new Response("Not found", { status: 404 }); return p === "/api/numbers" ? N.add(req, env, url) : N.vote(req, env, url); }

@@ -84,3 +84,14 @@ export async function photoOfDay(env, pc, town, home, day, UA) {
     await env.DATA.put(uk, JSON.stringify([...((await env.DATA.get(uk, "json")) || []), pick.title]), { expirationTtl: 2 * 86400 }); } // no two postcodes share a photo today
   return pick;
 }
+
+// Health check for the photo picker: how many candidates, and what the AI made of the first few.
+export async function photoCheck(env, lat, lon, UA) {
+  const c = candidates(await search(lat, lon, UA)), out = { candidates: c.length, ai: !!env.AI, tried: [] };
+  for (const x of c.slice(0, 3)) { const u = small(x.i.thumburl || x.i.url), t = { title: x.p.title, kw: x.s };
+    try { const r = await fetch(u, { headers: UA }); t.img = r.status; if (r.ok) { const buf = await r.arrayBuffer(); t.bytes = buf.byteLength;
+      const model = "@cf/meta/llama-3.2-11b-vision-instruct", ask = { messages: [{ role: "user", content: RATE }], image: [...new Uint8Array(buf)], max_tokens: 5 };
+      try { const o = await env.AI.run(model, ask); t.ai = String(o?.response || "").slice(0, 40); } catch (e) { t.err = String(e).slice(0, 200); } } } catch (e) { t.err = String(e).slice(0, 200); }
+    out.tried.push(t); }
+  return out;
+}
