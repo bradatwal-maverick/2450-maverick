@@ -4,7 +4,7 @@ import { REGIONS } from "./regions.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
-import { KID_CSS, kidsHub, safePage, petPage, robotPage } from "./kids.js";
+import { KID_CSS, kidsLog, kidsHub, safePage, petPage, robotPage } from "./kids.js";
 import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
 import { WEST, EAST, VEDIC, STARTS, VSTARTS, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
@@ -618,6 +618,7 @@ ${note ? `<p class="note">${note}</p>` : ""}
 ${rec ? `<p><b>Secret word is on</b> (set ${when(rec.set)}).<br>${rec.wrong ? `⚠️ <b>${rec.wrong} wrong ${rec.wrong === 1 ? "guess" : "guesses"}</b> since you set it, the last on ${when(rec.lastWrong)}.` : "✅ No wrong guesses since you set it."}</p>` : `<p><b>No secret word yet.</b></p>`}
 <form method="post"><label>${rec ? "Change it to" : "Your secret word"}</label><div class="row"><input name="word" type="password" minlength="3" maxlength="40" required autocomplete="off" placeholder="Something the kids won't guess"><button>${rec ? "Change word" : "Turn it on"}</button></div></form>
 ${rec ? `<form method="post"><input type="hidden" name="act" value="off"><button class="ghost">Turn the secret word off</button></form>` : ""}
+<h2>👀 What the kids did</h2><p>Every visit, answer, score and minute in Kid Zone is kept on the device they played on. <a href="/kids/log">See it here</a> (open it on the kids&rsquo; device). <button type="button" class="ghost" onclick="if(confirm('Clear the Kid Zone activity on this device?')){try{localStorage.removeItem('kz_log')}catch(e){}alert('Cleared on this device.')}">Clear it on this device</button></p>
 <p class="mute">We only keep a scrambled version of the word, never the word itself, so even we can't read it. Forgot it? Just set a new one here. <a href="/kids">Back to Kid Zone</a></p>`);
 }
 
@@ -970,6 +971,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">${R.br
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
 <li><b>Feedback:</b> your message, and your name and email only if you add them.</li>
 <li><b>Fridge photo:</b> if you snap your fridge, the photo goes to Cloudflare&rsquo;s AI just long enough to spot the food, then it&rsquo;s gone. We never store it.</li>
+<li><b>Kid Zone activity:</b> visits, answers, scores and time spent in Kid Zone are saved only in that device's browser, so grown-ups can see them at /kids/log. They never come to us.</li>
 <li><b>Kid Zone secret word:</b> if a grown-up sets one, we keep only a scrambled version of it on their account (never the word itself), plus a count of wrong guesses so they can see them. Remove it any time.</li>
 <li><b>Signing in:</b> your name, email and, if you use Google, your Google profile photo, plus, if you sign in with email, the public photo and first name from your <a href="https://gravatar.com" rel="noopener">Gravatar</a> profile if you have one (only what you've already made public there), plus when you first and last signed in. Google only tells us those basics, never your password. One cookie keeps you signed in on that phone for up to a year. Sign out any time.</li></ul>
 <p>We don't ask for anything about your family or personal life beyond the basic contact details needed to make the site work.</p>
@@ -1692,6 +1694,7 @@ async function route(req, env, ctx) {
     if (p === "/crossword") return crosswordPage();
     if (p === "/kids" || p === "/kids/") return page(`Kid Zone: ${R.code} Maverick`, `<style>${KID_CSS}</style>` + kidsHub("/" + R.code));
     if (p === "/kids/parent") return kzParent(req, env);
+    if (p === "/kids/log") return page(`What the kids did: Kid Zone`, `<style>${KID_CSS}</style>` + kidsLog("/" + R.code));
     if (p === "/api/kz") return kzApi(req, env);
     if (p === "/kids/safe") return page(`Safe or Sus? Kid Zone`, `<style>${KID_CSS}</style>` + safePage("/" + R.code));
     if (p === "/kids/pet") return page(`Pet Pal: Kid Zone`, `<style>${KID_CSS}</style>` + petPage("/" + R.code));

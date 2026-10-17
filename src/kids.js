@@ -2,7 +2,7 @@
 // Nothing is sent or stored on the server: no accounts, no chat, no ads, no names or ages collected.
 // The grown-up's OK and game progress live only in this browser (localStorage).
 
-export const KID_CSS = `.kpromise{margin:14px 0;padding:12px 14px;border:2px dashed currentColor;border-radius:14px;line-height:1.5}.kpromise ul{margin:6px 0 8px;padding-left:4px;list-style:none}.kz{max-width:640px}.kz .big{font-size:1.1rem}.kz .card2{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+export const KID_CSS = `.kzt{width:100%;border-collapse:collapse;font-size:.88rem}.kzt th,.kzt td{text-align:left;padding:6px;border-bottom:1px solid rgba(128,128,128,.25);vertical-align:top}.kpromise{margin:14px 0;padding:12px 14px;border:2px dashed currentColor;border-radius:14px;line-height:1.5}.kpromise ul{margin:6px 0 8px;padding-left:4px;list-style:none}.kz{max-width:640px}.kz .big{font-size:1.1rem}.kz .card2{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
 .kz .row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.kz .row button{border-radius:12px;padding:10px 14px}
 .kz .alt{background:var(--soft);color:var(--fg)}.kz .promise li{margin:6px 0}.kz .bubble{background:var(--soft);border-radius:16px 16px 16px 4px;padding:12px 14px;margin:10px 0;max-width:90%}
 .kz .from{font-size:.8rem;color:var(--mute)}.kz .fb{border-left:4px solid var(--gold);padding:8px 12px;margin:10px 0}.kz .ok{border-color:#2e9d5b}.kz .no{border-color:#d0453a}
@@ -11,35 +11,56 @@ export const KID_CSS = `.kpromise{margin:14px 0;padding:12px 14px;border:2px das
 .kz input[type=text]{width:100%;max-width:280px;font-size:1rem;padding:8px;border:1px solid var(--line);border-radius:10px}`;
 
 // Shared gate. Shows the explainer and the grown-up's OK until it's given on this device.
-const GATE_JS = `function kzGate(start){var g=document.getElementById('kzgate'),m=document.getElementById('kzmain');
+const GATE_JS = `function kzLog(g,w,d){try{var L=JSON.parse(localStorage.getItem('kz_log')||'[]');L.push({t:Date.now(),g:g,w:w,d:d||''});if(L.length>1500)L=L.slice(-1500);localStorage.setItem('kz_log',JSON.stringify(L))}catch(e){}}
+function kzGate(start){var g=document.getElementById('kzgate'),m=document.getElementById('kzmain'),KZG=(document.querySelector('.kz h1')||{}).textContent||'Kid Zone',t0=0;
+function spent(){if(!t0)return;var sec=Math.round((Date.now()-t0)/1000);t0=0;if(sec>=5)kzLog(KZG,'Time spent',sec<60?sec+' sec':Math.round(sec/60)+' min')}
+document.addEventListener('visibilitychange',function(){if(document.hidden)spent();else if(!m.hidden)t0=Date.now()});addEventListener('pagehide',spent);
 var ok=false;try{ok=localStorage.getItem('kz_ok')==='1'}catch(e){}
-function show(){g.hidden=true;m.hidden=false;start()}
+function show(){g.hidden=true;m.hidden=false;t0=Date.now();kzLog(KZG,'Opened');start()}
 function word(){g.innerHTML='<div class="card2"><h2>🔐 Secret word, please</h2><p>Your grown-up set a secret word for Kid Zone.</p><input type="password" id="kzw" maxlength="40" autocomplete="off" placeholder="Type the secret word"><div class="row"><button type="button" id="kzwgo">Let me in</button></div><p id="kzwm" class="mute2"></p></div>';
-var i=document.getElementById('kzw'),go=document.getElementById('kzwgo');function tryIt(){fetch('/api/kz',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({word:i.value})}).then(function(r){return r.json()}).then(function(j){if(j.ok)return show();i.value='';document.getElementById('kzwm').textContent=j.msg||'Not quite.'})}
+var i=document.getElementById('kzw'),go=document.getElementById('kzwgo');function tryIt(){fetch('/api/kz',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({word:i.value})}).then(function(r){return r.json()}).then(function(j){kzLog('Kid Zone',j.ok?'Secret word right':'Secret word wrong');if(j.ok)return show();i.value='';document.getElementById('kzwm').textContent=j.msg||'Not quite.'})}
 go.onclick=tryIt;i.onkeydown=function(e){if(e.key==='Enter')tryIt()}}
 fetch('/api/kz').then(function(r){return r.json()}).then(function(j){if(j.word&&!j.ok)return word();if(ok)return show();ask()}).catch(function(){ok?show():ask()});
 function ask(){
 g.innerHTML='<div class="card2"><h2>👋 Kids, grab a grown-up</h2><p>Kid Zone is for kids <b>12 and under</b>, and only with a parent or carer&rsquo;s OK.</p><div class="row"><button type="button" id="kzkid">I&rsquo;m 12 or under, my grown-up is here</button><button type="button" class="alt" id="kzteen">I&rsquo;m 13 or older</button></div></div>';
-document.getElementById('kzteen').onclick=function(){g.innerHTML='<div class="card2"><h2>🚫 Teen check</h2><p>Quick, name two trending memes.</p><input type="text" id="kzmeme" placeholder="Type them here" maxlength="60"><div class="row"><button type="button" id="kzmemego">Submit</button></div></div>';
+document.getElementById('kzteen').onclick=function(){kzLog('Kid Zone','Tapped "I\\u2019m 13 or older"');g.innerHTML='<div class="card2"><h2>🚫 Teen check</h2><p>Quick, name two trending memes.</p><input type="text" id="kzmeme" placeholder="Type them here" maxlength="60"><div class="row"><button type="button" id="kzmemego">Submit</button></div></div>';
 document.getElementById('kzmemego').onclick=function(){g.innerHTML='<div class="card2"><h2>😎 Too cool for Kid Zone</h2><p>If you know the memes, you&rsquo;re too old for this bit. Kid Zone is for 12 and under. Try the <a href="/crossword">crossword</a> instead.</p><p class="mute2">Actually a parent? <a href="#" id="kzpar">Grown-ups, tap here</a>.</p></div>';document.getElementById('kzpar').onclick=function(e){e.preventDefault();parent()}}};
 document.getElementById('kzkid').onclick=parent;}
 function parent(){g.innerHTML='<div class="card2"><h2>👨‍👩‍👧 For the grown-up</h2><p>Please read this before you say yes.</p><ul class="promise"><li>🧒 <b>Made for kids 12 and under.</b> Simple games about online safety and looking after a pet.</li><li>🔒 <b>Nothing leaves this device.</b> No sign-up, no names, no ages, no photos. Progress is saved only in this browser.</li><li>💬 <b>No chat and no messages.</b> Nobody can contact your child here.</li><li>🚫 <b>No ads, no buying, no links out</b> except official help services.</li><li>⏱️ <b>A few minutes a day.</b> The pet game is built for a quick daily check-in, not hours on a screen.</li></ul><p><b>If you&rsquo;re not comfortable with your child using Kid Zone, that&rsquo;s completely fine.</b> Just don&rsquo;t tap yes, and it stays locked on this device.</p><label><input type="checkbox" id="kzc"> I&rsquo;m this child&rsquo;s parent or carer, and I&rsquo;m OK with them using Kid Zone.</label><div class="row"><button type="button" id="kzyes" disabled>Yes, let them in</button><a class="mute2" href="/">No thanks, back to the news</a></div><p class="mute2">This is a promise, not an ID check. You can lock it again any time from the bottom of each Kid Zone page.</p></div>';
 var c=document.getElementById('kzc'),y=document.getElementById('kzyes');c.onchange=function(){y.disabled=!c.checked};
-y.onclick=function(){try{localStorage.setItem('kz_ok','1')}catch(e){}show()}}}
-function kzLock(){try{localStorage.removeItem('kz_ok')}catch(e){}location.reload()}`;
+y.onclick=function(){try{localStorage.setItem('kz_ok','1')}catch(e){}kzLog('Kid Zone','Grown-up said OK');show()}}}
+function kzLock(){try{localStorage.removeItem('kz_ok')}catch(e){}kzLog('Kid Zone','Locked by a grown-up');location.reload()}`;
 
 const shell = (back, title, intro, main, js) => `<div class="kz"><p class="mute"><a href="/kids">‹ Kid Zone</a> · <a href="${back}">News</a></p><h1>${title}</h1><p class="big">${intro}</p>
 <div id="kzgate"></div><div id="kzmain" hidden>${main}</div>
-<p class="mute2">Kid Zone is for kids 12 and under, with a grown-up&rsquo;s OK. Nothing is collected. Grown-ups: <a href="#" onclick="kzLock();return false">lock Kid Zone on this device</a>.</p></div>
+<p class="mute2">Kid Zone is for kids 12 and under, with a grown-up&rsquo;s OK. Nothing is collected. Grown-ups: <a href="/kids/log">see what they did</a> · <a href="#" onclick="kzLock();return false">lock Kid Zone on this device</a>.</p></div>
 <script>${GATE_JS}
 ${js}</script>`;
+
+// Grown-ups' view of everything kids did in Kid Zone on this device. Read straight from the browser, never sent to us.
+export const kidsLog = back => `<div class="kz"><p class="mute"><a href="/kids">‹ Kid Zone</a> · <a href="${back}">News</a></p><h1>👀 What the kids did</h1>
+<p class="big">Every tap in Kid Zone on this device, and how they're going. It stays on this device. We never see it.</p><div id="kzl"></div></div>
+<script>(function(){var L=[];try{L=JSON.parse(localStorage.getItem('kz_log')||'[]')}catch(e){}var el=document.getElementById('kzl');
+function esc(x){return String(x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+if(!L.length){el.innerHTML='<div class="card2"><p>Nothing yet. Once the kids play, every visit, answer and score shows up here.</p></div>';return}
+var wk=Date.now()-7*864e5,mins=0;L.forEach(function(x){if(x.t>wk&&x.w==='Time spent')mins+=/sec/.test(x.d)?parseInt(x.d)/60:parseInt(x.d)});
+var sc=L.filter(function(x){return x.g==='Safe or Sus?'&&x.w==='Score'}).map(function(x){return parseInt(x.d)}),rb=L.filter(function(x){return x.g==='Robot Builder'&&x.w==='Built it'}),pet=L.filter(function(x){return x.g==='Pet Pal'&&x.w!=='New pet'});
+var trend='';if(sc.length>1){var a=sc.slice(0,Math.ceil(sc.length/2)),b=sc.slice(Math.ceil(sc.length/2)),av=function(z){return z.reduce(function(p,q){return p+q},0)/z.length};var d=av(b)-av(a);trend=d>0.4?' · 📈 Improving':d<-0.4?' · 📉 Dipping, maybe play it together':' · ➡️ Steady'}
+var lvl=rb.length?Math.max.apply(null,rb.map(function(x){return +(x.d.match(/Level (\\d+)/)||[0,1])[1]})):0;
+var cards='<div class="card2"><h2>This week</h2><p>⏱️ <b>'+Math.round(mins)+' min</b> in Kid Zone</p>'
++'<p>🛡️ <b>Safe or Sus?</b> '+(sc.length?'Played '+sc.length+' time'+(sc.length>1?'s':'')+'. Scores: '+sc.slice(-8).join(', ')+' (out of 10)'+trend:'Not played yet')+'</p>'
++'<p>🤖 <b>Robot Builder</b> '+(rb.length?rb.length+' built · up to level '+lvl:'Not played yet')+'</p>'
++'<p>🐾 <b>Pet Pal</b> '+(pet.length?pet.length+' care job'+(pet.length>1?'s':'')+' · '+esc((pet[pet.length-1].d.match(/\\d+-day streak/)||[''])[0]):'Not played yet')+'</p>'
++'<p class="mute2">Seeing it go up? Tell them! A bit of encouragement goes a long way.</p></div>';
+var rows=L.slice(-300).reverse().map(function(x){var d=new Date(x.t);return '<tr><td>'+d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'})+'</td><td>'+esc(x.g)+'</td><td>'+esc(x.w)+(x.d?' <span class="mute2">'+esc(x.d)+'</span>':'')+'</td></tr>'}).join('');
+el.innerHTML=cards+'<h2>Every touch point</h2><div style="overflow-x:auto"><table class="kzt"><thead><tr><th>When</th><th>Game</th><th>What happened</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="mute2">Showing the latest '+Math.min(L.length,300)+' of '+L.length+'. Clear it from the <a href="/kids/parent">grown-ups page</a>.</p>'})()</script>`;
 
 export const kidsHub = back => shell(back, "🧒 Kid Zone", "Fun games for kids 12 and under. Learn something, look after something, come back tomorrow.",
 `<a class="card" href="/kids/safe">🛡️ <b>Safe or Sus?</b> Someone sends you a message. What do you do? →</a>
 <a class="card" href="/kids/robot">🤖 <b>Robot Builder</b> Tell the robot what to build in as few goes as you can. Learn how AI thinks →</a>
 <a class="card" href="/kids/pet">🐾 <b>Pet Pal</b> Build your dream pet, then feed it, wash it, walk it and get it to bed on time →</a>
 <div class="kpromise"><b>Every game in the Kid Zone must:</b><ul><li>🛡️ teach online safety</li><li>🚀 set kids up for a digital future</li><li>🎉 be fun</li></ul>The grown-ups check every game is safe and parent-friendly. Then our Quality Control Officer (a real kid) has to give it the <b>⭐ Fun Guarantee</b>. No guarantee, no game.</div>
-<p class="mute2">🔐 Grown-ups: <a href="/kids/parent">set a secret word</a> so kids need your OK to get in on your account.</p>
+<p class="mute2">🔐 Grown-ups: <a href="/kids/parent">set a secret word</a> so kids need your OK to get in, and <a href="/kids/log">see everything they did</a>.</p>
 <p class="mute2">More games are on the way. Grown-ups can suggest one on the <a href="/feedback">ideas page</a>.</p>`, `kzGate(function(){})`);
 
 // Safe or Sus? Ten everyday message situations. Pattern-level, age-appropriate.
@@ -62,9 +83,9 @@ export const safePage = back => shell(back, "🛡️ Safe or Sus?", "Someone sen
 kzGate(function(){var el=document.getElementById('sq'),o=Q.map(function(_,i){return i}).sort(function(){return Math.random()-.5}),i=0,s=0;
 function esc(x){return String(x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function q(){if(i>=o.length)return end();var x=Q[o[i]];el.innerHTML='<p class="mute2">Message '+(i+1)+' of '+o.length+' · Score '+s+'</p><div class="bubble"><div class="from">'+esc(x[0])+'</div>'+esc(x[1])+'</div><div class="row">'+x[2].map(function(a,k){return '<button type="button" class="alt" data-k="'+k+'">'+esc(a)+'</button>'}).join('')+'</div>';
-el.querySelectorAll('button').forEach(function(b){b.onclick=function(){var r=+b.dataset.k===x[3];if(r)s++;el.insertAdjacentHTML('beforeend','<div class="fb '+(r?'ok':'no')+'">'+(r?'✅ <b>Smart move!</b> ':'🤔 <b>Not quite.</b> ')+esc(x[4])+'</div><div class="row"><button type="button" id="nx">Next</button></div>');el.querySelectorAll('[data-k]').forEach(function(z){z.disabled=true});document.getElementById('nx').onclick=function(){i++;q()}}})}
+el.querySelectorAll('button').forEach(function(b){b.onclick=function(){var r=+b.dataset.k===x[3];if(r)s++;kzLog('Safe or Sus?',r?'Right answer':'Wrong answer',x[0]);el.insertAdjacentHTML('beforeend','<div class="fb '+(r?'ok':'no')+'">'+(r?'✅ <b>Smart move!</b> ':'🤔 <b>Not quite.</b> ')+esc(x[4])+'</div><div class="row"><button type="button" id="nx">Next</button></div>');el.querySelectorAll('[data-k]').forEach(function(z){z.disabled=true});document.getElementById('nx').onclick=function(){i++;q()}}})}
 function end(){var best=0;try{best=+localStorage.getItem('kz_safe_best')||0;if(s>best)localStorage.setItem('kz_safe_best',s)}catch(e){}
-var badge=s===10?'🏆 Safety Superstar':s>=8?'🛡️ Safety Shield':s>=5?'👍 Getting there':'🌱 Keep learning';
+var badge=s===10?'🏆 Safety Superstar':s>=8?'🛡️ Safety Shield':s>=5?'👍 Getting there':'🌱 Keep learning';kzLog('Safe or Sus?','Score',s+'/10 · '+badge);
 el.innerHTML='<div class="card2"><h2>'+badge+'</h2><p class="big">You got <b>'+s+' out of 10</b>.</p><p>Best score on this device: '+Math.max(s,best)+'</p><div class="row"><button type="button" id="again">Play again</button><a href="/kids/pet">Visit your Pet Pal 🐾</a></div></div>';document.getElementById('again').onclick=function(){i=0;s=0;o.sort(function(){return Math.random()-.5});q()}}
 q()})`);
 
@@ -82,7 +103,7 @@ function build(){var pick=0,col=0;el.innerHTML='<div class="card2"><h2>1. Pick y
 function sel(id,cb){el.querySelectorAll('#'+id+' button').forEach(function(b){b.onclick=function(){el.querySelectorAll('#'+id+' button').forEach(function(z){z.classList.add('alt')});b.classList.remove('alt');cb(+b.dataset.k)}})}
 sel('pa',function(k){pick=k});sel('pc',function(k){col=k});
 document.getElementById('pgo').onclick=function(){var n=document.getElementById('pn').value.replace(/[^A-Za-z \\-']/g,'').trim().slice(0,12)||A[pick][1];var now=Date.now();
-P={a:pick,c:col,n:n,food:80,clean:80,fun:80,walk:80,sleep:80,t:now,pts:0,streak:1,last:today(),born:today(),done:{}};save();care()}}
+kzLog('Pet Pal','New pet',n);P={a:pick,c:col,n:n,food:80,clean:80,fun:80,walk:80,sleep:80,t:now,pts:0,streak:1,last:today(),born:today(),done:{}};save();care()}}
 function tick(){var h=(Date.now()-P.t)/36e5;['food','clean','fun','walk','sleep'].forEach(function(k){var rate={food:4,clean:2,fun:3,walk:3,sleep:2.5}[k];P[k]=Math.max(0,P[k]-rate*h)});P.t=Date.now();
 var d=today();if(P.last!==d){var y=new Date();y.setDate(y.getDate()-1);var yd=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();P.streak=P.last===yd?P.streak+1:1;P.last=d;P.done={};P.pts+=5}save()}
 var ACT={food:['🍖','Feed',35,'Yum! Full tummy.'],clean:['🛁','Wash',40,'Squeaky clean!'],fun:['🎾','Play',30,'Best day ever!'],walk:['🦮','Walk',40,'What a great walk!'],sleep:['🌙','Bedtime',60,'Sweet dreams…']};
@@ -96,7 +117,7 @@ el.innerHTML='<div class="card2"><div class="pet">'+a[0]+'</div><h2 style="text-
 +'<p><span class="pts">⭐ '+P.pts+' points</span> · 🔥 '+P.streak+'-day streak'+(badges?'<br>'+badges:'')+'</p><p class="mute2">Each care job can be done 3 times a day. Come back tomorrow to keep your streak going!</p>'
 +'<p class="mute2"><a href="#" id="pnew">Start again with a new pet</a></p></div>';
 el.querySelectorAll('[data-a]').forEach(function(b){b.onclick=function(){var k=b.dataset.a,x=ACT[k],gain=(k==='sleep'&&late)?20:10;if(P[k]>=95){care(esc(P.n)+' doesn&rsquo;t need that right now. Try something else!');return}
-P[k]=Math.min(100,P[k]+x[2]);P.done[k]=(P.done[k]||0)+1;P.pts+=gain;save();care(x[0]+' '+x[3]+' +'+gain+' points')}});
+P[k]=Math.min(100,P[k]+x[2]);P.done[k]=(P.done[k]||0)+1;P.pts+=gain;save();kzLog('Pet Pal',x[1],P.n+' · '+P.streak+'-day streak'+(gain>10?' · bedtime on time':''));care(x[0]+' '+x[3]+' +'+gain+' points')}});
 document.getElementById('pnew').onclick=function(e){e.preventDefault();if(confirm('Start again? Your points and streak will reset.')){try{localStorage.removeItem(K)}catch(_){}P=null;build()}}}
 if(P)care();else build()})`);
 
@@ -132,8 +153,8 @@ ss.forEach(function(s){var hit=RB[s].filter(function(v){return new RegExp('\\\\b
 var ok=ss.every(function(s){return o[s][0]===T[s][0]});
 var res='<div class="fb '+(ok?'ok':'no')+'"><b>The robot made:</b> '+esc(words(o))+pic(o)
 +ss.map(function(s){var g=o[s][0]===T[s][0];return (g?'✅ ':'❌ ')+{colour:'Colour',animal:'Animal',wearing:'Wearing',doing:'Doing',place:'Place'}[s]+(g?'':miss.indexOf(s)>=0?': you didn&rsquo;t say, so the robot guessed':': not quite')}).join('<br>')+'</div>';
-if(ok){var gain=10*(left+1);S.pts+=gain;var up=tries===1;if(up)S.lvl++;save();
+if(ok){var gain=10*(left+1);S.pts+=gain;var up=tries===1;kzLog('Robot Builder','Built it','Level '+S.lvl+' in '+tries+' go'+(tries>1?'es':'')+(up?' · levelled up to '+(S.lvl+1):''));if(up)S.lvl++;save();
 el.innerHTML='<div class="card2"><h2>🎉 Nailed it'+(tries===1?' first go!':' in '+tries+' goes!')+'</h2>'+res+'<p>+'+gain+' points'+(up?' · 🆙 Level '+S.lvl+'! You get fewer goes now, so be extra clear.':' · Get it in one go to level up.')+'</p><div class="row"><button type="button" id="rn">Next picture</button></div></div>';document.getElementById('rn').onclick=newRound;return}
-if(left<=0){el.innerHTML='<div class="card2"><h2>🤖 Out of goes!</h2>'+res+'<p>The answer was: <b>'+esc(words(T))+'</b>. Tip: say every part, one by one.</p><div class="row"><button type="button" id="rn">Try a new one</button></div></div>';document.getElementById('rn').onclick=newRound;return}
+if(left<=0){kzLog('Robot Builder','Out of goes','Level '+S.lvl);el.innerHTML='<div class="card2"><h2>🤖 Out of goes!</h2>'+res+'<p>The answer was: <b>'+esc(words(T))+'</b>. Tip: say every part, one by one.</p><div class="row"><button type="button" id="rn">Try a new one</button></div></div>';document.getElementById('rn').onclick=newRound;return}
 draw(res)}
 newRound()})`);
