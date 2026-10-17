@@ -365,7 +365,7 @@ qs.oninput=find;drawSaved();
 
 (function(){var g=function(k){try{return localStorage.getItem(k)}catch(e){return null}},day=g('bin_bday');if(day===null||day==='')return;var d=new Date(),diff=(+day-d.getDay()+7)%7;if(diff>1)return;
 var n=new Date(d);n.setDate(d.getDate()+diff);var wk=Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5+4)/7),a=null;try{a=JSON.parse(g('bin_anchor'))}catch(e){}var alt=a?((wk-a[0])%2===0?a[1]:3-a[1]):1;
-var el=document.createElement('p');el.className='note';el.innerHTML='🗑️ <b>Bin night '+(diff===0?'tonight':'tomorrow')+':</b> '+(g('bin_bweekly')||'Red')+' + '+(alt==1?(g('bin_balt1')||'Yellow'):(g('bin_balt2')||'Green'))+' <a href="/home">change</a>';
+var el=document.createElement('p');el.className='note';el.innerHTML='🗑️ <b>Bin night '+(diff===0?'tonight':'tomorrow')+':</b> '+(g('bin_bweekly')||'Green')+' + '+(alt==1?(g('bin_balt1')||'Red'):(g('bin_balt2')||'Yellow'))+' <a href="/home">change</a>';
 var t=document.getElementById('today');t.parentNode.insertBefore(el,t)})();
 (function(){var f=document.getElementById('flow'),o;try{o=JSON.parse(localStorage.getItem('order')||'null')}catch(e){}
 if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
@@ -2196,9 +2196,11 @@ document.getElementById('wpick').onclick=function(){var v=L.filter(function(li){
 const homePage = () => page("My home", `<p class="mute"><a href="/${R.code}">‹ ${R.code}</a></p><h1>🏡 My home</h1>
 <p>Handy home info, saved on <b>your phone only</b>. Nothing here is sent to us.</p>
 <h2>🗑️ Bin night</h2><div class="row"><div><label>Bins go out</label><select id="bday"><option value="">Choose…</option>${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].map((d, i) => `<option value="${i}">${d} night</option>`).join("")}</select></div>
-<div><label>Every week</label><input id="bweekly" value="Red (general waste)" maxlength="40"></div></div>
-<div class="row"><div><label>Alternating bin A</label><input id="balt1" value="Yellow (recycling)" maxlength="40"></div><div><label>Alternating bin B</label><input id="balt2" value="Green (organics)" maxlength="40"></div></div>
-<label>Which alternating bin goes out this week?</label><select id="bthis"><option value="1">Bin A</option><option value="2">Bin B</option></select>
+</div>
+<label>This bin night, which one goes out with the green bin?</label><select id="bthis"><option value="">Choose…</option><option value="1">Red (general waste)</option><option value="2">Yellow (recycling)</option></select>
+<p class="mute">That&rsquo;s it. Green goes out every week; red and yellow swap each fortnight, and we work out the rest.</p>
+<div id="bcal"></div>
+<details><summary class="mute">Different bins where you live?</summary><div class="row"><div><label>Every week</label><input id="bweekly" value="Green (organics)" maxlength="40"></div><div><label>Fortnightly bin 1</label><input id="balt1" value="Red (general waste)" maxlength="40"></div><div><label>Fortnightly bin 2</label><input id="balt2" value="Yellow (recycling)" maxlength="40"></div></div></details>
 <p class="note" id="bnext" hidden></p><p class="mute">${R.binsTip} We'll remind you on your ${R.code} page the day bins go out.</p>
 <h2>🧳 House-sitter sheet</h2><p>Going away? Fill in what a house-sitter needs, then print or share it.</p>
 <p class="note">⚠️ Please don't put passwords, alarm codes or where the spare key is in here.</p>
@@ -2208,11 +2210,15 @@ ${[["pets", "Pets: names, feeding, walks", 3], ["plants", "Plants and garden: wh
 <div id="hsout" class="hsout"></div>
 <script>(function(){function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function p(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 var F=['bday','bweekly','balt1','balt2'];F.forEach(function(id){var el=document.getElementById(id),v=g('bin_'+id);if(v!==null)el.value=v;el.onchange=el.oninput=function(){p('bin_'+id,el.value);nb()}});
-var bt=document.getElementById('bthis');bt.onchange=function(){var d=new Date(),wk=Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5+4)/7);p('bin_anchor',JSON.stringify([wk,+bt.value]));nb()};
+var bt=document.getElementById('bthis');function lab(){bt.options[1].text=document.getElementById('balt1').value;bt.options[2].text=document.getElementById('balt2').value}lab();
+bt.onchange=function(){if(!bt.value)return;var day=g('bin_bday'),d=new Date(),diff=day===null||day===''?0:(+day-d.getDay()+7)%7,n=new Date(d);n.setDate(d.getDate()+diff);var wk=Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5+4)/7);p('bin_anchor',JSON.stringify([wk,+bt.value]));nb()};
 function binInfo(){var day=g('bin_bday');if(day===null||day==='')return null;var d=new Date(),diff=(+day-d.getDay()+7)%7,n=new Date(d);n.setDate(d.getDate()+diff);
 var wk=Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5+4)/7),a=null;try{a=JSON.parse(g('bin_anchor'))}catch(e){}var alt=a?((wk-a[0])%2===0?a[1]:3-a[1]):1;
-return{diff:diff,text:(g('bin_bweekly')||'Red (general waste)')+' + '+(alt==1?(g('bin_balt1')||'Yellow (recycling)'):(g('bin_balt2')||'Green (organics)'))}}
-function nb(){var i=binInfo(),o=document.getElementById('bnext');if(!i){o.hidden=true;return}o.hidden=false;o.textContent='🗑️ '+(i.diff===0?'Tonight':i.diff===1?'Tomorrow night':'In '+i.diff+' days')+': '+i.text}
+return{diff:diff,text:(g('bin_bweekly')||'Green (organics)')+' + '+(alt==1?(g('bin_balt1')||'Red (general waste)'):(g('bin_balt2')||'Yellow (recycling)'))}}
+function nb(){lab();var i=binInfo(),o=document.getElementById('bnext'),c=document.getElementById('bcal');if(!i){o.hidden=true;c.innerHTML='';return}o.hidden=false;o.textContent='🗑️ '+(i.diff===0?'Tonight':i.diff===1?'Tomorrow night':'In '+i.diff+' days')+': '+i.text;
+var a=null;try{a=JSON.parse(g('bin_anchor'))}catch(e){}if(a)bt.value=String((Math.floor((Date.UTC(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()+i.diff)/864e5+4)/7)-a[0])%2===0?a[1]:3-a[1]);
+var d=new Date(),out=[];for(var k=0;k<4;k++){var n=new Date(d);n.setDate(d.getDate()+i.diff+7*k);var wk=Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5+4)/7),alt=a?((wk-a[0])%2===0?a[1]:3-a[1]):1;out.push('<li><b>'+n.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})+'</b>: '+(g('bin_bweekly')||'Green (organics)')+' + '+(alt==1?(g('bin_balt1')||'Red (general waste)'):(g('bin_balt2')||'Yellow (recycling)'))+'</li>')}
+c.innerHTML=a?'<p class="mute">Your next four bin nights:</p><ul class="fls">'+out.join('')+'</ul>':''}
 nb();document.querySelectorAll('[data-hs]').forEach(function(t){t.value=g('hs_'+t.dataset.hs)||'';t.oninput=function(){p('hs_'+t.dataset.hs,t.value)}});
 function sheet(){var i=binInfo(),L=['HOUSE-SITTER SHEET','',i?'Bin night: '+['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][+g('bin_bday')]+' night. Next: '+i.text:''];
 document.querySelectorAll('[data-hs]').forEach(function(t){if(t.value.trim())L.push('',t.previousElementSibling.textContent.toUpperCase(),t.value.trim())});
