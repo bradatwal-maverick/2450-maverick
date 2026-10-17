@@ -1,6 +1,8 @@
 
 // One engine, many towns: each Worker sets REGION (default 2450) and gets that town's settings from regions.js.
 import { REGIONS } from "./regions.js";
+import { withSecrets } from "./secrets.js";
+import { billingApi, tierOf, hasTier, paymentsOn, TIERS } from "./billing.js";
 import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionPage } from "./sections.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
@@ -512,7 +514,7 @@ const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goa
 <p class="barlab">${n.toLocaleString("en-AU")} of ${goal} locals</p>
 <p>Sign up for one short email a week with what's on, plus a free Maverick Digital guide to using AI in everyday life.</p>${signup(pc)}
 <p class="rallyl"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>
-<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$50 a year, for life</h3><p>The first ${goal} locals to sign up lock in the founding price if they ever choose the Everything membership. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a>${R.code === "2450" ? ` · <a href="/localsforlife">Born at the old Coffs hospital?</a>` : ""}</p></section>`; };
+<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$50 a year, for life</h3><p>The first ${goal} locals to sign up lock in $50 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a>${R.code === "2450" ? ` · <a href="/localsforlife">Born at the old Coffs hospital?</a>` : ""}</p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip mute" href="#join">Target: ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${n.toLocaleString("en-AU")} so far</a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -798,6 +800,11 @@ async function acTagId(env, name) {
   if (id) await env.DATA.put(`ac:tag:${name}`, String(id));
   return id;
 }
+async function acTag(env, email, name) { // tags one person in ActiveCampaign (memberships)
+  if (!env.AC_URL || !env.AC_KEY) return;
+  const c = (await ac(env, "contact/sync", { contact: { email } })).contact, t = await acTagId(env, name);
+  if (c?.id && t) await ac(env, "contactTags", { contactTag: { contact: c.id, tag: t } });
+}
 async function acSync(env) {
   if (!env.AC_URL || !env.AC_KEY) return;
   if (!(await env.DATA.get("ac:backfill"))) { for (const pre of ["user:", "sub:"]) for (const { name } of await listAll(env, pre)) await acQueue(env, name.slice(pre.length)); await env.DATA.put("ac:backfill", new Date().toISOString()); }
@@ -938,7 +945,9 @@ ${TIPS_PICK}<label class="mute"><input type="checkbox" name="consent" required> 
 
 // Photo of the fridge -> list of foods. Uses Cloudflare's free AI allowance; the photo is never stored.
 async function fridgePhoto(req, env) {
-  if (!(await member(req, env))) return Response.json({ error: "Sign in to use the fridge." }, { status: 401 });
+  const fem = await member(req, env);
+  if (!fem) return Response.json({ error: "Sign in to use the fridge." }, { status: 401 });
+  if (!(await hasTier(env, fem, "every"))) return Response.json({ error: "The fridge is part of Every Cool Thing." }, { status: 402 });
   const buf = await req.arrayBuffer();
   if (!buf.byteLength || buf.byteLength > 2e6) return Response.json({ error: "That photo's too big. Try again." }, { status: 400 });
   const ask = { messages: [{ role: "user", content: "List the food and drink items you can see in this fridge or pantry photo. Reply with ONLY a comma-separated list of short, simple ingredient names in lowercase (e.g. eggs, milk, cheese, carrots). No other words." }], image: [...new Uint8Array(buf)], max_tokens: 200 };
@@ -1784,7 +1793,9 @@ var last=new URLSearchParams(location.search).get('c');if(!last)try{last=localSt
 // ---- Mav chat: a helper on every page. Answers from the site's own info and changes settings (all stored on the phone). Nothing is logged. ----
 // First chat with Mav is free. After that, sign in (free) to keep using him.
 async function mavChat(req, env) {
-  if (await member(req, env)) return mavAnswer(req, env);
+  const em = await member(req, env);
+  if (em && (await hasTier(env, em, "some"))) return mavAnswer(req, env);
+  if (em) return Response.json({ reply: cookie(req, "mav1") ? `Loved helping! Setting up your page with me is part of Some Cool Things. Try it free for 14 days, no card needed: /membership` : `G'day! Setting up your page with me is part of Some Cool Things. Try it free for 14 days, no card needed: /membership`, actions: [], member: true });
   if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code}. It's free, takes one tap, and I'll remember how you like your page on any phone: /signin`, actions: [], signin: true });
   const r = await mavAnswer(req, env), h = new Headers(r.headers);
   h.append("set-cookie", "mav1=1; Path=/; Max-Age=31536000; Secure; SameSite=Lax");
@@ -1895,7 +1906,7 @@ ${directoryBody(groups, esc)}
 // A user record with plan: "paid" gets the bigger list (set when payments go live). Prices are checked twice a day, a few items each run.
 const LIST_CAP = { free: 1, paid: 20 };
 const itemKey = s => String(s || "").toLowerCase().replace(/(\d)\s+(g|kg|ml|l|pk|pack)\b/g, "$1$2").replace(/[^a-z0-9.\- ]/g, " ").replace(/\s+/g, " ").trim().slice(0, 50);
-async function planOf(env, em) { const u = await env.DATA.get(`user:${em}`, "json"); return u && u.plan === "paid" ? "paid" : "free"; }
+async function planOf(env, em) { return (await tierOf(env, em)) === "every" ? "paid" : "free"; } // Every Cool Thing members watch 20
 async function applyWatch(env, em, acts) {
   let list = (await env.DATA.get(`shoplist:${em}`, "json")) || [];
   const plan = await planOf(env, em), cap = LIST_CAP[plan], pool = (await env.DATA.get("shopwatch", "json")) || {}, say = [];
@@ -1903,7 +1914,7 @@ async function applyWatch(env, em, acts) {
     const k = itemKey(a.item); if (k.length < 3) continue;
     if (a.type === "unwatch") { const gone = list.filter(x => x === k || x.includes(k) || k.includes(x)); list = list.filter(x => !gone.includes(x)); gone.forEach(x => { pool[x] = (pool[x] || 1) - 1; if (pool[x] <= 0) delete pool[x]; }); say.push(gone.length ? `Done, I've stopped watching ${gone.join(", ")}.` : `You weren't watching ${k}.`); continue; }
     if (list.includes(k)) { say.push(`You're already watching ${k}.`); continue; }
-    if (list.length >= cap) { say.push(plan === "free" ? `Free members can watch 1 item, and you're watching ${list[0]}. Premium members watch up to 20 items, coming soon. Want me to swap it for ${k}?` : `You're watching ${cap} items, the most you can. Tell me one to drop first.`); continue; }
+    if (list.length >= cap) { say.push(plan === "free" ? `Free members can watch 1 item, and you're watching ${list[0]}. Every Cool Thing members watch up to 20 items. Want me to swap it for ${k}?` : `You're watching ${cap} items, the most you can. Tell me one to drop first.`); continue; }
     list.push(k); pool[k] = (pool[k] || 0) + 1;
     say.push(`Done, I'm watching ${k} for you. Prices update twice a day: see My shopping list in Supermarket watch. Coles blocks our checks, so it's Woolworths and ALDI.`);
   }
@@ -1932,9 +1943,9 @@ async function myListApi(req, env) {
 const MYLIST_JS = `(function(){var B=document.getElementById('mylist');if(!B)return;var m=function(n){return '$'+Number(n).toFixed(2)},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 fetch('/api/mylist',{credentials:'same-origin'}).then(function(r){return r.json()}).then(function(j){
 if(!j.signedIn){B.innerHTML='<h3>My shopping list</h3><p class="mute">Want to watch the price of something you buy every week? <a href="/signin?next='+encodeURIComponent(location.pathname)+'">Sign in free</a>, then tell Mav what to watch, like &ldquo;Mav, watch Vegemite 380g&rdquo;.</p>';return}
-var h='<h3>My shopping list</h3>';if(!j.items.length){B.innerHTML=h+'<p class="mute">Tell Mav what to watch, like &ldquo;Mav, watch Vegemite 380g&rdquo;. '+(j.plan==='paid'?'You can watch up to '+j.cap+' items.':'Free members watch 1 item; premium members watch up to 20.')+'</p>';return}
+var h='<h3>My shopping list</h3>';if(!j.items.length){B.innerHTML=h+'<p class="mute">Tell Mav what to watch, like &ldquo;Mav, watch Vegemite 380g&rdquo;. '+(j.plan==='paid'?'You can watch up to '+j.cap+' items.':'Free members watch 1 item; Every Cool Thing members watch up to 20.')+'</p>';return}
 var cell=function(x,lo){if(!x)return '<td class="mute">checking</td>';return '<td class="'+(x.price===lo?'cheap':'')+'" title="'+e(x.name)+'">'+m(x.price)+(x.prev&&x.prev!==x.price?'<br><small class="mute">'+(x.price>x.prev?'▲':'▼')+' '+m(x.prev)+'</small>':'')+'</td>'};
-B.innerHTML=h+'<div class="tscroll"><table class="shopt"><thead><tr><th></th><th>Woolworths</th><th>ALDI</th></tr></thead><tbody>'+j.items.map(function(i){var v=[i.w,i.a].filter(Boolean).map(function(x){return x.price}),lo=v.length>1?Math.min.apply(null,v):-1;return '<tr><th scope="row">'+e(i.label)+'</th>'+cell(i.w,lo)+cell(i.a,lo)+'</tr>'}).join('')+'</tbody></table></div><p class="mute">Your items, checked twice a day. Coles blocks our checks. Ask Mav to add, swap or stop watching an item.'+(j.plan==='paid'?'':' Free members watch 1 item; premium members watch up to 20.')+'</p>'}).catch(function(){})})();`;
+B.innerHTML=h+'<div class="tscroll"><table class="shopt"><thead><tr><th></th><th>Woolworths</th><th>ALDI</th></tr></thead><tbody>'+j.items.map(function(i){var v=[i.w,i.a].filter(Boolean).map(function(x){return x.price}),lo=v.length>1?Math.min.apply(null,v):-1;return '<tr><th scope="row">'+e(i.label)+'</th>'+cell(i.w,lo)+cell(i.a,lo)+'</tr>'}).join('')+'</tbody></table></div><p class="mute">Your items, checked twice a day. Coles blocks our checks. Ask Mav to add, swap or stop watching an item.'+(j.plan==='paid'?'':' Free members watch 1 item; Every Cool Thing members watch up to 20.')+'</p>'}).catch(function(){})})();`;
 
 // ---- Time saved: people tell us how long a job took before and how long it takes now with our tool. We add it up and show it. ----
 const TS_TOOLS = { daily: "Your Daily Maverick", "/open": "Open now?", "/fridge": "What's in your fridge?", "/school": "School run check", "/birthday": "Birthday deals",
@@ -1981,23 +1992,38 @@ d.querySelector('form').addEventListener('submit',function(e){e.preventDefault()
 fetch('/api/timesaved',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tool:k,before:b,after:a,freq:+F.f.value})}).then(function(r){return r.json()}).then(function(j){if(!j.ok){M.textContent=j.error||'Something went wrong.';return}
 M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b> Thanks for telling us. All up, locals have saved '+H(j.total.mins)+' a week.'}).catch(function(){M.textContent='Something went wrong. Try again?'})})})();`;
 
-// ---- The Everything membership: honest terms, no tricks. Founding Members (the first 15,000 locals) lock in $50 a year for life.
-const FOUNDING_PRICE = 50, PRICE = 99, FOUNDING_SPOTS = LOCALS_GOAL;
-async function membershipPage(env) { const n = await localsCount(env), left = Math.max(0, FOUNDING_SPOTS - n);
-  return page(`The Everything membership: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>⭐ The Daily Maverick Everything membership</h1>
-<p><b>Your Daily Maverick is free, for everyone, forever.</b> Everything you see today stays free. The Everything membership is for locals who want more ways to make the page their own.</p>
-<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign up are Founding Members. You never have to pay a cent. But if you ever choose the Everything membership, you pay the founding price of <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else. Thanks for helping a brother out.</p>
-<p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p><p><a href="/signin?next=/me"><b>Sign in free to claim yours</b></a></p></div>
-<h2>How it works</h2><ul class="rules">
-<li>💰 <b>$${PRICE} a year</b> (Founding Members: $${FOUNDING_PRICE}, for life)</li>
-<li>🆓 <b>14 days free, no credit card.</b> No card up front, no surprise charges. Like it? Then you pay</li>
-<li>↩️ <b>7-day money-back guarantee.</b> Don't like it? Unsubscribe and get your money back. Simple</li>
-<li>🗳️ Try new tools while we build them, and vote on what comes next</li></ul>
-${R.code === "2450" ? `<p><a class="card" href="/localsforlife">🏥 <b>Born at the old Coffs hospital?</b> Locals for Life: free for life, for the first 50 →</a></p>` : ""}
-${wip("Payments are being set up now. Sign in today to lock in your founding price")}`); }
+// ---- Memberships: honest terms, no tricks. Free = the sourced local info, always. Two paid levels (see billing.js).
+// Founding Members (the first 15,000 locals) pay $50 a year for Every Cool Thing, for life.
+const FOUNDING_PRICE = TIERS.every.founding, PRICE = TIERS.every.price, FOUNDING_SPOTS = LOCALS_GOAL;
+async function membershipPage(env, req, url) { const n = await localsCount(env), left = Math.max(0, FOUNDING_SPOTS - n), on = paymentsOn(env);
+  const em = await member(req, env), tier = await tierOf(env, em), need = url.searchParams.get("need"), welcome = url.searchParams.get("welcome");
+  const btn = (t, label) => on ? `<button class="btn" data-tier="${t}">${label}</button>` : `<p class="mute">Opening soon.</p>`;
+  const card = (t, title, price, items, cta) => `<div class="tier${tier === t ? " mine" : ""}"><h2>${title}</h2><p class="tprice">${price}</p><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>${tier === t ? `<p><b>✅ You're on this one.</b></p>` : cta}</div>`;
+  return page(`Memberships: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>Memberships</h1>
+${welcome && TIERS[welcome] ? `<p class="found"><b>You're in. ${TIERS[welcome].name} is on.</b> Thanks for helping a brother out. Enjoy your Daily Maverick.</p>` : ""}
+${need === "some" ? `<p class="found">Setting up your page with Mav is part of <b>Some Cool Things</b>. Try it free for 14 days, no card needed.</p>` : need === "every" ? `<p class="found">That tool is part of <b>Every Cool Thing</b>. Try it free for 14 days, no card needed.</p>` : ""}
+<p><b>The local information is free, for everyone, forever.</b> Nobody pays to be listed, and nobody pays to read. The paid levels are for locals who want their Daily Maverick made just for them.</p>
+<style>.tiers{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:16px 0}.tier{border:1px solid #d9dee6;border-radius:12px;padding:14px}.tier.mine{border-color:#12233f;border-width:2px}.tier h2{margin:0 0 4px;font-size:1.15rem}.tprice{font-weight:700;margin:0 0 8px}.tier ul{padding-left:18px;margin:0 0 12px}.tier .btn{width:100%}</style>
+<div class="tiers">
+${card("free", "Free", "$0, always", ["Every bit of local information we source", "News, weather, tides, events, council watch and more", "No login needed"], `<p><a href="/${R.code}">Read today's →</a></p>`)}
+${card("some", "Some Cool Things", `$${TIERS.some.price} a year`, ["Everything in Free", "Your page, personalised", "Mav sets it up: just tell him what you care about", "Your setup on every phone you sign in on"], btn("some", "Try 14 days free"))}
+${card("every", "Every Cool Thing", `$${PRICE} a year <span class="mute">(Founding Members $${FOUNDING_PRICE}, for life)</span>`, ["Everything in Some Cool Things", "Every tool Maverick Digital adds, like What's in your fridge and price watch on 20 items", "Try new tools while we build them", "Nominate and vote on what comes next"], btn("every", "Try 14 days free"))}
+</div>
+<h2>The deal</h2><ul class="rules">
+<li>🆓 <b>14 days free, no credit card.</b> Like it? Then you pay. Don't? Do nothing and it simply ends</li>
+<li>↩️ <b>7-day money-back.</b> Cancel within 7 days of paying and your money comes straight back. No forms, no questions</li>
+<li>🔓 <b>No lock-in.</b> Cancel or switch any time${tier !== "free" ? ` · <a href="#" id="manage">Manage my membership</a>` : ""}</li>
+<li>🔒 Secure payment by Stripe. We never see your card</li></ul>
+<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
+<p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p>${em ? "" : `<p><a href="/signin?next=/membership"><b>Sign in free to claim yours</b></a></p>`}</div>
+${R.code === "2450" ? `<p><a class="card" href="/localsforlife">🏥 <b>Born at the old Coffs hospital?</b> Locals for Life: Every Cool Thing free for life, for the first 50 →</a></p>` : ""}
+<p class="mute" id="paymsg" role="status"></p>
+<script>(function(){var M=document.getElementById('paymsg');function go(path,body){M.textContent='Opening secure checkout…';fetch('/api/billing/'+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){if(j.url)location.href=j.url;else if(j.signin)location.href=j.signin;else M.textContent=j.error||'Something went wrong. Try again?'}).catch(function(){M.textContent='Something went wrong. Try again?'})}
+document.querySelectorAll('[data-tier]').forEach(function(b){b.onclick=function(){go('checkout',{tier:b.dataset.tier})}});var m=document.getElementById('manage');if(m)m.onclick=function(e){e.preventDefault();go('portal')};
+var buy=new URLSearchParams(location.search).get('buy');if(buy==='some'||buy==='every'){var b=document.querySelector('[data-tier="'+buy+'"]');if(b)b.click()}})();</script>`); }
 
 // ---- Locals for Life (Coffs only): born at the old Coffs Harbour hospital (births up to about 1985) and still living here?
-// Free Everything membership for life, first 50 only, plus a free shout-out for your business. Proof (birth certificate,
+// Every Cool Thing free for life, first 50 only, plus a free shout-out for your business. Proof (birth certificate,
 // showing just the place and date) is checked once, when memberships open.
 const LFL_SPOTS = 50;
 async function lflPage(req, env, note = "") {
@@ -2005,7 +2031,7 @@ async function lflPage(req, env, note = "") {
   const list = (await env.DATA.get("lfl:list", "json")) || [], left = Math.max(0, LFL_SPOTS - list.length), em = await member(req, env), mine = em && list.includes(em);
   return page("Locals for Life", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🏥 Locals for Life</h1>
 <p>Born at the old Coffs Harbour hospital and still here? You're a local for life, and your Daily Maverick knows it.</p>
-<ul class="rules"><li>⭐ <b>The Everything membership, free, for life</b></li><li>📣 A free shout-out for your business, club or cause on the Daily Maverick</li><li>🏅 Only <b>${LFL_SPOTS}</b> spots, ever. <b>${left} left</b></li></ul>
+<ul class="rules"><li>⭐ <b>Every Cool Thing, free, for life</b></li><li>📣 A free shout-out for your business, club or cause on the Daily Maverick</li><li>🏅 Only <b>${LFL_SPOTS}</b> spots, ever. <b>${left} left</b></li></ul>
 <p class="mute">Who's in: born at the old Coffs Harbour hospital (the one before today's, so births up to about 1985), and you still live in the Coffs Harbour area. "Locals for life" means you're still here. When memberships open we'll ask to see your birth certificate once (just the hospital and date, cover everything else).</p>
 ${note ? `<p class="note">${note}</p>` : ""}
 ${mine ? `<p class="note">🎉 You're in. Welcome, local for life.</p>` : !left ? `<p class="note">All ${LFL_SPOTS} spots are taken. Thanks, Coffs!</p>` : !em ? `<p><a href="/signin?next=/localsforlife"><b>Sign in free to claim your spot</b></a></p>` : `<form method="post" class="me">
@@ -2038,7 +2064,7 @@ function statusPage(env) {
   if (R.fields) done.push(["Sport & field closures", "With phone alerts"]);
   if (env.FUEL_KEY) done.push(["Fuel", "Cheapest near you"]);
   const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["Live roads and traffic", "Crashes and roadworks on your route"], ["School bell times", "Your school's own times"],
-    ["Everything membership", "$99 a year, 14 days free, no card, 7-day money-back. Founding Members pay $50 for life"], ["Saved searches by email", "Your searches, in your weekly email"]];
+    ["Memberships", "Some Cool Things $49 and Every Cool Thing $99 a year, 14 days free, no card, 7-day money-back. Founding Members pay $50 for life"], ["Saved searches by email", "Your searches, in your weekly email"]];
   if (!R.fields) todo.push(["Sport & field closures", "Field closures and local fixtures"]);
   if (!env.FUEL_KEY) todo.push(["Live fuel prices", "Cheapest fuel near you"]);
   const li = (b, cls, txt) => b.map(([n, d]) => `<li><span class="${cls}">${txt}</span> <b>${esc(n)}</b> <span class="mute">${esc(d)}</span></li>`).join("");
@@ -2191,7 +2217,7 @@ ${await plusList(env)}
 // ---- Everything: every page on the Daily Maverick, in one place, so nothing is hidden ----
 function allPage() {
   const G = [["🗞️ Sections", NAV.map(x => [`/${x.slug}`, x.name, x.blurb])], ["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
-    ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Everything membership", "Founding Members: $50 a year for life"]]],
+    ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free, Some Cool Things or Every Cool Thing"]]],
     ["🧰 Handy tools", [["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
@@ -2428,6 +2454,7 @@ async function lodgeNotice(req, env) {
 
 export default {
   async scheduled(evt, env, ctx) {
+    env = await withSecrets(env);
     initRegion(env);
     // One cron per Worker (the free plan allows 5 across the account): every 5 minutes for push alerts,
     // and every half hour the rest of the work.
@@ -2441,6 +2468,7 @@ export default {
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshVenues(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshABS(env, R.code).catch(() => {}), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
   async fetch(req, env, ctx) {
+    env = await withSecrets(env);
     initRegion(env);
     try { CUR_PATH = new URL(req.url).pathname; return await route(req, env, ctx); }
     catch (e) { console.log("page error", String(e)); return page("Back soon", `<h1>Back in a moment</h1><p>Something hiccuped on our end. Try again in a minute.</p><p><a href="/">Home</a></p>`); }
@@ -2449,6 +2477,7 @@ export default {
 async function route(req, env, ctx) {
   {
     const url = new URL(req.url), p = url.pathname;
+    if (p.startsWith("/api/billing/")) return billingApi(req, env, ctx, p.slice(13), { member, localsCount, goal: LOCALS_GOAL, R, acTag });
     if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
     if (p === "/social" || p === "/social/") return Response.redirect(new URL("/community", url).toString(), 301);
@@ -2491,8 +2520,8 @@ async function route(req, env, ctx) {
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
     if (p === "/about") return about(env);
     if (p === "/api/fuel") return fuelApi(req, env);
-    if (p === "/me") { const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/me" } }); const u = await env.DATA.get(`user:${em}`, "json"); return mePage((u?.name || "").split(" ")[0]); }
-    if (p === "/api/prefs") { const em = await member(req, env); return em ? prefsApi(req, env, em) : Response.json({ error: "Sign in" }, { status: 401 }); }
+    if (p === "/me") { const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/me" } }); if (!(await hasTier(env, em, "some"))) return new Response(null, { status: 303, headers: { location: "/membership?need=some" } }); const u = await env.DATA.get(`user:${em}`, "json"); return mePage((u?.name || "").split(" ")[0]); }
+    if (p === "/api/prefs") { const em = await member(req, env); return !em ? Response.json({ error: "Sign in" }, { status: 401 }) : (await hasTier(env, em, "some")) ? prefsApi(req, env, em) : Response.json({ error: "Part of Some Cool Things", join: "/membership" }, { status: 402 }); }
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
     if (p === "/api/flights") return Response.json(await env.DATA.get("flights", "json") || { list: null }, { headers: { "access-control-allow-origin": "*", "cache-control": "max-age=300" } });
@@ -2514,7 +2543,7 @@ async function route(req, env, ctx) {
     if (p === "/feedback") return req.method === "POST" ? feedback(req, env, ctx) : feedbackPage(env);
     if (p === "/vote" && req.method === "POST") return vote(req, env);
     if (p === "/school") return schoolPage();
-    if (p === "/fridge") return (await member(req, env)) ? fridgePage() : unlockPage();
+    if (p === "/fridge") { const em = await member(req, env); return !em ? unlockPage() : (await hasTier(env, em, "every")) ? fridgePage() : new Response(null, { status: 303, headers: { location: "/membership?need=every" } }); }
     if (p === "/unlock" && req.method === "POST") return unlock(req, env);
     if (p === "/api/hello" && req.method === "POST") return helloApi(req, env);
     if (p.startsWith("/go/")) return goLink(p.slice(4), env);
@@ -2529,7 +2558,7 @@ async function route(req, env, ctx) {
     if (p === "/dads") return AREA().dads(url);
     if (p === "/singles") return AREA().singles(url);
     if (p === "/lgbtqia" || p === "/lgbtq") return AREA().lgbtqia(url);
-    if (p === "/membership") return membershipPage(env);
+    if (p === "/membership") return membershipPage(env, req, url);
     if (p === "/localsforlife") return req.method === "POST" ? lflApply(req, env) : lflPage(req, env);
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
