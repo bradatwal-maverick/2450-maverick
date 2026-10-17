@@ -2549,18 +2549,19 @@ const SHOP = [
 ];
 const STORES = { w: "Woolworths", a: "ALDI", c: "Coles" }; // Coles last: its website blocks our price checks
 const money = n => "$" + Number(n).toFixed(2);
+const shopJson = async (u, h) => { const r = await fetch(u, h); if (!r.ok) throw { status: r.status }; return r.json(); };
 async function shopWoolies(it) {
-  const j = await (await fetch("https://www.woolworths.com.au/apis/ui/Search/products?searchTerm=" + encodeURIComponent(it.q) + "&pageSize=12", { headers: { ...UA, accept: "application/json" } })).json();
+  const j = await shopJson("https://www.woolworths.com.au/apis/ui/Search/products?searchTerm=" + encodeURIComponent(it.q) + "&pageSize=12", { headers: { ...UA, accept: "application/json" } });
   const p = (j.Products || []).flatMap(x => x.Products || []).find(x => it.re.test(x.Name + " " + (x.PackageSize || "")) && typeof x.Price === "number");
   return p && { name: p.Name + (p.PackageSize ? " " + p.PackageSize : ""), price: p.Price, was: p.WasPrice > p.Price ? p.WasPrice : 0, unit: p.CupString || "" };
 }
 async function shopColes(it, build) {
-  const j = await (await fetch(`https://www.coles.com.au/_next/data/${build}/en/search/products.json?q=${encodeURIComponent(it.q)}`, { headers: { ...UA, accept: "application/json" } })).json();
+  const j = await shopJson(`https://www.coles.com.au/_next/data/${build}/en/search/products.json?q=${encodeURIComponent(it.q)}`, { headers: { ...UA, accept: "application/json" } });
   const p = (j.pageProps?.searchResults?.results || []).filter(x => x._type === "PRODUCT").find(x => it.re.test((x.brand ? x.brand + " " : "") + x.name + " " + (x.size || "")) && x.pricing && typeof x.pricing.now === "number");
   return p && { name: (p.brand ? p.brand + " " : "") + p.name + (p.size ? " " + p.size : ""), price: p.pricing.now, was: p.pricing.was > p.pricing.now ? p.pricing.was : 0, unit: p.pricing.comparable || "" };
 }
 async function shopAldi(it) {
-  const j = await (await fetch("https://api.aldi.com.au/v3/product-search?currency=AUD&serviceType=walk-in&limit=12&q=" + encodeURIComponent(it.q), { headers: { ...UA, accept: "application/json" } })).json();
+  const j = await shopJson("https://api.aldi.com.au/v3/product-search?currency=AUD&serviceType=walk-in&limit=12&q=" + encodeURIComponent(it.q), { headers: { ...UA, accept: "application/json" } });
   const p = (j.data || []).find(x => it.re.test((x.brandName ? x.brandName + " " : "") + x.name + " " + (x.sellingSize || "")) && x.price && typeof x.price.amount === "number");
   return p && { name: (p.brandName ? p.brandName + " " : "") + p.name + (p.sellingSize ? " " + p.sellingSize : ""), price: p.price.amount / 100, was: p.price.wasPriceDisplay ? 0 : 0, unit: p.price.comparisonDisplay || "" };
 }
@@ -2571,12 +2572,12 @@ async function refreshShop(env) {
   if (old && old.v === 2 && slot(old.tried) === slot(Date.now())) return old;
   const now = new Date().toISOString(), out = { v: 2, tried: now, stores: {}, items: {} };
   let build = "", blocked = {};
-  try { const cr = await fetch("https://www.coles.com.au/", { headers: UA }); build = ((await cr.text()).match(/"buildId":"([^"]+)"/) || [])[1] || ""; if (!build) blocked.c = cr.status; } catch (e) { blocked.c = "error"; }
+  try { const cr = await fetch("https://www.coles.com.au/", { headers: UA }); build = ((await cr.text()).match(/"buildId":"([^"]+)"/) || [])[1] || ""; if (!build) blocked.c = cr.status >= 400 ? cr.status : 403; } catch (e) { blocked.c = 403; }
   for (const k of Object.keys(STORES)) {
     let got = 0;
     for (const it of SHOP) {
       let r = null;
-      try { r = k === "w" ? await shopWoolies(it[k]) : k === "c" ? (build ? await shopColes(it[k], build) : null) : await shopAldi(it[k]); } catch (e) { blocked[k] = blocked[k] || "error"; }
+      try { r = k === "w" ? await shopWoolies(it[k]) : k === "c" ? (build ? await shopColes(it[k], build) : null) : await shopAldi(it[k]); } catch (e) { blocked[k] = blocked[k] || (e && e.status) || "error"; }
       const prev = old && old.items && old.items[it.id] && old.items[it.id][k];
       if (r) { got++; (out.items[it.id] = out.items[it.id] || {})[k] = { ...r, prev: prev && prev.price !== r.price ? prev.price : (prev && prev.prev) || 0, at: now }; }
       else if (prev) (out.items[it.id] = out.items[it.id] || {})[k] = { ...prev, stale: true };
@@ -2592,13 +2593,13 @@ async function shopBlock(env) {
   if (!s || s.v !== 2 || !Object.keys(s.items || {}).length) return `<section id="shop"><h2>Supermarket watch</h2>${wip("Comparing everyday prices at Woolworths, ALDI and Coles. The first prices land at the next check")}</section>`;
   const tot = {}; ks.forEach(k => { tot[k] = SHOP.filter(i => i.basket).every(i => s.items[i.id] && s.items[i.id][k]) ? SHOP.filter(i => i.basket).reduce((a, i) => a + s.items[i.id][k].price, 0) : null; });
   const best = ks.filter(k => tot[k] != null).sort((a, b) => tot[a] - tot[b])[0];
-  const blk = s.blocked || {}, row = i => { const p = s.items[i.id] || {}, vals = ks.map(k => p[k] && p[k].price).filter(x => x != null), lo = Math.min(...vals);
+  const refused = v => [401, 403, 429].includes(+v), blk = Object.fromEntries(Object.entries(s.blocked || {}).filter(([, v]) => refused(v))), miss = Object.keys(s.blocked || {}).filter(k => !blk[k]), row = i => { const p = s.items[i.id] || {}, vals = ks.map(k => p[k] && p[k].price).filter(x => x != null), lo = Math.min(...vals);
     return `<tr><th scope="row">${esc(i.label)}</th>${ks.map(k => { const x = p[k]; if (!x) return blk[k] ? `<td class="mute" title="${STORES[k]} blocks our price checks">blocked</td>` : `<td class="mute">–</td>`;
       return `<td class="${vals.length > 1 && x.price === lo ? "cheap" : ""}" title="${esc(x.name)}${x.unit ? " · " + esc(x.unit) : ""}">${money(x.price)}${x.was ? `<br><small class="tagg">special</small>` : ""}${x.prev && x.prev !== x.price ? `<br><small class="mute">${x.price > x.prev ? "▲" : "▼"} ${money(x.prev)}</small>` : ""}</td>`; }).join("")}</tr>`; };
   return `<section id="shop"><h2>Supermarket watch</h2><p class="mute">The everyday basics at each supermarket today. Cheapest in green. We update these prices <b>twice a day</b>, around 6am and 2pm, so you always know how fresh they are.</p>
 ${best ? `<p class="note">Cheapest basket today (milk, bread, eggs, chocolate): <b>${STORES[best]}</b> at ${money(tot[best])}${ks.filter(k => k !== best && tot[k] != null).map(k => `, ${STORES[k]} ${money(tot[k])}`).join("")}.</p>` : ""}
 <div class="tscroll"><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${STORES[k]}${blk[k] ? `<br><small class="mute">blocks us</small>` : ""}</th>`).join("")}</tr></thead><tbody>${SHOP.map(row).join("")}</tbody></table></div>
-${Object.keys(blk).length ? `<p class="note"><b>${Object.keys(blk).map(k => STORES[k]).join(" and ")} ${Object.keys(blk).length > 1 ? "don&rsquo;t" : "doesn&rsquo;t"} let us check ${Object.keys(blk).length > 1 ? "their" : "its"} prices.</b> ${Object.keys(blk).length > 1 ? "Their websites block" : "Its website blocks"} automatic price checks, so we can&rsquo;t show ${Object.keys(blk).length > 1 ? "them" : "it"} side by side with the others. That&rsquo;s ${Object.keys(blk).length > 1 ? "their" : "its"} choice, not ours. We show what we can find, and we tell you when we can&rsquo;t.</p>` : ""}<div id="mylist"></div><script>${MYLIST_JS}</script><p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
+${Object.keys(blk).length ? `<p class="note"><b>${Object.keys(blk).map(k => STORES[k]).join(" and ")} ${Object.keys(blk).length > 1 ? "don&rsquo;t" : "doesn&rsquo;t"} let us check ${Object.keys(blk).length > 1 ? "their" : "its"} prices.</b> ${Object.keys(blk).length > 1 ? "Their websites block" : "Its website blocks"} automatic price checks, so we can&rsquo;t show ${Object.keys(blk).length > 1 ? "them" : "it"} side by side with the others. That&rsquo;s ${Object.keys(blk).length > 1 ? "their" : "its"} choice, not ours. We show what we can find, and we tell you when we can&rsquo;t.</p>` : ""}<div id="mylist"></div><script>${MYLIST_JS}</script>${miss.length ? `<p class="mute">${miss.map(k => STORES[k]).join(" and ")} prices didn&rsquo;t load at this check. We&rsquo;ll try again at the next one.</p>` : ""}<p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
 }
 
 // ---- Big local projects (e.g. the Coffs Harbour bypass): the latest weekly update from the project's own page ----
