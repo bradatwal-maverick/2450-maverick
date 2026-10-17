@@ -22,7 +22,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -297,6 +297,7 @@ ${dirSection("rent", "🏠 Renting", `Looking for a place in ${R.place}? Every r
 ${dirSection("jobs", "💼 Jobs", `Looking for work in ${R.place}? Every job site, already searched for you.`, jobGroups(R), "/jobs", "Every job site, plus council, harvest and local employers")}
 ${radioSection(R, esc)}
 ${await councilBlock(env)}
+${awardBlock()}
 ${await kidsBlock(local, feed, pc)}
 ${R.fields ? `<section id="sport"><h2>Sport &amp; field closures</h2>
 <div class="note">🔔 <b>Get field closure alerts</b> on your phone the moment we know. <button type="button" class="pushbtn" data-topic="fields">Turn on alerts</button><br><small class="mute pushmsg"></small></div>
@@ -1959,6 +1960,51 @@ function go(){document.getElementById('beerq').textContent='Watching: '+q+'.';fe
 O.innerHTML=j.items.length?'<ol class="fls">'+j.items.map(function(x,i){return '<li'+(i?'':' class="hit"')+'><b>'+e(x.shop)+'</b>, '+e(x.sub)+': '+m(x.price)+(i?'':' <span class="fl ok">cheapest local</span>')+'<br><small class="mute">'+e(x.beer)+' · posted '+ago(x.at)+'</small></li>'}).join('')+'</ol>':${JSON.stringify(wip("No local bottle shop has posted a price for this beer yet. Own one? Post yours free below"))}}).catch(function(){O.textContent='Couldn’t check just now.'})}
 document.getElementById('beerf').onsubmit=function(ev){ev.preventDefault();var v=document.getElementById('beerin').value.trim();if(!v)return;q=v;try{localStorage.setItem('beer',v)}catch(_){}go()};go()})();</script></section>`;
 
+// ---- Maverick Encouragement Award: grown-ups nominate a local kid; the winner gets $10 to spend at a local business of their choice. Never fast food. ----
+const AWARD_INFO = `<p>Every month one local kid gets the <b>Maverick Encouragement Award</b>: <b>$10 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
+<p class="mute">Kindness, courage, trying hard, helping out. Anything worth encouraging. Grown-ups nominate; kids don&rsquo;t sign up themselves.</p>`;
+const awardBlock = () => `<section id="award"><h2>🏅 Maverick Encouragement Award</h2>${AWARD_INFO.replace("${R.place}", esc(R.place))}<p><a href="/award"><b>Nominate a local kid →</b></a> · <a href="/award#apply">Clubs and local businesses: apply</a></p></section>`;
+async function awardPage(req, env, ctx) {
+  const head = `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🏅 Maverick Encouragement Award</h1>${AWARD_INFO.replace("${R.place}", esc(R.place))}`;
+  if (req.method === "POST") {
+    const f = await req.formData(); if (f.get("website")) return page("Thanks", head + `<p class="note">Thanks, it&rsquo;s in.</p>`);
+    const v = k => String(f.get(k) || "").replace(/[<>]/g, "").trim();
+    if (f.get("form") === "apply") {
+      const org = v("org").slice(0, 80), kind = v("kind").slice(0, 40), who = v("who").slice(0, 40), mail = v("aemail").slice(0, 80), more = v("more").slice(0, 600);
+      if (!org || !kind || !who || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return page("Nearly there", head + `<p class="note">Please fill in every field marked *.</p>`);
+      const A = (await env.DATA.get("award:apps", "json")) || []; await env.DATA.put("award:apps", JSON.stringify([{ org, kind, who, mail, more, pc: R.code, at: new Date().toISOString() }, ...A].slice(0, 500)));
+      mailUs(env, ctx, `Encouragement Award application: ${org} (${kind}, ${R.code})`, `Organisation: ${org}\nType: ${kind}\nContact: ${who}\nEmail: ${mail}\n\n${more}\n\nDaily Maverick: ${R.code}`, mail);
+      return page("Application in", head + `<p class="note">Thanks, ${esc(who)}! ${esc(org)}&rsquo;s application is in. We&rsquo;ll be in touch by email.</p>`);
+    }
+    const kid = v("kid").slice(0, 30), where = v("where").slice(0, 60), why = v("why").slice(0, 600), me = v("me").slice(0, 40), email = v("email").slice(0, 80), role = v("role").slice(0, 40);
+    if (!kid || !why || !me || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || f.get("ok") !== "yes") return page("Nearly there", head + `<p class="note">Please fill in every field marked * and tick the box.</p>`);
+    const n = { kid, where, why, me, email, role, pc: R.code, at: new Date().toISOString() }, L = (await env.DATA.get("award:noms", "json")) || [];
+    await env.DATA.put("award:noms", JSON.stringify([n, ...L].slice(0, 500)));
+    mailUs(env, ctx, `Encouragement Award nomination: ${kid} (${R.code})`, `Kid's first name: ${kid}\nSchool, club or group: ${where}\nWhy: ${why}\n\nNominated by: ${me} (${role})\nEmail: ${email}\nDaily Maverick: ${R.code}`, email);
+    return page("Nomination in", head + `<p class="note">Thanks, ${esc(me)}! ${esc(kid)}&rsquo;s nomination is in. If they win, we&rsquo;ll email you to sort out the $10 with their parent or carer.</p>`);
+  }
+  return page(`Maverick Encouragement Award: ${R.brand}`, head + `<form method="post"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<label>Kid&rsquo;s first name only *</label><input name="kid" maxlength="30" required>
+<label>School, club or group (optional)</label><input name="where" maxlength="60">
+<label>What did they do? *</label><textarea name="why" rows="4" maxlength="600" required placeholder="e.g. Kept showing up to training all winter and helped the little ones"></textarea>
+<label>Your name *</label><input name="me" maxlength="40" required>
+<label>You are their… *</label><select name="role" required><option value="">Choose</option><option>Parent or carer</option><option>Teacher</option><option>Coach</option><option>Family friend</option><option>Other grown-up</option></select>
+<label>Your email * (only to contact you if they win)</label><input name="email" type="email" maxlength="80" required>
+<label><input type="checkbox" name="ok" value="yes" required> I&rsquo;m an adult, and the kid&rsquo;s parent or carer is OK with this nomination</label>
+<button>Nominate</button></form>
+<p class="src">We only ever show a winner&rsquo;s first name, with their parent or carer&rsquo;s OK. Nominations go straight to us and are never shared.</p>
+<h2 id="apply">Clubs, schools and local businesses: apply</h2>
+<p>Run a junior sporting club or association? Swap the fast-food voucher for the <b>Maverick Encouragement Award</b> at your presentations or player of the week. Run a local business? Apply to be a place where winners can spend their $10.</p>
+<form method="post"><input type="hidden" name="form" value="apply"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<label>Club, school or business name *</label><input name="org" maxlength="80" required>
+<label>You are a… *</label><select name="kind" required><option value="">Choose</option><option>Sporting club or association</option><option>School</option><option>Community group</option><option>Local business (where winners can spend it)</option></select>
+<label>Your name *</label><input name="who" maxlength="40" required>
+<label>Your email *</label><input name="aemail" type="email" maxlength="80" required>
+<label>Tell us a bit more (optional)</label><textarea name="more" rows="3" maxlength="600" placeholder="e.g. Under 9s to under 14s, about 200 kids, presentations in September"></textarea>
+<button>Apply</button></form>
+<p class="src">Local regional businesses only. No fast food, no multinationals.</p>`);
+}
+
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
 <p>${R.why.intro}</p>
@@ -2210,6 +2256,7 @@ async function route(req, env, ctx) {
     if (p === "/home") return homePage();
     if (p === "/rent") return dirPage("rent");
     if (p === "/timesaved") return timeSavedPage(env);
+    if (p === "/award") return awardPage(req, env, ctx);
     if (p === "/api/beer") return beerApi(req, env, url);
     if (p === "/status") return statusPage(env);
     if (p === "/api/timesaved") return timeApi(req, env, url);
@@ -2499,7 +2546,7 @@ ${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details clas
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
+  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/award", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
