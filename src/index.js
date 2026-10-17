@@ -214,7 +214,7 @@ async function town(pc, env, ctx, isRoot = false) {
 <h1>${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
 ${rallyStrip(nLocals)}
-<div class="qs"><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
+<div class="qs" hidden><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
 ${ann}${live.alertNote}
 ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
