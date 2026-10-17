@@ -78,7 +78,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #tonight{--acc:#0f766e!important}#events,#kids{--acc:#0f766e!important}
 #alerts{--acc:#b42318!important}
 #memory{--acc:#6b7280!important}#joy,#love{--acc:#c2417a!important}
-.areas{display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px;margin:4px 0 6px;scrollbar-width:none}.areas::-webkit-scrollbar{display:none}.areas a{flex:1 0 auto;min-width:76px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 10px;border-radius:14px;background:var(--soft);text-decoration:none;color:var(--fg);font-weight:600;font-size:.82rem;border:1px solid var(--line)}.areas a span{font-size:1.5rem;line-height:1}
+.areas{display:flex;gap:8px;overflow-x:auto;padding:8px 0 10px;margin:4px 0 6px;scrollbar-width:none}.areas::-webkit-scrollbar{display:none}.areas a{flex:1 0 auto;min-width:76px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 10px;border-radius:14px;background:var(--soft);text-decoration:none;color:var(--fg);font-weight:600;font-size:.82rem;border:1px solid var(--line)}.areas a span{font-size:1.5rem;line-height:1}
 #radiobar{display:flex;align-items:center;gap:8px;padding:7px 12px;margin:4px 0;border-radius:99px;background:#0B1526;color:#fff;font-size:.88rem}#radiobar[hidden]{display:none}#radiobar a{color:var(--gold);font-weight:700;text-decoration:none;margin-left:auto}#radiobar button{background:none;border:0;color:#fff9;cursor:pointer;font-size:1rem}.rfav{background:none;border:0;cursor:pointer;font-size:1.05rem;padding:0 4px}
 .cdown{display:flex;gap:8px;flex-wrap:wrap}.cd{position:relative;flex:1 1 140px;padding:10px 12px;border-radius:12px;background:var(--soft);display:flex;flex-direction:column}.cd[hidden]{display:none}.cd span{font-size:1.4rem}.cd b{font-size:1.25rem}.cd small{color:var(--mute)}.cdx{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--mute);cursor:pointer;font-size:1rem}
 .found{border:2px solid var(--gold);border-radius:12px;padding:10px 12px;margin:10px 0}
@@ -257,7 +257,6 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
 <p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> 🎧 Noise-cancelling headphones for your news: no opinions, make your own.</p><details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
-${areasStrip(pc)}
 <div id="radiobar" hidden></div>
 <script>/* Your station: pick one with ☆ in Local radio and it sits up top, one tap to listen live. */
 (function(){var bar=document.getElementById('radiobar');function fav(){try{return JSON.parse(localStorage.getItem('radio_fav'))}catch(e){return null}}
@@ -283,6 +282,7 @@ ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b
 ${oneAppBlock(nLocals)}
 ${live.alerts}
 ${live.news}
+${areasStrip(pc)}
 ${loveBlock(pc)}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
@@ -409,7 +409,7 @@ var PIN=[];try{PIN=JSON.parse(localStorage.getItem('pin')||'[]')||[]}catch(e){}v
 var nm=function(el){return el.querySelector('h2').textContent.replace(/^[^A-Za-z0-9]+/,'').trim().toLowerCase()};secs.sort(function(a,b){return nm(a).localeCompare(nm(b))});
 secs.forEach(function(el){el.hidden=true;el.classList.add('panel');var b=document.createElement('button');b.type='button';b.textContent=el.querySelector('h2').textContent;
 try{b.style.setProperty('--pc',getComputedStyle(el).getPropertyValue('--acc'))}catch(e){}b.dataset.id=el.id;b.onclick=function(){var open=!el.hidden;secs.forEach(function(x){x.hidden=true});nav.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(!open){el.hidden=false;b.classList.add('on');nav.parentNode.insertBefore(el,nav.nextSibling);nav.scrollIntoView({behavior:'smooth',block:'start'})}};nav.appendChild(b)});
-var td=document.getElementById('news')||document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling);
+var td=document.getElementById('news')||document.getElementById('today');td.parentNode.insertBefore(nav,td.nextSibling);var ar=document.querySelector('nav.areas');if(ar)td.parentNode.insertBefore(ar,nav);
 var tdy=document.getElementById('today'),ref=tdy.nextSibling,pl=PIN.filter(function(id){var el=document.getElementById(id);return el&&el.parentNode===f&&id!=='today'});if(pl.length){var lb=document.createElement('p');lb.className='pinlab';lb.innerHTML='☀️ <b>Your morning</b> · <a href="/me">change</a>';f.insertBefore(lb,ref);pl.forEach(function(id){var el=document.getElementById(id);el.hidden=false;f.insertBefore(el,ref)})}
 window.openPanel=function(id){var b=nav.querySelector('button[data-id="'+id+'"]');if(b&&!b.classList.contains('on'))b.click();else if(b)nav.scrollIntoView({behavior:'smooth',block:'start'})};
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-open]');if(a){e.preventDefault();openPanel(a.dataset.open)}})})();
