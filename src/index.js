@@ -1413,22 +1413,40 @@ function accLine(id, st) {
 
 async function checkFields(env) {
   if (!R.fields) return;
-  const prev = await env.DATA.get("fields:state", "json"); if (prev && Date.now() - new Date(prev.checked) < 110 * 6e4) return; // every 2 hours
+  const prev = await env.DATA.get("fields:state", "json"); if (prev && Date.now() - new Date(prev.checked) < 25 * 6e4) return; // every half hour (council decides by 3pm)
   try {
     const txt = (await (await fetch(R.fields.url, { headers: UA })).text()).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
     const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
     const old = await env.DATA.get("fields:state", "json"), now = new Date().toISOString();
     if (!old) return env.DATA.put("fields:state", JSON.stringify({ hash: h, changed: null, checked: now }));
     if (old.hash !== h) { await env.DATA.put("fields:state", JSON.stringify({ hash: h, changed: now, checked: now }));
-      await sendAlert(env, "fields", "Field closure update", "Council has just updated its sports field closure page. Tap to check.", `/${R.code}#sport`); }
-    else await env.DATA.put("fields:state", JSON.stringify({ ...old, checked: now }));
+      const L = await fieldsList(env, txt).catch(() => null), shut = (L?.grounds || []).filter(g => g.status === "closed").map(g => g.name);
+      await sendAlert(env, "fields", "Field closure update", shut.length ? `Closed: ${shut.slice(0, 4).join(", ")}${shut.length > 4 ? ` +${shut.length - 4} more` : ""}. Tap for the full list.` : "Council has just updated its sports field closure page. Tap to check.", `/${R.code}#sport`); }
+    else { await env.DATA.put("fields:state", JSON.stringify({ ...old, checked: now })); if (!(await env.DATA.get("fields:list"))) await fieldsList(env, txt).catch(() => {}); }
   } catch (e) {}
+}
+// Reads council's closure summary into a ground-by-ground list. Only grounds named on council's page, statuses as council gives them.
+async function fieldsList(env, txt) {
+  const i = Math.max(0, txt.search(/closure summary|ground closure|field closure/i)), part = txt.slice(i, i + 3500);
+  const ask = { messages: [{ role: "system", content: "You copy sports ground statuses from a council page. Never invent. Output ONLY JSON." },
+    { role: "user", content: `From this council text, list every sports ground or field it names with a current status. Return {"updated":"the date/time the summary says it was updated, exactly as written, or empty","grounds":[{"name":"ground name exactly as written","status":"open" or "closed" or "partial" or "unknown","note":"council's own wording about it, under 15 words, or empty"}]}. If no grounds are named with a status, return {"updated":"","grounds":[]}.\n\n${part}` }], max_tokens: 1200 };
+  let r; try { r = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", ask); }
+  const raw = typeof r?.response === "string" ? r.response : JSON.stringify(r?.response || {}), j = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+  const low = txt.toLowerCase(), grounds = (Array.isArray(j.grounds) ? j.grounds : []).filter(g => g?.name && low.includes(String(g.name).toLowerCase().slice(0, 12)))
+    .map(g => ({ name: String(g.name).slice(0, 80), status: ["open", "closed", "partial"].includes(g.status) ? g.status : "unknown", note: String(g.note || "").slice(0, 120) })).slice(0, 40);
+  const out = { updated: String(j.updated || "").slice(0, 60), grounds, at: new Date().toISOString() };
+  await env.DATA.put("fields:list", JSON.stringify(out)); return out;
 }
 async function fieldsBlock(env) {
   const st = await env.DATA.get("fields:state", "json"), a = await env.DATA.get("alert:fields", "json");
+  const L = await env.DATA.get("fields:list", "json"), G = L?.grounds || [], ord = { closed: 0, partial: 1, open: 2, unknown: 3 };
+  const lab = { closed: "🔴 Closed", partial: "🟠 Partly closed", open: "🟢 Open", unknown: "⚪ Check with council" };
+  const list = L ? (G.length ? `<h3>Grounds right now${L.updated ? ` <span class="mute">(council updated ${esc(L.updated)})</span>` : ""}</h3><ul class="fls">${[...G].sort((x, y) => ord[x.status] - ord[y.status] || x.name.localeCompare(y.name)).map(g => `<li class="${g.status === "closed" ? "hit" : ""}"><b>${esc(g.name)}</b> <span class="fl ${g.status === "open" ? "ok" : g.status === "closed" ? "bad" : "warn"}">${lab[g.status]}</span>${g.note ? `<br><small class="mute">${esc(g.note)}</small>` : ""}</li>`).join("")}</ul>`
+    : `<p>🟢 <b>Council's summary isn't listing any closed grounds right now.</b> <a href="${R.fields.url}" rel="noopener">Double-check on council's page</a> before you head out.</p>`) : "";
   return `${a ? `<p><b>Latest:</b> ${esc(a.body)} <span class="mute">(${esc(asOf(a.at))})</span></p>` : ""}
-${R.fields.info}
-<p class="src">Info from <a href="${R.fields.url}" rel="noopener">${esc(R.fields.name)}</a>.${st?.changed ? ` <b>Council last changed it: ${esc(asOf(st.changed))}</b>.` : ""}${st?.checked ? ` We check it every 2 hours (last check ${esc(asOf(st.checked))}).` : ""}</p>`;
+${list}
+<details><summary>How closures work</summary>${R.fields.info}</details>
+<p class="src">Info from <a href="${R.fields.url}" rel="noopener">${esc(R.fields.name)}</a>.${st?.changed ? ` <b>Council last changed it: ${esc(asOf(st.changed))}</b>.` : ""}${st?.checked ? ` We check it every half hour (last check ${esc(asOf(st.checked))}).` : ""}</p>`;
 }
 
 // ---- Web push: no paid service. Keys are made by the Worker on first use and kept in KV. ----
