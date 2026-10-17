@@ -10,6 +10,7 @@ import { photoOfDay } from "./potd.js";
 import { localToday, photosApi } from "./photos.js";
 import { sidePics, withPics, SIDE_CSS, THEMES } from "./sidepics.js";
 import { numbersApi } from "./numbers.js";
+import { edData, edBlock } from "./ed.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -311,7 +312,8 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
   const SH = secSlug ? sectionHead(secSlug, { esc, R, pc }) : null;
-  const hero = SH ? "" : await potdBlock(env, pc); let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
+  const hero = SH ? "" : await potdBlock(env, pc); let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; }
+  let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
   // Section pages are today's paper filtered to that section: the nameplate and front-page extras step aside.
   const secCss = SH ? `<style>.mast,.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute,#founding{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
   return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, withPics(pics, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
@@ -341,6 +343,7 @@ ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b
 </div><div id="frs"></div></section>
 ${oneAppBlock(nLocals)}
 ${live.alerts}
+${edB}
 ${live.news}
 ${hooksStrip(pc)}
 ${SH && SH.ids.includes("love") ? loveBlock(pc) : ""}

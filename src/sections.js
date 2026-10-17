@@ -43,6 +43,7 @@ export const NAV = [
     ["#dogs", "🐕", "Dog friendly", "Off-leash beaches, dog parks and dog-friendly cafés"],
   ] },
   { slug: "health", icon: "🩺", name: "Health", blurb: "Help close to home, and the help regional locals often don't know about.", items: [
+    ["#ed", "🏥", "Emergency wait now", "Live from NSW Health: how many are waiting"],
     ["/open?c=pharmacy", "💊", "Pharmacies", "Open ones first"],
     ["/open?c=doctor", "🩺", "Doctors & clinics", "Open ones first"],
     ["/open?c=vet", "🐾", "Vets", "For the four-legged locals"],
