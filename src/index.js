@@ -1963,11 +1963,18 @@ function appsSaved() { // [app, the section on this page that replaces it, where
   if (R.funerals) a.push(...R.funerals.map(f => [f.name + " notices", "bdm", f.url]));
   return a;
 }
-const appChips = () => `<div class="oapps">${appsSaved().map(([n, , u]) => `<a href="${esc(u)}" rel="noopener">${esc(n)}</a>`).join("")}</div>`;
+const appChips = () => `<div class="oapps">${appsSaved().map(([n, s, u]) => `<a href="${esc(u)}" rel="noopener" data-s="${s}">${esc(n)}</a>`).join("")}</div>`;
+// "Your app saves you N apps": counts only the apps behind sections this reader keeps on their page, so hiding a section lowers it.
+// Time is an honest rule of thumb: about a minute to open and check each app.
+const MIN_PER_APP = 1;
+const timeTxt = m => m >= 60 ? `${Math.floor(m / 60)} hr${m % 60 ? ` ${m % 60} min` : ""}` : `${m} min`;
 function oneAppBlock(nLocals) {
   const a = appsSaved().map(x => x[0]), n = a.length, checks = nLocals > 0 ? nLocals * n : 0;
-  return `<section id="oneapp"><h2>📱 One app instead of ${n}</h2><p>Stop checking ${n} apps and websites every morning. Everything below is on this page or one tap away.</p>
-${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p>
+  return `<section id="oneapp"><h2>📱 Your app saves you <span class="oan">${n}</span> apps</h2><p>No more checking <span class="oan">${n}</span> apps and websites every morning: that&rsquo;s about <b class="oat">${timeTxt(n * MIN_PER_APP)}</b> back every day, or <b class="oaw">${timeTxt(n * MIN_PER_APP * 7)}</b> a week (at about a minute an app). Everything below is on your page or one tap away.</p>
+${appChips()}<p class="oeq">= <b>1 Daily Maverick</b>, your way</p>
+<script>(function(){var c=0;document.querySelectorAll('#oneapp .oapps a').forEach(function(a){var off=null;try{off=localStorage.getItem('hide_'+a.dataset.s)}catch(e){}if(off)a.hidden=true;else c++});
+function tt(m){return m>=60?Math.floor(m/60)+' hr'+(m%60?' '+(m%60)+' min':''):m+' min'}
+document.querySelectorAll('#oneapp .oan').forEach(function(x){x.textContent=c});var t=document.querySelector('#oneapp .oat'),w=document.querySelector('#oneapp .oaw');if(t)t.textContent=tt(c*${MIN_PER_APP});if(w)w.textContent=tt(c*${MIN_PER_APP}*7)})()<\/script>
 ${checks ? `<p class="note">With ${nLocals.toLocaleString("en-AU")} locals on board, that&rsquo;s <b>${checks.toLocaleString("en-AU")} app checks saved every day</b>.</p>` : ""}</section>`;
 }
 
