@@ -177,11 +177,11 @@ const schoolHols = () => { const t = todayISO(), list = SCHOOL_HOLS.filter(([, ,
   return list.length ? `<ul>${list.map(([name, start, end]) => `<li><b>${esc(name)} school holidays</b>: ${esc(fmtDate(start))} to ${esc(fmtDate(end))}${start <= t ? ` <span class="away">on now</span>` : away(start)}</li>`).join("")}</ul>` : ""; };
 // Coming up in the sky (Australia-wide). Yearly showers recur on their usual peak date; one-offs have a full date.
 const SKY = [
-  { name: "Eta Aquariid meteor shower peaks (best before dawn, one of the best from Australia)", md: "05-06" },
+  { name: "Eta Aquariid meteor shower peaks (best before dawn, one of the best from Australia)", md: "05-06", major: true },
   { name: "Orionid meteor shower peaks (look north-east after midnight)", md: "10-21" },
   { name: "Leonid meteor shower peaks", md: "11-17" },
-  { name: "Geminid meteor shower peaks (the year's best, look north after 11pm)", md: "12-14" },
-  { name: "Total solar eclipse across Australia: total in Sydney, partial everywhere else", date: "2028-07-22" },
+  { name: "Geminid meteor shower peaks (the year's best, look north after 11pm)", md: "12-14", major: true },
+  { name: "Total solar eclipse across Australia: total in Sydney, partial everywhere else", date: "2028-07-22", major: true },
   { name: "Halley's Comet returns (closest to the Sun)", date: "2061-07-28" },
 ];
 const skyNext = () => { const t = todayISO(), y = +t.slice(0, 4);
@@ -1311,6 +1311,16 @@ const SOURCES = {
     }
     if (!out.boys.length || !out.girls.length) throw new Error("no names");
     return out; } },
+  neo: { name: "NASA JPL Center for Near-Earth Object Studies", url: "https://cneos.jpl.nasa.gov/ca/", get: async () => {
+    // Asteroids passing within 0.05 au (about 20 times the Moon's distance) in the next 14 days.
+    const j = await (await fetch("https://ssd-api.jpl.nasa.gov/cad.api?date-min=now&date-max=%2B14&dist-max=0.05&sort=dist", { headers: UA })).json();
+    const f = j.fields || [], at = k => f.indexOf(k);
+    return (j.data || []).map(r => { const au = +r[at("dist")], h = +r[at("h")], cd = r[at("cd")] || "";
+      const d = new Date(cd.replace(/-(\w{3})-/, " $1 ") + " UTC");
+      const lo = Math.round(1329 / Math.sqrt(0.25) * 10 ** (-h / 5) * 1000), hi = Math.round(1329 / Math.sqrt(0.05) * 10 ** (-h / 5) * 1000);
+      return { des: r[at("des")], when: isNaN(d) ? "" : d.toISOString(), ld: au * 389.17, km: Math.round(au * 149597870.7), kms: +(+r[at("v_rel")]).toFixed(1), sizeLo: lo, sizeHi: hi,
+        major: au <= 0.00257 || h <= 22 };
+    }).filter(a => a.when).slice(0, 12); } },
   holidays: { name: "Nager.Date public holidays", url: "https://date.nager.at", get: async () => {
     const y = new Date().getFullYear(), all = [];
     for (const yr of [y, y + 1]) all.push(...await (await fetch(`https://date.nager.at/api/v3/PublicHolidays/${yr}/AU`, { headers: UA })).json());
@@ -1364,8 +1374,22 @@ function fdrBlock(fdr) {
 <style>.fdr{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:.85rem;color:#fff;background:var(--c)}.fdr.ban{background:#7f1d1d}.fdrgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0}.fdrgrid ul{margin:4px 0;padding-left:18px}.fdrgrid li{padding:2px 0}@media(max-width:560px){.fdrgrid{grid-template-columns:1fr}}</style>
 ${srcLine(SOURCES.fdr.name + ` (${f.district})`, SOURCES.fdr.url, fdr.asof)}`;
 }
+// ---- Sky watch: big sky events and notable asteroid fly-bys in the next 14 days get a note at the top of the page. ----
+const sydDate = iso => new Date(new Date(iso).getTime() + 11 * 3600e3).toISOString().slice(0, 10);
+const rockSize = a => { const avg = (a.sizeLo + a.sizeHi) / 2, like = avg >= 300 ? "bigger than three footy fields" : avg >= 100 ? "about the size of a footy field" : avg >= 40 ? "about the size of a jumbo jet" : avg >= 15 ? "about the size of a bus" : "about the size of a car";
+  return `${like} (roughly ${a.sizeLo.toLocaleString("en-AU")} to ${a.sizeHi.toLocaleString("en-AU")} m)`; };
+const rockDist = a => a.ld < 1 ? `closer than the Moon (${a.km.toLocaleString("en-AU")} km away)` : `${a.ld.toFixed(1)} times as far away as the Moon`;
+function skyFortnight(neo) {
+  const end = new Date(Date.now() + 14 * 864e5 + 11 * 3600e3).toISOString().slice(0, 10);
+  const events = skyNext().filter(e => e.d <= end);
+  const all = neo && neo.ok !== false ? (neo.items || []).filter(a => sydDate(a.when) >= todayISO() && sydDate(a.when) <= end) : [];
+  const rocks = [...all.filter(a => a.major), ...all.filter(a => !a.major)].slice(0, 4);
+  const big = [...events.filter(e => e.major).map(e => ({ d: e.d, t: e.name })), ...all.filter(a => a.major).map(a => ({ d: sydDate(a.when), t: `Asteroid ${a.des} passes ${rockDist(a)}` }))].sort((a, b) => a.d.localeCompare(b.d));
+  const banner = big.length ? `<p class="note">🔭 <b>Coming up in the sky:</b> ${big.slice(0, 2).map(b => `${esc(b.t)}, ${esc(fmtDate(b.d))}${away(b.d)}`).join(" · ")}. <a href="#sky" data-open="holidays">More in the sky →</a></p>` : "";
+  return { events, rocks, banner };
+}
 async function liveBlocks(env, ctx, at = HOME) {
-  const [news, fires, warn, hol, fdr] = await Promise.all(["news", "fires", "warnings", "holidays", "fdr"].map(k => getSource(env, ctx, k)));
+  const [news, fires, warn, hol, fdr, neo] = await Promise.all(["news", "fires", "warnings", "holidays", "fdr", "neo"].map(k => getSource(env, ctx, k)));
   const S = SOURCES, fail = s => `<p class="mute">Couldn't reach the source just now.</p>`;
   const alerts = `<section id="alerts"><h2>Alerts</h2><p class="mute">In an emergency call <a href="tel:000">000</a>.</p>
 ${fdrBlock(fdr)}
@@ -1383,12 +1407,13 @@ ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
   const newsB = `<section id="news" class="paper"><h2 class="sech">📰 Today's news</h2>
 ${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just now.</p>" : `${story(lead, true)}<div class="grid2">${top.map(n => story(n, false)).join("")}</div>${quoteBlock()}${more.length ? `<h3 class="sub">More headlines</h3><ul class="heads">${more.map(n => `<li>${nsrc(n)} <a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a> <span class="mute">${nd(n)}</span></li>`).join("")}</ul>` : ""}`}
 <p class="src">These stories are written and owned by ${R.news.map(n => esc(n.name)).join(", ")}, not us. We show the headline and a short summary; tap a story to read it in full on their site.${news.asof ? ` Updated ${esc(asOf(news.asof))}.` : ""}</p></section>`;
+  const sky = skyFortnight(neo);
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
-${srcLine(S.holidays.name, S.holidays.url, hol.asof)}${(() => { const wk = new Date(Date.now() + 7 * 864e5 + 11 * 3600e3).toISOString().slice(0, 10), up = skyNext().filter(e => e.d <= wk); return up.length ? `<h3>🔭 This week in the sky</h3><ul>${up.map(e => `<li><b>${esc(fmtDate(e.d))}</b>: ${esc(e.name)}${away(e.d)}</li>`).join("")}</ul><p class="src">Dates are the usual peaks; meteor showers are best away from town lights. Info from <a href="https://www.timeanddate.com/astronomy/meteor-shower/" rel="noopener">timeanddate.com</a>.</p>` : ""; })()}<h3>Next school holidays</h3>${schoolHols()}<p class="src">${R.schoolsArea}. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
+${srcLine(S.holidays.name, S.holidays.url, hol.asof)}${(() => { const up = sky.events, rocks = sky.rocks; return up.length || rocks.length ? `<h3 id="sky">🔭 In the sky, next 14 days</h3>${up.length ? `<ul>${up.map(e => `<li><b>${esc(fmtDate(e.d))}</b>: ${e.major ? "⭐ " : ""}${esc(e.name)}${away(e.d)}</li>`).join("")}</ul><p class="src">Dates are the usual peaks; meteor showers are best away from town lights. Info from <a href="https://www.timeanddate.com/astronomy/meteor-shower/" rel="noopener">timeanddate.com</a>.</p>` : ""}${rocks.length ? `<h3>☄️ Asteroids passing by</h3><ul>${rocks.map(a => `<li><b>${esc(fmtDate(sydDate(a.when)))}</b>: ${a.major ? "⭐ " : ""}${esc(a.des)}, ${rockSize(a)}, passes ${rockDist(a)} at ${a.kms} km a second${away(sydDate(a.when))}</li>`).join("")}</ul>${srcLine(S.neo.name, S.neo.url, neo.asof, "None of these will hit Earth. Most are too faint to see without a big telescope")}` : ""}` : ""; })()}<h3>Next school holidays</h3>${schoolHols()}<p class="src">${R.schoolsArea}. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
   const nf = fires.ok === false ? 0 : fires.items.length, nw = warn.ok === false ? 0 : warn.items.length;
   const alertNote = nf || nw ? `<p class="note alertnote">⚠️ <b>Live alerts:</b> ${[nf ? `${nf} fire${nf > 1 ? "s" : ""} within 100 km` : "", nw ? `${nw} weather warning${nw > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}. <a href="#alerts" data-open="alerts">See alerts →</a></p>`
     : `<p class="mute alertnote">✅ No fires or weather warnings near us right now. <a href="#alerts" data-open="alerts">Alerts</a></p>`;
-  return { alerts, alertNote, news: ni.length ? newsB : newsB + quoteBlock(), holidays: holB };
+  return { alerts, alertNote: alertNote + sky.banner, news: ni.length ? newsB : newsB + quoteBlock(), holidays: holB };
 }
 
 // ---- FuelCheck (NSW Government API; needs free FUEL_KEY + FUEL_SECRET secrets) ----
@@ -1923,7 +1948,7 @@ export default {
     ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     ctx.waitUntil(acSync(env).catch(() => {}));
-    const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60 }; // minutes; keeps storage writes inside the free allowance
+    const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60, neo: 12 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
