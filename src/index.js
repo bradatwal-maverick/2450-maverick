@@ -20,7 +20,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["memory", "In memory"], ["joy", "Births & marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -60,7 +60,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #flow>#news>h2::before{display:none}
 #tonight{--acc:#0f766e!important}#events,#kids{--acc:#0f766e!important}
 #alerts{--acc:#b42318!important}
-#memory{--acc:#6b7280!important}#joy{--acc:#c2417a!important}
+#memory{--acc:#6b7280!important}#joy{--acc:#c2417a!important}#bdm{--acc:#6b7280!important}
 #numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#rates,#lotto{--acc:#15803d!important}
 #flights,#bypass,#sea,#beaches,#surfcams{--acc:#1d6fb8!important}
 #puzzles,#stars,#holidays{--acc:#b45309!important}
@@ -231,8 +231,7 @@ ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b
 ${live.news}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
-${await memoryBlock(env)}
-${await joyBlock(env)}
+${await bdmBlock(env)}
 <section id="tools"><h2>Handy tools</h2>
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
@@ -242,7 +241,7 @@ ${await joyBlock(env)}
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
 <a class="card" href="/kids">🧒 <b>Kid Zone</b> Games for kids 12 and under, with a grown-up&rsquo;s OK. No chat, no ads, nothing collected →</a>
 <a class="card" href="/genalpha">🗣️ <b>Gen Alpha interpreter</b> What did your kid just say? Jimmy Joel translates →</a>
-<a class="card" href="/rip">🕊️ <b>In memory</b> Remembering locals who have recently passed →</a>
+<a class="card" href="/bdm">📰 <b>Births, Deaths and Marriages</b> Family notices, filtered by what you&rsquo;re looking for →</a>
 <a class="card" href="/school">🚸 <b>School run report</b> Weather and traffic for your school drop-off and pick-up →</a>
 </section>
 ${fuelBlock(t)}
@@ -292,7 +291,7 @@ var IDX=[...${JSON.stringify(R.idx)},["weather temperature rain wind forecast","
 ["traffic road roads closure crash roadworks","Traffic & roads","Live Traffic NSW for now.","/school"],["school drop off pick up school run zone","School run report","Weather and traffic for your school run.","/school"],
 ["holiday holidays school holidays public holiday","Holidays","NSW school calendar for now.","#holidays"],
 ["kids kid zone games game children child pet online safety robot ai","🧒 Kid Zone","Games for kids 12 and under, with a grown-up's OK.","/kids"],["dog dogs dog beach dog beaches off leash off-leash dog park dog parks dog friendly pet friendly","🐕 Dog beaches & parks","Off-leash beaches and dog parks near you.","/open?c=dogs"],["dog friendly cafe cafes pub pubs pet friendly bring my dog","🐶 Dog-friendly cafés & pubs","Places happy to see your dog.","/open?c=petfriendly"],["pet shop pet shops groomer grooming animal shelter rescue adopt boarding kennel cattery pets animals","🐾 Pets & animals","Pet shops, groomers, shelters and boarding.","/open?c=pets"],["lgbtq lgbtqi lgbtqia gay lesbian queer trans bi rainbow pride friendly inclusive","🏳️‍🌈 LGBTQ+ friendly","Places that welcome everyone.","/open?c=lgbtq"],["notice board notices lost pet found dog cat volunteer club group class workshop neighbour","Community notice board","Lost pets, volunteers, clubs, classes. No buy and sell.","/notices"],["bin night bins reminder house sitter house-sitter holiday away pets home","My home","Bin night reminders and a house-sitter sheet.","/home"],["open now hours pharmacy chemist mechanic doctor vet supermarket bottle shop cafe pub takeaway","Open now?","What's open near you right now.","/open"],["fridge dinner recipe recipes cook cooking food meal","What's in your fridge?","Dinner ideas from what you've got.","/fridge"],["birthday deal deals discount free birthday","Birthday deals","Local places that look after you on your birthday.","/birthday"],
-["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["births birth baby babies marriage marriages wedding engaged engagement anniversary celebrations hatches matches","Births & marriages","New babies, engagements and weddings. Share your news free.","/celebrations"],["obituary obituaries funeral died death passed rip memory","In memory","Recent local death notices.","/rip"],
+["gen alpha slang kids rizz skibidi translate","Gen Alpha interpreter","Jimmy Joel translates kid-speak.","/genalpha"],["births birth baby babies marriage marriages wedding engaged engagement anniversary celebrations hatches matches","Births, Deaths and Marriages","New babies, engagements and weddings. Share your news free.","/bdm?f=births"],["obituary obituaries funeral died death passed rip memory","Births, Deaths and Marriages","Recent local death notices.","/bdm?f=deaths"],
 ["clock clocks daylight saving time change","Clock change","Next clock change is in the tiles at the top.","#today"],["news headlines","News","Local headlines, coming soon.","#news"],
 ["feedback idea suggestion contact","Make ${R.code} better","Send us your ideas.","/feedback"],["privacy data","Privacy","Plain-English privacy policy.","/privacy"],["terms charter free","Our charter","Free, forever.","/charter"]];
 var qs=document.getElementById('qs'),qr=document.getElementById('qs-res'),qv=document.getElementById('qs-saved');
@@ -1718,6 +1717,7 @@ async function route(req, env, ctx) {
     if (p === "/sitemap.xml") return sitemapXml();
     if (p === "/llms.txt") return llmsTxt();
     if (p === "/celebrations") return req.method === "POST" ? lodgeJoy(req, env, ctx) : joyPage(env);
+    if (p === "/bdm") return bdmPage(env);
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
     if (p === "/genalpha") return genAlpha();
     if (p === "/charter") return charter();
@@ -1843,6 +1843,29 @@ async function rate(req, env, ctx) {
   return Response.json({ ok: true });
 }
 
+
+// ---- Births, Deaths and Marriages: one place, filter by what you're looking for ----
+const BDM_F = [["all", "All"], ["births", "👶 Births"], ["deaths", "🕊️ Deaths"], ["marriages", "💍 Marriages"]];
+async function bdmGroups(env, joyDays, obitDays, max) {
+  const joy = await joyWithin(env, joyDays), obits = await obitsWithin(env, obitDays), cut = a => max ? a.slice(0, max) : a;
+  return [
+    ["births", "👶 Births", "Welcome to the world.", cut(joy.filter(n => n.kind === "birth")).map(joyItem), `<a href="/celebrations">Share a birth (free) →</a>`],
+    ["deaths", "🕊️ Deaths", "Remembering locals who have passed. Our thoughts are with their families and friends.", cut(obits).map(obitItem), `<a href="/rip">All recent notices →</a>`],
+    ["marriages", "💍 Marriages", "Engagements, weddings and big anniversaries.", cut(joy.filter(n => n.kind !== "birth")).map(joyItem), `<a href="/celebrations">Share your news (free) →</a>`]];
+}
+const bdmHtml = (groups, id) => `<div class="pills" id="${id}f">${BDM_F.map(([k, l], i) => `<button type="button" data-f="${k}"${i ? "" : ' class="on"'}>${l}</button>`).join("")}</div>
+${groups.map(([k, h, sub, items, more]) => `<div data-g="${k}"><h3>${h}</h3><p class="mute">${sub}</p>${items.length ? `<ul>${items.join("")}</ul>` : `<p class="mute">No recent notices.</p>`}<p>${more}</p></div>`).join("")}
+<script>(function(){var w=document.getElementById('${id}f');function set(f){w.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.f===f)});w.parentNode.querySelectorAll('[data-g]').forEach(function(g){g.hidden=f!=='all'&&g.dataset.g!==f})}
+w.querySelectorAll('button').forEach(function(b){b.onclick=function(){set(b.dataset.f)}});var q=new URLSearchParams(location.search).get('f');if(q&&/^(births|deaths|marriages)$/.test(q))set(q)})()</script>`;
+async function bdmBlock(env) {
+  return `<section id="bdm"><h2>Births, Deaths and Marriages</h2>${bdmHtml(await bdmGroups(env, 30, 5, 5), "bdmh")}<p><a href="/bdm"><b>See all Births, Deaths and Marriages →</b></a></p></section>`;
+}
+async function bdmPage(env) {
+  return page("Births, Deaths and Marriages", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>Births, Deaths and Marriages</h1>
+<p>Family notices from around ${esc(R.place)}. Pick what you&rsquo;re looking for.</p>
+${bdmHtml(await bdmGroups(env, 90, 60, 0), "bdmp")}
+<p class="mute">Births and marriages are shared by families and checked before they appear. Death notices come from funeral homes and link to the official notice.</p>`, R.code);
+}
 // ---- Births & marriages: family notices, shared by the family, checked by us before they appear ----
 const JOY = { birth: ["👶", "Birth"], engagement: ["💍", "Engagement"], wedding: ["💒", "Wedding"], anniversary: ["🥂", "Anniversary"] };
 const joyItem = n => `<li><b>${JOY[n.kind][0]} ${esc(n.title)}</b><br><span class="mute">${JOY[n.kind][1]} · ${esc(fmtDate(n.date))}</span>${n.msg ? `<br>${esc(n.msg)}` : ""}</li>`;
@@ -1890,7 +1913,7 @@ function faqList() {
     out.push([T, [
       [`What's on in ${T} this weekend?`, `${G} lists local events for ${T} every day: markets, live music, kids' activities and community events, with free and low-cost events first. Every listing costs $50 or less per person. See ${u}#events.`],
       [`Where can I find local news for ${T}?`, `${G} gathers today's local headlines from ${news}, with a short summary and a link to the full story on the publisher's site. See ${u}#news.`],
-      [`Where can I find obituaries and funeral notices in ${T}?`, `The In memory section of ${G} lists recent death notices for the area${homes ? `, sourced from local funeral directors including ${homes}` : ""}, with a link to each official notice. See ${base}/rip.`],
+      [`Where can I find obituaries and funeral notices in ${T}?`, `The Births, Deaths and Marriages section of ${G} lists recent death notices for the area${homes ? `, sourced from local funeral directors including ${homes}` : ""}, with a link to each official notice. See ${base}/rip.`],
       [`Where can I find birth, engagement and wedding notices in ${T}?`, `${G} has a free Births & marriages section where local families share new babies, engagements, weddings and anniversaries. Every notice is checked before it appears. See ${base}/celebrations.`],
       [`What's the weather in ${T} today?`, `${G} shows today's temperature, rain chance, wind, sunrise and sunset for ${T}. See ${u}.`],
       [`What are the tide times in ${T} today?`, `${G} shows the next high and low tides, wave and swell height for ${T}. Tide times are modelled estimates, not for navigation. See ${u}#sea.`],
