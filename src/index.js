@@ -253,7 +253,7 @@ ${await tsLine(env)}
 <a class="card" href="/notices">📌 <b>Community notice board</b> Lost pets, volunteers, clubs and classes. No buy and sell →</a>
 <a class="card" href="/home">🏡 <b>My home</b> Bin night reminders and a house-sitter sheet to print or share →</a>
 <a class="card" href="/${R.why.slug}">🌊 <b>${R.why.title}</b> ${R.why.card} →</a>
-<a class="card" href="/open">🟢 <b>Open now?</b> Pharmacies, mechanics, servos, cafés, dog beaches and more. Open ones first →</a>
+<a class="card" href="/open">🟢 <b>What&rsquo;s open?</b> Local or visiting: pharmacies, doctors, servos, cafés, mechanics and more. Open ones first →</a>
 <a class="card" href="/open?c=dogs">🐕 <b>Dog beaches & parks</b> Off-leash spots near you →</a>
 <a class="card" href="/open?c=petfriendly">🐶 <b>Dog-friendly cafés & pubs</b> Places happy to see your dog →</a>
 <a class="card" href="/open?c=lgbtq">🏳️‍🌈 <b>LGBTQ+ friendly</b> Local places that welcome everyone →</a>
@@ -1646,8 +1646,8 @@ async function openApi(req, env) {
     return Response.json(out);
   } catch (e) { return Response.json(c || { error: "unreachable" }); }
 }
-const openPage = () => page(`Open now in ${R.short}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🟢 Open now?</h1>
-<p>Pick what you need. Open places come first, nearest at the top. <a href="#" class="useloc">📍 Use my location</a></p>
+const openPage = () => page(`What's open in ${R.place}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🟢 What&rsquo;s open in ${esc(R.place)}</h1>
+<p>Local or just visiting? Pick what you need. Open places come first, nearest at the top. <a href="#" class="useloc">📍 Use my location</a></p>
 <div class="pills" id="cats">${Object.entries(OPEN_CATS).map(([k, [l]]) => `<button type="button" data-c="${k}">${l}</button>`).join("")}</div>
 <div id="olist"><p class="mute">Choose a category above.</p></div><p class="src" id="osrc"></p>
 <script>(function(){var L=null;try{L=JSON.parse(localStorage.getItem('loc'))}catch(e){}var HOME=L||[${HOME.lat},${HOME.lon}],ol=document.getElementById('olist');
@@ -2145,6 +2145,7 @@ async function route(req, env, ctx) {
     if (p === "/api/rate" && req.method === "POST") return rate(req, env, ctx);
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/open") return openPage();
+    if (p === "/whatsopen" || p === "/visiting") return Response.redirect(new URL("/open", url).toString(), 302);
     if (p === "/api/open") return openApi(req, env);
     if (p === "/" + R.why.slug) return whyPage();
     if (p === "/crossword") return crosswordPage(url);
