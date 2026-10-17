@@ -2717,6 +2717,7 @@ async function route(req, env, ctx) {
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/credits") return creditsPage(env, url);
+    if (p === "/api/ed") { const d = await edData(env, R.code); return Response.json({ ok: !!d?.list?.length, n: d?.list?.length || 0, errs: d?.errs || [], at: d?.at }); }
     if (p === "/numbers" || p === "/api/numbers" || p === "/api/numbers-vote") { const N = numbersApi({ esc, page, R, fresh, member, cleanText, nameOf, TOWNS, todayISO });
       if (p === "/numbers") return N.view(req, env, url); if (req.method !== "POST") return new Response("Not found", { status: 404 }); return p === "/api/numbers" ? N.add(req, env, url) : N.vote(req, env, url); }
     if (p === "/api/photo" && req.method === "POST") return PHOTOS().upload(req, env, url);

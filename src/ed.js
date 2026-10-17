@@ -8,8 +8,9 @@ export const ED_IDS = { "2450": [46], "2454": [46], "2481": [109, 183], "2485": 
 // Local hospitals whose emergency department doesn't report wait times to NSW Health.
 const QUIET = { "2454": "Bellingen River District Hospital", "2481": "Byron District Hospital" };
 
-async function one(id) {
-  const r = await fetch(API + "GetHospitalDetails/" + id, { cf: { cacheTtl: 300 } }); if (!r.ok) return null;
+const HDR = { accept: "application/json", "user-agent": "Mozilla/5.0 (compatible; TheDailyMaverick/1.0; +https://2450-maverick.live)", referer: ED_SRC, origin: "https://www.emergencywait.health.nsw.gov.au" };
+async function one(id, errs) {
+  const r = await fetch(API + "GetHospitalDetails/" + id, { headers: HDR, cf: { cacheTtl: 300 } }); if (!r.ok) { errs.push(id + ": HTTP " + r.status); return null; }
   const j = await r.json(), h = j.hospitalDetails?.[0], w = j.waitingDetails?.[0]; if (!h || !w) return null;
   const usual = (j.historicalDetails || []).find(x => x.statisticIdentifier === "usual_patients")?.statisticValue;
   return { name: h.hospitalName, phone: h.phone, wait: w.waitCount, usual: usual ?? null, at: w.lastUpdatedDate ? w.lastUpdatedDate.replace(/Z?$/, "Z") : null };
@@ -17,10 +18,10 @@ async function one(id) {
 
 export async function edData(env, region) {
   const ids = ED_IDS[region]; if (!ids) return null;
-  const k = `ed:${region}`, hit = await env.DATA.get(k, "json"); if (hit) return hit;
-  let list = []; try { list = (await Promise.all(ids.map(id => one(id).catch(() => null)))).filter(Boolean); } catch (e) { list = []; }
-  const out = { list, quiet: QUIET[region] || "", at: new Date().toISOString() };
-  await env.DATA.put(k, JSON.stringify(out), { expirationTtl: 300 });
+  const k = `ed2:${region}`, hit = await env.DATA.get(k, "json"); if (hit) return hit;
+  let list = [], errs = []; try { list = (await Promise.all(ids.map(id => one(id, errs).catch(e => { errs.push(id + ": " + String(e).slice(0, 120)); return null; })))).filter(Boolean); } catch (e) { list = []; }
+  const out = { list, quiet: QUIET[region] || "", at: new Date().toISOString(), errs };
+  await env.DATA.put(k, JSON.stringify(out), { expirationTtl: list.length ? 300 : 60 });
   return out;
 }
 
