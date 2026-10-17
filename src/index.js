@@ -426,6 +426,7 @@ const localsCount = async env => { const emails = new Set(); for (const pre of [
 const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goal = LOCALS_GOAL.toLocaleString("en-AU"); return `<section id="join" class="rally">
 <h3 class="rallyh">🙏🏽 Help a brother out</h3>
 <p><b>${R.code} is free, for everyone, forever.</b> Our aim: ${goal} locals signed up, ${R.goalText}. That's when a few clearly labelled local ads can cover the costs. Nobody will ever pay to be listed.</p>
+<p><b>Don&rsquo;t hate the player, hate the game.</b> Big tech wrote the rules: news costs you money or your attention. We play it straight. Free for you, a few clearly labelled local ads pay the bills, and that&rsquo;s it.</p>
 <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${LOCALS_GOAL}" aria-valuenow="${n}" aria-label="Locals signed up"><span style="width:${Math.max(pct, 1).toFixed(1)}%"></span></div>
 <p class="barlab mute">${n.toLocaleString("en-AU")} of ${goal} locals</p>
 <p>If ${R.code} is useful to you, help us get there: get one short email a week with what's on, plus a free guide from Maverick Digital on using AI in everyday life.</p>${signup(pc)}
