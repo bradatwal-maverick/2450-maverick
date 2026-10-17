@@ -21,7 +21,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["surfcams", "Surf cams"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["lotto", "Lotto results"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -71,7 +71,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #alerts{--acc:#b42318!important}
 #memory{--acc:#6b7280!important}#joy{--acc:#c2417a!important}#bdm{--acc:#6b7280!important}
 #numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#rates,#lotto{--acc:#15803d!important}
-#flights,#bypass,#sea,#beaches,#surfcams{--acc:#1d6fb8!important}
+#flights,#bypass,#sea,#beaches{--acc:#1d6fb8!important}
 #puzzles,#stars,#holidays{--acc:#b45309!important}
 #know,#council,#tools,#sport{--acc:#475569!important}
 .pills button{border-left:4px solid var(--pc,var(--line))}
@@ -291,11 +291,11 @@ ${live.holidays}
 <section id="puzzles"><h2>🧩 Crossword</h2><p>Today&rsquo;s ${esc(R.short)} crossword in three levels: 🟢 Easy, 🟡 Medium and 🔴 Hard. Sign in free to keep your streak and best times. <a href="/crossword"><b>Play today&rsquo;s →</b></a></p></section>
 ${starsBlock()}
 ${await lottoBlock(env)}
-<section id="surfcams"><h2>Surf cams</h2><p class="mute">Coastalwatch charges for its live surf cam feed, so we can&rsquo;t show it here. Nobody pays to be on this site, and we don&rsquo;t pay to show other people&rsquo;s paid content either. Have a look on their site: <a href="https://www.coastalwatch.com" rel="noopener">Coastalwatch</a>.</p></section>
-<section id="beaches"><h2>🏖️ Beach &amp; surf</h2><div class="tiles" id="bch">
+<section id="beaches"><h2>🏖️ Beach, surf &amp; surf cams</h2><div class="tiles" id="bch">
 <div class="tile"><span class="ico">🌡️</span><b id="b-sst">–</b><small>Water temp</small></div><div class="tile"><span class="ico">🌊</span><b id="b-wave">–</b><small id="b-wave2">Waves</small></div>
 <div class="tile"><span class="ico">💨</span><b id="b-wind">–</b><small id="b-wind2">Wind</small></div><div class="tile"><span class="ico">☀️</span><b id="b-uv">–</b><small id="b-uv2">UV today</small></div></div>
 ${R.surf ? `<div id="bbest"></div>` : ""}
+<h3>📹 Surf cams</h3><p class="mute">Coastalwatch charges for its live surf cam feed, so we can&rsquo;t show it here. Nobody pays to be on this site, and we don&rsquo;t pay to show other people&rsquo;s paid content either. Have a look on their site: <a href="https://www.coastalwatch.com" rel="noopener">Coastalwatch</a>.</p>
 <p class="mute">Swim between the red and yellow flags. Patrol times and beach-by-beach info: <a href="https://beachsafe.org.au" rel="noopener">Beachsafe</a>.</p>
 <p class="src">Info from <a href="https://open-meteo.com" rel="noopener">Open-Meteo</a> (modelled, updated hourly). Not for navigation.${R.surf ? ` Which swell and wind suit each beach: <a href="https://www.surf-forecast.com" rel="noopener">surf-forecast.com</a> break guides; patrols from council.` : ""}</p>
 <script>(function(){var t=${JSON.stringify({ lat: t.lat, lon: t.lon, mlat: t.mlat, mlon: t.mlon })},SURF=${JSON.stringify(R.surf || [])},SNOTE=${JSON.stringify(R.surfNote || "")},SW=null,WD=null,$=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v},D=['N','NE','E','SE','S','SW','W','NW'],dir=function(d){return D[Math.round(d/45)%8]};
@@ -317,7 +317,7 @@ try{localStorage.setItem('pc','${pc}')}catch(e){}
 var IDX=[...${JSON.stringify(R.idx)},["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
 ["sunrise sunset moon","Sunrise, sunset and moon","See the tiles at the top of the page.","#today"],
 ["tide tides fishing fish swell waves boat","Tides & fishing","Next high and low tides, waves and swell. Modelled estimates, not for navigation.","#sea"],
-["surf cam beach waves","Surf cams","Live cams via Coastalwatch.","#surfcams"],["beach patrol lifeguard swim","Beaches","Patrolled beaches via Beachsafe.","#beaches"],
+["surf cam beach waves","Surf cams","Live cams via Coastalwatch, in Beach & surf.","#beaches"],["beach patrol lifeguard swim","Beaches","Patrolled beaches via Beachsafe.","#beaches"],
 ["event events whats on what's on markets gig music things to do weekend","What's on","Local events, with locals' submissions first.","#events"],
 ["add event submit list my event","Add an event","List your event free, checked before it goes live.","/submit?pc=${pc}"],
 ["dumping illegal dumped","Illegal dumping","Report it online via the NSW EPA (Environment Protection Authority).","#know"],
@@ -1214,7 +1214,7 @@ async function lodgeRip(req, env) {
 const KEYS = { tools: "kid kids school son daughter children family cook cooking dinner recipe food fridge birthday", alerts: "fire fires flood drive driving commute roads traffic storm",
   events: "events gig gigs music markets weekend things festival", news: "news headlines", fuel: "fuel petrol diesel car drive driving commute ute",
   sea: "fish fishing boat tide tides surf surfing swell kayak", know: "council bins rubbish rates newcomer moved mayor", council: "council rates development roadworks",
-  sport: "sport footy soccer netball cricket kids sport field rugby", holidays: "school holidays kids school family", surfcams: "surf surfing waves board", beaches: "beach beaches swim swimming patrol dog" };
+  sport: "sport footy soccer netball cricket kids sport field rugby", holidays: "school holidays kids school family", beaches: "surf surfing waves board cam beach beaches swim swimming patrol dog" };
 function mavGuess(text) {
   const t = " " + text.toLowerCase() + " ", score = {};
   for (const [id, ws] of Object.entries(KEYS)) score[id] = ws.split(" ").filter(w => w && t.includes(" " + w)).length;
