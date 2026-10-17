@@ -1963,6 +1963,7 @@ document.getElementById('beerf').onsubmit=function(ev){ev.preventDefault();var v
 
 // ---- Mini Maverick Encouragement Award: grown-ups nominate a local kid; the winner gets $50 to spend at a local business of their choice. Never fast food. ----
 const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$50 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
+<p class="note">📍 The award must be spent at a <b>local ${"${R.place}"} business</b>. No multinationals, no chains, no fast food.</p>
 <p class="mute">Kindness, courage, trying hard, helping out. Anything worth encouraging. Grown-ups nominate; kids don&rsquo;t sign up themselves.</p>`;
 const awardBlock = () => `<section id="award"><h2>🏅 Mini Maverick Encouragement Award</h2>${AWARD_INFO.replace("${R.place}", esc(R.place))}<p><a href="/award"><b>Nominate a local kid →</b></a> · <a href="/award#apply">Clubs and local businesses: apply</a></p></section>`;
 async function plusList(env) {
@@ -1986,7 +1987,7 @@ async function awardPage(req, env, ctx) {
     const n = { kid, where, why, me, email, role, pc: R.code, at: new Date().toISOString() }, L = (await env.DATA.get("award:noms", "json")) || [];
     await env.DATA.put("award:noms", JSON.stringify([n, ...L].slice(0, 500)));
     mailUs(env, ctx, `Encouragement Award nomination: ${kid} (${R.code})`, `Kid's first name: ${kid}\nSchool, club or group: ${where}\nWhy: ${why}\n\nNominated by: ${me} (${role})\nEmail: ${email}\nDaily Maverick: ${R.code}`, email);
-    return page("Nomination in", head + `<p class="note">Thanks, ${esc(me)}! ${esc(kid)}&rsquo;s nomination is in. If they win, we&rsquo;ll email you to sort out the $50 with their parent or carer.</p>`);
+    return page("Nomination in", head + `<p class="note">Thanks, ${esc(me)}! ${esc(kid)}&rsquo;s nomination is in. If they win, we&rsquo;ll email you to sort out the $50 with their parent or carer. It must be spent at a local business, never a multinational or fast food.</p>`);
   }
   return page(`Mini Maverick Encouragement Award: ${R.brand}`, head + `<form method="post"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>Kid&rsquo;s first name only *</label><input name="kid" maxlength="30" required>
