@@ -2351,21 +2351,25 @@ document.querySelectorAll('.ptabs button').forEach(function(b){b.onclick=functio
 document.getElementById('pdate').onchange=function(){if(!this.value)return;document.querySelectorAll('.ptabs button').forEach(function(x){x.classList.remove('on')});show(this.value)};show('0')})();</script></section>`;
 }
 
-// ---- Supermarket watch: the price of five everyday items at Woolworths, Coles and ALDI, checked daily from each
+// ---- Supermarket watch: the price of seven everyday items at Woolworths, ALDI and Coles, checked daily from each
 // supermarket's own website, so locals can see where the basics are cheapest. House brand where there is one. ----
 const SHOP = [
-  { id: "milk", label: "Full cream milk 2L", ico: "🥛",
+  { id: "milk", basket: true, label: "Full cream milk 2L", ico: "🥛",
     w: { q: "woolworths full cream milk 2l", re: /^woolworths full cream milk\b.*2\s?l/i }, c: { q: "coles full cream milk 2l", re: /^coles full cream milk\b.*2\s?l/i }, a: { q: "full cream milk 2l", re: /full cream milk.*2\s?l/i } },
-  { id: "bread", label: "White sandwich bread 650g", ico: "🍞",
+  { id: "bread", basket: true, label: "White sandwich bread 650g", ico: "🍞",
     w: { q: "woolworths white sandwich bread 650g", re: /^woolworths white.*sandwich.*650\s?g/i }, c: { q: "coles white sandwich bread 650g", re: /^coles .*white.*sandwich.*650\s?g/i }, a: { q: "white sandwich bread 650g", re: /white.*(sandwich|toast).*650\s?g/i } },
-  { id: "eggs", label: "Free range eggs, 12 pack", ico: "🥚",
+  { id: "eggs", basket: true, label: "Free range eggs, 12 pack", ico: "🥚",
     w: { q: "woolworths 12 pack large free range eggs", re: /^woolworths 12 pack large free range eggs/i }, c: { q: "coles free range eggs 12 pack", re: /^coles .*free range eggs.*(12|600\s?g)/i }, a: { q: "free range eggs 12 pack", re: /free range eggs.*(12|600\s?g)/i } },
-  { id: "choc", label: "Cadbury Dairy Milk 180g", ico: "🍫",
+  { id: "choc", basket: true, label: "Cadbury Dairy Milk 180g", ico: "🍫",
     w: { q: "cadbury dairy milk chocolate block 180g", re: /^cadbury dairy milk chocolate block.*180\s?g/i }, c: { q: "cadbury dairy milk chocolate block 180g", re: /^cadbury dairy milk (milk )?chocolate block.*180\s?g/i }, a: { q: "cadbury dairy milk 180g", re: /cadbury dairy milk.*180\s?g/i } },
+  { id: "evoo", label: "Extra virgin olive oil 750ml", ico: "🫒",
+    w: { q: "woolworths extra virgin olive oil 750ml", re: /^woolworths .*extra virgin olive oil.*750\s?ml/i }, c: { q: "coles extra virgin olive oil 750ml", re: /^coles .*extra virgin olive oil.*750\s?ml/i }, a: { q: "extra virgin olive oil 750ml", re: /extra virgin olive oil.*750\s?ml/i } },
+  { id: "weetbix", label: "Weet-Bix 575g", ico: "🥣",
+    w: { q: "sanitarium weet-bix 575g", re: /weet-?bix.*575\s?g/i }, c: { q: "sanitarium weet-bix 575g", re: /weet-?bix.*575\s?g/i }, a: { q: "weet-bix 575g", re: /weet-?bix.*575\s?g/i } },
   { id: "banana", label: "Bananas", ico: "🍌",
     w: { q: "cavendish bananas", re: /^cavendish bananas\b/i }, c: { q: "bananas", re: /^(coles )?(cavendish )?bananas?\b/i }, a: { q: "bananas", re: /banana/i } },
 ];
-const STORES = { w: "Woolworths", c: "Coles", a: "ALDI" };
+const STORES = { w: "Woolworths", a: "ALDI", c: "Coles" }; // Coles last: its website blocks our price checks
 const money = n => "$" + Number(n).toFixed(2);
 async function shopWoolies(it) {
   const j = await (await fetch("https://www.woolworths.com.au/apis/ui/Search/products?searchTerm=" + encodeURIComponent(it.q) + "&pageSize=12", { headers: { ...UA, accept: "application/json" } })).json();
@@ -2384,7 +2388,9 @@ async function shopAldi(it) {
 }
 async function refreshShop(env) {
   const old = await env.DATA.get("shop", "json");
-  if (old && old.v === 2 && Date.now() - new Date(old.tried) < 20 * 3600e3) return old;
+  // Twice a day: a morning check from 6am and an afternoon check from 2pm (Sydney time)
+  const slot = d => { const t = new Date(new Date(d).toLocaleString("en-US", { timeZone: "Australia/Sydney" })), h = t.getHours(); if (h < 6) t.setDate(t.getDate() - 1); return t.toDateString() + (h >= 6 && h < 14 ? " am" : " pm"); };
+  if (old && old.v === 2 && slot(old.tried) === slot(Date.now())) return old;
   const now = new Date().toISOString(), out = { v: 2, tried: now, stores: {}, items: {} };
   let build = "", blocked = {};
   try { const cr = await fetch("https://www.coles.com.au/", { headers: UA }); build = ((await cr.text()).match(/"buildId":"([^"]+)"/) || [])[1] || ""; if (!build) blocked.c = cr.status; } catch (e) { blocked.c = "error"; }
@@ -2405,16 +2411,16 @@ async function refreshShop(env) {
 }
 async function shopBlock(env) {
   const s = await env.DATA.get("shop", "json"), ks = Object.keys(STORES);
-  if (!s || s.v !== 2 || !Object.keys(s.items || {}).length) return `<section id="shop"><h2>🛒 Supermarket watch</h2><p class="mute">Comparing everyday prices at Woolworths, Coles and ALDI. First prices are on their way.</p></section>`;
-  const tot = {}; ks.forEach(k => { tot[k] = SHOP.every(i => s.items[i.id] && s.items[i.id][k] && !/bananas?/i.test(i.label)) ? SHOP.filter(i => !/bananas?/i.test(i.label)).reduce((a, i) => a + s.items[i.id][k].price, 0) : null; });
+  if (!s || s.v !== 2 || !Object.keys(s.items || {}).length) return `<section id="shop"><h2>Supermarket watch</h2><p class="mute">Comparing everyday prices at Woolworths, ALDI and Coles. First prices are on their way.</p></section>`;
+  const tot = {}; ks.forEach(k => { tot[k] = SHOP.filter(i => i.basket).every(i => s.items[i.id] && s.items[i.id][k]) ? SHOP.filter(i => i.basket).reduce((a, i) => a + s.items[i.id][k].price, 0) : null; });
   const best = ks.filter(k => tot[k] != null).sort((a, b) => tot[a] - tot[b])[0];
-  const row = i => { const p = s.items[i.id] || {}, vals = ks.map(k => p[k] && p[k].price).filter(x => x != null), lo = Math.min(...vals);
-    return `<tr><th scope="row">${i.ico} ${esc(i.label)}</th>${ks.map(k => { const x = p[k]; if (!x) return `<td class="mute">–</td>`;
+  const blk = s.blocked || {}, row = i => { const p = s.items[i.id] || {}, vals = ks.map(k => p[k] && p[k].price).filter(x => x != null), lo = Math.min(...vals);
+    return `<tr><th scope="row">${esc(i.label)}</th>${ks.map(k => { const x = p[k]; if (!x) return blk[k] ? `<td class="mute" title="${STORES[k]} blocks our price checks">blocked</td>` : `<td class="mute">–</td>`;
       return `<td class="${vals.length > 1 && x.price === lo ? "cheap" : ""}" title="${esc(x.name)}${x.unit ? " · " + esc(x.unit) : ""}">${money(x.price)}${x.was ? `<br><small class="tagg">special</small>` : ""}${x.prev && x.prev !== x.price ? `<br><small class="mute">${x.price > x.prev ? "▲" : "▼"} ${money(x.prev)}</small>` : ""}</td>`; }).join("")}</tr>`; };
-  return `<section id="shop"><h2>🛒 Supermarket watch</h2><p class="mute">The everyday basics at each supermarket today. Cheapest in green.</p>
-${best ? `<p class="note">🏆 Cheapest basket today (milk, bread, eggs, chocolate): <b>${STORES[best]}</b> at ${money(tot[best])}${ks.filter(k => k !== best && tot[k] != null).map(k => `, ${STORES[k]} ${money(tot[k])}`).join("")}.</p>` : ""}
-<div class="tscroll"><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${STORES[k]}</th>`).join("")}</tr></thead><tbody>${SHOP.map(row).join("")}</tbody></table></div>
-${Object.keys(s.blocked || {}).length ? `<p class="note">🚫 ${Object.keys(s.blocked).map(k => `<b>${STORES[k]}</b>`).join(" and ")} didn't let us read ${Object.keys(s.blocked).length > 1 ? "their" : "its"} prices today: ${Object.keys(s.blocked).length > 1 ? "their websites block" : "its website blocks"} automatic checks. We show what we can find, and we tell you when we can't.</p>` : ""}<p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
+  return `<section id="shop"><h2>Supermarket watch</h2><p class="mute">The everyday basics at each supermarket today. Cheapest in green. We update these prices <b>twice a day</b>, around 6am and 2pm, so you always know how fresh they are.</p>
+${best ? `<p class="note">Cheapest basket today (milk, bread, eggs, chocolate): <b>${STORES[best]}</b> at ${money(tot[best])}${ks.filter(k => k !== best && tot[k] != null).map(k => `, ${STORES[k]} ${money(tot[k])}`).join("")}.</p>` : ""}
+<div class="tscroll"><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${STORES[k]}${blk[k] ? `<br><small class="mute">blocks us</small>` : ""}</th>`).join("")}</tr></thead><tbody>${SHOP.map(row).join("")}</tbody></table></div>
+${Object.keys(blk).length ? `<p class="note"><b>${Object.keys(blk).map(k => STORES[k]).join(" and ")} ${Object.keys(blk).length > 1 ? "don&rsquo;t" : "doesn&rsquo;t"} let us check ${Object.keys(blk).length > 1 ? "their" : "its"} prices.</b> ${Object.keys(blk).length > 1 ? "Their websites block" : "Its website blocks"} automatic price checks, so we can&rsquo;t show ${Object.keys(blk).length > 1 ? "them" : "it"} side by side with the others. That&rsquo;s ${Object.keys(blk).length > 1 ? "their" : "its"} choice, not ours. We show what we can find, and we tell you when we can&rsquo;t.</p>` : ""}<p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
 }
 
 // ---- Big local projects (e.g. the Coffs Harbour bypass): the latest weekly update from the project's own page ----
