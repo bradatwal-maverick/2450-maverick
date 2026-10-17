@@ -37,6 +37,16 @@ const shell = (back, title, intro, main, js) => `<div class="kz"><p class="mute"
 <script>${GATE_JS}
 ${js}</script>`;
 
+const teach = items => `<div class="card2"><b>👨‍👩‍👧 For grown-ups: what this teaches</b><ul class="promise">${items.map(x => `<li>${x}</li>`).join("")}</ul><p class="mute2">Part of the <a href="/kids/certificate">🎓 Certified Mini Maverick</a> course.</p></div>`;
+// Mini Maverick certificate: three goals, checked from what's saved on this device. Once a goal is met it stays met.
+const CERT_JS = `function kzCert(){var c={};try{c=JSON.parse(localStorage.getItem('kz_cert')||'{}')}catch(e){}
+try{if((+localStorage.getItem('kz_safe_best')||0)>=8)c.safe=1}catch(e){}
+try{var rb=JSON.parse(localStorage.getItem('kz_rb')||'{}');if((rb.lvl||1)>=4)c.robot=1}catch(e){}
+try{var pt=JSON.parse(localStorage.getItem('kz_pet')||'null');if(pt&&pt.streak>=3)c.pet=1}catch(e){}
+try{localStorage.setItem('kz_cert',JSON.stringify(c))}catch(e){}return c}
+var KZG=[['safe','🛡️','Safe or Sus?','Score 8 or more out of 10','/kids/safe'],['robot','🤖','Robot Builder','Reach level 4','/kids/robot'],['pet','🐾','Pet Pal','Care for your pet 3 days in a row','/kids/pet']];
+function kzGoals(c){return '<ul class="promise">'+KZG.map(function(g){return '<li>'+(c[g[0]]?'✅':'⬜')+' '+g[1]+' <a href="'+g[4]+'">'+g[2]+'</a>: '+g[3]+'</li>'}).join('')+'</ul>'}`;
+const COURSE = "A free training course designed by Maverick Digital to keep our community safer online.";
 // Grown-ups' view of everything kids did in Kid Zone on this device. Read straight from the browser, never sent to us.
 export const kidsLog = back => `<div class="kz"><p class="mute"><a href="/kids">‹ Kid Zone</a> · <a href="${back}">News</a></p><h1>👀 What the kids did</h1>
 <p class="big">Every tap in Kid Zone on this device, and how they're going. It stays on this device. We never see it.</p><div id="kzl"></div></div>
@@ -59,9 +69,11 @@ export const kidsHub = back => shell(back, "🧒 Kid Zone", "Fun games for kids 
 `<a class="card" href="/kids/safe">🛡️ <b>Safe or Sus?</b> Someone sends you a message. What do you do? →</a>
 <a class="card" href="/kids/robot">🤖 <b>Robot Builder</b> Tell the robot what to build in as few goes as you can. Learn how AI thinks →</a>
 <a class="card" href="/kids/pet">🐾 <b>Pet Pal</b> Build your dream pet, then feed it, wash it, walk it and get it to bed on time →</a>
+<div class="card2"><b>🎓 Become a Certified Mini Maverick</b><p>Finish all three games to earn a certificate you can print: <b>ready for the digital future</b>.</p><p class="mute2">${COURSE}</p><div id="kzgoals"></div><p><a href="/kids/certificate">See your certificate →</a></p></div>
 <div class="kpromise"><b>Every game in the Kid Zone must:</b><ul><li>🛡️ teach online safety</li><li>🚀 set kids up for a digital future</li><li>🎉 be fun</li></ul>The grown-ups check every game is safe and parent-friendly. Then our Quality Control Officer (a real kid) has to give it the <b>⭐ Fun Guarantee</b>. No guarantee, no game.</div>
 <p class="mute2">🔐 Grown-ups: <a href="/kids/parent">set a secret word</a> so kids need your OK to get in, and <a href="/kids/log">see everything they did</a>.</p>
-<p class="mute2">More games are on the way. Grown-ups can suggest one on the <a href="/feedback">ideas page</a>.</p>`, `kzGate(function(){})`);
+<p class="mute2">More games are on the way. Grown-ups can suggest one on the <a href="/feedback">ideas page</a>.</p>`, `${CERT_JS}
+kzGate(function(){document.getElementById('kzgoals').innerHTML=kzGoals(kzCert())})`);
 
 // Safe or Sus? Ten everyday message situations. Pattern-level, age-appropriate.
 const QS = [
@@ -77,7 +89,7 @@ const QS = [
   ["A video app", "Watch this video, then share it with 10 friends or something bad will happen!", ["Share it to be safe", "Ignore it, nothing bad will happen", "Send it to just one friend"], 1, "Chain messages are fake. Nothing bad happens if you don't share. Just ignore it."]
 ];
 export const safePage = back => shell(back, "🛡️ Safe or Sus?", "Someone sends you a message. What would you do? Ten quick ones.",
-`<div id="sq"></div><div class="card2"><b>The golden rule: Stop. Block. Tell.</b><br>If anything online makes you feel worried, scared or yucky, stop, block them, and tell a grown-up you trust. You won&rsquo;t be in trouble.</div>
+`<div id="sq"></div>${teach(["🚩 Spotting scams: fake prizes, fake parcels, chain messages", "🔒 Keeping private things private: school, address, passwords, photos", "🗣️ Stop. Block. Tell: that it&rsquo;s always OK to tell a grown-up, and they won&rsquo;t be in trouble", "🤝 That some messages are fine, so kids learn judgement, not fear"])}<div class="card2"><b>The golden rule: Stop. Block. Tell.</b><br>If anything online makes you feel worried, scared or yucky, stop, block them, and tell a grown-up you trust. You won&rsquo;t be in trouble.</div>
 <p class="mute2">Kids can call Kids Helpline any time on <a href="tel:1800551800">1800 55 1800</a>. Grown-ups: the <a href="https://www.esafety.gov.au/parents" rel="noopener">eSafety Commissioner</a> has free guides.</p>`,
 `var Q=${JSON.stringify(QS)};
 kzGate(function(){var el=document.getElementById('sq'),o=Q.map(function(_,i){return i}).sort(function(){return Math.random()-.5}),i=0,s=0;
@@ -91,7 +103,7 @@ q()})`);
 
 // Pet Pal: build a pet, care for it daily. Needs drop over real time; the pet never dies, it just gets sad until you help.
 export const petPage = back => shell(back, "🐾 Pet Pal", "Build your dream pet. Feed it, wash it, play with it, walk it, and get it to bed on time. Come back every day!",
-`<div id="pp"></div>`,
+`<div id="pp"></div>${teach(["📅 Routine and responsibility: small jobs, every day", "⏰ Bedtime habits: the pet goes to bed on time, and so do they", "💛 Care and empathy: noticing what someone else needs", "📵 Healthy screen time: a quick daily check-in, not hours of play"])}`,
 `kzGate(function(){var el=document.getElementById('pp'),K='kz_pet',P=null;
 var A=[['🐶','Puppy'],['🐱','Kitten'],['🐰','Bunny'],['🐹','Hamster'],['🐴','Pony'],['🐢','Turtle'],['🦜','Parrot'],['🐠','Fish']];
 var COL=['Golden','Black','White','Brown','Spotty','Rainbow'];
@@ -131,7 +143,7 @@ const RB = {
   place: [["on the moon", "🌙", "moon"], ["at the beach", "🏖️", "beach"], ["in the jungle", "🌴", "jungle|rainforest"], ["in space", "🚀", "space"], ["at a castle", "🏰", "castle"], ["in the city", "🏙️", "city|town"], ["in the snow", "❄️", "snow"], ["under the sea", "🌊", "sea|ocean|underwater"]]
 };
 export const robotPage = back => shell(back, "🤖 Robot Builder", "Tell the robot what to build. It only makes what you say, and guesses the rest! Can you get it right in as few goes as possible?",
-`<div id="rb"></div><div class="card2"><b>💡 How AI really works</b><br>AI tools are like this robot: they do exactly what you ask, and fill in the gaps with guesses. The clearer you are, the better the result. This robot is pretend and runs on your device, so nothing you type goes anywhere.</div>`,
+`<div id="rb"></div>${teach(["🤖 How AI really works: it does what you say and guesses the rest", "✍️ Clear instructions: say the colour, the thing, the place, one by one", "🎯 Doing it in fewer goes: thinking before typing, the key skill for using AI well", "🧠 That AI can be wrong, so you always check what it made"])}<div class="card2"><b>💡 How AI really works</b><br>AI tools are like this robot: they do exactly what you ask, and fill in the gaps with guesses. The clearer you are, the better the result. This robot is pretend and runs on your device, so nothing you type goes anywhere.</div>`,
 `var RB=${JSON.stringify(RB)},SL=['colour','animal','wearing','doing','place'];
 kzGate(function(){var el=document.getElementById('rb'),S={lvl:1,pts:0};try{S=JSON.parse(localStorage.getItem('kz_rb'))||S}catch(e){}
 function save(){try{localStorage.setItem('kz_rb',JSON.stringify(S))}catch(e){}}
@@ -158,3 +170,17 @@ el.innerHTML='<div class="card2"><h2>🎉 Nailed it'+(tries===1?' first go!':' i
 if(left<=0){kzLog('Robot Builder','Out of goes','Level '+S.lvl);el.innerHTML='<div class="card2"><h2>🤖 Out of goes!</h2>'+res+'<p>The answer was: <b>'+esc(words(T))+'</b>. Tip: say every part, one by one.</p><div class="row"><button type="button" id="rn">Try a new one</button></div></div>';document.getElementById('rn').onclick=newRound;return}
 draw(res)}
 newRound()})`);
+
+export const certPage = (back, code) => shell(back, "🎓 Certified Mini Maverick", "Finish all three Kid Zone games to earn your certificate.",
+`<div id="cert"></div><style>@media print{header,.mute,.mute2,.noprint,#kzgate,footer,nav{display:none!important}.certbox{border:6px double #12233f!important;margin:0!important}}
+.certbox{border:4px double var(--gold);border-radius:14px;padding:26px 18px;text-align:center;margin:14px 0}.certbox h2{font-size:1.7rem;margin:6px 0}.certbox .nm{font-size:2rem;font-weight:800;margin:10px 0;border-bottom:2px solid var(--line);display:inline-block;min-width:60%}</style>`,
+`${CERT_JS}
+kzGate(function(){var c=kzCert(),el=document.getElementById('cert'),all=KZG.every(function(g){return c[g[0]]});
+if(!all){el.innerHTML='<div class="card2"><p class="big">Nearly there! Tick off all three:</p>'+kzGoals(c)+'<p class="mute2">${COURSE}</p></div>';return}
+var d=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+el.innerHTML='<div class="noprint card2"><label>Your first name, for the certificate (it&rsquo;s not saved anywhere):<br><input type="text" id="cn" maxlength="20" placeholder="First name"></label><div class="row"><button type="button" id="cp">🖨️ Print or save</button></div></div>'
++'<div class="certbox"><div style="font-size:2.5rem">🎓</div><p>This certifies that</p><div class="nm" id="cnm">&nbsp;</div><h2>Certified Mini Maverick</h2><p class="big"><b>Ready for the digital future</b></p>'
++'<p>Spots online tricks and keeps private things private · Gives AI clear instructions · Looks after someone every day</p>'
++'<p class="mute2" style="display:block">Awarded '+d+' · Your ${code} Maverick Kid Zone</p><p style="font-size:.85rem">${COURSE}</p></div>';
+var cn=document.getElementById('cn');cn.oninput=function(){document.getElementById('cnm').textContent=cn.value.replace(/[^A-Za-z \\-']/g,'')||'\\u00a0'};
+document.getElementById('cp').onclick=function(){if(typeof kzLog==='function')kzLog('cert','printed');window.print()}})`);

@@ -4,7 +4,7 @@ import { REGIONS } from "./regions.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
-import { KID_CSS, kidsLog, kidsHub, safePage, petPage, robotPage } from "./kids.js";
+import { KID_CSS, kidsLog, kidsHub, safePage, petPage, robotPage, certPage } from "./kids.js";
 import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
 import { WEST, EAST, VEDIC, STARTS, VSTARTS, eastYears, readings, seasonOf, vedicOf, elementOf, luckyColour, moonLine } from "./horoscope.js";
@@ -1700,6 +1700,7 @@ async function route(req, env, ctx) {
     if (p === "/api/kz") return kzApi(req, env);
     if (p === "/kids/safe") return page(`Safe or Sus? Kid Zone`, `<style>${KID_CSS}</style>` + safePage("/" + R.code));
     if (p === "/kids/pet") return page(`Pet Pal: Kid Zone`, `<style>${KID_CSS}</style>` + petPage("/" + R.code));
+    if (p === "/kids/certificate") return page(`Certified Mini Maverick: Kid Zone`, `<style>${KID_CSS}</style>` + certPage("/" + R.code, R.code));
     if (p === "/kids/robot") return page(`Robot Builder: Kid Zone`, `<style>${KID_CSS}</style>` + robotPage("/" + R.code));
     if (p === "/home") return homePage();
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
