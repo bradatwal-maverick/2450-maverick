@@ -238,7 +238,7 @@ j('todo',[]).map(function(x){var d=new Date(x.d+'T00:00:00');return [Math.round(
 var h=HELP.filter(function(g){return g[0].test(r[1].t)}).slice(0,2),when=r[0]===0?'Today':r[0]===1?'Tomorrow':DN2[r[2].getDay()]+' '+r[2].getDate();
 cards.unshift('<div class="fyc fybd"><b>📅 '+when+': '+esc(r[1].t)+'</b>'+(h.length?'<ul>'+h.map(function(g){return '<li><a href="'+g[2]+'">'+g[1]+'</a></li>'}).join('')+'</ul>':'')+'</div>')});
 var box=document.createElement('section');box.id='foryou';box.className='foryou';
-box.innerHTML='<h2>🎧 '+(nm?esc(nm)+', here’s':'Here’s')+' what Mav thinks you’ll want to know</h2>'+(cards.length?cards.join(''):'<p>Tell Mav what you’re into, or fill in <a href="/me" class="mavall">About you</a>, and this spot fills up each morning with what matters to you.</p>')+'<p class="mute fynote">Picked from today’s paper, based on what you’ve told Mav and what you read. Bookmark this spot. <a href="/me" class="mavall">Change</a></p>';
+box.innerHTML='<h2><span class="mavav" aria-hidden="true"></span>'+(nm?esc(nm)+', here’s':'Here’s')+' what Mav thinks you’ll want to know</h2>'+(cards.length?cards.join(''):'<p>Tell Mav what you’re into, or fill in <a href="/me" class="mavall">About you</a>, and this spot fills up each morning with what matters to you.</p>')+'<p class="mute fynote">Picked from today’s paper, based on what you’ve told Mav and what you read. Bookmark this spot. <a href="/me" class="mavall">Change</a></p>';
 var td=document.getElementById('today');if(td&&td.parentNode===f)f.insertBefore(box,td.nextSibling);else f.insertBefore(box,f.firstChild);
 if(location.hash=='#foryou')setTimeout(function(){box.scrollIntoView({block:'start'})},80);
 // Phone app: opening the home-screen app goes straight to their own Daily Maverick card (weather, bins, birthdays, Mav's picks).
@@ -247,7 +247,7 @@ var phone=matchMedia('(max-width: 760px)').matches,app=matchMedia('(display-mode
 var td2=document.getElementById('today'),bin=td2&&td2.previousElementSibling&&/Bin night/.test(td2.previousElementSibling.textContent)?td2.previousElementSibling:null,home=[];
 var card=document.createElement('div');card.id='mycard';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Your Daily Maverick');
 var DD=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
-card.innerHTML='<div class="mch"><b>☀️ '+(nm?esc(nm)+'’s':'Your')+' Daily Maverick</b><small class="mute">'+DD+'</small></div><div class="mcb"></div><div class="mcq"><a href="/school">🚸 School run & traffic</a><a href="#alerts" data-close="1">🚨 Alerts</a><a href="/me" class="mavall">⚙️ My settings</a></div><button type="button" class="mcx">📰 Open the full paper</button>';
+card.innerHTML='<div class="mch"><b><span class="mavav" aria-hidden="true"></span>'+(nm?esc(nm)+'’s':'Your')+' Daily Maverick</b><small class="mute">'+DD+'</small></div><div class="mcb"></div><div class="mcq"><a href="/school">🚸 School run & traffic</a><a href="#alerts" data-close="1">🚨 Alerts</a><a href="/me" class="mavall">⚙️ My settings</a></div><button type="button" class="mcx">📰 Open the full paper</button>';
 document.body.appendChild(card);var cb=card.querySelector('.mcb');
 var pill=document.createElement('button');pill.type='button';pill.id='mypill';pill.textContent='☀️ My Daily';pill.hidden=true;document.body.appendChild(pill);
 function openCard(){if(!card.hidden)return;home=[td2,bin,box].filter(Boolean).map(function(el){return [el,el.parentNode,el.nextSibling]});
