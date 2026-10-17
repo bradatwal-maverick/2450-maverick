@@ -4,6 +4,7 @@ import { REGIONS } from "./regions.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
+import { localToday, photosApi } from "./photos.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
@@ -76,7 +77,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #tonight{--acc:#0f766e!important}#events,#kids{--acc:#0f766e!important}
 #alerts{--acc:#b42318!important}
 #memory{--acc:#6b7280!important}#joy,#love{--acc:#c2417a!important}
-.potd{margin:10px 0 14px;border-radius:14px;overflow:hidden;background:var(--soft)}.potd img{display:block;width:100%;height:auto;max-height:62vh;object-fit:cover}.potd figcaption{padding:8px 12px 10px;font-size:.95rem;line-height:1.4}.potd figcaption b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}.potd small{display:block;font-size:.75rem;color:var(--mute);margin-top:4px}#bdm{--acc:#6b7280!important}
+.potd{margin:10px 0 14px;border-radius:14px;overflow:hidden;background:var(--soft)}.potd img{display:block;width:100%;height:auto;max-height:62vh;object-fit:cover}.potd figcaption{padding:8px 12px 10px;font-size:.95rem;line-height:1.4}.potd figcaption b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}.pgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.pgal figure{margin:0;border-radius:12px;overflow:hidden;background:var(--soft)}.pgal img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}.pgal figcaption{padding:6px 10px 8px;font-size:.9rem}.pgal small{display:block;color:var(--mute);font-size:.75rem}label.chk{display:flex;gap:8px;align-items:flex-start;margin:8px 0}.potd small{display:block;font-size:.75rem;color:var(--mute);margin-top:4px}#bdm{--acc:#6b7280!important}
 #numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#rates{--acc:#15803d!important}
 #flights,#bypass,#sea,#beaches{--acc:#1d6fb8!important}
 #puzzles,#stars,#holidays{--acc:#b45309!important}
@@ -626,6 +627,8 @@ const MANIFEST = () => JSON.stringify({ id: "/", name: `${R.brand} ${R.short}`, 
   start_url: "/?src=app", scope: "/", display: "standalone", background_color: "#0B1526", theme_color: "#0B1526", categories: ["news", "lifestyle"],
   icons: [...(ICONS[R.code] ? [{ src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }] : []),
     { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }] });
+const PHOTOS = () => photosApi({ esc, page, member, cleanText, todayISO, TOWNS, R,
+  nameOf: async (env, em) => { const u = await env.DATA.get(`user:${em}`, "json"); return String(u?.name || em.split("@")[0]).split(/\s+/)[0].slice(0, 30); } });
 // Home-screen PNG icons (baked in by tools/build-icons.py). Falls back to the SVG for a brand-new town until the script is re-run.
 function iconPng(size) { const b = ICONS[R.code]?.[size]; if (!b) return Response.redirect("/icon.svg", 302);
   return new Response(Uint8Array.from(atob(b), c => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=604800" } }); }
@@ -2082,7 +2085,7 @@ ${await plusList(env)}
 // ---- Everything: every page on the Daily Maverick, in one place, so nothing is hidden ----
 function allPage() {
   const G = [["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
-    ["🧰 Handy tools", [["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
+    ["🧰 Handy tools", [["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
     ["👤 You", [["/me", "My page", "Your settings and what Mav knows"], ["/signin", "Sign in", "Free, one tap"]]],
@@ -2094,10 +2097,16 @@ ${G.map(([h, L]) => `<h2>${h}</h2>${L.map(([u, n, d]) => `<a class="card" href="
 // ---- Why Coffs: fun facts, every one sourced ----
 // Each postcode's own reasons to love it (src/love.js): only things that postcode has and its neighbours don't. Every fact sourced.
 const factLi = ([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src">Info from <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`;
-async function potdBlock(env, pc) { const t = TOWNS[pc]; let ph = null;
-  try { ph = await photoOfDay(env, pc, t, HOME, todayISO(), UA); } catch (e) { ph = null; } if (!ph) return "";
+async function potdBlock(env, pc) { const t = TOWNS[pc], nm = esc(LOVE[pc]?.name || t.name), day = todayISO(); let lo = null, ph = null;
+  try { lo = await localToday(env, pc, day); } catch (e) { lo = null; }
+  const share = `<a href="/photo?pc=${pc}"><b>📷 Share your shot of ${nm}</b></a> and it gets its own day here, with your name on it.`;
+  if (lo) return `<figure class="potd"><a href="/photos?pc=${pc}"><img src="/p/${lo.id}.jpg" alt="${esc(lo.cap)}" fetchpriority="high" decoding="async"></a>
+<figcaption><b>📸 Your place today, shot by ${esc(lo.name)}, a local</b> ${esc(lo.cap)}<small>${share} · <a href="#" class="prep" data-id="${lo.id}">Report</a></small></figcaption></figure>
+<script>document.querySelectorAll('.prep').forEach(function(a){a.onclick=function(e){e.preventDefault();if(!confirm('Report this photo? It comes down straight away.'))return;fetch('/api/photo-report?id='+a.dataset.id,{method:'POST'}).then(function(){a.closest('figure').remove()})}})<\/script>`;
+  try { ph = await photoOfDay(env, pc, t, HOME, day, UA); } catch (e) { ph = null; }
+  if (!ph) return `<p class="card">📸 <b>Your place today</b> ${share}</p>`;
   return `<figure class="potd"><a href="${esc(ph.page)}" rel="noopener" data-noutm><img src="${esc(ph.src)}" width="${ph.w}" height="${ph.h}" alt="${esc(ph.caption)}" fetchpriority="high" decoding="async"></a>
-<figcaption><b>📸 Your place today</b> ${esc(ph.caption)}<small>Photo: ${esc(ph.artist)} · ${ph.licenseUrl ? `<a href="${esc(ph.licenseUrl)}" rel="noopener license" data-noutm>${esc(ph.license)}</a>` : esc(ph.license)} · <a href="${esc(ph.page)}" rel="noopener" data-noutm>Wikimedia Commons</a>. Got a better shot of ${esc(LOVE[pc]?.name || t.name)}? <a href="https://commons.wikimedia.org/wiki/Special:UploadWizard" rel="noopener" data-noutm>Share it free</a> and it could be here.</small></figcaption></figure>`; }
+<figcaption><b>📸 Your place today</b> ${esc(ph.caption)}<small>Photo: ${esc(ph.artist)} · ${ph.licenseUrl ? `<a href="${esc(ph.licenseUrl)}" rel="noopener license" data-noutm>${esc(ph.license)}</a>` : esc(ph.license)} · <a href="${esc(ph.page)}" rel="noopener" data-noutm>Wikimedia Commons</a><br>${share}</small></figcaption></figure>`; }
 function loveBlock(pc) { const L = LOVE[pc]; if (!L?.facts?.length) return "";
   return `<section id="love"><h2>❤️ Why you'll love ${esc(L.name)}</h2><p class="mute">What ${esc(pc)} has that nowhere else does. Every fact sourced.</p>
 <ul class="ideas">${dayMix(L.facts, "love" + pc).slice(0, 3).map(factLi).join("")}</ul><p><a href="/${R.why.slug}?pc=${pc}">All the reasons to love ${esc(L.name)} →</a></p></section>`; }
@@ -2319,7 +2328,7 @@ export default {
     ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     ctx.waitUntil(acSync(env).catch(() => {}));
-    ctx.waitUntil(Promise.all(Object.entries(TOWNS).filter(([, t]) => t.live).map(([pc, t]) => photoOfDay(env, pc, t, HOME, todayISO(), UA).catch(() => {}))));
+    ctx.waitUntil(Promise.all(Object.entries(TOWNS).filter(([, t]) => t.live).map(([pc, t]) => localToday(env, pc, todayISO()).then(lo => lo || photoOfDay(env, pc, t, HOME, todayISO(), UA)).catch(() => {}))));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60, neo: 12 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshVenues(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
@@ -2407,6 +2416,11 @@ async function route(req, env, ctx) {
     if (p === "/icon.svg") return new Response(ICON(), { headers: { "content-type": "image/svg+xml" } });
     if (p === "/icon-180.png" || p === "/apple-touch-icon.png" || p === "/apple-touch-icon-precomposed.png") return iconPng(180);
     if (p === "/icon-192.png") return iconPng(192);
+    if (p === "/photo") return PHOTOS().formPage(req, env, url);
+    if (p === "/photos") return PHOTOS().gallery(env, url);
+    if (p === "/api/photo" && req.method === "POST") return PHOTOS().upload(req, env, url);
+    if (p === "/api/photo-report" && req.method === "POST") return PHOTOS().report(req, env, url);
+    if (p.startsWith("/p/") && p.endsWith(".jpg")) return PHOTOS().image(env, p.slice(3, -4).replace(/[^a-z0-9]/g, ""));
     if (p === "/icon-512.png") return iconPng(512);
     if (p === "/api/installed" && req.method === "POST") { const k = `install:${todayISO()}`; ctx.waitUntil(env.DATA.get(k).then(n => env.DATA.put(k, String((+n || 0) + 1)))); return new Response(null, { status: 204 }); }
     if (p === "/manifest.webmanifest") return new Response(MANIFEST(), { headers: { "content-type": "application/manifest+json" } });
