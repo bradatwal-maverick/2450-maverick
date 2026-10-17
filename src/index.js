@@ -583,6 +583,44 @@ async function dailyStats(env) {
   await env.DATA.put(`stats:${day}`, JSON.stringify(row));
 }
 
+// ---- Kid Zone secret word. A grown-up sets it on their account; kids type it to get in on that account.
+// Stored only as a salted hash. Wrong guesses are counted and shown to the grown-up. 5 wrong in a row = 15 min pause.
+const kzHash = async (salt, word) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + String(word).trim().toLowerCase())))].map(b => b.toString(16).padStart(2, "0")).join("");
+async function kzApi(req, env) {
+  const em = await member(req, env), rec = em ? await env.DATA.get(`kzw:${em}`, "json") : null;
+  if (req.method !== "POST") return Response.json({ word: !!rec, ok: !rec || cookie(req, "kzok") === "1" });
+  if (!rec) return Response.json({ ok: true });
+  if (rec.pause && Date.now() < rec.pause) return Response.json({ ok: false, msg: "Too many tries. Ask your grown-up, then try again in a little while." });
+  const { word } = await req.json().catch(() => ({}));
+  if (word && (await kzHash(rec.salt, word)) === rec.hash) {
+    rec.row = 0; delete rec.pause; await env.DATA.put(`kzw:${em}`, JSON.stringify(rec));
+    return Response.json({ ok: true }, { headers: { "set-cookie": "kzok=1; Path=/; Max-Age=14400; HttpOnly; Secure; SameSite=Lax" } });
+  }
+  rec.wrong = (rec.wrong || 0) + 1; rec.row = (rec.row || 0) + 1; rec.lastWrong = new Date().toISOString();
+  if (rec.row >= 5) { rec.pause = Date.now() + 15 * 6e4; rec.row = 0; }
+  await env.DATA.put(`kzw:${em}`, JSON.stringify(rec));
+  return Response.json({ ok: false, msg: "That's not the secret word. Ask your grown-up." });
+}
+async function kzParent(req, env) {
+  const em = await member(req, env);
+  if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/kids/parent" } });
+  let rec = await env.DATA.get(`kzw:${em}`, "json"), note = "";
+  if (req.method === "POST") {
+    const f = await req.formData(), w = String(f.get("word") || "").trim();
+    if (f.get("act") === "off") { await env.DATA.delete(`kzw:${em}`); rec = null; note = "Secret word removed. Kid Zone opens with the usual grown-up check."; }
+    else if (w.length < 3 || w.length > 40) note = "Pick a word between 3 and 40 letters.";
+    else { const salt = crypto.randomUUID(); rec = { salt, hash: await kzHash(salt, w), set: new Date().toISOString(), wrong: 0 }; await env.DATA.put(`kzw:${em}`, JSON.stringify(rec)); note = "Saved. Kids now need this word to open Kid Zone on your account. Change it as often as you like."; }
+  }
+  const when = d => esc(new Date(d).toLocaleString("en-AU", { timeZone: "Australia/Sydney", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }));
+  return page("Kid Zone secret word", `<h1>🔐 Kid Zone secret word</h1>
+<p>Kid Zone is safe: no chat, no ads, nothing collected. But if you're not cool with it, neither are we. Set a secret word and your kids will need it to open Kid Zone when they're on your account.</p>
+${note ? `<p class="note">${note}</p>` : ""}
+${rec ? `<p><b>Secret word is on</b> (set ${when(rec.set)}).<br>${rec.wrong ? `⚠️ <b>${rec.wrong} wrong ${rec.wrong === 1 ? "guess" : "guesses"}</b> since you set it, the last on ${when(rec.lastWrong)}.` : "✅ No wrong guesses since you set it."}</p>` : `<p><b>No secret word yet.</b></p>`}
+<form method="post"><label>${rec ? "Change it to" : "Your secret word"}</label><div class="row"><input name="word" type="password" minlength="3" maxlength="40" required autocomplete="off" placeholder="Something the kids won't guess"><button>${rec ? "Change word" : "Turn it on"}</button></div></form>
+${rec ? `<form method="post"><input type="hidden" name="act" value="off"><button class="ghost">Turn the secret word off</button></form>` : ""}
+<p class="mute">We only keep a scrambled version of the word, never the word itself, so even we can't read it. Forgot it? Just set a new one here. <a href="/kids">Back to Kid Zone</a></p>`);
+}
+
 // ---- Tracked links to Maverick Digital (key conversion events). Counts clicks per day, then adds UTM tags
 // so the Maverick Digital site and ActiveCampaign can see which Gazette and section the lead came from.
 const GO = { "nerd-ai": { url: "https://maverickdigital.com.ai/nerd/", content: "ai-good-bad" } };
@@ -932,6 +970,7 @@ const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">${R.br
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
 <li><b>Feedback:</b> your message, and your name and email only if you add them.</li>
 <li><b>Fridge photo:</b> if you snap your fridge, the photo goes to Cloudflare&rsquo;s AI just long enough to spot the food, then it&rsquo;s gone. We never store it.</li>
+<li><b>Kid Zone secret word:</b> if a grown-up sets one, we keep only a scrambled version of it on their account (never the word itself), plus a count of wrong guesses so they can see them. Remove it any time.</li>
 <li><b>Signing in:</b> your name, email and, if you use Google, your Google profile photo, plus, if you sign in with email, the public photo and first name from your <a href="https://gravatar.com" rel="noopener">Gravatar</a> profile if you have one (only what you've already made public there), plus when you first and last signed in. Google only tells us those basics, never your password. One cookie keeps you signed in on that phone for up to a year. Sign out any time.</li></ul>
 <p>We don't ask for anything about your family or personal life beyond the basic contact details needed to make the site work.</p>
 <h2>How we use it</h2><p>To run the site, send the email you asked for, check submissions and reply to you. Your details may be used to tell you about Maverick Digital in the weekly email, which you can stop any time. We never sell, rent or trade your details, and when we carry ads one day, advertisers will never get your personal details or use them to target you.</p>
@@ -1463,6 +1502,7 @@ MAV'S RULES (never break these):
 4. Never ask for personal details. First names (theirs or a friend's), a friend's city, bin night, school and birthday day and month are fine. Never ask for an address, phone number, email, year of birth or anything private.
 5. Only take actions when they ask for a change, and say in the reply what you changed. Settings follow them when signed in; location, birthday, school and friends stay on their phone.
 ${MAV_KB}
+Parental safety: grown-ups set, change or remove a Kid Zone secret word at /kids/parent (signed in). When it's set, kids must type it to open Kid Zone on that account; wrong guesses are shown to the grown-up. If someone asks about kids, parental controls or keeping Kid Zone safe, point them to /kids/parent.
 The person is viewing area ${pc}. Their settings now: ${st}
 Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6):
 {"type":"pin","ids":[...]} pins sections open at the top every day, in that order; {"type":"unpin","ids":[...]}; {"type":"hide","ids":[...]}; {"type":"show","ids":[...]};
@@ -1651,6 +1691,8 @@ async function route(req, env, ctx) {
     if (p === "/" + R.why.slug) return whyPage();
     if (p === "/crossword") return crosswordPage();
     if (p === "/kids" || p === "/kids/") return page(`Kid Zone: ${R.code} Maverick`, `<style>${KID_CSS}</style>` + kidsHub("/" + R.code));
+    if (p === "/kids/parent") return kzParent(req, env);
+    if (p === "/api/kz") return kzApi(req, env);
     if (p === "/kids/safe") return page(`Safe or Sus? Kid Zone`, `<style>${KID_CSS}</style>` + safePage("/" + R.code));
     if (p === "/kids/pet") return page(`Pet Pal: Kid Zone`, `<style>${KID_CSS}</style>` + petPage("/" + R.code));
     if (p === "/kids/robot") return page(`Robot Builder: Kid Zone`, `<style>${KID_CSS}</style>` + robotPage("/" + R.code));

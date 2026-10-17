@@ -14,11 +14,15 @@ export const KID_CSS = `.kpromise{margin:14px 0;padding:12px 14px;border:2px das
 const GATE_JS = `function kzGate(start){var g=document.getElementById('kzgate'),m=document.getElementById('kzmain');
 var ok=false;try{ok=localStorage.getItem('kz_ok')==='1'}catch(e){}
 function show(){g.hidden=true;m.hidden=false;start()}
-if(ok)return show();
+function word(){g.innerHTML='<div class="card2"><h2>🔐 Secret word, please</h2><p>Your grown-up set a secret word for Kid Zone.</p><input type="password" id="kzw" maxlength="40" autocomplete="off" placeholder="Type the secret word"><div class="row"><button type="button" id="kzwgo">Let me in</button></div><p id="kzwm" class="mute2"></p></div>';
+var i=document.getElementById('kzw'),go=document.getElementById('kzwgo');function tryIt(){fetch('/api/kz',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({word:i.value})}).then(function(r){return r.json()}).then(function(j){if(j.ok)return show();i.value='';document.getElementById('kzwm').textContent=j.msg||'Not quite.'})}
+go.onclick=tryIt;i.onkeydown=function(e){if(e.key==='Enter')tryIt()}}
+fetch('/api/kz').then(function(r){return r.json()}).then(function(j){if(j.word&&!j.ok)return word();if(ok)return show();ask()}).catch(function(){ok?show():ask()});
+function ask(){
 g.innerHTML='<div class="card2"><h2>👋 Kids, grab a grown-up</h2><p>Kid Zone is for kids <b>12 and under</b>, and only with a parent or carer&rsquo;s OK.</p><div class="row"><button type="button" id="kzkid">I&rsquo;m 12 or under, my grown-up is here</button><button type="button" class="alt" id="kzteen">I&rsquo;m 13 or older</button></div></div>';
 document.getElementById('kzteen').onclick=function(){g.innerHTML='<div class="card2"><h2>🚫 Teen check</h2><p>Quick, name two trending memes.</p><input type="text" id="kzmeme" placeholder="Type them here" maxlength="60"><div class="row"><button type="button" id="kzmemego">Submit</button></div></div>';
 document.getElementById('kzmemego').onclick=function(){g.innerHTML='<div class="card2"><h2>😎 Too cool for Kid Zone</h2><p>If you know the memes, you&rsquo;re too old for this bit. Kid Zone is for 12 and under. Try the <a href="/crossword">crossword</a> instead.</p><p class="mute2">Actually a parent? <a href="#" id="kzpar">Grown-ups, tap here</a>.</p></div>';document.getElementById('kzpar').onclick=function(e){e.preventDefault();parent()}}};
-document.getElementById('kzkid').onclick=parent;
+document.getElementById('kzkid').onclick=parent;}
 function parent(){g.innerHTML='<div class="card2"><h2>👨‍👩‍👧 For the grown-up</h2><p>Please read this before you say yes.</p><ul class="promise"><li>🧒 <b>Made for kids 12 and under.</b> Simple games about online safety and looking after a pet.</li><li>🔒 <b>Nothing leaves this device.</b> No sign-up, no names, no ages, no photos. Progress is saved only in this browser.</li><li>💬 <b>No chat and no messages.</b> Nobody can contact your child here.</li><li>🚫 <b>No ads, no buying, no links out</b> except official help services.</li><li>⏱️ <b>A few minutes a day.</b> The pet game is built for a quick daily check-in, not hours on a screen.</li></ul><p><b>If you&rsquo;re not comfortable with your child using Kid Zone, that&rsquo;s completely fine.</b> Just don&rsquo;t tap yes, and it stays locked on this device.</p><label><input type="checkbox" id="kzc"> I&rsquo;m this child&rsquo;s parent or carer, and I&rsquo;m OK with them using Kid Zone.</label><div class="row"><button type="button" id="kzyes" disabled>Yes, let them in</button><a class="mute2" href="/">No thanks, back to the news</a></div><p class="mute2">This is a promise, not an ID check. You can lock it again any time from the bottom of each Kid Zone page.</p></div>';
 var c=document.getElementById('kzc'),y=document.getElementById('kzyes');c.onchange=function(){y.disabled=!c.checked};
 y.onclick=function(){try{localStorage.setItem('kz_ok','1')}catch(e){}show()}}}
@@ -35,6 +39,7 @@ export const kidsHub = back => shell(back, "🧒 Kid Zone", "Fun games for kids 
 <a class="card" href="/kids/robot">🤖 <b>Robot Builder</b> Tell the robot what to build in as few goes as you can. Learn how AI thinks →</a>
 <a class="card" href="/kids/pet">🐾 <b>Pet Pal</b> Build your dream pet, then feed it, wash it, walk it and get it to bed on time →</a>
 <div class="kpromise"><b>Every game in the Kid Zone must:</b><ul><li>🛡️ teach online safety</li><li>🚀 set kids up for a digital future</li><li>🎉 be fun</li></ul>The grown-ups check every game is safe and parent-friendly. Then our Quality Control Officer (a real kid) has to give it the <b>⭐ Fun Guarantee</b>. No guarantee, no game.</div>
+<p class="mute2">🔐 Grown-ups: <a href="/kids/parent">set a secret word</a> so kids need your OK to get in on your account.</p>
 <p class="mute2">More games are on the way. Grown-ups can suggest one on the <a href="/feedback">ideas page</a>.</p>`, `kzGate(function(){})`);
 
 // Safe or Sus? Ten everyday message situations. Pattern-level, age-appropriate.
