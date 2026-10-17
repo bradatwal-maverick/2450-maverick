@@ -5,6 +5,7 @@ import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
 import { localToday, photosApi } from "./photos.js";
+import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
@@ -77,6 +78,10 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #tonight{--acc:#0f766e!important}#events,#kids{--acc:#0f766e!important}
 #alerts{--acc:#b42318!important}
 #memory{--acc:#6b7280!important}#joy,#love{--acc:#c2417a!important}
+.areas{display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px;margin:4px 0 6px;scrollbar-width:none}.areas::-webkit-scrollbar{display:none}.areas a{flex:1 0 auto;min-width:76px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 10px;border-radius:14px;background:var(--soft);text-decoration:none;color:var(--fg);font-weight:600;font-size:.82rem;border:1px solid var(--line)}.areas a span{font-size:1.5rem;line-height:1}
+#radiobar{display:flex;align-items:center;gap:8px;padding:7px 12px;margin:4px 0;border-radius:99px;background:#0B1526;color:#fff;font-size:.88rem}#radiobar[hidden]{display:none}#radiobar a{color:var(--gold);font-weight:700;text-decoration:none;margin-left:auto}#radiobar button{background:none;border:0;color:#fff9;cursor:pointer;font-size:1rem}.rfav{background:none;border:0;cursor:pointer;font-size:1.05rem;padding:0 4px}
+.cdown{display:flex;gap:8px;flex-wrap:wrap}.cd{position:relative;flex:1 1 140px;padding:10px 12px;border-radius:12px;background:var(--soft);display:flex;flex-direction:column}.cd[hidden]{display:none}.cd span{font-size:1.4rem}.cd b{font-size:1.25rem}.cd small{color:var(--mute)}.cdx{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--mute);cursor:pointer;font-size:1rem}
+.found{border:2px solid var(--gold);border-radius:12px;padding:10px 12px;margin:10px 0}
 .potd{margin:10px 0 14px;border-radius:14px;overflow:hidden;background:var(--soft)}.potd img{display:block;width:100%;height:auto;max-height:62vh;object-fit:cover}.potd figcaption{padding:8px 12px 10px;font-size:.95rem;line-height:1.4}.potd figcaption b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}.pgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.pgal figure{margin:0;border-radius:12px;overflow:hidden;background:var(--soft)}.pgal img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}.pgal figcaption{padding:6px 10px 8px;font-size:.9rem}.pgal small{display:block;color:var(--mute);font-size:.75rem}label.chk{display:flex;gap:8px;align-items:flex-start;margin:8px 0}.potd small{display:block;font-size:.75rem;color:var(--mute);margin-top:4px}#bdm{--acc:#6b7280!important}
 #numbers,#aigb{--acc:#7c3aed!important}#fuel,#shop,#rates{--acc:#15803d!important}
 #flights,#bypass,#sea,#beaches{--acc:#1d6fb8!important}
@@ -249,9 +254,17 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
   return page(`The Daily Maverick: ${t.name} ${pc}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> No opinions. Make your own.</p><details class="usp"><summary id="uspl">📱 One page instead of ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your page saves you checking "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
+<p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> 🎧 Noise-cancelling headphones for your news: no opinions, make your own.</p><details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
+${areasStrip(pc)}
+<div id="radiobar" hidden></div>
+<script>/* Your station: pick one with ☆ in Local radio and it sits up top, one tap to listen live. */
+(function(){var bar=document.getElementById('radiobar');function fav(){try{return JSON.parse(localStorage.getItem('radio_fav'))}catch(e){return null}}
+function draw(){var f=fav();if(!f){bar.hidden=true;bar.innerHTML='';}else{bar.hidden=false;bar.innerHTML='<span>📻 Your station: <b></b></span><a rel="noopener" target="_blank">▶ Listen live</a><button type="button" aria-label="Remove my station">×</button>';bar.querySelector('b').textContent=f.n;bar.querySelector('a').href=f.u;bar.querySelector('button').onclick=function(){try{localStorage.removeItem('radio_fav')}catch(e){}draw()}}
+document.querySelectorAll('.rfav').forEach(function(b){b.textContent=f&&f.u===b.dataset.u?'★':'☆'})}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.rfav');if(!b)return;var f=fav();try{if(f&&f.u===b.dataset.u)localStorage.removeItem('radio_fav');else localStorage.setItem('radio_fav',JSON.stringify({n:b.dataset.n,u:b.dataset.u}))}catch(_){}draw()});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',draw);else draw()})()</script>
 ${await potdBlock(env, pc)}
 <div class="qs" hidden><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
@@ -463,6 +476,7 @@ const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goa
 <p><b>Don&rsquo;t hate the player, hate the game.</b> Big tech wrote the rules: news costs you money or your attention. We play it straight. Free for you, a few clearly labelled local ads pay the bills, and that&rsquo;s it.</p>
 <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${LOCALS_GOAL}" aria-valuenow="${n}" aria-label="Locals signed up"><span style="width:${Math.max(pct, 1).toFixed(1)}%"></span></div>
 <p class="barlab mute">${n.toLocaleString("en-AU")} of ${goal} locals</p>
+<p class="found">🏅 <b>Be a Founding Member.</b> The first ${goal} locals to sign up lock in <b>$50 a year, for life</b>, if they ever choose the Everything membership. No obligation, ever. <a href="/membership">How it works</a>${R.code === "2450" ? ` · <a href="/localsforlife">Born at the old Coffs hospital?</a>` : ""}</p>
 <p>If ${R.code} is useful to you, help us get there: get one short email a week with what's on, plus a free guide from Maverick Digital on using AI in everyday life.</p>${signup(pc)}
 <p class="mute"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip mute" href="#join">Target: ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${n.toLocaleString("en-AU")} so far</a>`;
@@ -627,6 +641,7 @@ const MANIFEST = () => JSON.stringify({ id: "/", name: `${R.brand} ${R.short}`, 
   start_url: "/?src=app", scope: "/", display: "standalone", background_color: "#0B1526", theme_color: "#0B1526", categories: ["news", "lifestyle"],
   icons: [...(ICONS[R.code] ? [{ src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }] : []),
     { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }] });
+const AREA = () => areaPages({ esc, page, wip, R, TOWNS, SCHOOL_HOLS, todayISO });
 const PHOTOS = () => photosApi({ esc, page, member, cleanText, todayISO, TOWNS, R,
   nameOf: async (env, em) => { const u = await env.DATA.get(`user:${em}`, "json"); return String(u?.name || em.split("@")[0]).split(/\s+/)[0].slice(0, 30); } });
 // Home-screen PNG icons (baked in by tools/build-icons.py). Falls back to the SVG for a brand-new town until the script is re-run.
@@ -1819,8 +1834,8 @@ function cleanActs(list, ids, live) {
     }
   }).filter(Boolean).slice(0, 8);
 }
-const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav">💬 Ask Mav</button>
-<div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>Mav</b><span class="mute"> · your ${R.code} helper</span><button type="button" id="mavx" aria-label="Close">×</button></div>
+const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav">🎧 Ask Mav</button>
+<div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>🎧 Mav</b><span class="mute"> · your ${R.code} helper. Noise-cancelling headphones for your news</span><button type="button" id="mavx" aria-label="Close">×</button></div>
 <div id="mavlog"></div><div class="mavtalk"><button type="button" id="mavbig" class="micb">🎤 Tap and tell Mav</button><small class="mute">Talk or type what you want on your page. No settings to find. <a href="/me" class="mavall">See everything</a></small></div><div class="chips" id="mavchips"><label>Set up my morning</label><label>What's open now?</label><label>Cheapest fuel</label><label>Add a friend's clock</label><label>I love trivia and live music</label></div>
 <form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Ask Mav anything…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
 <script>${MAV_JS}<\/script>`;
@@ -1930,6 +1945,54 @@ d.querySelector('form').addEventListener('submit',function(e){e.preventDefault()
 fetch('/api/timesaved',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tool:k,before:b,after:a,freq:+F.f.value})}).then(function(r){return r.json()}).then(function(j){if(!j.ok){M.textContent=j.error||'Something went wrong.';return}
 M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b> Thanks for telling us. All up, locals have saved '+H(j.total.mins)+' a week.'}).catch(function(){M.textContent='Something went wrong. Try again?'})})})();`;
 
+// ---- The Everything membership: honest terms, no tricks. Founding Members (the first 15,000 locals) lock in $50 a year for life.
+const FOUNDING_PRICE = 50, PRICE = 99, FOUNDING_SPOTS = LOCALS_GOAL;
+async function membershipPage(env) { const n = await localsCount(env), left = Math.max(0, FOUNDING_SPOTS - n);
+  return page(`The Everything membership: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>⭐ The Daily Maverick Everything membership</h1>
+<p><b>Your Daily Maverick is free, for everyone, forever.</b> Everything you see today stays free. The Everything membership is for locals who want more ways to make the page their own.</p>
+<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign up are Founding Members. You never have to pay a cent. But if you ever choose the Everything membership, you pay the founding price of <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else. Thanks for helping a brother out.</p>
+<p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p><p><a href="/signin?next=/me"><b>Sign in free to claim yours</b></a></p></div>
+<h2>How it works</h2><ul class="rules">
+<li>💰 <b>$${PRICE} a year</b> (Founding Members: $${FOUNDING_PRICE}, for life)</li>
+<li>🆓 <b>14 days free, no credit card.</b> No card up front, no surprise charges. Like it? Then you pay</li>
+<li>↩️ <b>7-day money-back guarantee.</b> Don't like it? Unsubscribe and get your money back. Simple</li>
+<li>🗳️ Try new tools while we build them, and vote on what comes next</li></ul>
+${R.code === "2450" ? `<p><a class="card" href="/localsforlife">🏥 <b>Born at the old Coffs hospital?</b> Locals for Life: free for life, for the first 50 →</a></p>` : ""}
+${wip("Payments are being set up now. Sign in today to lock in your founding price")}`); }
+
+// ---- Locals for Life (Coffs only): born at the old Coffs Harbour hospital (births up to about 1985) and still living here?
+// Free Everything membership for life, first 50 only, plus a free shout-out for your business. Proof (birth certificate,
+// showing just the place and date) is checked once, when memberships open.
+const LFL_SPOTS = 50;
+async function lflPage(req, env, note = "") {
+  if (R.code !== "2450") return Response.redirect(new URL("/membership", req.url).toString(), 302);
+  const list = (await env.DATA.get("lfl:list", "json")) || [], left = Math.max(0, LFL_SPOTS - list.length), em = await member(req, env), mine = em && list.includes(em);
+  return page("Locals for Life", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🏥 Locals for Life</h1>
+<p>Born at the old Coffs Harbour hospital and still here? You're a local for life, and your Daily Maverick knows it.</p>
+<ul class="rules"><li>⭐ <b>The Everything membership, free, for life</b></li><li>📣 A free shout-out for your business, club or cause on the Daily Maverick</li><li>🏅 Only <b>${LFL_SPOTS}</b> spots, ever. <b>${left} left</b></li></ul>
+<p class="mute">Who's in: born at the old Coffs Harbour hospital (the one before today's, so births up to about 1985), and you still live in the Coffs Harbour area. "Locals for life" means you're still here. When memberships open we'll ask to see your birth certificate once (just the hospital and date, cover everything else).</p>
+${note ? `<p class="note">${note}</p>` : ""}
+${mine ? `<p class="note">🎉 You're in. Welcome, local for life.</p>` : !left ? `<p class="note">All ${LFL_SPOTS} spots are taken. Thanks, Coffs!</p>` : !em ? `<p><a href="/signin?next=/localsforlife"><b>Sign in free to claim your spot</b></a></p>` : `<form method="post" class="me">
+<label>Your full name<input name="name" maxlength="80" required></label>
+<label>Year you were born<input name="year" type="number" min="1900" max="1990" required></label>
+<label>Where you live now<select name="pc">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${k}">${k} ${esc(v.name)}</option>`).join("")}</select></label>
+<label>Your business, club or cause for a shout-out (optional)<input name="biz" maxlength="80"></label>
+<label class="chk"><input type="checkbox" name="ok" value="yes" required> I was born at the old Coffs Harbour hospital, I still live here, and I'll show my birth certificate when asked.</label>
+<button>Claim my spot</button></form>`}`); }
+async function lflApply(req, env) {
+  if (R.code !== "2450") return new Response("Not found", { status: 404 });
+  const em = await member(req, env); if (!em) return Response.redirect(new URL("/signin?next=/localsforlife", req.url).toString(), 303);
+  const f = await req.formData(), list = (await env.DATA.get("lfl:list", "json")) || [];
+  const year = +f.get("year"), name = String(f.get("name") || "").replace(/[<>]/g, "").trim().slice(0, 80), pc = String(f.get("pc") || ""), biz = String(f.get("biz") || "").replace(/[<>]/g, "").trim().slice(0, 80);
+  if (list.includes(em)) return lflPage(req, env);
+  if (list.length >= LFL_SPOTS) return lflPage(req, env, "Sorry, all the spots have just gone.");
+  if (!name || f.get("ok") !== "yes" || !TOWNS[pc]?.live) return lflPage(req, env, "Please fill in your name, where you live and tick the box.");
+  if (!(year >= 1900 && year <= 1985)) return lflPage(req, env, "Locals for Life is for people born at the old hospital, which closed in the mid-1980s. Thanks for being a local!");
+  await env.DATA.put(`lfl:${em}`, JSON.stringify({ email: em, name, year, pc, biz: biz && (await cleanText(env, biz)) ? biz : "", at: new Date().toISOString(), proof: "pending" }));
+  await env.DATA.put("lfl:list", JSON.stringify([...list, em]));
+  return lflPage(req, env, `🎉 Spot ${list.length + 1} of ${LFL_SPOTS} is yours, ${esc(name.split(" ")[0])}. Welcome, local for life.`);
+}
+
 // ---- What's done and what's in the works, in one honest list ----
 function statusPage(env) {
   const done = [["Your daily page", "Weather, tides, swell, moon, sunrise and clock changes"], ["Alerts", "Fires within 100 km and weather warnings"], ["News", "Local headlines, sourced"],
@@ -1939,7 +2002,7 @@ function statusPage(env) {
   if (R.fields) done.push(["Sport & field closures", "With phone alerts"]);
   if (env.FUEL_KEY) done.push(["Fuel", "Cheapest near you"]);
   const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["Live roads and traffic", "Crashes and roadworks on your route"], ["School bell times", "Your school's own times"],
-    ["Everything membership", "$99 a year, 14 days free, no card"], ["Saved searches by email", "Your searches, in your weekly email"]];
+    ["Everything membership", "$99 a year, 14 days free, no card, 7-day money-back. Founding Members pay $50 for life"], ["Saved searches by email", "Your searches, in your weekly email"]];
   if (!R.fields) todo.push(["Sport & field closures", "Field closures and local fixtures"]);
   if (!env.FUEL_KEY) todo.push(["Live fuel prices", "Cheapest fuel near you"]);
   const li = (b, cls, txt) => b.map(([n, d]) => `<li><span class="${cls}">${txt}</span> <b>${esc(n)}</b> <span class="mute">${esc(d)}</span></li>`).join("");
@@ -2092,6 +2155,7 @@ ${await plusList(env)}
 // ---- Everything: every page on the Daily Maverick, in one place, so nothing is hidden ----
 function allPage() {
   const G = [["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
+    ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Everything membership", "Founding Members: $50 a year for life"]]],
     ["🧰 Handy tools", [["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
@@ -2423,6 +2487,12 @@ async function route(req, env, ctx) {
     if (p === "/icon.svg") return new Response(ICON(), { headers: { "content-type": "image/svg+xml" } });
     if (p === "/icon-180.png" || p === "/apple-touch-icon.png" || p === "/apple-touch-icon-precomposed.png") return iconPng(180);
     if (p === "/icon-192.png") return iconPng(192);
+    if (p === "/mums") return AREA().mums(url);
+    if (p === "/dads") return AREA().dads(url);
+    if (p === "/singles") return AREA().singles(url);
+    if (p === "/lgbtqia" || p === "/lgbtq") return AREA().lgbtqia(url);
+    if (p === "/membership") return membershipPage(env);
+    if (p === "/localsforlife") return req.method === "POST" ? lflApply(req, env) : lflPage(req, env);
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/api/photo" && req.method === "POST") return PHOTOS().upload(req, env, url);

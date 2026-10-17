@@ -102,6 +102,7 @@ const RADIO = {
 export function radioSection(R, esc) {
   const list = RADIO[R.code]; if (!list) return "";
   return `<section id="radio"><h2>📻 Local radio</h2><p class="mute">Community radio from around the shire, run by locals, mostly volunteers. Tune in or listen live online.</p>
-<ul>${list.map(([n, f, u, w]) => `<li><b>${esc(n)}</b> ${esc(f)}, ${esc(w)}. <a href="${esc(u)}" rel="noopener">Listen live</a></li>`).join("")}</ul>
+<ul>${list.map(([n, f, u, w]) => `<li><button type="button" class="rfav" data-n="${esc(n + " " + f)}" data-u="${esc(u)}" aria-label="Make ${esc(n)} my station" title="Make this my station">☆</button><b>${esc(n)}</b> ${esc(f)}, ${esc(w)}. <a href="${esc(u)}" rel="noopener">Listen live</a></li>`).join("")}</ul>
+<p class="mute">Tap ☆ to make a station yours: it sits at the top of your page, one tap to listen.</p>
 <p class="src">Info from the <a href="https://www.cbaa.org.au" rel="noopener">Community Broadcasting Association of Australia</a> list of community stations and each station's own website. Missed a local station? <a href="/feedback">Tell us</a>.</p></section>`;
 }
