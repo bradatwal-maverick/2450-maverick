@@ -1119,7 +1119,10 @@ async function refreshObits(env) {
   const items = [];
   for (const f of R.funerals || []) {
     try {
-      const html = await (await fetch(f.url, { headers: UA })).text();
+      // Funeral homes on WordPress publish their notices as data (JSON): cleaner than reading the page, and each notice keeps its own link.
+      const J = f.json ? await (await fetch(f.json, { headers: UA })).json().catch(() => null) : null;
+      const html = Array.isArray(J) ? J.map(e => `<p>${e.title?.rendered || ""} (published ${String(e.date || "").slice(0, 10)}): ${String(e.content?.rendered || "").slice(0, 700)}</p>`).join("") : await (await fetch(f.url, { headers: UA })).text();
+      const links = Array.isArray(J) ? J.map(e => [dec(String(e.title?.rendered || "").replace(/<[^>]+>/g, "")), e.link]) : [];
       const txt = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<nav[\s\S]*?<\/nav>|<footer[\s\S]*?<\/footer>/g, " ").replace(/<[^>]+>/g, " ");
       const txt2 = dec(txt.replace(/&nbsp;/g, " ").replace(/&rsquo;|&lsquo;/g, "'").replace(/&ldquo;|&rdquo;/g, '"')).replace(/\s+/g, " ").slice(0, 9000);
       const today = todayISO();
@@ -1133,7 +1136,8 @@ async function refreshObits(env) {
       for (const n of list) {
         const name = String(n.name || "").trim();
         if (!name || name.length > 80 || !txt2.includes(name)) continue; // only names really on the page
-        items.push({ name, passed: isDate(n.passed), service: isDate(n.service), where: n.where ? String(n.where).slice(0, 80) : null, home: f.name, link: f.url });
+        const own = links.find(([t, u]) => u && /^https:\/\//.test(u) && t.toLowerCase().includes(name.toLowerCase().split(" ").pop()));
+        items.push({ name, passed: isDate(n.passed), service: isDate(n.service), where: n.where ? String(n.where).slice(0, 80) : null, home: f.name, link: own ? own[1] : f.url });
       }
     } catch (e) {}
   }
