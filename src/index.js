@@ -33,9 +33,9 @@ function wip(what, link, linkText) {
   const w = String(what).trim(), h = [...w].reduce((a, c) => a + c.charCodeAt(0), 0);
   return `<div class="wip"><span class="wipb">🚧 Coming soon</span><p><b>Team Smarketing is on it.</b></p><p>${w}${/[.!?]$/.test(w) ? "" : "."}</p>${link ? `<p>For now, try <a href="${link}" rel="noopener">${linkText}</a>.</p>` : ""}<p class="mute"><small>${WIP_LINES[h % WIP_LINES.length]}</small></p></div>`;
 }
-const CSS = `.usp{text-align:center;font-size:.8rem;margin:2px 0 8px}.usp a{color:var(--mute);text-decoration:none;border-bottom:1px dotted var(--mute)}
+const CSS = `.usp{text-align:center;font-size:.8rem;margin:2px 0 8px}.usp summary{color:var(--mute);cursor:pointer;list-style:none;display:inline;border-bottom:1px dotted var(--mute)}.usp summary::-webkit-details-marker{display:none}.usp .oeq{font-size:1.1rem}
 .tsbox{max-width:480px;margin:18px auto;text-align:center;font-size:.85rem;border-top:1px dotted var(--line);padding-top:10px}.tsbox summary{cursor:pointer;color:var(--mute);font-weight:600;list-style:none}.tsbox summary::-webkit-details-marker{display:none}.tsbox .tsf{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:6px}.tsbox .tsmsg{font-size:.8rem;margin:6px 0 0}
-.oapps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}.oapps span{background:var(--soft);color:var(--mute);border-radius:999px;padding:3px 10px;font-size:.8rem;text-decoration:line-through;text-decoration-color:var(--gold)}.oeq{text-align:center;font-size:1.5rem;margin:8px 0}.oeq b{background:var(--gold);color:#12233f;border-radius:12px;padding:4px 14px}
+.oapps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}.oapps a{text-decoration:none;background:var(--soft);color:var(--mute);border-radius:999px;padding:3px 10px;font-size:.8rem;text-decoration:line-through;text-decoration-color:var(--gold)}.oeq{text-align:center;font-size:1.5rem;margin:8px 0}.oeq b{background:var(--gold);color:#12233f;border-radius:12px;padding:4px 14px}
 .wip{border:2px dashed var(--gold);border-radius:12px;padding:12px 14px;margin:12px auto;text-align:center;max-width:520px}.wip p{margin:4px 0}.wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}.done{display:inline-block;background:#1f8a4c;color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}
 
 :root{--bg:#fff;--fg:#12233f;--gold:#f2b01e;--mute:#5a6578;--link:#2b4a7a;--line:#e2e7ef;--accent:#2b4a7a;--soft:#eef2f8}
@@ -228,7 +228,7 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
   return page(`The Daily Maverick: ${t.name} ${pc}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
-<p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> No opinions. Make your own.</p><p class="usp"><a href="#oneapp" id="uspl">📱 One page instead of ${appsSaved().length} apps</a></p><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your page saves you checking "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
+<p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> No opinions. Make your own.</p><details class="usp"><summary id="uspl">📱 One page instead of ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your page saves you checking "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
 <div class="qs" hidden><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
@@ -1919,20 +1919,24 @@ function statusPage(env) {
 }
 
 // ---- One app instead of many: every app or site this page saves you checking. Counted honestly from what's actually here. ----
-function appsSaved() { // [app, the section on this page that replaces it]
-  const a = [["BOM Weather", "today"], ["WillyWeather (tides)", "sea"], ["Hazards Near Me", "alerts"], ["Live Traffic NSW", "alerts"], ["FuelCheck", "fuel"],
-    ...R.news.map(n => [n.name, "news"]), ["Facebook community groups", "events"], ["Eventbrite", "events"], ["Council website", "know"],
-    ["realestate.com.au", "rent"], ["Domain", "rent"], ["Rent.com.au", "rent"], ["Flatmates", "rent"], ["SEEK", "jobs"], ["Indeed", "jobs"], ["Jora", "jobs"], ["LinkedIn Jobs", "jobs"],
-    ["Google Maps (what's open)", "tools"], ["Horoscope app", "stars"], ["Crossword app", "puzzles"], ["School holiday calendar", "holidays"], ["Bank and rates news", "rates"]];
-  if (R.surf) a.push(["Surf report app", "beaches"]);
-  if (R.airport) a.push(["Flight tracker", "flights"]);
-  if (R.funerals) a.push(...R.funerals.map(f => [f.name + " notices", "bdm"]));
+function appsSaved() { // [app, the section on this page that replaces it, where it lives]
+  const a = [["BOM Weather", "today", "https://www.bom.gov.au"], ["WillyWeather (tides)", "sea", "https://www.willyweather.com.au"], ["Hazards Near Me", "alerts", "https://www.rfs.nsw.gov.au/fire-information/fires-near-me"],
+    ["Live Traffic NSW", "alerts", "https://www.livetraffic.com"], ["FuelCheck", "fuel", "https://www.fuelcheck.nsw.gov.au"], ...R.news.map(n => [n.name, "news", n.url]),
+    ["Facebook community groups", "events", "https://www.facebook.com/groups"], ["Eventbrite", "events", "https://www.eventbrite.com.au"], ["Council website", "know", R.council.url],
+    ["realestate.com.au", "rent", "https://www.realestate.com.au"], ["Domain", "rent", "https://www.domain.com.au"], ["Rent.com.au", "rent", "https://www.rent.com.au"], ["Flatmates", "rent", "https://flatmates.com.au"],
+    ["SEEK", "jobs", "https://www.seek.com.au"], ["Indeed", "jobs", "https://au.indeed.com"], ["Jora", "jobs", "https://au.jora.com"], ["LinkedIn Jobs", "jobs", "https://www.linkedin.com/jobs"],
+    ["Google Maps (what's open)", "tools", "https://www.google.com/maps"], ["Horoscope app", "stars", "/#stars"], ["Crossword app", "puzzles", "/crossword"],
+    ["School holiday calendar", "holidays", "https://education.nsw.gov.au/schooling/calendars"], ["Bank and rates news", "rates", "https://www.rba.gov.au"]];
+  if (R.surf) a.push(["Surf report app", "beaches", "https://www.coastalwatch.com"]);
+  if (R.airport) a.push(["Flight tracker", "flights", R.airport.url]);
+  if (R.funerals) a.push(...R.funerals.map(f => [f.name + " notices", "bdm", f.url]));
   return a;
 }
+const appChips = () => `<div class="oapps">${appsSaved().map(([n, , u]) => `<a href="${esc(u)}" rel="noopener">${esc(n)}</a>`).join("")}</div>`;
 function oneAppBlock(nLocals) {
   const a = appsSaved().map(x => x[0]), n = a.length, checks = nLocals > 0 ? nLocals * n : 0;
   return `<section id="oneapp"><h2>📱 One app instead of ${n}</h2><p>Stop checking ${n} apps and websites every morning. Everything below is on this page or one tap away.</p>
-<div class="oapps">${a.map(x => `<span>${esc(x)}</span>`).join("")}</div><p class="oeq">= <b>1 Daily Maverick</b></p>
+${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p>
 ${checks ? `<p class="note">With ${nLocals.toLocaleString("en-AU")} locals on board, that&rsquo;s <b>${checks.toLocaleString("en-AU")} app checks saved every day</b>.</p>` : ""}</section>`;
 }
 
