@@ -9,8 +9,9 @@ export const REGIONS = {
       { name: "C.ex clubs (free live music)", url: "https://cex.com.au/free-live/", only: ["C.ex Coffs", "C.ex Woolgoolga"] },
       { name: "Sawtell RSL (daily specials)", url: "https://sawtellrsl.com.au/dining/daily-specials/", venue: "Sawtell RSL" },
       { name: "Sawtell RSL (every week)", url: "https://sawtellrsl.com.au/whats-on/every-week/", venue: "Sawtell RSL" },
-      { name: "Coffs Coast Growers Market", url: "https://www.coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Coffs-Coast-Growers-Markets", venue: "Coffs Coast Growers Market", market: true },
+      { name: "Coffs Coast Growers Market", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/coffs-coast-growers-market", venue: "Coffs Coast Growers Market", market: true },
       { name: "Harbourside Markets", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/harbourside-markets", venue: "Harbourside Markets", market: true },
+      { name: "Hoey Moey (entertainment)", url: "https://hoeymoey.com.au/entertainment/", venue: "Hoey Moey" },
     ],
     towns: {
   "2450": { name: "Coffs Harbour", lat: -30.3022, lon: 153.1189, mlat: -30.30, mlon: 153.15, live: true },
@@ -210,6 +211,8 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     venues: [
       { name: "C.ex Urunga (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Urunga"] },
       { name: "Bellingen Growers Market", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-growers-market", venue: "Bellingen Growers Market", market: true },
+      { name: "C.ex Urunga (club page)", url: "https://cex.com.au/venues/cex-urunga/", venue: "C.ex Urunga" },
+      { name: "Bellingen Community Markets", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-community-markets", venue: "Bellingen Community Markets", market: true },
     ],
     towns: {
       "2453": { name: "Dorrigo", lat: -30.3410, lon: 152.7130, mlat: -30.50, mlon: 153.05, live: true },
