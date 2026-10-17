@@ -241,6 +241,7 @@ ${await bdmBlock(env)}
 <a class="card" href="/open?c=dogs">🐕 <b>Dog beaches & parks</b> Off-leash spots near you →</a>
 <a class="card" href="/open?c=petfriendly">🐶 <b>Dog-friendly cafés & pubs</b> Places happy to see your dog →</a>
 <a class="card" href="/open?c=lgbtq">🏳️‍🌈 <b>LGBTQ+ friendly</b> Local places that welcome everyone →</a>
+<a class="card" href="/watch">📺 <b>What to watch tonight</b> Stop scrolling, start watching. See what locals rate →</a>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
 <a class="card" href="/kids">🧒 <b>Kid Zone</b> Games for kids 12 and under, with a grown-up&rsquo;s OK. No chat, no ads, nothing collected →</a>
@@ -1772,6 +1773,53 @@ async function cwBoard(url, req, env) {
   return Response.json({ n: b.length, top: b.slice(0, 10).map(x => ({ n: x.n, s: x.s, me: x.e === em })), me: me >= 0 ? { rank: me + 1, s: b[me].s } : null }, { headers: { "cache-control": "no-store" } });
 }
 
+// ---- What to watch: locals share what they're streaming and give it a thumbs up, so nobody spends the night scrolling.
+// Signed-in locals only (keeps spam out). Each pick is checked by AI for anything nasty and goes up straight away, no manual work.
+const SERVICES = ["Netflix", "Stan", "Binge", "Prime Video", "Disney+", "ABC iview", "SBS On Demand", "Apple TV+", "Paramount+", "YouTube", "Other"];
+async function watchList(env) { const cut = Date.now() - 60 * 864e5; return ((await env.DATA.get("watch:list", "json")) || []).filter(x => new Date(x.at) > cut); }
+async function cleanText(env, txt) { // true if fine to show
+  if (!txt.trim()) return true;
+  try { const r = await env.AI.run("@cf/meta/llama-guard-3-8b", { messages: [{ role: "user", content: txt }] }); const v = r?.response; return !(v?.safe === false || /unsafe/i.test(typeof v === "string" ? v : JSON.stringify(v || ""))); }
+  catch (e) { return !/(fuck|shit|cunt|nigg|fag|bitch|porn)/i.test(txt); }
+}
+async function watchPost(req, env) {
+  const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/watch" } });
+  const f = await req.formData(), L = await watchList(env);
+  if (f.get("up")) { const x = L.find(x => x.id === f.get("up")); if (x && !x.ups.includes(em)) x.ups.push(em); }
+  else {
+    const title = String(f.get("title") || "").replace(/\s+/g, " ").trim().slice(0, 80), why = String(f.get("why") || "").replace(/\s+/g, " ").trim().slice(0, 90);
+    const svc = SERVICES.includes(f.get("svc")) ? String(f.get("svc")) : "Other", stars = Math.min(5, Math.max(1, +f.get("stars") || 4));
+    if (title.length < 2 || !(await cleanText(env, title + "\n" + why))) return watchPage(req, env, "That one didn't go through. Keep it to the show's name and a few kind words.");
+    const same = L.find(x => x.title.toLowerCase() === title.toLowerCase() && x.svc === svc);
+    if (same) { if (!same.ups.includes(em)) same.ups.push(em); }
+    else { const u = await env.DATA.get(`user:${em}`, "json"); L.unshift({ id: crypto.randomUUID().slice(0, 8), title, svc, stars, why, by: String(u?.name || "").split(" ")[0].slice(0, 20) || "A local", e: em, ups: [em], at: new Date().toISOString() }); }
+  }
+  await env.DATA.put("watch:list", JSON.stringify(L.slice(0, 200)));
+  return new Response(null, { status: 303, headers: { location: "/watch" } });
+}
+async function watchPage(req, env, msg = "") {
+  const em = await member(req, env), L = (await watchList(env)).sort((a, b) => b.ups.length - a.ups.length || b.at.localeCompare(a.at));
+  const st = n => "⭐".repeat(n);
+  const item = x => `<li data-svc="${esc(x.svc)}"><div><b>${esc(x.title)}</b> <span class="wsvc">${esc(x.svc)}</span> <span class="mute">${st(x.stars)}</span>${x.why ? `<br><span>“${esc(x.why)}”</span>` : ""}<br><small class="mute">Shared by ${esc(x.by)} · ${x.ups.length} local${x.ups.length > 1 ? "s" : ""} rate it</small></div>
+<form method="post"><input type="hidden" name="up" value="${x.id}"><button class="ghost"${em && x.ups.includes(em) ? " disabled" : ""} title="Thumbs up">👍 ${x.ups.length}</button></form></li>`;
+  return page(`What to watch: ${R.code} Maverick`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>📺 What to watch tonight</h1>
+<p>We all spend longer choosing than watching. Here's what locals are streaming and rating. Add yours, thumbs up the good ones.</p>
+${msg ? `<p class="note">${esc(msg)}</p>` : ""}
+<div class="ptabs" id="wf"><button type="button" class="on" data-s="">All</button>${SERVICES.filter(v => L.some(x => x.svc === v)).map(v => `<button type="button" data-s="${esc(v)}">${esc(v)}</button>`).join("")}</div>
+<p><button type="button" id="wpick">🎲 Can't decide? Pick one for me</button> <span id="wout"></span></p>
+${L.length ? `<ul class="wlist" id="wl">${L.map(item).join("")}</ul>` : `<p class="mute">No picks yet. Be the first to share what you're watching.</p>`}
+<h2>➕ What are you watching?</h2>
+${em ? `<form method="post"><input name="title" maxlength="80" required placeholder="Show or movie name">
+<div class="row"><select name="svc">${SERVICES.map(v => `<option>${esc(v)}</option>`).join("")}</select><select name="stars">${[5, 4, 3, 2, 1].map(n => `<option value="${n}">${st(n)}</option>`).join("")}</select></div>
+<input name="why" maxlength="90" placeholder="Why watch it? (optional, a few words)"><p><button>Share it</button></p></form>`
+    : `<p><a href="/signin?next=/watch"><b>Sign in free</b></a> to share what you're watching and thumbs up others.</p>`}
+<p class="mute">Picks are shared by locals and checked automatically to keep it friendly. Spotted something off? <a href="/feedback">Tell us</a>.</p>
+<style>.wlist{list-style:none;padding:0}.wlist li{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.wlist form{margin:0}.wsvc{font-size:.75rem;font-weight:700;background:var(--soft);border-radius:99px;padding:1px 8px}#wf button{background:var(--soft);color:var(--fg);border-radius:99px;padding:5px 12px;font-size:.85rem}#wf button.on{background:var(--fg);color:var(--bg)}</style>
+<script>(function(){var cur='',L=[].slice.call(document.querySelectorAll('#wl li'));
+[].forEach.call(document.querySelectorAll('#wf button'),function(b){b.onclick=function(){cur=b.dataset.s;[].forEach.call(document.querySelectorAll('#wf button'),function(x){x.classList.toggle('on',x==b)});L.forEach(function(li){li.hidden=!!cur&&li.dataset.svc!==cur})}});
+document.getElementById('wpick').onclick=function(){var v=L.filter(function(li){return !li.hidden}).slice(0,15),o=document.getElementById('wout');if(!v.length){o.textContent='Nothing to pick from yet.';return}var li=v[Math.floor(Math.random()*v.length)];o.innerHTML='Tonight: <b>'+li.querySelector('b').textContent+'</b> on '+li.dataset.svc+' 🍿';li.scrollIntoView({behavior:'smooth',block:'center'})};})();</script>`, R.code);
+}
+
 // ---- My home: bin night + a house-sitter sheet. Everything stays on the phone; nothing is sent to us. ----
 const homePage = () => page("My home", `<p class="mute"><a href="/${R.code}">‹ ${R.code}</a></p><h1>🏡 My home</h1>
 <p>Handy home info, saved on <b>your phone only</b>. Nothing here is sent to us.</p>
@@ -1905,6 +1953,7 @@ async function route(req, env, ctx) {
     if (p === "/robots.txt") return robotsTxt();
     if (p === "/sitemap.xml") return sitemapXml();
     if (p === "/llms.txt") return llmsTxt();
+    if (p === "/watch") return req.method === "POST" ? watchPost(req, env) : watchPage(req, env);
     if (p === "/celebrations") return req.method === "POST" ? lodgeJoy(req, env, ctx) : joyPage(env);
     if (p === "/bdm") return bdmPage(env);
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
@@ -2148,7 +2197,7 @@ ${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details clas
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/notices", "/open", "/home", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
+  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
