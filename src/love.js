@@ -4,25 +4,25 @@ export const LOVE = {
 "2450": { name: "Coffs Harbour", facts: [
   ["🌺", "A free 20-hectare botanic garden", "The North Coast Regional Botanic Garden opened in 1988, just one kilometre from the CBD. It covers 20 hectares, entry is free, and native forest and mangroves make up about half of it.", "https://en.wikipedia.org/wiki/North_Coast_Regional_Botanic_Garden", "Wikipedia"],
   ["🍌", "Where the district's bananas began", "Hermann Rieck was the first to grow bananas in the district, at Korora, and banana farming spread out from there.", "https://en.wikipedia.org/wiki/Korora,_New_South_Wales", "Wikipedia"],
-  ["🦎", "A walk that tells the goanna story", "At Korora, the 400-metre Gumgali track leads to Korora Lookout. Artworks along the way tell the Aboriginal story of the black goanna. The name Korora comes from 'Kurrawa', read as 'sound of the waves'.", "https://en.wikipedia.org/wiki/Korora,_New_South_Wales", "Wikipedia"],
-  ["🏉", "Home of Australia's largest Indigenous rugby carnival", "Every March, Coffs Harbour hosts Ella7s, described as Australia's largest Indigenous rugby carnival. The National Touch League is played here in the same month.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"]
+  ["🦎", "A walk that tells the goanna story", "At Korora, the 400-metre Gumgali track leads to Korora Lookout. Artworks along the way tell the Aboriginal story of the black goanna. The name Korora comes from 'Kurrawa', read as 'rough seas', 'sound of the waves' or 'roar of the seas'.", "https://en.wikipedia.org/wiki/Korora,_New_South_Wales", "Wikipedia"],
+  ["🏉", "Home of Australia's largest Indigenous rugby carnival", "Every March, Coffs Harbour hosts Ella7s, described as Australia's largest Indigenous rugby carnival. The national touch football championships, The Championships (formerly the National Touch League), are played here in the same month.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"]
 ]},
 "2452": { name: "Sawtell", facts: [
   ["🎶", "A beach where the sand sings", "Walk Sawtell Beach when it's dry and the sand 'sings' under your feet.", "https://en.wikipedia.org/wiki/Sawtell,_New_South_Wales", "Wikipedia"],
-  ["🐨", "One of NSW's largest koala populations", "Bongil Bongil National Park was created in 1995 right beside Sawtell. Its forests hold one of the largest koala populations in NSW, and about 165 bird species have been recorded there.", "https://en.wikipedia.org/wiki/Bongil_Bongil_National_Park", "Wikipedia"],
+  ["🐨", "One of NSW's largest koala populations", "Bongil Bongil National Park, Sawtell's nearest national park, was created in 1995. Its forests hold one of the largest koala populations in NSW, and about 165 bird species have been recorded there.", "https://en.wikipedia.org/wiki/Bongil_Bongil_National_Park", "Wikipedia"],
   ["🌶️", "A whole festival of chilli", "Sawtell's annual Chilli Festival brings together more than 100 stalls of chilli-based food and products.", "https://en.wikipedia.org/wiki/Sawtell,_New_South_Wales", "Wikipedia"],
   ["🪵", "Started with a shipwreck of cedar", "In 1863 a cutter carrying cedar logs ran aground where Sawtell Beach is now. About forty years later, Oswald Sawtell bought and subdivided the land, which gave the town its name.", "https://en.wikipedia.org/wiki/Sawtell,_New_South_Wales", "Wikipedia"]
 ]},
 "2456": { name: "Woolgoolga", facts: [
   ["🛕", "Australia's largest regional Sikh community", "Sikhs began settling here during World War II to work in the banana industry. Woolgoolga has had Australia's largest regional Sikh and Punjabi population, and the town has two gurdwaras (temples).", "https://en.wikipedia.org/wiki/Woolgoolga", "Wikipedia"],
   ["🍛", "Curryfest celebrates Punjabi heritage", "Curryfest started in 2006 to celebrate Woolgoolga's Punjabi heritage. With about 180 stalls and around 16,000 visitors, it is the community's largest single gathering.", "https://en.wikipedia.org/wiki/Woolgoolga", "Wikipedia"],
-  ["⚓", "An 1893 shipwreck on the beach", "On 8 March 1893, a south-east storm drove the 39-metre vessel Buster ashore. Its wreck still lies near the mouth of Woolgoolga Lake.", "https://en.wikipedia.org/wiki/Woolgoolga", "Wikipedia"],
+  ["⚓", "An 1893 shipwreck on the beach", "On 8 March 1893, a south-east storm drove the 39-metre vessel Buster ashore. It beached just south of the Woolgoolga Lake mouth, and parts of the wreck can still be seen there.", "https://en.wikipedia.org/wiki/Woolgoolga", "Wikipedia"],
   ["🪨", "A red headland 300 million years old", "Red Rock takes its name from its headland, coloured by jasper in the rock. The 20-metre headland is believed to be more than 300 million years old and is a sacred Gumbaynggirr site.", "https://en.wikipedia.org/wiki/Red_Rock,_New_South_Wales", "Wikipedia"]
 ]},
 "2453": { name: "Dorrigo", facts: [
   ["🌧️", "The NSW record for rain in one day", "On 21 February 1954, Dorrigo recorded 809.2 mm of rain in a single day. That is the highest daily rainfall ever recorded anywhere in New South Wales.", "https://en.wikipedia.org/wiki/Dorrigo,_New_South_Wales", "Wikipedia"],
   ["📰", "Australia's last hot-metal newspaper", "The Don Dorrigo Gazette was first published in 1910. As of 2010 it was believed to be the last newspaper in Australia still printed with hot metal typesetting.", "https://en.wikipedia.org/wiki/Dorrigo,_New_South_Wales", "Wikipedia"],
-  ["🚂", "One of the world's great railway collections", "The Dorrigo Steam Railway and Museum's collection is described as one of the most comprehensive railway collections in the world.", "https://en.wikipedia.org/wiki/Dorrigo,_New_South_Wales", "Wikipedia"],
+  ["🚂", "One of the world's great railway collections", "The Dorrigo Steam Railway and Museum's collection is described as one of the most comprehensive railway collections in the world. The museum isn't open to the public yet, but you can see the steam engines and carriages from outside the property.", "https://en.wikipedia.org/wiki/Dorrigo,_New_South_Wales", "Wikipedia"],
   ["💧", "A waterfall on the edge of town", "Dangar Falls, on the Bielsdown River, is about 1.2 km north of town. The town itself sits 731 metres above sea level on the Dorrigo Plateau.", "https://en.wikipedia.org/wiki/Dorrigo,_New_South_Wales", "Wikipedia"]
 ]},
 "2454": { name: "Bellingen", facts: [
@@ -34,7 +34,7 @@ export const LOVE = {
 "2455": { name: "Urunga", facts: [
   ["🚶", "A boardwalk almost a kilometre long", "The Urunga boardwalk crosses the tidal Urunga Lagoon and runs out to the beach. After its extension in November 2010, it is almost one kilometre long.", "https://en.wikipedia.org/wiki/Urunga", "Wikipedia"],
   ["🏖️", "Named for its long white sands", "The name Urunga comes from the Gumbaynggirr word Yurūnga. It relates to the word for 'long' and refers to the area's long white sands.", "https://en.wikipedia.org/wiki/Urunga", "Wikipedia"],
-  ["🤝", "Resolved NSW's oldest native title claim", "On 8 December 2017, the Federal Court recognised Gumbaynggirr native title over land and waters at Wenonah Head. That decision resolved the oldest native title claim in New South Wales.", "https://en.wikipedia.org/wiki/Urunga", "Wikipedia"],
+  ["🤝", "Where NSW's oldest native title claim was settled", "On 8 December 2017, the Federal Court recognised Gumbaynggirr native title over land and waters at Wenonah Head, near Urunga. That decision resolved the oldest native title claim in New South Wales.", "https://en.wikipedia.org/wiki/Urunga", "Wikipedia"],
   ["🐦", "Wetlands brought back to life", "A $10 million restoration project led to the Urunga Wetlands opening in May 2017. Visitors can use a wheelchair-accessible boardwalk, and birds and wildlife have started returning.", "https://en.wikipedia.org/wiki/Urunga", "Wikipedia"]
 ]},
 "2479": { name: "Bangalow", facts: [
@@ -74,14 +74,13 @@ export const LOVE = {
   ["🚲", "A rail trail with glowworm tunnels", "The 23 km Tweed section of the Northern Rivers Rail Trail opened in 2023 at Murwillumbah's heritage-listed station. Its old railway tunnels shelter microbats and glowworms.", "https://en.wikipedia.org/wiki/Northern_Rivers_Rail_Trail", "Wikipedia"]
 ]},
 "2485": { name: "Tweed Heads", facts: [
-  ["🔦", "The world's first laser lighthouse", "The Point Danger Light, also called the Captain Cook Memorial Light, was built in 1971. It claims to be the first lighthouse in the world to try a laser as its light source.", "https://en.wikipedia.org/wiki/Point_Danger_Light", "Wikipedia"],
+  ["🔦", "A lighthouse that tried lasers first", "Built in 1971 on the NSW–Queensland border, the Point Danger Light claims to be the first lighthouse in the world to experiment with a laser. The beam proved too narrow for ships to see.", "https://en.wikipedia.org/wiki/Point_Danger_Light", "Wikipedia"],
   ["🎬", "Porpoise Spit in Muriel's Wedding", "Tweed Heads played the fictional town of Porpoise Spit in the 1994 film Muriel's Wedding.", "https://en.wikipedia.org/wiki/Tweed_Heads,_New_South_Wales", "Wikipedia"],
-  ["🏷️", "Once called Crown Village", "Europeans first knew Tweed Heads as \"Crown Village\" and later as \"Cooloon\". The name Tweed Heads was not made official until 1965.", "https://en.wikipedia.org/wiki/Tweed_Heads,_New_South_Wales", "Wikipedia"],
-  ["🛟", "Surf lifesavers since 1911", "The Tweed Heads and Coolangatta Surf Life Saving Club opened on 13 September 1911.", "https://en.wikipedia.org/wiki/Tweed_Heads,_New_South_Wales", "Wikipedia"]
+  ["🏷️", "Once called Crown Village", "Europeans first knew Tweed Heads as \"Crown Village\" and later as \"Cooloon\". The name Tweed Heads was not made official until 1965.", "https://en.wikipedia.org/wiki/Tweed_Heads,_New_South_Wales", "Wikipedia"]
 ]},
 "2486": { name: "Banora Point", facts: [
   ["🪃", "A sacred bora ring", "The Tweed Heads Historic Site in Tweed Heads South has a ceremonial bora ring, reached by the Walk on Water track. Aboriginal guides share local culture at the Minjungbal Aboriginal Cultural Centre.", "https://www.nsw.gov.au/visiting-and-exploring-nsw/locations-and-attractions/tweed-heads-historic-site", "NSW Government"],
-  ["🏝️", "Birthplace of Senator Neville Bonner", "Ukerebagh Island, a 125-hectare mangrove-ringed reserve in the Tweed River, was the birthplace of Senator Neville Bonner in 1922. Aboriginal people still visit the island regularly.", "https://en.wikipedia.org/wiki/Ukerebagh_Nature_Reserve", "Wikipedia"],
+  ["🏝️", "Birthplace of Senator Neville Bonner", "Ukerebagh Island, ringed by mangroves inside a 125-hectare nature reserve at the mouth of the Tweed River, was the birthplace of Senator Neville Bonner in 1922. Aboriginal people still visit the island regularly.", "https://en.wikipedia.org/wiki/Ukerebagh_Nature_Reserve", "Wikipedia"],
   ["🏞️", "Terranora means small river", "Terranora's name is believed to come from a Bundjalung word meaning \"small river\" or \"small estuary\".", "https://en.wikipedia.org/wiki/Terranora,_New_South_Wales", "Wikipedia"],
   ["😂", "Where Celeste Barber grew up", "Comedian and actor Celeste Barber grew up in Terranora. Children's author Hesba Fay Brinsmead lived there from 1976 until the early 2000s.", "https://en.wikipedia.org/wiki/Terranora,_New_South_Wales", "Wikipedia"]
 ]},
@@ -123,7 +122,7 @@ export const LOVE = {
 ]},
 "2445": { name: "Lake Cathie", facts: [
   ["🌊", "A lake fed by the ocean every day", "Lake Cathie is a tidal lake that the ocean feeds daily. Several times a year shifting sands close it off, and tannins from local plants turn the water dark.", "https://en.wikipedia.org/wiki/Lake_Cathie,_New_South_Wales", "Wikipedia"],
-  ["🗣️", "Say it 'Cat-eye', not 'Cathy'", "Settler Sally Pead renamed Cati Creek as Lake Cathie but kept the old pronunciation, 'Cat-eye'. The name became official in 1957.", "https://www.portnews.com.au/story/5612127/history-behind-how-lake-cathie-got-its-name/", "Port Macquarie News"],
+  ["🗣️", "Say it 'Cat-eye', not 'Cathy'", "Settler Sally Pead renamed Cati Creek as Lake Cathie but kept the old pronunciation, 'Cat-eye'. The new name took over around 1957, when a telephone exchange was put into her shop.", "https://www.portnews.com.au/story/5612127/history-behind-how-lake-cathie-got-its-name/", "Port Macquarie News"],
   ["🗳️", "Bonny Hills got its name by a vote", "The town was first called Green Hills, but there were too many Green Hills to get a post office. A woman suggested 'Bonny Hills' and it won the vote.", "https://en.wikipedia.org/wiki/Bonny_Hills,_New_South_Wales", "Wikipedia"],
   ["🏕️", "John Oxley camped here in 1818", "In 1818 explorer John Oxley camped on a sandy beach now known as Bartlett's Beach at Bonny Hills.", "https://en.wikipedia.org/wiki/Bonny_Hills,_New_South_Wales", "Wikipedia"]
 ]},

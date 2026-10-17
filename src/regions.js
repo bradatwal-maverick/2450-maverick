@@ -41,7 +41,7 @@ export const REGIONS = {
     ],
     know: (W, acc) => `<details open><summary><b>Who runs the place</b></summary><ul>
 <li>Mayor: <b>Cr Nikki Williams</b> · Deputy Mayor: <b>Cr George Cecato</b></li>
-<li>Councillors: Cath Fowler, Gurminder Saro, Jonathan Cassell, Julie Sechi, Les Oxford, Paul Amos, Tony Judge. <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">Contact them</a></li>
+<li>Councillors: Cath Fowler, Gurminder Saro, Jonathan Cassell, Julie Sechi, Les Oxford, Tony Judge. One vacancy: by-election Saturday 12 December 2026. <a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" rel="noopener">Contact them</a></li>
 <li><a href="https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${acc("councillors", W.councillors)}</details>
 <details><summary><b>Bins &amp; rubbish</b></summary><ul>
 <li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app (App Store or Google Play)</li>
@@ -58,7 +58,7 @@ export const REGIONS = {
 <li>🏛️ Yarrila Place, Level 1, 27 Gordon Street. Weekdays 9am–3:30pm</li></ul>${acc("contact", W.contact)}</details>
 `,
     idx: [
-      ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Nikki Williams, Deputy Mayor Cr George Cecato, plus 7 councillors.","#know"],
+      ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Nikki Williams, Deputy Mayor Cr George Cecato, plus 6 councillors (one vacancy, by-election 12 December 2026).","#know"],
       ["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? Get the free Coffs Coast Waste Services app.","#know"],
       ["bulky couch mattress hard rubbish clean up tip voucher","Bulky goods","Book a pick-up or free tip vouchers: 1800 265 495.","#know"],
       ["tip dump englands road","The tip","Englands Road Waste Management Facility.","#know"],
@@ -84,7 +84,7 @@ export const REGIONS = {
     watch: {
   councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
   bulky: { owner: "Council", name: "Council bulky goods FAQ", url: "https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs", stated: "2018-03" },
-  wasteapp: { owner: "News Of The Area", name: "News Of The Area (waste app)", url: "https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week", stated: "2026-08" },
+  wasteapp: { owner: "News Of The Area", name: "News Of The Area (waste app)", url: "https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week", stated: "2025-05" },
   envreport: { owner: "Council", name: "City of Coffs Harbour, Report an environmental issue", url: "https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" },
   contact: { owner: "Council", name: "City of Coffs Harbour, Contact details", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council" },
 },
@@ -97,11 +97,11 @@ export const REGIONS = {
     facts: [
   ["🗺️", "It's named after a spelling mistake", "Ship owner John Korff sheltered here from a storm in 1847 and called it Korff's Harbour. In 1861 a Crown surveyor wrote it down wrong, and Coffs stuck.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
   ["🌏", "Gumbaynggirr Country", "Coffs is on Gumbaynggirr Country. The harbour's Gumbaynggirr name is Gitten Mirreh, meaning big moon.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
-  ["🌙", "Muttonbird Island is a moon sacred place", "Its Gumbaynggirr name, Giidany Miirlarl, means moon sacred place. Wedge-tailed shearwaters, the muttonbirds, nest in burrows all over it.", "https://www.nationalparks.nsw.gov.au/education/stage-3-science-giidany-miirlarl-a-special-site-muttonbird-island-nature-reserve", "NSW National Parks"],
+  ["🌙", "Muttonbird Island is a moon sacred place", "Its Gumbaynggirr name, Giidany Miirlarl, means moon sacred place. Wedge-tailed shearwaters, the muttonbirds, nest all over it.", "https://www.nationalparks.nsw.gov.au/education/stage-3-science-giidany-miirlarl-a-special-site-muttonbird-island-nature-reserve", "NSW National Parks"],
   ["🌉", "The Jetty is older than Federation", "Finished in August 1892, it reached about 500 m out to sea so steam cranes could load timber onto ships. The last commercial cargo left in 1979, it reopened restored in 1997, and it has been State Heritage listed since 2021. Technically it reaches straight out to sea like a pier, but it will always be the Jetty, and jumping off it is a Coffs rite of passage.", "https://www.coffscoastheritage.info/2018/06/the-story-of-the-coffs-harbour-jetty/", "Coffs Coast Heritage"],
   ["⛰️", "Where the mountains meet the sea", "Coffs is often described as the only place in NSW where the Great Dividing Range comes right down to the Pacific Ocean.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia (marked as needing a source)"],
   ["🐠", "Where tropical meets temperate", "In the Solitary Islands Marine Park, the warm East Australian Current meets cooler southern water. Many species here live at the northern or southern edge of their range, and critically endangered grey nurse sharks gather here.", "https://australianmarineparks.gov.au/parks/temperate-east-marine-parks-network/solitary-islands-marine-park/", "Australian Marine Parks"],
-  ["🌿", "World Heritage rainforest an hour away", "Dorrigo National Park is part of the Gondwana Rainforests of Australia World Heritage Area. Walk the Skywalk above the canopy and look all the way down to the sea.", "https://www.nationalparks.nsw.gov.au/visit-a-park/parks/dorrigo-national-park", "NSW National Parks"],
+  ["🌿", "World Heritage rainforest an hour away", "Dorrigo National Park is part of the Gondwana Rainforests of Australia World Heritage Area. Walk the Skywalk and look all the way from the forest to the sea.", "https://www.nationalparks.nsw.gov.au/visit-a-park/parks/dorrigo-national-park", "NSW National Parks"],
   ["☀️", "Sunnier than Brisbane and Cairns", "Coffs averages about 122 clear days a year: sunnier than Brisbane and Cairns, a little behind Townsville. Locals will also tell you the CSIRO once named it Australia's best climate. We couldn't find that study, so if you have it, send it in!", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"],
   ["🍌", "Home of the original big thing", "The Big Banana turned 50 in 2014.", "https://en.wikipedia.org/wiki/Coffs_Harbour", "Wikipedia"]],
     mavKB: `Site: 2450 Maverick, a free local info site for the Coffs Harbour council area (2450 Coffs Harbour, 2452 Sawtell & Toormina, 2456 Woolgoolga). Never charges. A gift from Maverick Digital.
@@ -144,8 +144,8 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       { name: "NBN News", url: "https://www.nbnnews.com.au", feed: "https://www.nbnnews.com.au/feed/", cat: /northern rivers/i, need: /byron|suffolk park|bangalow|mullum|brunswick|ocean shores|lennox|ballina|lismore/i },
     ],
     know: (W, acc) => `<details open><summary><b>Who runs the place</b></summary><ul>
-<li>Mayor: <b>Cr Sarah Ndiaye</b> · Deputy Mayor: <b>Cr Jack Dods</b></li>
-<li>Councillors: Elia Hauge, Delta Kay, Michelle Lowe, Asren Pugh, Janet Swain, David Warth, Michael Lyon. <a href="https://www.byron.nsw.gov.au/Council/Leadership" rel="noopener">Contact them</a></li>
+<li>Mayor: <b>Cr Sarah Ndiaye</b> · Deputy Mayor: <b>Cr Elia Hauge</b></li>
+<li>Councillors: Jack Dods, Delta Kay, Michelle Lowe, Asren Pugh, Janet Swain, David Warth, Michael Lyon. <a href="https://www.byron.nsw.gov.au/Council/Leadership" rel="noopener">Contact them</a></li>
 <li><a href="https://www.byron.nsw.gov.au/Council/Council-and-committee-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${acc("leadership", W.leadership)}</details>
 <details><summary><b>Bins &amp; rubbish</b></summary><ul>
 <li>Which bin this week? Get the free <b>Recycle Coach</b> app and search your address</li>
@@ -163,7 +163,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
 <li>🏛️ 70 Station Street, Mullumbimby</li></ul>${acc("contact", W.contact)}</details>
 `,
     idx: [
-      ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Sarah Ndiaye, Deputy Mayor Cr Jack Dods, plus 7 councillors.","#know"],
+      ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Sarah Ndiaye, Deputy Mayor Cr Elia Hauge, plus 7 councillors.","#know"],
       ["bin bins rubbish recycling garbage which bin recycle coach","Bins","Which bin this week? Get the free Recycle Coach app.","#know"],
       ["bulky couch mattress hard rubbish clean up tip free drop off","Free drop-off","Annual free drop-off at the Byron Resource Recovery Centre.","#know"],
       ["tip dump resource recovery myocum","The tip","Byron Resource Recovery Centre.","#know"],
@@ -194,16 +194,16 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["Railway Park","Free","Playground and shade right in the middle of town."]],
     facts: [
       ["📜", "Named after the wrong Byron", "Captain Cook named Cape Byron in 1770 after Vice Admiral John Byron. A Sydney clerk later assumed it honoured his grandson, the poet Lord Byron, which is why the streets are named after poets like Keats, Jonson and Shelley.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
-      ["🌏", "Arakwal Country", "Byron Bay is on the land of the Arakwal people of the Bundjalung Nation. The traditional name, Cavvanbah, means meeting place.", "https://www.byron.nsw.gov.au/Council/About-Byron-Shire/Aboriginal-Torres-Strait-Communities/Welcome-to-Country-Acknowledgement-of-Country-Protocols", "Byron Shire Council"],
+      ["🌏", "Arakwal Country", "Byron Bay is on the land of the Arakwal people of the Bundjalung Nation. The traditional name, Cavvanbah, means meeting place.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
       ["🌅", "First mainland sunrise", "Cape Byron is the easternmost point of mainland Australia.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
       ["🗼", "The lighthouse turns 125", "Cape Byron Lighthouse was built in 1901.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
-      ["🐢", "Julian Rocks", "About 2.5 km offshore, Julian Rocks is one of the east coast's best dive sites, part of the Cape Byron Marine Park.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
+      ["🐢", "Julian Rocks", "About 2.5 km from town, Julian Rocks is one of the east coast's best dive sites, part of the Cape Byron Marine Park.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"],
       ["🐋", "From whaling to whale watching", "Byron had a whaling station until 1963. Today the same whales are the town's favourite winter show.", "https://en.wikipedia.org/wiki/Byron_Bay", "Wikipedia"]],
     mavKB: `Site: 2481 Maverick, a free local info site for the Byron Shire (2481 Byron Bay & Suffolk Park, 2479 Bangalow, 2480 Federal, 2482 Mullumbimby, 2483 Brunswick Heads & Ocean Shores). Never charges. A gift from Maverick Digital.
 Pages: /2481 /2479 /2480 /2482 /2483 area pages; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
 /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /crossword daily crossword; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
 Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; memory=In memory (death notices); fuel=cheapest fuel near you;
-sea=tides & fishing; know=Know your area (mayor Cr Sarah Ndiaye, deputy Cr Jack Dods, Byron Shire Council 02 6626 7000, after hours emergencies 02 6622 7022, bins via the Recycle Coach app, annual free drop-off at the Byron Resource Recovery Centre, missed bins 1300 652 625, NSW Ombudsman);
+sea=tides & fishing; know=Know your area (mayor Cr Sarah Ndiaye, deputy Cr Elia Hauge, Byron Shire Council 02 6626 7000, after hours emergencies 02 6622 7022, bins via the Recycle Coach app, annual free drop-off at the Byron Resource Recovery Centre, missed bins 1300 652 625, NSW Ombudsman);
 council=council news; kids=Get outside this weekend (outdoor things for kids and families, free or under $50; we don't list arcades, bowling or cinemas); holidays=public and school holidays; puzzles=daily crossword; beaches=beaches.
 Every piece of information has an ⓘ Where from? button showing where it comes from and how current it is.
 Emergencies: 000. Tides are estimates, not for navigation.`,
@@ -245,7 +245,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
 <li><a href="https://www.bellingen.nsw.gov.au/Your-Council/Council-Meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${acc("leadership", W.leadership)}</details>
 <details><summary><b>Bins &amp; rubbish</b></summary><ul>
 <li>Which bin this week? Get the free <b>Coffs Coast Waste Services</b> app, or call the hotline on <a href="tel:1800265495">1800 265 495</a></li>
-<li>Tip: Raleigh Waste Management Station, Short Cut Road, Raleigh (with a Community Recycling Centre for paint, batteries and oil)</li>
+<li>Tip: Raleigh Waste Management Centre, 146 Short Cut Road, Raleigh. Open Wednesday to Monday 8am to 4pm, closed Tuesdays. <a href="tel:0266553777">02 6655 3777</a> (with a Community Recycling Centre for paint, batteries and oil). <span class="srcw">Source:</span> <a href="https://www.bellingen.nsw.gov.au/Services/Waste-and-Recycling/Waste-Facilities-Charges/Raleigh-Waste-Management-Centre" rel="noopener">Bellingen Shire Council</a></li>
 <li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Report it online</a></li></ul>${acc("waste", W.waste)}</details>
 <details><summary><b>Got a problem?</b></summary><ul>
 <li>Pothole, broken footpath, streetlight, overgrown block: tell council on <a href="tel:0266557300">02 6655 7300</a> or <a href="mailto:council@bellingen.nsw.gov.au">council@bellingen.nsw.gov.au</a></li>
@@ -258,7 +258,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     idx: [
       ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Steve Allan, Deputy Mayor Cr Graeme Shephard, plus 5 councillors.","#know"],
       ["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? Coffs Coast Waste Services app or 1800 265 495.","#know"],
-      ["tip dump raleigh waste","The tip","Raleigh Waste Management Station, Short Cut Road.","#know"],
+      ["tip dump raleigh waste","The tip","Raleigh Waste Management Centre, 146 Short Cut Road. Closed Tuesdays.","#know"],
       ["council phone contact email call","Contact council","02 6655 7300, council@bellingen.nsw.gov.au.","#know"],
       ["bellingen facts history dorrigo urunga rainforest gumbaynggirr why fun","Why Bello?","Fun facts about the shire, every one sourced.","/why"],
     ],
