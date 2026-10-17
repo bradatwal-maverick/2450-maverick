@@ -22,7 +22,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["wine", "Wine watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -288,6 +288,7 @@ ${fuelBlock(t)}
 ${await numbersBlock(env)}
 ${await aiBlock(env)}
 ${beerBlock()}
+${wineBlock()}
 ${await ratesBlock(env)}
 ${await projectBlock(env)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
@@ -1735,7 +1736,7 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6
 {"type":"bins","day":"Monday"}; {"type":"school","value":"exact name from: ${SCHOOLS.join("; ")}"}; {"type":"birthday","day":1-31,"month":1-12}; {"type":"search","value":"a few words"};
 {"type":"alerts","topic":"alerts|fields"} (alerts = fires and weather warnings, fields = sport field closures; shows a button they tap); {"type":"events","likes":[${LIKES.join(",")}]} (what they like doing: tailors What's on, with their picks first as "For you", and Community events; [] shows all; when they tell you their interests, set this);
 {"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"};
-{"type":"beer","value":"beer name and pack, e.g. Great Northern Original 24 pack"} sets the beer they watch in Beer watch (local bottle shops only; default Tooheys New 24 cans).
+{"type":"wine","value":"wine and size, e.g. Shiraz 750ml"} sets the wine they watch in Wine watch; {"type":"beer","value":"beer name and pack, e.g. Great Northern Original 24 pack"} sets the beer they watch in Beer watch (local bottle shops only; default Tooheys New 24 cans).
 Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
   try {
     const ask = { max_tokens: 450, messages: [{ role: "system", content: sys }, ...msgs] };
@@ -1779,6 +1780,7 @@ function cleanActs(list, ids, live) {
         return { type: "friend", name: n, tz, city: String(a.city || "").replace(/[<>]/g, "").slice(0, 40) }; }
       case "unfriend": return nm(a.name) ? { type: "unfriend", name: nm(a.name) } : null;
       case "link": return /^\/[a-z0-9/#?=&-]*$/i.test(a.url || "") ? { type: "link", url: a.url } : null;
+      case "wine": { const v = String(a.value || "").replace(/[<>]/g, "").trim().slice(0, 60); return v.length > 2 ? { type: "wine", value: v } : null; }
       case "beer": { const v = String(a.value || "").replace(/[<>]/g, "").trim().slice(0, 60); return v.length > 2 ? { type: "beer", value: v } : null; }
       case "watch": case "unwatch": { const v = String(a.item || "").replace(/[<>]/g, "").trim().slice(0, 50); return v.length > 2 ? { type: a.type, item: v } : null; }
       default: return null;
@@ -1960,6 +1962,35 @@ const beerBlock = () => `<section id="beer"><h2>🍺 Beer watch</h2><p class="mu
 function go(){document.getElementById('beerq').textContent='Watching: '+q+'.';fetch('/api/beer?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){
 O.innerHTML=j.items.length?'<ol class="fls">'+j.items.map(function(x,i){return '<li'+(i?'':' class="hit"')+'><b>'+e(x.shop)+'</b>, '+e(x.sub)+': '+m(x.price)+(i?'':' <span class="fl ok">cheapest local</span>')+'<br><small class="mute">'+e(x.beer)+' · posted '+ago(x.at)+'</small></li>'}).join('')+'</ol>':${JSON.stringify(wip("No local bottle shop has posted a price for this beer yet. Own one? Post yours free below"))}}).catch(function(){O.textContent='Couldn’t check just now.'})}
 document.getElementById('beerf').onsubmit=function(ev){ev.preventDefault();var v=document.getElementById('beerin').value.trim();if(!v)return;q=v;try{localStorage.setItem('beer',v)}catch(_){}go()};go()})();</script></section>`;
+
+// ---- Wine watch: same as Wine watch, for wine. Default: a bottle of Shiraz. ----
+const WINE_DEFAULT = "Shiraz 750ml bottle";
+const wineWords = q => String(q).toLowerCase().replace(/\b(x|bottles?|ml|l|litres?|cask|pack|case|dozen)\b/g, " ").split(/\W+/).filter(w => w.length > 1 && !/^\d+$/.test(w));
+async function wineApi(req, env, url) {
+  const L = ((await env.DATA.get("winelocal", "json")) || []).filter(x => Date.now() - new Date(x.at) < 30 * 864e5);
+  if (req.method === "POST") {
+    const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: `/${R.code}#wine` } });
+    const shop = String(f.get("shop") || "").replace(/[<>]/g, "").trim().slice(0, 60), sub = String(f.get("suburb") || "").replace(/[<>]/g, "").trim().slice(0, 40),
+      beer = String(f.get("beer") || WINE_DEFAULT).replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
+    if (!shop || !sub || !(price > 5 && price < 400) || f.get("ok") !== "yes") return page("Check your details", `<h1>Nearly</h1><p>Please add the shop, suburb, a price, and tick the box. <a href="/${R.code}#wine">Back</a></p>`);
+    const k = (shop + "|" + beer).toLowerCase(), rest = L.filter(x => (x.shop + "|" + x.beer).toLowerCase() !== k);
+    await env.DATA.put("winelocal", JSON.stringify([{ shop, sub, beer, price, at: new Date().toISOString() }, ...rest].slice(0, 300)));
+    return page("Price posted", `<h1>Thanks, it&rsquo;s up!</h1><p>${esc(shop)}: ${esc(beer)} at $${price.toFixed(2)}. It shows for 30 days, so post again whenever it changes.</p><p><a href="/${R.code}#wine">See Wine watch</a></p>`);
+  }
+  const q = String(url.searchParams.get("q") || WINE_DEFAULT).slice(0, 60), w = wineWords(q);
+  return Response.json({ q, items: L.filter(x => { const t = x.beer.toLowerCase(); return w.every(y => t.includes(y)); }).sort((a, b) => a.price - b.price) }, { headers: { "cache-control": "no-store" } });
+}
+const wineBlock = () => `<section id="wine"><h2>🍷 Wine watch</h2><p class="mute">The cheapest price for your wine at <b>local</b> bottle shops, posted by the shops themselves. No big chains, local only. <span id="wineq"></span></p><div id="wineout" class="mute">Checking…</div>
+<form id="winef" class="row"><input id="winein" maxlength="60" placeholder="Your wine, e.g. Shiraz 750ml or a 4L cask" aria-label="Your wine"><button>Watch this wine</button></form>
+<details><summary><b>Own a local bottle shop? Post your price free</b></summary><form method="post" action="/api/wine"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="row"><input name="shop" maxlength="60" placeholder="Shop name *" required><input name="suburb" maxlength="40" placeholder="Suburb *" required></div>
+<div class="row"><input name="wine" maxlength="60" value="${WINE_DEFAULT}" aria-label="Wine and size"><input name="price" type="number" step="0.01" min="5" max="400" placeholder="Price $ *" required></div>
+<label><input type="checkbox" name="ok" value="yes" required> I run or work at this shop, and this is our current price</label><br><button>Post my price</button></form></details>
+<p class="src">Prices posted by local shops, with the date they posted. Shown for 30 days. Please drink responsibly.</p>
+<script>(function(){var D=${JSON.stringify(WINE_DEFAULT)},q=D;try{q=localStorage.getItem('wine')||D}catch(e){}var O=document.getElementById('wineout'),m=function(n){return '$'+Number(n).toFixed(2)},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})},ago=function(d){var x=Math.round((Date.now()-new Date(d))/864e5);return x<1?'today':x==1?'yesterday':x+' days ago'};
+function go(){document.getElementById('wineq').textContent='Watching: '+q+'.';fetch('/api/wine?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){
+O.innerHTML=j.items.length?'<ol class="fls">'+j.items.map(function(x,i){return '<li'+(i?'':' class="hit"')+'><b>'+e(x.shop)+'</b>, '+e(x.sub)+': '+m(x.price)+(i?'':' <span class="fl ok">cheapest local</span>')+'<br><small class="mute">'+e(x.beer)+' · posted '+ago(x.at)+'</small></li>'}).join('')+'</ol>':${JSON.stringify(wip("No local bottle shop has posted a price for this wine yet. Own one? Post yours free below"))}}).catch(function(){O.textContent='Couldn’t check just now.'})}
+document.getElementById('winef').onsubmit=function(ev){ev.preventDefault();var v=document.getElementById('winein').value.trim();if(!v)return;q=v;try{localStorage.setItem('wine',v)}catch(_){}go()};go()})();</script></section>`;
 
 // ---- Mini Maverick Encouragement Award: grown-ups nominate a local kid; the winner gets $50 to spend at a local business of their choice. Never fast food. ----
 const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$50 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
@@ -2280,6 +2311,7 @@ async function route(req, env, ctx) {
     if (p === "/all" || p === "/everything") return allPage();
     if (p === "/award") return awardPage(req, env, ctx);
     if (p === "/api/beer") return beerApi(req, env, url);
+    if (p === "/api/wine") return wineApi(req, env, url);
     if (p === "/status") return statusPage(env);
     if (p === "/api/timesaved") return timeApi(req, env, url);
     if (p === "/jobs") return dirPage("jobs");
