@@ -37,7 +37,7 @@ ${card(`/${pc}#award`, "🏅", "Mini Maverick Encouragement Award", "$50 for a k
 <h2>👋 Your village</h2>
 ${card(`/${pc}#events`, "🎪", "Community events", "Locals first, free to add")}
 ${card("/notices", "📌", "Community notice board", "Lost pets, volunteers, clubs and classes")}
-${card(`/${pc}#joy`, "🎉", "Births & marriages", "New babies and big days, shared by local families")}
+${card(`/bdm`, "🎉", "Births & marriages", "New babies and big days, shared by local families")}
 ${wip(`${who}' groups, playgroups and catch-ups in ${esc(t.name)}, all in one list. Run one? You'll be able to add it free`, "/feedback", "telling us yours")}`, pc); };
 
   const singles = pc => { const t = TOWNS[pc];

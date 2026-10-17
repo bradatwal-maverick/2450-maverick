@@ -3,7 +3,7 @@
 import { REGIONS } from "./regions.js";
 import { withSecrets } from "./secrets.js";
 import { billingApi, tierOf, hasTier, paymentsOn, TIERS } from "./billing.js";
-import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionPage } from "./sections.js";
+import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionHead, fixSecLinks } from "./sections.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
@@ -67,7 +67,8 @@ const CSS = `.usp{text-align:center;font-size:.8rem;margin:2px 0 8px}.usp summar
 :root{--bg:#fff;--fg:#12233f;--gold:#f2b01e;--mute:#5a6578;--link:#2b4a7a;--line:#e2e7ef;--accent:#2b4a7a;--soft:#eef2f8}
 @media (prefers-color-scheme:dark){:root{--bg:#0B1526;--fg:#e8edf2;--gold:#f2b01e;--mute:#9aa6b4;--link:#9fb8e0;--line:#24324a;--accent:#7f9fd1;--soft:#13203a}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 Arial,Helvetica,sans-serif}
-main{max-width:640px;margin:0 auto;padding:16px}a{color:var(--link)}h1{font-size:1.6rem;margin:.2em 0}.townh{font-size:1rem;text-align:center;color:var(--mute);margin:4px 0}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+main{max-width:640px;margin:0 auto;padding:16px}a{color:var(--link)}h1{font-size:1.6rem;margin:.2em 0}.hooks{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0}.hooks a{display:block;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;text-decoration:none;color:var(--fg)}.hooks a:hover{border-color:var(--gold)}.hooks small{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}.hooks b{font-size:.92rem;line-height:1.3}
+.townh{font-size:1rem;text-align:center;color:var(--mute);margin:4px 0}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 h2{font-size:1.1rem;margin:1.4em 0 .4em;border-bottom:1px solid var(--line);padding-bottom:4px}
 .mute{color:var(--mute);font-size:.9rem}input,textarea,button,select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:20px;background:var(--bg);color:var(--fg)}
 textarea{border-radius:8px;width:100%}button{cursor:pointer;background:var(--accent);color:var(--bg);border:0;padding:10px 18px}
@@ -130,6 +131,24 @@ function formal(html) {
     .replace(/\u0000(\d+)\u0000/g, (_, k) => kept[+k]);
 }
 
+// Front-page teasers: little hooks that push readers to deeper parts of the site, by interest. Shuffled daily.
+function hooksStrip(pc) {
+  const q = pc === R.code ? "" : "?pc=" + pc, qa = "?pc=" + pc;
+  const H = [["Council watchers", "How's council doing? Make your vote count.", `/council${q}`],
+    ["Parents", "Games mum will approve of", "/kids"],
+    ["Puzzlers", "The daily crossword", `/fun${q}#puzzles`],
+    ["Water lovers", "Tides, swell and today's beaches", `/outside${q}#sea`],
+    ["In memoriam", "Remembering locals this week", "/bdm?f=deaths"],
+    ["Mums", "The school run, sorted", `/mums${qa}`],
+    ["Dads", "Countdowns, kids and your village", `/dads${qa}`],
+    ["Singles", "Meet people in real life", `/singles${qa}`],
+    ["Everyone welcome", "LGBTQIA+ friendly, right here", `/lgbtqia${qa}`],
+    ["Saving money", "Where's the cheapest fuel today?", `/money${q}#fuel`],
+    ["Dog owners", "Off-leash beaches near you", `/outside${q}#dogs`],
+    ["New babies", "Welcome to the world", "/bdm?f=births"]];
+  return `<nav class="hooks" aria-label="More to explore">${dayMix(H, "hooks" + pc).slice(0, 8).map(([k, h, u]) => `<a href="${esc(u)}"><small>${esc(k)}</small><b>${esc(h)}</b></a>`).join("")}</nav>`;
+}
+
 // Footer lists always read A to Z
 const abc = (list, key) => [...list].sort((a, b) => key(a).localeCompare(key(b), "en-AU", { sensitivity: "base" }));
 function page(title, body, pc = "", opts = {}) {
@@ -140,7 +159,7 @@ function page(title, body, pc = "", opts = {}) {
 <link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>${CSS}${NAV_CSS}</style></head><body><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}";var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onerror=function(){im.remove()};a.textContent=a.textContent.replace("💬 ","");a.prepend(im)}}}catch(e){}<\/script>
-<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${formal(body)}</main>
+<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${fixSecLinks(formal(body), R.code)}</main>
 <div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
 <span class="mute">Did we mess up? <a href="#" id="rwrong">Tell us and we'll fix it</a>.</span>
 <form id="rform" hidden><label for="rnote">What did we get wrong, or what's missing?</label><textarea id="rnote" rows="3" maxlength="800"></textarea><input type="email" id="remail" maxlength="120" placeholder="Your email if you'd like to hear back (optional)"><button>Send</button></form><p id="rmsg" class="mute" hidden></p></div>
@@ -269,7 +288,7 @@ const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { wee
 const costTag = e => e.cost == null ? "" : ` <span class="tagg">${e.cost === 0 ? "Free" : "$" + e.cost + (e.kids ? " per kid" : "")}</span>`;
 const evItem = e => `<li${e.cost === 0 ? ' data-free="1"' : ""}${e.kids ? ' data-kids="1"' : ""}><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b>${away(e.date)} — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
 
-async function town(pc, env, ctx, isRoot = false) {
+async function town(pc, env, ctx, isRoot = false, secSlug = "") {
   const t = TOWNS[pc];
   if (!t || !t.live) return page(`${pc} — coming soon`, `<h1>${esc(pc)}${t ? " " + esc(t.name) : ""}</h1>
 ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/${R.code}">See ${R.code} ${R.place}</a></p>`, pc);
@@ -289,7 +308,10 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const nLocals = await localsCount(env);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
-  return page(`The Daily Maverick: ${t.name} ${pc}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
+  const SH = secSlug ? sectionHead(secSlug, { esc, R, pc }) : null;
+  // Section pages are today's paper filtered to that section: the nameplate and front-page extras step aside.
+  const secCss = SH ? `<style>.mast,.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute,#founding{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
+  return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
 <p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath" id="pers">${dailyLine()}</p><p class="tloc"><a href="#" class="useloc" data-on="Reset">Refine your local news</a></p>${live.newsLead}<details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent="✨ "+pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh sr">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(v.name)} ${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
@@ -317,7 +339,7 @@ ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b
 ${oneAppBlock(nLocals)}
 ${live.alerts}
 ${live.news}
-${areasStrip(pc)}
+${hooksStrip(pc)}
 ${loveBlock(pc)}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
@@ -357,6 +379,7 @@ C.forEach(function(c){fetch('/api/open?c='+c[0]).then(function(r){return r.json(
 el.innerHTML='<b>'+c[1]+'</b>: '+(it.length?it.length+' near you. '+it.slice(0,3).map(function(x){return e(x.name)+' ('+x.d.toFixed(1)+' km)'}).join(', ')+(it.length>3?'…':'')+' <a href="/open?c='+c[0]+'">See all →</a>':'<b>none listed near you.</b> Know one? <a href="/feedback">Tell us</a>.')}).catch(function(){var el=document.getElementById('lgbtq-'+c[0]);el.innerHTML='<b>'+c[1]+'</b>: couldn&rsquo;t check just now.'})})})();</script>
 <p class="src"><span class="srcw">Source:</span> <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> (© OpenStreetMap contributors), the free map anyone can add to.</p></section>
 ${fuelBlock(t)}
+${await shopBlock(env)}
 ${await numbersBlock(env)}
 ${await aiBlock(env)}
 ${beerBlock()}
@@ -401,7 +424,7 @@ B.innerHTML='<h3>🏄 Best for beginners today</h3><p class="mute">Learning, or 
 fetch('https://marine-api.open-meteo.com/v1/marine?latitude='+t.mlat+'&longitude='+t.mlon+'&current=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,sea_surface_temperature&timezone=Australia%2FSydney').then(function(r){return r.json()}).then(function(j){var c=j.current||{};SW=[c.swell_wave_direction!=null?c.swell_wave_direction:c.wave_direction,c.swell_wave_height!=null?c.swell_wave_height:c.wave_height];best();if(c.sea_surface_temperature!=null)$('b-sst',Math.round(c.sea_surface_temperature)+'°C');if(c.wave_height!=null){$('b-wave',c.wave_height.toFixed(1)+' m');$('b-wave2',dir(c.wave_direction)+' · '+Math.round(c.wave_period)+' s')}}).catch(function(){});
 fetch('https://api.open-meteo.com/v1/forecast?latitude='+t.lat+'&longitude='+t.lon+'&current=wind_speed_10m,wind_direction_10m&daily=uv_index_max&timezone=Australia%2FSydney&forecast_days=1').then(function(r){return r.json()}).then(function(j){var c=j.current||{},u=(j.daily||{}).uv_index_max;if(c.wind_speed_10m!=null){WD=[c.wind_direction_10m,c.wind_speed_10m];best();$('b-wind',Math.round(c.wind_speed_10m)+' km/h');$('b-wind2',dir(c.wind_direction_10m)+' wind')}if(u&&u[0]!=null){var v=Math.round(u[0]);$('b-uv',v);$('b-uv2',v>=11?'Extreme UV':v>=8?'Very high UV':v>=6?'High UV':v>=3?'Moderate UV':'Low UV')}}).catch(function(){});})();</script></section>
 </div>
-${PUSH_JS()}${rally(nLocals, pc)}
+${SH ? SH.tail : ""}${PUSH_JS()}${rally(nLocals, pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
 var IDX=[...${JSON.stringify(R.idx)},["weather temperature rain wind forecast","Weather today","Today's weather, rain chance and wind are in the tiles at the top.","#today"],
@@ -439,6 +462,9 @@ var n=new Date(d);n.setDate(d.getDate()+diff);var wk=Math.floor((Date.UTC(n.getF
 var el=document.createElement('p');el.className='note';el.innerHTML='🗑️ <b>Bin night '+(diff===0?'tonight':'tomorrow')+':</b> '+(g('bin_bweekly')||'Green')+' + '+(alt==1?(g('bin_balt1')||'Red'):(g('bin_balt2')||'Yellow'))+' <a href="/home">change</a>';
 var t=document.getElementById('today');t.parentNode.insertBefore(el,t)})();
 (function(){var f=document.getElementById('flow'),o;try{o=JSON.parse(localStorage.getItem('order')||'null')}catch(e){}
+if(window.SECT){Array.prototype.forEach.call(f.children,function(el){if(el.tagName!=='SCRIPT')el.hidden=SECT.indexOf(el.id)<0});SECT.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f){el.hidden=false;f.appendChild(el)}});
+window.openPanel=function(id){var el=document.getElementById(id);if(el){el.hidden=false;el.scrollIntoView({behavior:'smooth',block:'start'})}};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-open]');if(a){e.preventDefault();history.replaceState(null,'','#'+a.dataset.open);openPanel(a.dataset.open)}});
+var sh=location.hash.slice(1);if(sh&&document.getElementById(sh))setTimeout(function(){document.getElementById(sh).scrollIntoView({block:'start'})},60);return}
 if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
 var PIN=[];try{PIN=JSON.parse(localStorage.getItem('pin')||'[]')||[]}catch(e){}var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&PIN.indexOf(el.id)<0&&el.querySelector('h2')});
 var nm=function(el){return el.querySelector('h2').textContent.replace(/^[^A-Za-z0-9]+/,'').trim().toLowerCase()};secs.sort(function(a,b){return nm(a).localeCompare(nm(b))});
@@ -490,7 +516,7 @@ else tip('surf','🏄 <b>Fun-sized surf</b> around '+now0.toFixed(1)+' m. Check 
 var hiT=out.filter(function(o){return o[0]==='High'})[0];if(hiT){var hrs=(new Date(hiT[1])-now)/36e5;if(hrs>0&&hrs<5)tip('fish','🎣 <b>Tide’s coming in.</b> High tide at '+tm(hiT[1])+'. Plenty of anglers like the run-up to the top of the tide.')}
 document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return o[0]+' '+tm(o[1])}).join(' · '):'Tide times unavailable')+'<br>Waves '+(h.wave_height[j]||0).toFixed(1)+' m · Swell '+(h.swell_wave_height[j]||0).toFixed(1)+' m · Moon: '+MN[mi][1];
 }).catch(function(){$('tide','Tides unavailable right now.')});
-</script>`, pc);
+</script>`, pc, SH ? SH.opts : {});
 }
 
 const LOCALS_GOAL = 15000;
@@ -2481,7 +2507,7 @@ async function route(req, env, ctx) {
     if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
     if (p === "/social" || p === "/social/") return Response.redirect(new URL("/community", url).toString(), 301);
-    if (NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) return sectionPage(p.replace(/^\/|\/$/g, ""), { page, esc, R });
+    if (NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) { const q = (url.searchParams.get("pc") || "").replace(/\D/g, ""); return town(TOWNS[q] && TOWNS[q].live ? q : R.code, env, ctx, false, p.replace(/^\/|\/$/g, "")); }
     if (p === "/signin") return signinPage(env, safeNext(url.searchParams.get("next") || "/"));
     if (p === "/auth/google") return startGoogle(url, env);
     if (p === "/auth/google/callback") return finishGoogle(req, url, env);
