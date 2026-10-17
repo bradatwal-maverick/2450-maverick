@@ -1,1 +1,476 @@
-{}
+{
+  "2450": [
+    {
+      "name": "Coffs Harbour Police Station",
+      "cat": "Police",
+      "num": "02 6691 0799",
+      "where": "2 Beryl St, Coffs Harbour",
+      "hours": "Open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/coffs_harbour_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Woolgoolga Police Station",
+      "cat": "Police",
+      "num": "02 6690 1200",
+      "where": "22 Beach St, Woolgoolga",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/woolgoolga_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Coramba Police Station",
+      "cat": "Police",
+      "num": "02 6690 1140",
+      "where": "71-73 Gale St, Coramba",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/coramba_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Glenreagh Police Station",
+      "cat": "Police",
+      "num": "02 6643 6920",
+      "where": "Coramba St, Glenreagh",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/glenreagh_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Sawtell Police Station (enquiries via Coffs Harbour)",
+      "cat": "Police",
+      "num": "02 6691 0799",
+      "where": "Sawtell (contact via Coffs Harbour station)",
+      "hours": "Open 24 hours (Coffs Harbour station)",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/sawtell_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Coffs Harbour Health Campus",
+      "cat": "Health",
+      "num": "02 6656 7000",
+      "where": "345 Pacific Hwy, Coffs Harbour",
+      "hours": "Not stated",
+      "src": "https://mnclhd.health.nsw.gov.au/your-emergency-department/",
+      "srcName": "Mid North Coast Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Coffs Harbour City Council customer service",
+      "cat": "Council",
+      "num": "02 6648 4000",
+      "where": "Yarrila Place, 27 Gordon St, Coffs Harbour",
+      "hours": "Phone 8.30am to 4.30pm Mon to Fri; in person 9am to 3.30pm Mon to Fri (excl. public holidays); same number for after-hours emergencies, staffed 24/7",
+      "src": "https://www.coffsharbour.nsw.gov.au/Your-Council/Contact-us/Contact-Council",
+      "srcName": "Coffs Harbour City Council",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Bendigo Bank Coffs Harbour",
+      "cat": "Banks",
+      "num": "02 6652 5199",
+      "where": "48 Harbour Dr, Coffs Harbour",
+      "hours": "Mon to Fri 9.30am to 4pm",
+      "src": "https://www.bendigobank.com.au/branch/nsw/bendigo-bank-coffs-harbour/",
+      "srcName": "Bendigo Bank",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "NRMA Insurance Coffs Harbour branch",
+      "cat": "Motoring and transport",
+      "num": "02 6650 0122",
+      "where": "30 Gordon St, Coffs Harbour",
+      "hours": "Mon to Fri 9am to 5pm; Sat and Sun closed",
+      "src": "https://www.nrma.com.au/branches-finder/branch/coffs-harbour",
+      "srcName": "NRMA Insurance",
+      "checked": "2026-10-18"
+    }
+  ],
+  "2454": [
+    {
+      "name": "Bellingen Police Station",
+      "cat": "Police",
+      "num": "02 6690 1100",
+      "where": "47-49 Hyde St, Bellingen",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/bellingen_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Dorrigo Police Station",
+      "cat": "Police",
+      "num": "02 6690 1160",
+      "where": "2 Bielsdown St, Dorrigo",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/dorrigo_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Urunga Police Station",
+      "cat": "Police",
+      "num": "02 6690 1180",
+      "where": "9-11 Morgo St, Urunga",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/coffs-clarence/urunga_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Bellinger River District Hospital",
+      "cat": "Health",
+      "num": "02 6659 5800",
+      "where": "Church St, Bellingen",
+      "hours": "Not stated",
+      "src": "https://mnclhd.health.nsw.gov.au/your-emergency-department/",
+      "srcName": "Mid North Coast Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Dorrigo Health Campus",
+      "cat": "Health",
+      "num": "02 6692 7700",
+      "where": "Beech St, Dorrigo",
+      "hours": "Not stated",
+      "src": "https://mnclhd.health.nsw.gov.au/your-emergency-department/",
+      "srcName": "Mid North Coast Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Bellingen Shire Council",
+      "cat": "Council",
+      "num": "02 6655 7300",
+      "where": "33 Hyde St, Bellingen",
+      "hours": "Not stated",
+      "src": "https://www.bellingen.nsw.gov.au/",
+      "srcName": "Bellingen Shire Council",
+      "checked": "2026-10-18"
+    }
+  ],
+  "2481": [
+    {
+      "name": "Byron Bay Police Station",
+      "cat": "Police",
+      "num": "02 6685 9499",
+      "where": "2 Shirley St, Byron Bay",
+      "hours": "Open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/tweed-byron/byron_bay_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Mullumbimby Police Station",
+      "cat": "Police",
+      "num": "02 6629 7570",
+      "where": "59-61 Dalley St, Mullumbimby",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/tweed-byron/mullumbimby_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Bangalow Police Station",
+      "cat": "Police",
+      "num": "02 6629 7500",
+      "where": "93 Byron St, Bangalow",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/tweed-byron/bangalow_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Brunswick Heads Police Station",
+      "cat": "Police",
+      "num": "02 6629 7510",
+      "where": "20 Fingal St, Brunswick Heads",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/tweed-byron/brunswick_heads_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Byron Central Hospital (main switchboard)",
+      "cat": "Health",
+      "num": "02 6639 9400",
+      "where": "54 Ewingsdale Rd, Ewingsdale",
+      "hours": "Not stated",
+      "src": "https://nnswlhd.health.nsw.gov.au/hospitals/byron-central-hospital",
+      "srcName": "Northern NSW Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Byron Shire Council customer service",
+      "cat": "Council",
+      "num": "02 6626 7000",
+      "where": "70 Station St, Mullumbimby",
+      "hours": "Phone Mon to Fri 8.30am to 4.30pm; office Mon to Fri 8.30am to 4pm. Toll free 1300 811 942. After-hours emergencies 02 6622 7022",
+      "src": "https://www.byron.nsw.gov.au/System-pages/Contact-Byron-Shire-Council",
+      "srcName": "Byron Shire Council",
+      "checked": "2026-10-18"
+    }
+  ],
+  "2485": [
+    {
+      "name": "Tweed Heads Police Station",
+      "cat": "Police",
+      "num": "07 5506 9499",
+      "where": "83 Wharf St, Tweed Heads",
+      "hours": "Open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/tweed-byron/tweed_heads_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Murwillumbah Police Station",
+      "cat": "Police",
+      "num": "02 6672 9499",
+      "where": "81 Murwillumbah St, Murwillumbah",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/tweed-byron/murwillumbah_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Kingscliff Police Station",
+      "cat": "Police",
+      "num": "02 6674 9399",
+      "where": "154 Marine Pde, Kingscliff",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/tweed-byron/kingscliff_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Tweed Valley Hospital",
+      "cat": "Health",
+      "num": "02 6677 2000",
+      "where": "771 Cudgen Rd, Cudgen",
+      "hours": "Not stated",
+      "src": "https://nnswlhd.health.nsw.gov.au/hospitals/tweed-valley-hospital",
+      "srcName": "Northern NSW Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Murwillumbah District Hospital",
+      "cat": "Health",
+      "num": "02 6672 0000",
+      "where": "8-10 Ewing St, Murwillumbah",
+      "hours": "Not stated",
+      "src": "https://nnswlhd.health.nsw.gov.au/hospitals/murwillumbah-district-hospital",
+      "srcName": "Northern NSW Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Tweed Shire Council customer service",
+      "cat": "Council",
+      "num": "02 6670 2400",
+      "where": "Murwillumbah and Tweed Heads civic centres",
+      "hours": "Phone and live chat Mon to Fri 8.30am to 4.30pm; offices Mon to Fri 9am to 4pm",
+      "src": "https://www.tweed.nsw.gov.au/contact-us",
+      "srcName": "Tweed Shire Council",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "NRMA Insurance Tweed Heads branch",
+      "cat": "Motoring and transport",
+      "num": "07 5536 4811",
+      "where": "Wharf Central, cnr Frances and Wharf Sts, Tweed Heads",
+      "hours": "Mon to Fri 9am to 5pm; Sat and Sun closed",
+      "src": "https://www.nrma.com.au/branches-finder/branch/tweed-heads",
+      "srcName": "NRMA Insurance",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "NRMA Insurance Murwillumbah branch",
+      "cat": "Motoring and transport",
+      "num": "02 6672 8222",
+      "where": "95 Murwillumbah St, Murwillumbah",
+      "hours": "Mon to Fri 9am to 5pm; Sat and Sun closed",
+      "src": "https://www.nrma.com.au/branches-finder/branch/murwillumbah",
+      "srcName": "NRMA Insurance",
+      "checked": "2026-10-18"
+    }
+  ],
+  "2430": [
+    {
+      "name": "Taree Police Station",
+      "cat": "Police",
+      "num": "02 5594 8299",
+      "where": "83 Albert St, Taree",
+      "hours": "Open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/manning-great_lakes/taree_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Wingham Police Station",
+      "cat": "Police",
+      "num": "02 5594 8500",
+      "where": "6 Farquhar St, Wingham",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/manning-great_lakes/wingham_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Manning Hospital",
+      "cat": "Health",
+      "num": "02 6592 9111",
+      "where": "26 York St, Taree",
+      "hours": "Not stated",
+      "src": "https://www.nsw.gov.au/departments-and-agencies/nsw-health/service-directory/manning-hospital",
+      "srcName": "NSW Health",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "MidCoast Council",
+      "cat": "Council",
+      "num": "02 7955 7777",
+      "where": "Taree (PO Box 482, Taree)",
+      "hours": "Not stated",
+      "src": "https://www.midcoast.nsw.gov.au/Contact",
+      "srcName": "MidCoast Council",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "NRMA Insurance Taree branch",
+      "cat": "Motoring and transport",
+      "num": "02 6551 5101",
+      "where": "Manning Arcade, 20-24 Manning St, Taree",
+      "hours": "Mon to Fri 9am to 5pm; Sat and Sun closed",
+      "src": "https://www.nrma.com.au/branches-finder/branch/taree",
+      "srcName": "NRMA Insurance",
+      "checked": "2026-10-18"
+    }
+  ],
+  "2444": [
+    {
+      "name": "Port Macquarie Police Station",
+      "cat": "Police",
+      "num": "02 6583 0199",
+      "where": "2 Hay St, Port Macquarie",
+      "hours": "Open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/mid_north_coast/port_macquarie_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Wauchope Police Station",
+      "cat": "Police",
+      "num": "02 6563 5180",
+      "where": "12 Young St, Wauchope",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/mid_north_coast/wauchope_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Laurieton Police Station",
+      "cat": "Police",
+      "num": "02 5594 8440",
+      "where": "101 Bold St, Laurieton",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/mid_north_coast/laurieton_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Comboyne Police Station",
+      "cat": "Police",
+      "num": "02 5594 8400",
+      "where": "37 Thone St, Comboyne",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/northern_region/mid_north_coast/comboyne_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Port Macquarie Base Hospital",
+      "cat": "Health",
+      "num": "02 5524 2000",
+      "where": "Wrights Rd, Port Macquarie",
+      "hours": "Not stated",
+      "src": "https://mnclhd.health.nsw.gov.au/your-emergency-department/",
+      "srcName": "Mid North Coast Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Wauchope District Memorial Hospital",
+      "cat": "Health",
+      "num": "02 6580 8000",
+      "where": "69 High St, Wauchope",
+      "hours": "Not stated",
+      "src": "https://mnclhd.health.nsw.gov.au/hospital/wauchope-district-memorial-hospital/",
+      "srcName": "Mid North Coast Local Health District",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Port Macquarie-Hastings Council",
+      "cat": "Council",
+      "num": "02 6581 8111",
+      "where": "17 Burrawan St, Port Macquarie (also Wauchope and Laurieton)",
+      "hours": "Not stated",
+      "src": "https://www.pmhc.nsw.gov.au/",
+      "srcName": "Port Macquarie-Hastings Council",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "NRMA Insurance Port Macquarie branch",
+      "cat": "Motoring and transport",
+      "num": "02 6584 5444",
+      "where": "113 Horton St, Port Macquarie",
+      "hours": "Mon to Fri 9am to 5pm; Sat and Sun closed",
+      "src": "https://www.nrma.com.au/branches-finder/branch/port-macquarie",
+      "srcName": "NRMA Insurance",
+      "checked": "2026-10-18"
+    }
+  ],
+  "2350": [
+    {
+      "name": "Armidale Police Station",
+      "cat": "Police",
+      "num": "02 6771 0699",
+      "where": "96-98 Faulkner St, Armidale",
+      "hours": "Open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/western_region/new_england/armidale_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Guyra Police Station",
+      "cat": "Police",
+      "num": "02 6738 4299",
+      "where": "176 Bradley St, Guyra",
+      "hours": "Not open 24 hours",
+      "src": "https://www.police.nsw.gov.au/about_us/regions_commands_districts/western_region/new_england/guyra_police_station",
+      "srcName": "NSW Police Force",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Armidale Hospital",
+      "cat": "Health",
+      "num": "02 6776 9500",
+      "where": "226 Rusden St, Armidale",
+      "hours": "Not stated",
+      "src": "https://www.nsw.gov.au/departments-and-agencies/nsw-health/service-directory/armidale-hospital",
+      "srcName": "NSW Health",
+      "checked": "2026-10-18"
+    },
+    {
+      "name": "Armidale Regional Council",
+      "cat": "Council",
+      "num": "1300 136 833",
+      "where": "135 Rusden St, Armidale (also Guyra office)",
+      "hours": "Phone 24 hours (also after-hours and emergencies); Armidale office 9am to 4pm weekdays",
+      "src": "https://www.armidale.nsw.gov.au/Council/Contact-council",
+      "srcName": "Armidale Regional Council",
+      "checked": "2026-10-18"
+    }
+  ]
+}
