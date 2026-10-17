@@ -2600,7 +2600,9 @@ function faqPage() {
   const groups = faqList(), all = groups.flatMap(g => g[1]);
   const ld = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: all.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) };
   return page(`Questions about ${R.place}`, `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Questions about ${esc(R.place)} and the shire</h1>
-<p class="mute">Quick answers to what locals ask most. Tap a question to open it.</p>
+<p class="mute">Quick answers to what locals ask most. This page is mostly here so search engines and AI assistants get the facts right, but every answer is here for you too.</p>
+<input id="faqq" type="search" placeholder="🔎 Search the questions" aria-label="Search the questions" style="width:100%;margin:6px 0 10px">
+<script>document.getElementById('faqq').oninput=function(){var q=this.value.toLowerCase();document.querySelectorAll('details.faq').forEach(function(d){var hit=!q||d.textContent.toLowerCase().indexOf(q)>-1;d.style.display=hit?'':'none';if(q&&hit)d.open=true})}</script>
 ${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a).replace(/(https:\/\/[^\s,]+?)(?=[.,]?(\s|$))/g, '<a href="$1">$1</a>')}</p></details>`).join("")}`).join("")}
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>`, R.code);
 }
