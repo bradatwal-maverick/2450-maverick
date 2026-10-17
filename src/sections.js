@@ -56,6 +56,7 @@ export const NAV = [
     ["#wine", "🍷", "Wine watch", "Today's prices"],
     ["/jobs", "💼", "Jobs", "Every job site in one place"],
     ["/rent", "🏠", "Renting", "Every rental site, your rights, bond help"],
+    ["/numbers", "📞", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"],
     ["", "🔎", "Local Business Watch", "Does your money stay in the community?", true],
   ] },
   { slug: "family", icon: "👪", name: "Family", blurb: "The school run, the kids and your village.", items: [
