@@ -4,14 +4,13 @@
 // Each section only gets a photo that matches it (a beach shot for Beaches, a jetty for Tides). No match, no photo.
 // Wikimedia only serves standard thumbnail widths (250, 500, 960, 1280…); anything else fails to load.
 // Picked once a day per postcode, cached, never the same as today's big photo.
-import { search, candidates, shape } from "./potd.js";
+import { search, candidates, shape, rate, small } from "./potd.js";
 
 export const THEMES = [
   ["beaches", /\b(beach|beaches|surf|waves|headland|shore|sand)\b/i],
   ["sea", /\b(jetty|harbour|marina|boat|boats|pier|estuary|river|creek|lagoon|island|fishing|breakwall)\b/i],
   ["kids", /\b(forest|falls|waterfall|rainforest|lookout|park|walk|track|trail|gorge|reserve|national park|boardwalk)\b/i],
   ["dogs", /\b(beach|park|reserve|headland)\b/i],
-  ["events", /\b(festival|market|markets|show|parade|carnival|concert|fair)\b/i],
   ["love", /./], // last: any good photo left over
 ];
 const strip = s => String(s || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
@@ -20,22 +19,26 @@ function seed(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0)
 
 // { sectionId: photo } for one postcode today.
 export async function sidePics(env, pc, town, day, UA) {
-  const k = `spics2:${pc}:${day}`, hit = await env.DATA.get(k, "json");
+  const k = `spics3:${pc}:${day}`, hit = await env.DATA.get(k, "json");
   if (hit) return hit;
-  const hero = await env.DATA.get(`potd3:${pc}:${day}`, "json"), recent = (await env.DATA.get(`potd:recent:${pc}`, "json")) || [];
+  const hero = await env.DATA.get(`potd4:${pc}:${day}`, "json"), recent = (await env.DATA.get(`potd:recent:${pc}`, "json")) || [], used = (await env.DATA.get(`pused:${day}`, "json")) || [];
   let out = {};
   try {
-    const c = candidates(await search(town.lat, town.lon, UA), [hero?.title, ...recent].filter(Boolean));
-    const used = new Set();
+    const c = candidates(await search(town.lat, town.lon, UA), [hero?.title, ...recent, ...used].filter(Boolean));
+    const taken = new Set();
     for (const [id, re] of THEMES) {
-      const fit = c.filter(x => !used.has(x.p.title) && re.test(textOf(x)));
+      const fit = c.filter(x => !taken.has(x.p.title) && re.test(textOf(x)));
       if (!fit.length) continue;
-      const top = fit.slice(0, 8), x = top[seed(pc + day + id) % top.length];
-      used.add(x.p.title);
+      // Nature only: no people, no more than 30% concrete. The AI checks up to 3 shots per section.
+      const top = fit.slice(0, 8), st = seed(pc + day + id) % top.length, look = [...top.slice(st), ...top.slice(0, st)].slice(0, 3);
+      let x = null; for (const y of look) { if (!env.AI || (await rate(env, small(y.i.thumburl || y.i.url), UA)) >= 6) { x = y; break; } }
+      if (!x) continue;
+      taken.add(x.p.title);
       const ph = shape(x);
       out[id] = { ...ph, src: String(ph.src).replace(/\/\d+px-/, "/500px-"), w: 500, h: Math.round(500 * ph.h / ph.w) };
     }
   } catch (e) { out = {}; }
+  if (Object.keys(out).length) await env.DATA.put(`pused:${day}`, JSON.stringify([...((await env.DATA.get(`pused:${day}`, "json")) || []), ...Object.values(out).map(o => o.title)]), { expirationTtl: 2 * 86400 });
   await env.DATA.put(k, JSON.stringify(out), { expirationTtl: Object.keys(out).length ? 2 * 86400 : 3 * 3600 });
   return out;
 }
