@@ -15,7 +15,7 @@ import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
 import { KID_CSS, kidsLog, kidsHub, safePage, petPage, robotPage, certPage } from "./kids.js";
-import { PERSONAL_JS, MAV_JS, ME_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
+import { PERSONAL_JS, MAV_JS, ME_JS, SETTINGS_JS, FORYOU_JS, LIKES, LIKE_KINDS, prefsApi } from "./personal.js";
 import { BANKS, MOVES, CDR } from "./rates.js";
 import { refreshABS, absBlock } from "./abs.js";
 import { rentGroups, jobGroups, directoryBody, radioSection } from "./directory.js";
@@ -86,7 +86,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 .card{display:block;background:var(--soft);border-radius:14px;padding:14px 16px;margin:14px 0;text-decoration:none;color:var(--fg)}.card b{color:var(--accent)}
 .tile{background:none}
 .md{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);font-weight:bold;letter-spacing:2px;font-size:.8rem}
-.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.75rem;background:var(--soft);padding:4px 8px;border-radius:14px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:4px 11px;font-size:.85rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.fuel{padding-left:20px}.fuel li{margin:8px 0}h3{font-size:1rem;margin:14px 0 4px}.openl{list-style:none;padding:0}.openl li{display:flex;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}.openl .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:6px;background:#9aa0a6}.openl li.open .dot{background:#1e9e4a}.openl li.shut .dot{background:#d93025}.openl li.open .st{color:#1e9e4a;font-weight:bold}.openl li.shut .st{color:#d93025;font-weight:bold}.openl li.unk .st{color:var(--mute)}#mavbtn{position:fixed;right:16px;bottom:16px;z-index:50;border-radius:24px;padding:12px 18px;background:var(--fg);color:var(--bg);box-shadow:0 4px 14px rgba(0,0,0,.2)}#mavp{position:fixed;right:12px;bottom:12px;left:12px;max-width:420px;margin-left:auto;z-index:51;background:var(--bg);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;max-height:75vh}#mavp[hidden]{display:none}.mavh{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:4px}.mavh button{margin-left:auto;background:none;color:var(--fg);font-size:1.3rem;padding:0 6px}#mavlog{overflow:auto;padding:10px 14px;flex:1}.mm{margin:6px 0;padding:8px 12px;border-radius:14px;max-width:85%}.mm.mav{background:var(--soft)}.mm.me{background:var(--fg);color:var(--bg);margin-left:auto}.mm.me a{color:var(--bg)}#mavchips{padding:0 12px}#mavchips label{cursor:pointer;font-size:.8rem}#mavf{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}#mavf input{flex:1;min-width:0}#mavmic{background:var(--soft);color:var(--fg);padding:8px 12px}footer p{margin:0 0 12px}.aoc{max-width:520px;margin-left:auto!important;margin-right:auto!important;font-style:italic;font-size:.8rem}.pow{margin-top:16px!important}.pow>span:first-child{font-size:.75rem}@media print{body *{visibility:hidden}#hsout,#hsout *{visibility:visible}#hsout{position:absolute;left:0;top:0;white-space:pre-wrap;font-size:14px}}.hsout{display:none}@media print{.hsout{display:block}}.srcbtn{background:none;color:var(--mute);border:1px solid var(--line);border-radius:12px;padding:2px 10px;font-size:.78rem;margin:4px 0;cursor:pointer}.srcbtn.on{background:var(--soft);color:var(--fg)}.srcbtn span{margin-left:2px}p.src{background:var(--soft);border-radius:8px;padding:8px 10px}.tagline{display:inline-block;margin-top:4px;font-size:.75rem}.md svg{width:24px;height:21px}.brand .mark{height:16px;width:19px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
+.say{background:var(--gold);color:#12233f;padding:0 5px;border-radius:4px;font-weight:bold}.qs{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}.qs input{width:100%;font-size:1.05rem}.qhit{margin:8px 0}.sq{cursor:pointer}.sq span{margin-left:4px;color:var(--mute)}.my{text-decoration:none;font-weight:bold;font-size:.75rem;background:var(--soft);padding:4px 8px;border-radius:14px}.mav{background:var(--soft);border-radius:14px;padding:14px 16px;margin:12px 0}.mav textarea{margin:8px 0}.micb{font-size:1.1rem;width:100%;padding:14px}#ex label{cursor:pointer}.setlist{list-style:none;padding:0}.setlist li{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.setlist li.off span:first-child{opacity:.45;text-decoration:line-through}.setlist button{padding:6px 12px}.setlist button[disabled]{opacity:.3}.tg{min-width:52px}.pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}.pills button{background:var(--soft);color:var(--fg);border-radius:18px;padding:4px 11px;font-size:.85rem}.pills button.on{background:var(--fg);color:var(--bg)}.panel{background:var(--soft);border-radius:14px;padding:4px 16px 12px;margin:8px 0}.panel h2{border:0}.ideas{list-style:none;padding:0}.idea{display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:10px 0}.vote{background:var(--soft);color:var(--fg);border-radius:12px;padding:8px 10px;min-width:64px}.vote.on{background:var(--gold);color:#12233f}.bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}.tagg{font-size:.8rem;background:var(--soft);padding:2px 8px;border-radius:10px}.ann{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:var(--gold);color:#12233f;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}.ann a{color:#12233f}.ann button{background:none;color:#12233f;padding:0 4px;font-size:1.2rem}.fuel{padding-left:20px}.fuel li{margin:8px 0}h3{font-size:1rem;margin:14px 0 4px}.openl{list-style:none;padding:0}.openl li{display:flex;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}.openl .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:6px;background:#9aa0a6}.openl li.open .dot{background:#1e9e4a}.openl li.shut .dot{background:#d93025}.openl li.open .st{color:#1e9e4a;font-weight:bold}.openl li.shut .st{color:#d93025;font-weight:bold}.openl li.unk .st{color:var(--mute)}#mavbtn{position:fixed;right:16px;bottom:16px;z-index:50;border-radius:24px;padding:12px 18px;background:var(--fg);color:var(--bg);box-shadow:0 4px 14px rgba(0,0,0,.2)}#mavp{position:fixed;right:12px;bottom:12px;left:12px;max-width:420px;margin-left:auto;z-index:51;background:var(--bg);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;max-height:75vh}#mavp[hidden]{display:none}.mavh{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:4px}.mavh button{margin-left:auto;background:none;color:var(--fg);font-size:1.3rem;padding:0 6px}#mavlog{overflow:auto;padding:10px 14px;flex:1;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.mm{margin:8px 0;padding:10px 14px;border-radius:16px;max-width:88%;font-size:1.02rem;line-height:1.4}.mm.mav.last{font-size:1.1rem;border-left:4px solid var(--gold)}.mavtools{display:flex;gap:10px;align-items:center;margin-left:8px;font-size:.8rem}.mavtools button{background:none;color:var(--fg);padding:0;margin:0;font-size:.8rem;text-decoration:underline}.setf label{display:block;margin:8px 0}.setf input:not([type=checkbox]),.setf select{width:100%}.setf .chips label{display:inline-block}.setg{border:1px solid var(--line);border-radius:12px;margin:10px 0;padding:6px 12px}.setg legend{font-weight:bold;padding:0 6px}.setg label{display:inline-block;margin:4px 14px 4px 0}.setbar{position:sticky;bottom:0;background:var(--bg);padding:12px 0;border-top:1px solid var(--line)}.foryou{border:2px solid var(--gold);border-radius:14px;padding:4px 16px 8px;margin:12px 0}.foryou h2{border:0}.fyc{border-bottom:1px solid var(--line);padding:6px 0}.fyc ul{margin:4px 0;padding-left:18px}.fynote{font-size:.8rem}.mavst{margin:0 14px;padding:8px 10px;background:var(--soft);border-radius:10px;font-size:.85rem}.mavst button{margin-left:6px;padding:4px 10px}.mavmailw{margin:0;padding:0 12px;text-align:center}.mavmailw button{font-size:.8rem;padding:4px 10px}.mm.mav{background:var(--soft)}.mm.me{background:var(--fg);color:var(--bg);margin-left:auto}.mm.me a{color:var(--bg)}#mavchips{padding:0 12px}#mavchips label{cursor:pointer;font-size:.8rem}#mavf{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}#mavf input{flex:1;min-width:0}#mavmic{background:var(--soft);color:var(--fg);padding:8px 12px}footer p{margin:0 0 12px}.aoc{max-width:520px;margin-left:auto!important;margin-right:auto!important;font-style:italic;font-size:.8rem}.pow{margin-top:16px!important}.pow>span:first-child{font-size:.75rem}@media print{body *{visibility:hidden}#hsout,#hsout *{visibility:visible}#hsout{position:absolute;left:0;top:0;white-space:pre-wrap;font-size:14px}}.hsout{display:none}@media print{.hsout{display:block}}.srcbtn{background:none;color:var(--mute);border:1px solid var(--line);border-radius:12px;padding:2px 10px;font-size:.78rem;margin:4px 0;cursor:pointer}.srcbtn.on{background:var(--soft);color:var(--fg)}.srcbtn span{margin-left:2px}p.src{background:var(--soft);border-radius:8px;padding:8px 10px}.tagline{display:inline-block;margin-top:4px;font-size:.75rem}.md svg{width:24px;height:21px}.brand .mark{height:16px;width:19px}.chips label{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;border:1px solid var(--line);border-radius:16px;font-size:.9rem}
 .chips input{margin-right:4px}.recipes li{margin:10px 0}
 .tiles{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 0 12px;padding:8px 12px;background:var(--soft);border-radius:10px;font-size:.88rem}@media(max-width:480px){.tiles{gap:4px 12px}}
 .tile{display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap}.tile b{font-size:.95rem}.tile small{color:var(--mute);font-size:.78rem}.ico{font-size:1rem}
@@ -468,7 +468,6 @@ var t=document.getElementById('today');t.parentNode.insertBefore(el,t)})();
 if(window.SECT){Array.prototype.forEach.call(f.children,function(el){if(el.tagName!=='SCRIPT')el.hidden=SECT.indexOf(el.id)<0});SECT.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f){el.hidden=false;f.appendChild(el)}});
 window.openPanel=function(id){var el=document.getElementById(id);if(el){el.hidden=false;el.scrollIntoView({behavior:'smooth',block:'start'})}};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-open]');if(a){e.preventDefault();history.replaceState(null,'','#'+a.dataset.open);openPanel(a.dataset.open)}});
 var sh=location.hash.slice(1);if(sh&&document.getElementById(sh))setTimeout(function(){document.getElementById(sh).scrollIntoView({block:'start'})},60);return}
-if(o)o.forEach(function(id){var el=document.getElementById(id);if(el&&el.parentNode===f)f.appendChild(el)});
 var PIN=[];try{PIN=JSON.parse(localStorage.getItem('pin')||'[]')||[]}catch(e){}var nav=document.createElement('div');nav.className='pills';var secs=Array.prototype.filter.call(f.children,function(el){var off;try{off=localStorage.getItem('hide_'+el.id)}catch(e){}if(off){el.hidden=true;return false}return el.id!=='today'&&el.id!=='news'&&PIN.indexOf(el.id)<0&&el.querySelector('h2')});
 var nm=function(el){return el.querySelector('h2').textContent.replace(/^[^A-Za-z0-9]+/,'').trim().toLowerCase()};secs.sort(function(a,b){return nm(a).localeCompare(nm(b))});
 secs.forEach(function(el){el.hidden=true;el.classList.add('panel');var b=document.createElement('button');b.type='button';b.textContent=el.querySelector('h2').textContent;
@@ -1830,20 +1829,34 @@ async function mavChat(req, env) {
   h.append("set-cookie", "mav1=1; Path=/; Max-Age=31536000; Secure; SameSite=Lax");
   return new Response(r.body, { status: r.status, headers: h });
 }
+// Off-limits: Mav only knows what's published on the site. Anything dangerous or nasty gets a polite no, before any AI sees it.
+const MAV_NO = /\b(bomb|explosive|detonat|nuclear|uranium|plutonium|nerve agent|sarin|ricin|anthrax|bioweapon|chemical weapon|weapon|gun|firearm|ammo|ammunition|silencer|3d.?print(ed)? gun|meth|cocaine|heroin|fentanyl|synthesi[sz]e|cook (meth|drugs)|hack|malware|ransomware|phishing|ddos|keylogger|exploit|password crack|steal|poison|kill|murder|stab|shoot|terror|porn|nude|naked|sex|escort|suicide|self.?harm|hurt myself|end my life)\b/i;
+const MAV_HURT = /\b(suicide|self.?harm|hurt myself|end my life|kill myself|don'?t want to live)\b/i;
+function mavGuard(text) {
+  if (MAV_HURT.test(text)) return { reply: "I'm sorry you're going through this. Please talk to someone now: Lifeline 13 11 14 (any time), or 000 if you're in danger.", actions: [] };
+  if (MAV_NO.test(text)) return { reply: `That's not something I can help with. I only know what's in ${R.brand}, and I'm here to make your page about you.`, actions: [] };
+  return null;
+}
 async function mavAnswer(req, env) {
   let j = {}; try { j = await req.json(); } catch (e) {}
   const msgs = (Array.isArray(j.messages) ? j.messages : []).slice(-6).map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content || "").slice(0, 500) }));
   const last = msgs.filter(m => m.role === "user").pop()?.content || "";
   const pc = /^\d{4}$/.test(j.pc) ? j.pc : R.code, ids = SECTIONS.map(x => x[0]), live = Object.keys(TOWNS).filter(k => TOWNS[k].live);
-  const fallback = () => { const low = last.toLowerCase(), g = mavGuess(last), hit = [["open", "/open"], ["fridge", "/fridge"], ["dinner", "/fridge"], ["school", "/school"], ["birthday", "/birthday"], ["slang", "/genalpha"], ["idea", "/feedback"]].find(([k]) => low.includes(k));
-    if (/\b(hide|remove|get rid|don't want|dont want|switch off|turn off)\b/.test(low)) { const h = ids.filter(id => id !== "today" && low.includes(SECTIONS.find(x => x[0] === id)[1].toLowerCase().split(" ")[0])); if (h.length) return { reply: "Done, that's off your page. Ask me any time to bring it back.", actions: [{ type: "hide", ids: h }] }; }
-    if (/\b(pin|move|put|show|first|top|set up|setup|order|only)\b/.test(low)) { const top = g.order.slice(1, 4); return { reply: g.say, actions: [{ type: "pin", ids: top }] }; }
-    return { reply: hit ? `Try this page: ${hit[1]}` : `I can set up your daily page: pin what you read first, your stars, events you like, bin night, your friends' clocks and more. What do you need?`, actions: hit ? [{ type: "link", url: hit[1] }] : [] }; };
-  if (!last.trim() || !env.AI) return Response.json(fallback());
-  const st = j.state && typeof j.state === "object" ? JSON.stringify(j.state).slice(0, 1200) : "{}";
-  const sys = `You are Mav, the friendly, down-to-earth Aussie helper on ${R.brand}, a free local paper for ${R.place}. Keep replies short (1-3 sentences), warm and practical. Only use facts below; if unsure, point to the right page or say to check the source. No medical, legal or financial advice beyond pointing to services; emergencies: call 000.
+  const stop = mavGuard(last); if (stop) return Response.json(stop);
+  // Simple mode, when the AI is down: still hides, shows and resets by plain words.
+  const fallback = (ok) => { const low = last.toLowerCase(), hit = [["open", "/open"], ["fridge", "/fridge"], ["dinner", "/fridge"], ["school", "/school"], ["birthday", "/birthday"], ["slang", "/genalpha"], ["idea", "/feedback"]].find(([k]) => low.includes(k));
+    const named = ids.filter(id => id !== "today" && (low.includes(SECTIONS.find(x => x[0] === id)[1].toLowerCase()) || new RegExp(`\\b${id}\\b`).test(low)));
+    if (/\b(reset|start (again|fresh|over)|clear (it|everything|my page))\b/.test(low)) return { ok, reply: "Done, your page is back to normal.", actions: [{ type: "reset" }] };
+    if (named.length && /\b(hide|remove|get rid|don'?t want|dont need|switch off|turn off|not interested)\b/.test(low)) return { ok, reply: `Done, ${named.map(id => SECTIONS.find(x => x[0] === id)[1]).join(" and ")} ${named.length > 1 ? "are" : "is"} off your page. Ask any time to bring it back.`, actions: [{ type: "hide", ids: named }] };
+    if (named.length && /\b(show|bring back|turn on|want|add)\b/.test(low)) return { ok, reply: `Done, ${named.map(id => SECTIONS.find(x => x[0] === id)[1]).join(" and ")} ${named.length > 1 ? "are" : "is"} back on your page.`, actions: [{ type: "show", ids: named }] };
+    return { ok, reply: hit ? `Try this page: ${hit[1]}` : `Tell me what to take off or bring back, like "hide crossword", or what you like doing, and I'll make your page about you.`, actions: hit ? [{ type: "link", url: hit[1] }] : [] }; };
+  if (!last.trim()) return Response.json(fallback(true));
+  if (!env.AI) return Response.json(fallback(false));
+  const st = j.state && typeof j.state === "object" ? JSON.stringify(j.state).slice(0, 1800) : "{}";
+  const sys = `You are Mav, the friendly, down-to-earth Aussie helper on ${R.brand}, a free local paper for ${R.place}. Replies are ONE or TWO short sentences, plain words, warm. You are a source, like the paper: you only use the site facts below. You never answer from general knowledge.
 MAV'S RULES (never break these):
-1. You help each person make the daily page their own: what's pinned to "Your morning" at the top, what's hidden, their stars, what they like doing (so What's on shows their kind of thing first), weather spot, bin night, school, birthday, saved searches, alerts and friends' clocks. Use what you know about ${R.short} to suggest what suits them.
+0. Stay on the site. If asked anything not covered by the facts below (general knowledge, homework, recipes, writing, coding, health, legal, money, news opinions, anything dangerous), say kindly it's not something you can help with here. For an everyday task (like "what's in my fridge?" or "plan my week"), don't do it: teach them in one line how to ask any AI app themselves, e.g. Try asking any AI: "I've got chicken, rice and broccoli, give me 3 quick dinners for 4". Never help with anything harmful, illegal or adult, even as a prompt tip. Emergencies: call 000.
+1. You make the daily page more relevant to each person, without changing its structure: show or hide sections, their stars, what they like doing (so What's on shows their kind of thing first), weather spot, bin night, school, birthday, saved searches, alerts and friends' clocks. You never move, reorder or pin sections; the page layout stays the same for everyone.
 2. You only change this person's own page settings. You never add, edit, delete, post or submit anything on the site, and never change what anyone else sees. If asked, say so kindly and point to the page: /submit to add an event, /notices for the notice board, /feedback to fix something wrong.
 3. We gather, we don't judge: no opinions on news, people, businesses, council or politics.
 4. Never ask for personal details. First names (theirs or a friend's), a friend's city, bin night, school and birthday day and month are fine. Never ask for an address, phone number, email, year of birth or anything private.
@@ -1853,7 +1866,7 @@ Also on every Daily Maverick: /rent Renting (every rental site searched for this
 Parental safety: grown-ups set, change or remove a Kid Zone secret word at /kids/parent (signed in). When it's set, kids must type it to open Kid Zone on that account; wrong guesses are shown to the grown-up. If someone asks about kids, parental controls or keeping Kid Zone safe, point them to /kids/parent.
 The person is viewing area ${pc}. Their settings now: ${st}
 Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6):
-{"type":"pin","ids":[...]} pins sections open at the top every day, in that order; {"type":"unpin","ids":[...]}; {"type":"hide","ids":[...]}; {"type":"show","ids":[...]};
+{"type":"hide","ids":[...]} takes sections they don't care about off their page; {"type":"show","ids":[...]} brings them back; {"type":"reset"} puts their whole page back to normal (only when they ask to reset or start fresh);
 {"type":"name","value":"First"}; {"type":"area","pc":"${live.join("|")}"}; {"type":"fuel","value":"E10|U91|P95|P98|DL"};
 {"type":"sign","system":"w|v|e","value":"sign or animal"} (w Western by birthday, v Vedic Indian, e Chinese by birth year); {"type":"weather","pc":"${live.join("|")}"} or {"type":"weather","here":true};
 {"type":"bins","day":"Monday"}; {"type":"school","value":"exact name from: ${SCHOOLS.join("; ")}"}; {"type":"birthday","day":1-31,"month":1-12}; {"type":"search","value":"a few words"};
@@ -1863,15 +1876,32 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6
 Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
   try {
     const ask = { max_tokens: 450, messages: [{ role: "system", content: sys }, ...msgs] };
-    let r; try { r = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { r = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", ask); }
-    const raw = typeof r.response === "string" ? r.response : JSON.stringify(r.response || {}), m = raw.match(/\{[\s\S]*\}/);
-    let out; try { out = JSON.parse(m[0]); } catch (e) { out = { reply: raw.replace(/[{}"]/g, "").slice(0, 400), actions: [] }; }
-    let acts = cleanActs(out.actions, ids, live), reply = String(out.reply || "Done!").slice(0, 500);
+    const run = async model => { const r = await env.AI.run(model, ask), raw = typeof r.response === "string" ? r.response : JSON.stringify(r.response || {});
+      const o = JSON.parse((raw.match(/\{[\s\S]*\}/) || [])[0]); if (!o || typeof o.reply !== "string" || !o.reply.trim()) throw new Error("bad reply"); return o; };
+    let out; try { out = await run("@cf/meta/llama-3.3-70b-instruct-fp8-fast"); } catch (e) { try { out = await run("@cf/meta/llama-3.1-8b-instruct-fast"); } catch (e2) { return Response.json(fallback(false)); } }
+    let acts = cleanActs(out.actions, ids, live), reply = String(out.reply).replace(/https?:\/\/\S+/g, "").slice(0, 300);
+    if (MAV_NO.test(reply)) { reply = `That's not something I can help with. I only know what's in ${R.brand}.`; acts = []; }
     const wa = acts.filter(a => a.type === "watch" || a.type === "unwatch");
     if (wa.length) { acts = acts.filter(a => !wa.includes(a)); const em = await member(req, env);
       if (!em) reply = "Sign in free and I'll watch that price for you, twice a day: /signin"; else { const said = await applyWatch(env, em, wa); if (said.length) reply = said.join(" "); } }
     return Response.json({ reply, actions: acts });
-  } catch (e) { return Response.json(fallback()); }
+  } catch (e) { return Response.json(fallback(false)); }
+}
+// Email a signed-in member their Mav chat (the chat itself can't be copied). Up to 5 a day, only ever to their own inbox.
+async function mavEmail(req, env, ctx) {
+  const em = await member(req, env); if (!em) return Response.json({ ok: false, error: "Sign in first" }, { status: 401 });
+  const k = `mavmail:${em}:${todayISO()}`, n = +(await env.DATA.get(k) || 0); if (n >= 5) return Response.json({ ok: false, error: "That's 5 today, try tomorrow" }, { status: 429 });
+  let j = {}; try { j = await req.json(); } catch (e) {}
+  const msgs = (Array.isArray(j.messages) ? j.messages : []).slice(-12).map(m => `${m.role === "user" ? "You" : "Mav"}: ${String(m.content || "").replace(/[\r\n]+/g, " ").slice(0, 500)}`).filter(x => !x.endsWith(": …"));
+  if (!msgs.length) return Response.json({ ok: false, error: "Nothing to send yet" });
+  if (!env.MAILER) return Response.json({ ok: false, error: "Email's not switched on yet" });
+  try {
+    const { EmailMessage } = await import("cloudflare:email"), from = `mav@${R.domain}`;
+    const body = `G'day from Mav,\n\nHere's our chat on ${R.brand}:\n\n${msgs.join("\n\n")}\n\nAnything else? Just ask me on https://${R.domain}/\n\nMav\n${R.brand}, powered by Maverick Digital`;
+    const raw = [`From: Mav at ${R.brand} <${from}>`, `To: ${em}`, `Subject: Your chat with Mav`, `Message-ID: <${crypto.randomUUID()}@${R.domain}>`, `Date: ${new Date().toUTCString()}`, "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "", body].join("\r\n");
+    await env.MAILER.send(new EmailMessage(from, em, raw)); await env.DATA.put(k, String(n + 1), { expirationTtl: 172800 });
+    return Response.json({ ok: true });
+  } catch (e) { console.log("mav email", e); return Response.json({ ok: false, error: "Couldn't send, try again later" }); }
 }
 // Everything Mav sets is checked here first. Anything not on this list is dropped.
 function cleanActs(list, ids, live) {
@@ -1885,8 +1915,9 @@ function cleanActs(list, ids, live) {
   return (Array.isArray(list) ? list : []).filter(a => a && typeof a === "object").map(a => {
     const sec = (arr, noToday) => (Array.isArray(arr) ? arr : []).filter(i => ids.includes(i) && !(noToday && i === "today"));
     switch (a.type) {
-      case "pin": case "unpin": case "hide": case "show": { const s = sec(a.ids, true); return s.length ? { type: a.type, ids: s } : null; }
-      case "order": { const o = [...new Set(sec(a.ids))]; ids.forEach(i => o.includes(i) || o.push(i)); return { type: "order", ids: o }; }
+      case "pin": case "show": { const s = sec(a.ids, true); return s.length ? { type: "show", ids: s } : null; }
+      case "hide": { const s = sec(a.ids, true); return s.length ? { type: "hide", ids: s } : null; }
+      case "reset": return { type: "reset" };
       case "name": return nm(a.value) ? { type: "name", value: nm(a.value) } : null;
       case "area": return live.includes(String(a.pc)) ? { type: "area", pc: String(a.pc) } : null;
       case "fuel": return FUELS[a.value] ? { type: "fuel", value: a.value } : null;
@@ -1910,10 +1941,63 @@ function cleanActs(list, ids, live) {
     }
   }).filter(Boolean).slice(0, 8);
 }
+// ---- My page (account settings): the manual way, laid out by the paper's parent sections. Mav can pre-fill it; nothing sticks until Save. ----
+const READFOR = [["news", "📰 Local news"], ["rip", "🕊️ Death notices"], ["events", "🎪 What's on"], ["weather", "⛅ Weather & tides"], ["sport", "🏉 Sport"], ["council", "🏛️ Council"], ["deals", "🛒 Prices & deals"], ["jobs", "💼 Jobs & renting"], ["family", "🧒 Things for the kids"], ["puzzles", "🧩 Puzzles & stars"]];
+function settingsPage(first) {
+  const ids = SECTIONS.map(x => x[0]).filter(id => id !== "today"), lab = id => SECTIONS.find(x => x[0] === id)[1], seen = new Set();
+  const groups = NAV.map(n => [n.icon + " " + n.name, n.items.map(i => i[0]).filter(h => h.startsWith("#")).map(h => h.slice(1)).filter(id => ids.includes(id) && !seen.has(id) && seen.add(id))]).filter(g => g[1].length);
+  const rest = ids.filter(id => !seen.has(id)); if (rest.length) groups.push(["➕ More", rest]);
+  const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  return page(`${first ? esc(first) + "'s" : "My"} ${R.code}`, `<h1>⚙️ ${first ? esc(first) + "&rsquo;s" : "My"} settings</h1>
+<p>Easiest way: just tell Mav. Like setting things yourself? It's all here. The paper stays the same for everyone; this only decides what&rsquo;s on <b>your</b> page. <a href="/${R.code}#foryou">See your page →</a></p>
+<form id="setf" class="setf">
+<h2>👋 About you</h2><p class="mute">No age, no address. Just enough so Mav knows what you&rsquo;d like to read.</p>
+<label>First name<br><input name="name" maxlength="24" autocomplete="given-name"></label>
+<p><b>What do you read the paper for?</b></p><div class="chips">${READFOR.map(([v, l]) => `<label><input type="checkbox" name="readfor" value="${v}"> ${l}</label>`).join("")}</div>
+<label>Favourite singer or kind of music<br><input name="music" maxlength="80" placeholder="e.g. Slim Dusty, country"></label>
+<label>Favourite TV show<br><input name="tv" maxlength="80" placeholder="e.g. Gardening Australia"></label>
+<label>What do you like doing on the weekend?<br><input name="weekend" maxlength="160" placeholder="e.g. fishing, the markets, walking the dog"></label>
+<div class="row"><label>Kids at home?<br><select name="kids"><option value="">Rather not say</option><option>Yes</option><option>No</option></select></label>
+<label>Got a dog?<br><select name="dog"><option value="">Rather not say</option><option>Yes</option><option>No</option></select></label></div>
+<p><button type="button" id="mavfill">✨ Let Mav fill it in</button> <small class="mute">He ticks what suits you below. You check it, then Save.</small></p>
+<h2>🎯 What you like doing</h2><div class="chips">${LIKES.map(l => `<label><input type="checkbox" name="like" value="${l}"> ${l[0].toUpperCase() + l.slice(1)}</label>`).join("")}</div>
+<h2>📰 On my page</h2><p class="mute">Untick what you don&rsquo;t read. <a href="#" id="setall">Tick all</a></p>
+${groups.map(([h, its]) => `<fieldset class="setg"><legend>${esc(h)}</legend>${its.map(id => `<label><input type="checkbox" name="sec" value="${id}"> ${esc(lab(id))}</label>`).join("")}</fieldset>`).join("")}
+<h2>🧾 Your details</h2><div class="row">
+<label>Star sign<br><select name="zw"><option value="">Pick…</option>${WEST.map((x, k) => `<option value="${k}">${x[0]} ${x[1]}</option>`).join("")}</select></label>
+<label>Fuel<br><select name="fuel"><option value="">Pick…</option>${Object.entries(FUELS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></label>
+<label>Bin night<br><select name="bins"><option value="">Pick…</option>${DAYS.map((d, i) => `<option value="${i}">${d}</option>`).join("")}</select></label></div>
+<div class="setbar"><button>💾 Save</button> <span id="setmsg" class="mute" role="status"></span></div>
+</form>
+<p class="mute">More: <a href="/home">bin details</a> · <a href="/school">school run</a> · <a href="/birthday">birthday deals</a> · <a href="/kids/parent">Kid Zone secret word</a></p>
+<p class="mute"><a href="#" id="setreset">↺ Start fresh</a> · <a href="/signout"><b>Sign out</b></a></p>
+<script>addEventListener("DOMContentLoaded",function(){${SETTINGS_JS}})<\/script>`, R.code);
+}
+// Mav reads someone's "About you" answers (and what they read) and suggests what to show or hide. Suggests only; nothing is saved here.
+async function mavSuggest(req, env) {
+  let j = {}; try { j = await req.json(); } catch (e) {}
+  const pr = j.profile && typeof j.profile === "object" ? j.profile : {}, text = JSON.stringify(pr).slice(0, 900);
+  if (mavGuard(text)) return Response.json({ error: "Mav can only help with your page here." });
+  const ids = SECTIONS.map(x => x[0]).filter(id => id !== "today"), rf = Array.isArray(pr.readfor) ? pr.readfor : [];
+  const reads = j.reads && typeof j.reads === "object" ? Object.keys(j.reads).filter(id => ids.includes(id) && +j.reads[id] >= 2) : [];
+  const MAP = { news: ["news", "alerts", "numbers"], rip: ["bdm"], events: ["events", "tonight"], weather: ["sea", "beaches"], sport: ["sport"], council: ["council", "know", "bypass"], deals: ["fuel", "beer", "wine", "rates"], jobs: ["jobs", "rent"], family: ["kids", "award"], puzzles: ["puzzles", "stars"] };
+  const base = { show: [...new Set([...rf.flatMap(v => MAP[v] || []), ...reads])], hide: [], likes: [], say: "Mav ticked what matches what you read." };
+  const t = text.toLowerCase(); if (/country|music|band|gig|singer/.test(t) || pr.music) base.likes.push("music"); if (/fish/.test(t)) base.show.push("sea"); if (/market/.test(t)) base.likes.push("markets"); if (pr.kids === "Yes") base.likes.push("kids"); if (pr.dog === "Yes") base.show.push("dogs");
+  if (!env.AI || (!rf.length && !pr.music && !pr.tv && !pr.weekend)) return Response.json(base);
+  try {
+    const r = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", { max_tokens: 300, messages: [{ role: "system", content: `You tailor a local daily paper for ${R.place}. Sections (id = name): ${ids.map(id => `${id} = ${SECTIONS.find(x => x[0] === id)[1]}`).join("; ")}. Interests: ${LIKES.join(", ")}. From the reader's answers, reply ONLY JSON: {"show":[ids they'd read],"hide":[ids they clearly wouldn't],"likes":[interests],"say":"one short friendly sentence"}. Be gentle: only hide what clearly doesn't fit.` }, { role: "user", content: text }] });
+    const o = JSON.parse(String(typeof r.response === "string" ? r.response : JSON.stringify(r.response)).match(/\{[\s\S]*\}/)[0]);
+    const ok = a => (Array.isArray(a) ? a : []).filter(id => ids.includes(id)), show = [...new Set([...base.show, ...ok(o.show)])];
+    return Response.json({ show, hide: ok(o.hide).filter(id => !show.includes(id)), likes: [...new Set([...base.likes, ...(Array.isArray(o.likes) ? o.likes : []).filter(x => LIKES.includes(x))])], say: mavGuard(String(o.say || "")) ? base.say : String(o.say || base.say).slice(0, 160) });
+  } catch (e) { return Response.json(base); }
+}
 const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav">🎧 Ask Mav</button>
-<div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>🎧 Mav</b><span class="mute"> · your ${R.code} helper. Noise-cancelling headphones for your news</span><button type="button" id="mavx" aria-label="Close">×</button></div>
-<div id="mavlog"></div><div class="mavtalk"><button type="button" id="mavbig" class="micb">🎤 Tap and tell Mav</button><small class="mute">Talk or type what you want on your page. No settings to find. <a href="/me" class="mavall">See everything</a></small></div><div class="chips" id="mavchips"><label>Set up my morning</label><label>What's open now?</label><label>Cheapest fuel</label><label>Add a friend's clock</label><label>I love trivia and live music</label></div>
-<form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Ask Mav anything…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
+<div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b>🎧 Mav</b><span class="mavtools"><button type="button" id="mavreset" title="Put my page back to normal">↺ Start fresh</button><a href="/me" class="mavall">⚙️ My settings</a><a href="/signout" class="mavout" hidden>Sign out</a></span><button type="button" id="mavx" aria-label="Close">×</button></div>
+<div id="mavlog"></div><p id="mavst" class="mavst" hidden></p><div class="mavtalk"><button type="button" id="mavbig" class="micb">🎤 Tap and tell Mav</button></div><div class="chips" id="mavchips"><label>Hide what I don't read</label><label>I love trivia and live music</label><label>Cheapest fuel</label><label>Start my page fresh</label></div>
+<p class="mavmailw"><button type="button" id="mavmail" class="ghost" hidden>📧 Email me this chat</button></p>
+<form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Tell Mav…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
+<script>try{if(/(?:^|; )m2450n=/.test(document.cookie))document.querySelector('.mavout').hidden=false}catch(e){}<\/script>
+<script>addEventListener('DOMContentLoaded',function(){setTimeout(function(){${FORYOU_JS}},0)})<\/script>
 <script>${MAV_JS}<\/script>`;
 
 // ---- Renting and Jobs: every site in one place, searched for this town. We only link; nobody pays to be listed. ----
@@ -2568,10 +2652,12 @@ async function route(req, env, ctx) {
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
     if (p === "/about") return about(env);
     if (p === "/api/fuel") return fuelApi(req, env);
-    if (p === "/me") { const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/me" } }); if (!(await hasTier(env, em, "some"))) return new Response(null, { status: 303, headers: { location: "/membership?need=some" } }); const u = await env.DATA.get(`user:${em}`, "json"); return mePage((u?.name || "").split(" ")[0]); }
+    if (p === "/me") { const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/me" } }); if (!(await hasTier(env, em, "some"))) return new Response(null, { status: 303, headers: { location: "/membership?need=some" } }); const u = await env.DATA.get(`user:${em}`, "json"); return settingsPage((u?.name || "").split(" ")[0]); }
     if (p === "/api/prefs") { const em = await member(req, env); return !em ? Response.json({ error: "Sign in" }, { status: 401 }) : (await hasTier(env, em, "some")) ? prefsApi(req, env, em) : Response.json({ error: "Part of Some Cool Things", join: "/membership" }, { status: 402 }); }
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
+    if (p === "/api/mav/email" && req.method === "POST") return mavEmail(req, env, ctx);
+    if (p === "/api/mav/suggest" && req.method === "POST") { const em = await member(req, env); if (!em) return Response.json({ error: "Sign in first, then Mav can help." }); if (!(await hasTier(env, em, "some"))) return Response.json({ error: "Mav filling this in is part of Some Cool Things. Try it free for 14 days: /membership" }); return mavSuggest(req, env); }
     if (p === "/api/flights") return Response.json(await env.DATA.get("flights", "json") || { list: null }, { headers: { "access-control-allow-origin": "*", "cache-control": "max-age=300" } });
     if (p === "/api/health") return Response.json({ gazette: R.code, checked: new Date().toISOString(), sources: await health(env) }, { headers: { "access-control-allow-origin": "*" } });
     if (p === "/ai-log") return aiLogPage(env);

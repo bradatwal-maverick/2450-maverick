@@ -44,6 +44,9 @@ export const paymentsOn = env => !!(env.STRIPE_SECRET_KEY && env.MEMBERS);
 // "free" | "some" | "every"
 export async function tierOf(env, email) {
   if (!email || !paymentsOn(env)) return "free";
+  // The owner (the feedback inbox, or anyone in OWNERS) always gets everything, so Brad can use and test the lot.
+  const owners = `${env.OWNERS || ""},${env.FEEDBACK_TO || ""}`.toLowerCase().split(",").map(x => x.trim()).filter(Boolean);
+  if (owners.includes(String(email).toLowerCase())) return "every";
   const m = await env.MEMBERS.get(`m:${email}`, "json");
   return m && LIVE.includes(m.status) && RANK[m.tier] ? m.tier : "free";
 }

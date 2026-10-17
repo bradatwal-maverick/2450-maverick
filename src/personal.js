@@ -3,7 +3,7 @@
 // Config arrives as window.M2C, set by the page shell.
 
 // Settings that follow a signed-in local to any phone. Location, birthday, school and friends stay on the phone.
-export const SYNC_RE = /^(order|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|hide_[a-z]+)$/;
+export const SYNC_RE = /^(order|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|profile|reads|hide_[a-z]+)$/;
 export const LIKES = ["free", "kids", "music", "markets", "sport", "food", "arts", "outdoors", "trivia", "bingo", "comedy", "raffles", "deals"];
 // How each interest matches a What's on listing kind.
 export const LIKE_KINDS = { kids: "kids", music: "music", markets: "market", sport: "sport", food: "meal", trivia: "trivia", bingo: "bingo", comedy: "comedy", raffles: "raffle", deals: "members" };
@@ -26,7 +26,7 @@ function g(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function p(k,v){try{v===null||v===undefined?localStorage.removeItem(k):localStorage.setItem(k,String(v))}catch(e){}}
 function j(k,d){try{var v=JSON.parse(g(k));return v==null?d:v}catch(e){return d}}
 var signed=/(?:^|; )m2450n=/.test(document.cookie);
-var SYNC=/^(order|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|hide_[a-z]+)$/;
+var SYNC=/^(order|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|profile|reads|hide_[a-z]+)$/;
 function snap(){var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(SYNC.test(k))o[k]=localStorage.getItem(k)}}catch(e){}return o}
 function hash(o){return JSON.stringify(Object.keys(o).sort().map(function(k){return [k,o[k]]}))}
 function up(){if(!signed)return;var s=snap(),h=hash(s);if(h===g('prefs_h'))return;var at=Date.now();p('prefs_h',h);p('prefs_at',at);
@@ -71,26 +71,37 @@ evFilter();
 window.M2={g:g,p:p,j:j,up:up,signed:signed,friendsHTML:friendsHTML,drawFriends:drawFriends,fstat:fstat,pushBind:pushBind,esc:esc};
 down()})();`;
 
-// Mav chat, on every page. Sends the person's settings so Mav knows where they're at, and applies what he sets.
-export const MAV_JS = String.raw`(function(){var C=window.M2C||{},M=window.M2,g=M.g,p=M.p,j=M.j,P=document.getElementById('mavp'),B=document.getElementById('mavbtn'),LOG=document.getElementById('mavlog'),IN=document.getElementById('mavin'),H=[];
+// Mav chat, on every page. Mav only makes the page more relevant to the person: he shows or hides
+// sections and sets their details. He never moves the page around; the structure stays the same for everyone.
+// Chat text can't be copied (it can be emailed to a signed-in member instead).
+export const MAV_JS = String.raw`(function(){var C=window.M2C||{},M=window.M2,g=M.g,p=M.p,j=M.j,P=document.getElementById('mavp'),B=document.getElementById('mavbtn'),LOG=document.getElementById('mavlog'),IN=document.getElementById('mavin'),ST=document.getElementById('mavst'),H=[],busy=false,lastQ='';
 try{H=JSON.parse(sessionStorage.getItem('mavh')||'[]')}catch(e){}
 function e(x){return String(x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
-function draw(){if(!H.length)H=[{role:'assistant',content:'G’day'+(g('name')?' '+g('name'):'')+'! I’m Mav. Ask me anything about '+C.code+', or tell me how you want your daily page.'}];
-LOG.innerHTML=H.map(function(m){return '<p class="mm '+(m.role=='user'?'me':'mav')+'">'+e(m.content).replace(/(^|\s)(\/[a-z0-9]+)/g,'$1<a href="$2">$2</a>')+'</p>'}).join('');LOG.scrollTop=1e6;try{sessionStorage.setItem('mavh',JSON.stringify(H.slice(-12)))}catch(_){}}
+function hello(){return [{role:'assistant',content:'G’day'+(g('name')?' '+g('name'):'')+'! I’m Mav. Tell me what you care about and I’ll make your page about you.'}]}
+function draw(){if(!H.length)H=hello();var you=H.some(function(m){return m.role=='user'});document.getElementById('mavchips').hidden=you;document.getElementById('mavbig').hidden=you;
+LOG.innerHTML=H.map(function(m,i){return '<p class="mm '+(m.role=='user'?'me':'mav')+(i==H.length-1&&m.role!='user'?' last':'')+'">'+e(m.content).replace(/(^|\s)(\/[a-z0-9]+)/g,'$1<a href="$2">$2</a>')+'</p>'}).join('');LOG.scrollTop=1e6;
+document.getElementById('mavmail').hidden=!(M.signed&&you);try{sessionStorage.setItem('mavh',JSON.stringify(H.slice(-12)))}catch(_){}}
+function status(t,retry){ST.hidden=!t;ST.innerHTML=t?e(t)+(retry?' <button type="button" id="mavre">🔄 Refresh Mav</button>':''):'';var r=document.getElementById('mavre');if(r)r.onclick=refresh}
+function refresh(){var q=lastQ;H=[];try{sessionStorage.removeItem('mavh')}catch(_){}status('');draw();if(q)send(q)}
 function open(){P.hidden=false;B.hidden=true;draw();IN.focus();try{sessionStorage.setItem('mavopen',1)}catch(_){}}
 B.onclick=open;document.getElementById('mavx').onclick=function(){P.hidden=true;B.hidden=false;try{sessionStorage.removeItem('mavopen')}catch(_){}};
+// No copying Mav's chat. Members can have it emailed instead.
+['copy','cut','contextmenu','dragstart','selectstart'].forEach(function(t){LOG.addEventListener(t,function(ev){ev.preventDefault()})});
 // Mav is the settings button: any link to My 2450 opens him instead (except his own 'see everything' link and on My 2450 itself).
 document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('a[href^="/me"],.openmav');if(!a||a.classList.contains('mavall')||location.pathname==='/me')return;ev.preventDefault();open()});
+// Start fresh: wipes this person's page settings here and on every phone they're signed in on.
+function resetAll(){var keys=[];try{for(var i=0;i<localStorage.length;i++)keys.push(localStorage.key(i))}catch(_){}
+keys.forEach(function(k){if(/^(order|pin|name|fuel|z_w|z_v|z_e|z_tab|saved_q|ev_like|friends|loc|beer|wine|prefs_h|profile|reads|hide_[a-z]+)$/.test(k))p(k,null)});
+var at=Date.now();p('prefs_at',at);if(M.signed)return fetch('/api/prefs',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({prefs:{},at:at}),keepalive:true}).catch(function(){});return Promise.resolve()}
+window.mavReset=resetAll;
+document.getElementById('mavreset').onclick=function(){if(!confirm('Start your page fresh? Everything Mav set goes back to normal.'))return;resetAll().then(function(){H=[{role:'assistant',content:'Done, your page is back to normal. Tell me what you care about and I’ll make it about you.'}];draw();if(/^\/\d{4}\/?$/.test(location.pathname)||location.pathname=='/')setTimeout(function(){location.reload()},700)})};
 function state(){var hidden=[];(C.secs||[]).forEach(function(s){if(g('hide_'+s[0]))hidden.push(s[0])});var b=j('bday',null);
-return {pins:j('pin',[]),hidden:hidden,name:g('name')||'',fuel:g('fuel')||'',signs:{w:g('z_w'),v:g('z_v'),e:g('z_e')},likes:j('ev_like',[]),friends:j('friends',[]).map(function(f){return f.n+' ('+f.tz+')'}),
-bins:g('bin_bday'),school:g('school')||'',birthday:b?(+b[0])+'/'+(+b[1]+1):'',saved:j('saved_q',[]),weather:g('loc')?'set':'town centre'}}
-var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+return {hidden:hidden,name:g('name')||'',fuel:g('fuel')||'',signs:{w:g('z_w'),v:g('z_v'),e:g('z_e')},likes:j('ev_like',[]),friends:j('friends',[]).map(function(f){return f.n+' ('+f.tz+')'}),
+profile:j('profile',{}),reads:j('reads',{}),bins:g('bin_bday'),school:g('school')||'',birthday:b?(+b[0])+'/'+(+b[1]+1):'',saved:j('saved_q',[]),weather:g('loc')?'set':'town centre'}}
 function apply(acts){var reload=false,go=null;(acts||[]).forEach(function(a){var L;
-if(a.type=='pin'){L=j('pin',[]);a.ids.forEach(function(i){if(L.indexOf(i)<0)L.push(i);p('hide_'+i,null)});p('pin',JSON.stringify(L));reload=true}
-else if(a.type=='unpin'){L=j('pin',[]).filter(function(i){return a.ids.indexOf(i)<0});p('pin',L.length?JSON.stringify(L):null);reload=true}
-else if(a.type=='order'){p('order',JSON.stringify(a.ids));reload=true}
-else if(a.type=='hide'){a.ids.forEach(function(i){p('hide_'+i,'1')});L=j('pin',[]).filter(function(i){return a.ids.indexOf(i)<0});p('pin',L.length?JSON.stringify(L):null);reload=true}
+if(a.type=='hide'){a.ids.forEach(function(i){p('hide_'+i,'1')});L=j('pin',[]).filter(function(i){return a.ids.indexOf(i)<0});p('pin',L.length?JSON.stringify(L):null);reload=true}
 else if(a.type=='show'){a.ids.forEach(function(i){p('hide_'+i,null)});reload=true}
+else if(a.type=='reset'){resetAll();reload=true}
 else if(a.type=='name'&&a.value){p('name',a.value);reload=true}
 else if(a.type=='fuel'){p('fuel',a.value);reload=true}
 else if(a.type=='sign'){p('z_'+a.system,a.index);p('z_tab',a.system);reload=true}
@@ -107,18 +118,22 @@ else if(a.type=='unfriend'){L=j('friends',[]).filter(function(f){return f.n.toLo
 else if(a.type=='alerts'){var w=document.createElement('p');w.className='mm mav';w.innerHTML='<button type="button" class="pushbtn" data-topic="'+a.topic+'">🔔 Turn on '+(a.topic=='fields'?'field closure':'fire &amp; weather')+' alerts</button><br><small class="mute pushmsg"></small>';LOG.appendChild(w);M.pushBind(w.querySelector('button'));LOG.scrollTop=1e6}
 else if(a.type=='area'){p('pc',a.pc);go='/'+a.pc}else if(a.type=='link'){go=a.url}});
 after(reload,go)}
-function after(reload,go){M.up();if(window.meDraw)meDraw();if(go)setTimeout(function(){location.href=go},900);else if(reload&&/^\/\d{4}\/?$/.test(location.pathname))setTimeout(function(){location.reload()},900)}
-function send(t,cb){t=String(t||'').trim();if(!t)return;H.push({role:'user',content:t});H.push({role:'assistant',content:'…'});draw();IN.value='';
-var pc=(location.pathname.match(/^\/(\d{4})/)||[])[1]||g('pc')||C.code;
-fetch('/api/mav',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:H.slice(0,-1).slice(-6),pc:pc,state:state()})})
-.then(function(r){return r.json()}).then(function(x){H[H.length-1]={role:'assistant',content:x.reply};draw();apply(x.actions);if(cb)cb(x.reply)})
-.catch(function(){H[H.length-1]={role:'assistant',content:'Sorry, I dropped the ball. Try again?'};draw();if(cb)cb(null)})}
+function after(reload,go){M.up();if(window.meDraw)meDraw();if(go)setTimeout(function(){location.href=go},900);else if(reload&&/^\/\d{4}\/?$/.test(location.pathname))setTimeout(function(){location.reload()},1200)}
+function send(t,cb){t=String(t||'').trim();if(!t||busy)return;busy=true;lastQ=t;status('');H.push({role:'user',content:t});H.push({role:'assistant',content:'…'});draw();IN.value='';
+var pc=(location.pathname.match(/^\/(\d{4})/)||[])[1]||g('pc')||C.code,ac=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ac)ac.abort()},20000);
+function fail(){busy=false;clearTimeout(tm);H.pop();H.push({role:'assistant',content:'Hmm, I’m not working right now.'});draw();status('Mav’s having a moment.',true);if(cb)cb(null)}
+fetch('/api/mav',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:H.slice(0,-1).slice(-6),pc:pc,state:state()}),signal:ac?ac.signal:undefined})
+.then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(x){busy=false;clearTimeout(tm);if(!x||!x.reply){fail();return}H[H.length-1]={role:'assistant',content:x.reply};draw();if(x.ok===false)status('Mav’s brain is slow today, so he’s on simple mode.',true);apply(x.actions);if(cb)cb(x.reply)})
+.catch(fail)}
 window.mavSend=send;
 document.getElementById('mavf').onsubmit=function(ev){ev.preventDefault();send(IN.value)};
 document.getElementById('mavchips').onclick=function(ev){if(ev.target.tagName=='LABEL')send(ev.target.textContent)};
+document.getElementById('mavmail').onclick=function(){var b=this;b.disabled=true;b.textContent='Sending…';
+fetch('/api/mav/email',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:H.slice(-12)})}).then(function(r){return r.json()})
+.then(function(x){b.textContent=x.ok?'📧 Sent to your inbox':'📧 '+(x.error||'Couldn’t send, try again')}).catch(function(){b.textContent='📧 Couldn’t send, try again'}).finally(function(){setTimeout(function(){b.disabled=false;b.textContent='📧 Email me this chat'},4000)})};
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.getElementById('mavmic'),big=document.getElementById('mavbig');
 function listen(btn,idle){var r=new SR();r.lang='en-AU';r.interimResults=true;btn.textContent='👂 Listening…';r.onresult=function(x){IN.value=Array.prototype.map.call(x.results,function(y){return y[0].transcript}).join(' ')};r.onend=function(){btn.textContent=idle;if(IN.value)send(IN.value)};r.onerror=function(){btn.textContent=idle};r.start()}
-if(!SR){mic.hidden=true;big.textContent='⌨️ Type what you want below';big.onclick=function(){IN.focus()}}else{mic.onclick=function(){listen(mic,'🎤')};big.onclick=function(){listen(big,'🎤 Tap and tell Mav')}}
+if(!SR){mic.hidden=true;big.textContent='⌨️ Type below';big.onclick=function(){IN.focus()}}else{mic.onclick=function(){listen(mic,'🎤')};big.onclick=function(){listen(big,'🎤 Tap and tell Mav')}}
 try{if(sessionStorage.getItem('mavopen'))open()}catch(_){}})();`;
 
 // My <postcode>: the one spot to make the daily page yours. Tell Mav, or tap.
@@ -162,5 +177,47 @@ document.getElementById('go').onclick=function(){var b=this;if(!ta.value.trim())
 window.mavSend(ta.value,function(r){rp.hidden=false;rp.textContent='🗣️ '+(r||'Mav dropped the ball. Try again?');b.disabled=false;b.textContent='✨ Set me up';ta.value='';draw()})};
 var nm=document.getElementById('nm');nm.value=g('name')||decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||'');
 nm.oninput=function(){p('name',nm.value.trim()||null)};nm.onchange=function(){M.up()};
-document.getElementById('reset').onclick=function(e){e.preventDefault();if(!confirm('Start your page again from scratch?'))return;['pin','order','ev_like','z_w','z_v','z_e','z_tab'].forEach(function(k){p(k,null)});S.forEach(function(s){p('hide_'+s[0],null)});ch()};
+document.getElementById('reset').onclick=function(e){e.preventDefault();if(!confirm('Start your page fresh? Everything goes back to normal, on every phone you sign in on.'))return;(window.mavReset?window.mavReset():Promise.resolve()).then(function(){location.reload()})};
 draw()})();`;
+
+// Account settings (My page): the manual way, for people who like to set things themselves. Nothing is kept until they press Save.
+// "About you" answers build a little profile; Mav can pre-fill the sections from it, and they can override anything.
+export const SETTINGS_JS = String.raw`(function(){var C=window.M2C,M=window.M2,g=M.g,p=M.p,j=M.j,F=document.getElementById('setf'),msg=document.getElementById('setmsg'),dirty=false;
+function q(s){return F.querySelectorAll(s)}
+function load(){var pr=j('profile',{});F.name.value=g('name')||'';['music','tv','weekend'].forEach(function(k){F[k].value=pr[k]||''});
+q('[name=readfor]').forEach(function(c){c.checked=(pr.readfor||[]).indexOf(c.value)>-1});F.kids.value=pr.kids||'';F.dog.value=pr.dog||'';
+var L=j('ev_like',[]);q('[name=like]').forEach(function(c){c.checked=L.indexOf(c.value)>-1});
+q('[name=sec]').forEach(function(c){c.checked=!g('hide_'+c.value)});F.zw.value=g('z_w')||'';F.fuel.value=g('fuel')||'';F.bins.value=g('bin_bday')||'';dirty=false;msg.textContent=''}
+function mark(){dirty=true;msg.textContent='Not saved yet. Press Save to keep it.'}
+F.addEventListener('input',mark);F.addEventListener('change',mark);
+function vals(n){var o=[];q('[name='+n+']:checked').forEach(function(c){o.push(c.value)});return o}
+function profile(){return {readfor:vals('readfor'),music:F.music.value.trim().slice(0,80),tv:F.tv.value.trim().slice(0,80),weekend:F.weekend.value.trim().slice(0,160),kids:F.kids.value,dog:F.dog.value}}
+F.onsubmit=function(ev){ev.preventDefault();p('profile',JSON.stringify(profile()));p('name',F.name.value.trim().slice(0,24)||null);
+var L=vals('like');p('ev_like',L.length?JSON.stringify(L):null);q('[name=sec]').forEach(function(c){p('hide_'+c.value,c.checked?null:'1')});
+p('z_w',F.zw.value===''?null:F.zw.value);p('fuel',F.fuel.value||null);p('bin_bday',F.bins.value===''?null:F.bins.value);M.up();dirty=false;msg.innerHTML='✓ Saved. <a href="/'+C.code+'#foryou">See your page →</a>'};
+document.getElementById('mavfill').onclick=function(){var b=this,pr=profile();b.disabled=true;b.textContent='Mav is thinking…';
+fetch('/api/mav/suggest',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile:pr,reads:j('reads',{})})}).then(function(r){return r.json()}).then(function(x){
+if(x.error){msg.textContent=x.error;return}(x.hide||[]).forEach(function(id){var c=F.querySelector('[name=sec][value="'+id+'"]');if(c)c.checked=false});(x.show||[]).forEach(function(id){var c=F.querySelector('[name=sec][value="'+id+'"]');if(c)c.checked=true});
+(x.likes||[]).forEach(function(v){var c=F.querySelector('[name=like][value="'+v+'"]');if(c)c.checked=true});mark();msg.textContent='✨ '+(x.say||'Mav filled it in.')+' Check it, change anything, then press Save.'})
+.catch(function(){msg.textContent='Mav’s having a moment. Try again, or set it yourself.'}).finally(function(){b.disabled=false;b.textContent='✨ Let Mav fill it in'})};
+document.getElementById('setreset').onclick=function(ev){ev.preventDefault();if(!confirm('Start your page fresh? Everything goes back to normal.'))return;(window.mavReset?window.mavReset():Promise.resolve()).then(function(){load();msg.textContent='Back to normal.'})};
+document.getElementById('setall').onclick=function(ev){ev.preventDefault();q('[name=sec]').forEach(function(c){c.checked=true});mark()};
+addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});load()})();`;
+
+// "For you": one spot at the top of their own paper (bookmark /#foryou). Mav picks what he thinks they'll want to know today,
+// from what they've told him and what they read. It's taken from today's paper, so it's always sourced; nothing new to host.
+export const FORYOU_JS = String.raw`(function(){var f=document.getElementById('flow'),M=window.M2;if(!f||!M||document.getElementById('foryou'))return;var g=M.g,p=M.p,j=M.j,esc=M.esc;
+// What they read: count opens of each section, quietly, on this phone (and their account when signed in).
+f.addEventListener('click',function(ev){var t=ev.target,s=t.closest&&t.closest('#flow>section'),b=t.closest&&t.closest('.pills button[data-id]'),id=b?b.dataset.id:s&&s.id;if(!id||id=='foryou')return;var R=j('reads',{});R[id]=(R[id]||0)+1;var k=Object.keys(R).sort(function(a,b){return R[b]-R[a]}).slice(0,15),o={};k.forEach(function(x){o[x]=R[x]});p('reads',JSON.stringify(o))},true);
+var MAP={news:['news','alerts'],rip:['bdm'],events:['tonight','events'],weather:['sea','beaches'],sport:['sport'],council:['council'],deals:['fuel','beer','rates'],jobs:['jobs','rent'],family:['kids'],puzzles:['stars','puzzles']};
+var pr=j('profile',{}),R=j('reads',{}),want=[];(pr.readfor||[]).forEach(function(v){(MAP[v]||[]).forEach(function(id){if(want.indexOf(id)<0)want.push(id)})});
+Object.keys(R).filter(function(id){return R[id]>=2}).sort(function(a,b){return R[b]-R[a]}).forEach(function(id){if(want.indexOf(id)<0)want.push(id)});
+if(j('ev_like',[]).length&&want.indexOf('tonight')<0)want.push('tonight');
+var nm=g('name')||decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||'');if(nm=='Local')nm='';
+var cards=[];want.forEach(function(id){if(cards.length>=5||g('hide_'+id))return;var el=document.getElementById(id);if(!el)return;var h=el.querySelector('h2');
+var items=Array.prototype.filter.call(el.querySelectorAll('li'),function(li){return !li.hidden&&li.textContent.trim().length>8}).slice(0,2);if(!items.length){var pp=el.querySelector('p:not(.src):not(.mute)');if(pp)items=[pp]}if(!items.length)return;
+cards.push('<div class="fyc"><b>'+esc(h?h.textContent:id)+'</b><ul>'+items.map(function(x){return '<li>'+x.innerHTML+'</li>'}).join('')+'</ul><a href="#'+id+'" data-open="'+id+'" class="mute">More →</a></div>')});
+var box=document.createElement('section');box.id='foryou';box.className='foryou';
+box.innerHTML='<h2>🎧 '+(nm?esc(nm)+', here’s':'Here’s')+' what Mav thinks you’ll want to know</h2>'+(cards.length?cards.join(''):'<p>Tell Mav what you’re into, or fill in <a href="/me" class="mavall">About you</a>, and this spot fills up each morning with what matters to you.</p>')+'<p class="mute fynote">Picked from today’s paper, based on what you’ve told Mav and what you read. Bookmark this spot. <a href="/me" class="mavall">Change</a></p>';
+var td=document.getElementById('today');if(td&&td.parentNode===f)f.insertBefore(box,td.nextSibling);else f.insertBefore(box,f.firstChild);
+if(location.hash=='#foryou')setTimeout(function(){box.scrollIntoView({block:'start'})},80)})();`;
