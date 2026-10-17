@@ -289,7 +289,7 @@ ${await shopBlock(env)}
 ${await ratesBlock(env)}
 ${await projectBlock(env)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
-<p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p>${fishBlock()}</section>
+<p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p>${fishBlock(t)}</section>
 <section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it. We tell you where it&rsquo;s from and how well the owner keeps it up to date.</p>
 ${R.know(W, accLine)}<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
 ${dirSection("rent", "🏠 Renting", `Looking for a place in ${R.place}? Every rental site, already searched for you.`, rentGroups(R), "/rent", "Every rental site, your rights and bond help")}
@@ -1380,14 +1380,31 @@ async function getSource(env, ctx, key) {
 // the marine park user guides and local fishing guides. Rules and links straight from NSW DPIRD.
 const FISH_SEASON = [["Snapper", [1,2,3,4,5,6,7,8,9,10,11,12], [4,5,6,7,8,9,10]], ["Pearl perch", [1,2,3,4,5,6,7,8,9,10,11,12]], ["Spanish mackerel", [2,3,4,5]],
   ["Longtail tuna & cobia", [2,3,4,5]], ["Sand whiting", [11,12,1,2,3,4]], ["Tailor, whiting & flathead", [9,10,11,3,4,5]]];
-function fishBlock() {
+// Rough shore-fishing spot locations, for the 20 km "near you" filter
+const FISH_AT = { "Coffs Harbour Jetty": [-30.3043, 153.1447], "Northern Breakwall (Muttonbird Island)": [-30.305, 153.152], "Corambirra Point & Gallows Beach": [-30.314, 153.144],
+  "Park Beach": [-30.289, 153.143], "Coffs Creek (near the mouth)": [-30.298, 153.142], "Boambee Creek Reserve": [-30.353, 153.11], "Bonville Creek, Sawtell": [-30.38, 153.1],
+  "Moonee Creek & Beach": [-30.208, 153.16], "Woolgoolga Creek & headlands": [-30.111, 153.201], "Corindi River & Red Rock": [-29.983, 153.229],
+  "Urunga Boardwalk (breakwall end)": [-30.497, 153.028], "Lido breakwall, Urunga": [-30.496, 153.023], "Kalang River rock wall": [-30.499, 153.025], "Newry Island bridge (Kalang River)": [-30.51, 153.01],
+  "Hungry Head": [-30.52, 153.035], "Wenonah Headland": [-30.495, 153.035], "North Beach, Mylestom": [-30.463, 153.045], "Bellinger River": [-30.47, 153.0],
+  "Brunswick River rock walls": [-28.538, 153.56], "Brunswick River Boat Harbour": [-28.537, 153.553], "Tallow Beach": [-28.665, 153.623], "Tyagarah Beach (south end)": [-28.605, 153.595],
+  "Tweed River mouth rock walls": [-28.165, 153.56], "Boyds Bay Bridge, Tweed Heads": [-28.191, 153.537], "Chinderah, Tweed River": [-28.235, 153.56], "Cudgen Creek rock wall, Kingscliff": [-28.256, 153.587],
+  "Cudgen Creek, Kingscliff": [-28.262, 153.578], "Fingal Head": [-28.2, 153.573], "Tweed Coast surf beaches": [-28.29, 153.58], "Tweed River": [-28.22, 153.54],
+  "Harrington river wall": [-31.87, 152.7], "Manning Point spur wall": [-31.893, 152.668], "Crowdy Boat Harbour": [-31.838, 152.741], "Harrington Beach": [-31.865, 152.708], "Crowdy Beach": [-31.8, 152.75],
+  "Harrington estuary": [-31.875, 152.69], "Lower Manning River sand flats": [-31.89, 152.65], "Lansdowne River": [-31.785, 152.54],
+  "Southern Breakwall, Hastings River": [-31.428, 152.918], "Settlement Point": [-31.415, 152.895], "Limeburners Creek": [-31.38, 152.92], "Camden Haven River (lower estuary)": [-31.64, 152.83],
+  "Lake Cathie": [-31.55, 152.855], "Town Beach to Lighthouse Beach": [-31.45, 152.93], "Queens Head": [-31.65, 152.84], "Perpendicular Point": [-31.644, 152.838], "Hastings River (upper reaches)": [-31.42, 152.75],
+  "Dumaresq Dam": [-30.46, 151.61], "Malpas Dam (near Guyra)": [-30.27, 151.56] };
+function fishBlock(t = HOME) {
   const F = R.fish; if (!F) return "";
   const m = +todayISO().slice(5, 7), mn = new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { month: "long" });
   const biting = FISH_SEASON.filter(x => x[1].includes(m)).map(([n, , best]) => `<li>🐟 <b>${n}</b>${best && best.includes(m) ? " <span class=\"fl ok\">peak</span>" : ""}</li>`).join("");
   const map = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q + ", " + R.place + " NSW")}`;
   return `<h3>🎣 What's biting in ${esc(mn)}</h3><ul class="fls">${biting}</ul>${m >= 5 && m <= 8 ? `<p class="mute">Aussie bass and estuary perch: catch and release only until the end of August.</p>` : ""}
 <p class="src">Seasons from <a href="https://dpird-web.matrix.squiz.cloud/__data/assets/pdf_file/0010/1276660/16610-GoFishingGuide_CoffsCoastWeb-2024.pdf" rel="noopener">NSW DPIRD GoFishing guide (Coffs Coast)</a>${R.code === "2481" ? ", the nearest official guide" : ""} and <a href="https://www.coffscoast.com.au/article/fishing-on-the-coffs-coast/" rel="noopener">Coffs Coast tourism</a>.</p>
-<h3>📍 Where to fish (from the shore)</h3><ul class="fls">${F.spots.map(([n, t, sp, note]) => `<li><b>${esc(n)}</b> <span class="mute">${esc(t)}</span>${sp ? `<br>Known for: ${esc(sp)}` : ""}${note ? `<br><small>⚠️ ${esc(note)}</small>` : ""}<br><a href="${map(n)}" rel="noopener">🧭 Directions</a></li>`).join("")}</ul>
+<h3>📍 Where to fish within 20 km</h3><ul class="fls" id="fishnear">${F.spots.map(([n, ty, sp, note]) => `<li${FISH_AT[n] ? ` data-at="${FISH_AT[n].join(",")}"` : ""}><b>${esc(n)}</b> <span class="mute">${esc(ty)}</span><span class="fkm mute"></span>${sp ? `<br>Known for: ${esc(sp)}` : ""}${note ? `<br><small>⚠️ ${esc(note)}</small>` : ""}<br><a href="${map(n)}" rel="noopener">🧭 Directions</a></li>`).join("")}</ul><p id="fishnone" class="mute" hidden>No listed shore spots within 20 km of you.</p><details id="fishfar" hidden><summary>Further than 20 km</summary><ul class="fls"></ul></details>
+<script>(function(){var T=[${t.lat},${t.lon}],L=null;try{L=JSON.parse(localStorage.getItem('loc'))}catch(e){}var km=function(a,b){var r=Math.PI/180,x=Math.sin((b[0]-a[0])*r/2),y=Math.sin((b[1]-a[1])*r/2);return 12742*Math.asin(Math.sqrt(x*x+Math.cos(a[0]*r)*Math.cos(b[0]*r)*y*y))};
+var H=L&&km(L,T)<=30?L:T,U=document.getElementById('fishnear'),F=document.getElementById('fishfar'),FL=F.querySelector('ul'),li=[].slice.call(U.children);li.forEach(function(x){var a=x.dataset.at;x._d=a?km(H,a.split(',').map(Number)):0;if(a)x.querySelector('.fkm').textContent=' · '+x._d.toFixed(1)+' km'});
+li.sort(function(a,b){return a._d-b._d}).forEach(function(x){(x._d>20?FL:U).appendChild(x)});if(!U.children.length)document.getElementById('fishnone').hidden=false;if(FL.children.length)F.hidden=false})();</script>
 ${F.note ? `<p class="note">⚠️ ${esc(F.note)}</p>` : ""}
 <details><summary><b>Before you cast: licence, limits and no-fishing zones</b></summary><ul>
 <li>🪪 <b>You need a NSW fishing licence</b> (from $7 for 3 days). <a href="https://www.dpird.nsw.gov.au/fishing/recreational/recreational-fishing-fee" rel="noopener">Get one</a></li>
