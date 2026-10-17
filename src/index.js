@@ -1965,13 +1965,13 @@ document.getElementById('beerf').onsubmit=function(ev){ev.preventDefault();var v
 const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$50 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
 <p class="note">📍 The award must be spent at a <b>local ${"${R.place}"} business</b>. No multinationals, no chains, no fast food.</p>
 <p class="mute">Kindness, courage, trying hard, helping out. Anything worth encouraging. Grown-ups nominate; kids don&rsquo;t sign up themselves.</p>`;
-const awardBlock = () => `<section id="award"><h2>🏅 Mini Maverick Encouragement Award</h2>${AWARD_INFO.replace("${R.place}", esc(R.place))}<p><a href="/award"><b>Nominate a local kid →</b></a> · <a href="/award#apply">Clubs and local businesses: apply</a></p></section>`;
+const awardBlock = () => `<section id="award"><h2>🏅 Mini Maverick Encouragement Award</h2>${AWARD_INFO.split("${R.place}").join(esc(R.place))}<p><a href="/award"><b>Nominate a local kid →</b></a> · <a href="/award#apply">Clubs and local businesses: apply</a></p></section>`;
 async function plusList(env) {
   const A = ((await env.DATA.get("award:apps", "json")) || []).filter(x => x.plus10 && x.pc === R.code);
   return `<h2>💪 Making it go 10% further</h2>${A.length ? `<p class="mute">These local businesses add 10% when a winner spends their award with them.</p><ul class="fls">${A.map(x => `<li><b>${esc(x.org)}</b>${x.sub ? `, ${esc(x.sub)}` : ""}</li>`).join("")}</ul>` : `<p class="mute">No local business has signed up yet. Be the first: tick the 10% box below.</p>`}`;
 }
 async function awardPage(req, env, ctx) {
-  const head = `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🏅 Mini Maverick Encouragement Award</h1>${AWARD_INFO.replace("${R.place}", esc(R.place))}`;
+  const head = `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🏅 Mini Maverick Encouragement Award</h1>${AWARD_INFO.split("${R.place}").join(esc(R.place))}`;
   if (req.method === "POST") {
     const f = await req.formData(); if (f.get("website")) return page("Thanks", head + `<p class="note">Thanks, it&rsquo;s in.</p>`);
     const v = k => String(f.get(k) || "").replace(/[<>]/g, "").trim();
