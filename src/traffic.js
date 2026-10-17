@@ -6,10 +6,13 @@ const LICENCE = "https://opendata.transport.nsw.gov.au/dataset/live-traffic-haza
 const FEEDS = [["incident", "🚧"], ["flood", "🌊"], ["fire", "🔥"], ["majorevent", "🎪"], ["roadwork", "🦺"]];
 const km = (a, b, c, d) => { const r = Math.PI / 180, x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(x)); };
 const tidy = s => String(s || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-const cap = s => tidy(s).toLowerCase().replace(/(^|[\s(/-])([a-z])/g, (m, p, c) => p + c.toUpperCase());
+// Live Traffic writes in capitals: make it readable, but keep known acronyms and road codes (ITF, NSW, M1) as they are.
+const SMALL = /^(of|and|the|to|at|on|in|for|by|a|an|or|via|near)$/i;
+const KEEP = /^(ITF|NSW|SES|RFS|CBD|TAFE|NRL|AFL|UNE|RMS|TFNSW|QLD|ACT|NPWS|[AMB]\d+)$/;
+const cap = s => tidy(s).split(" ").map((w, i) => KEEP.test(w) ? w : (i && SMALL.test(w)) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
 
 export async function trafficNear(env, home, radius = 40) {
-  const k = `traffic:${home.lat.toFixed(2)},${home.lon.toFixed(2)}`, hit = await env.DATA.get(k, "json"); if (hit) return hit;
+  const k = `traffic2:${home.lat.toFixed(2)},${home.lon.toFixed(2)}`, hit = await env.DATA.get(k, "json"); if (hit) return hit;
   const items = [];
   await Promise.all(FEEDS.map(async ([f, icon]) => {
     try {
