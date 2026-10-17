@@ -82,7 +82,7 @@ export const REGIONS = {
     fields: { url: "https://coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Sports-facilities/Sports-grounds/Sports-field-closure-arrangements", info: `<h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
 <li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>`, name: "City of Coffs Harbour, Sports field closure arrangements" },
     watch: {
-  councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
+  councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page (not yet updated by council: Cr Amos resignation confirmed in local news, Oct 2026)", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
   bulky: { owner: "Council", name: "Council bulky goods FAQ", url: "https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs", stated: "2018-03" },
   wasteapp: { owner: "News Of The Area", name: "News Of The Area (waste app)", url: "https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week", stated: "2025-05" },
   envreport: { owner: "Council", name: "City of Coffs Harbour, Report an environmental issue", url: "https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" },
@@ -183,7 +183,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       note: "Byron Bay, Broken Head and the creeks beside Brunswick Heads have sanctuary zones where you can't fish at all. Check the map before you cast." },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "Byron Shire Council, Leadership page", url: "https://www.byron.nsw.gov.au/Council/Leadership" },
+      leadership: { owner: "Council", name: "Byron Shire Council, Leadership page (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.byron.nsw.gov.au/Council/Leadership" },
       waste: { owner: "Council", name: "Byron Shire Council, Waste guide for new residents", url: "https://www.byron.nsw.gov.au/Residential-Services/Waste-Recycling/Waste-guide-for-new-tenants-and-residents" },
       report: { owner: "Council", name: "Byron Shire Council, Report requests and feedback", url: "https://www.byron.nsw.gov.au/Council/Report-Requests-Feedback" },
       contact: { owner: "Council", name: "Byron Shire Council, Contact us", url: "https://www.byron.nsw.gov.au/Council/Report-Requests-Feedback/Contact-Byron-Shire-Council" },
@@ -275,7 +275,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     fields: null,
     watch: {
       leadership: { owner: "Council", name: "Bellingen Shire Council, Our Mayor and Councillors", url: "https://www.bellingen.nsw.gov.au/Your-Council/Our-Mayor-and-Councillors" },
-      waste: { owner: "Recycling Near You", name: "Recycling Near You, Bellingen Shire", url: "https://recyclingnearyou.com.au/otherwaste/BellingenNSW" },
+      waste: { owner: "Council", name: "Bellingen Shire Council, Raleigh Waste Management Centre", url: "https://www.bellingen.nsw.gov.au/Services/Waste-and-Recycling/Waste-Facilities-Charges/Raleigh-Waste-Management-Centre" },
       contact: { owner: "Council", name: "Bellingen Shire Council website", url: "https://www.bellingen.nsw.gov.au/Your-Council/Our-Mayor-and-Councillors" },
     },
     schools: ["Bellingen Public School","Bellingen High School","Dorrigo Public School","Dorrigo High School","Urunga Public School"],
@@ -309,7 +309,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     sign: "Built in 2450, made for 2485, raised by the world.",
     goal: 10000, goalText: "about one in ten people in the shire",
     council: { name: "Tweed Shire Council", mayor: "Cr Reece Byrnes", meetings: "https://www.tweed.nsw.gov.au/council/councillors-meetings/council-meetings", progress: "https://www.tweed.nsw.gov.au/council/policies-plans-reports/planning-reporting-to-community", url: "https://www.tweed.nsw.gov.au", phone: "02 6670 2400", urgent: "Tweed Shire Council (24 hours for urgent issues): 02 6670 2400" },
-    binsTip: "Check your bin days with Find my bin day on the Tweed Shire Council website, or call 02 6670 2400.",
+    binsTip: "Check your bin days with bin collection day calendar on the Tweed Shire Council website, or call 02 6670 2400.",
     mavExample: "I'm Sam, I live in Kingscliff, I've got a kid at Kingscliff High and I love the beach",
     schoolsArea: "Public schools in the Tweed Shire",
     warnRe: /northern rivers|tweed|murwillumbah|kingscliff|byron coast|coastal waters|marine/i,
@@ -323,7 +323,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
 <li>Councillors: Rhiannon Brinsmead, Chris Cherry, Nola Firth, Kimberly Hone, James Owen. <a href="https://www.tweed.nsw.gov.au/council/councillors-meetings/mayor-councillors" rel="noopener">Contact them</a></li>
 <li><a href="https://www.tweed.nsw.gov.au/council/councillors-meetings/council-meetings" rel="noopener">Council meetings</a>: see what's being decided</li></ul>${acc("leadership", W.leadership)}</details>
 <details><summary><b>Bins &amp; rubbish</b></summary><ul>
-<li>Which bin this week? Use <a href="https://www.tweed.nsw.gov.au/property-rates/waste-recycling/bin-services-collection/bin-collection-days" rel="noopener">Find my bin day</a>, or call council on <a href="tel:0266702400">02 6670 2400</a></li>
+<li>Which bin this week? Use <a href="https://www.tweed.nsw.gov.au/property-rates/waste-recycling/bin-services-collection/bin-collection-days" rel="noopener">bin collection day calendar</a>, or call council on <a href="tel:0266702400">02 6670 2400</a></li>
 <li>Tip: Stotts Creek Resource Recovery Centre, 298 Bartletts Road, Stotts Creek, off Tweed Valley Way (with a Community Recycling Centre)</li>
 <li>Seen illegal dumping? <a href="https://ridonline.epa.nsw.gov.au/" rel="noopener">Tell the EPA online</a></li></ul>${acc("waste", W.waste)}</details>
 <details><summary><b>Got a problem?</b></summary><ul>
@@ -338,7 +338,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
 `,
     idx: [
       ["mayor deputy councillor councillors council who runs","Who runs the place","Mayor Cr Reece Byrnes, Deputy Mayor Cr Meredith Dennis OAM, plus 5 councillors.","#know"],
-      ["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? Find my bin day on the council website, or 02 6670 2400.","#know"],
+      ["bin bins rubbish recycling garbage which bin","Bins","Which bin this week? bin collection day calendar on the council website, or 02 6670 2400.","#know"],
       ["tip dump stotts creek waste","The tip","Stotts Creek Resource Recovery Centre, 298 Bartletts Road, Stotts Creek.","#know"],
       ["council phone contact email call","Contact council","02 6670 2400, tsc@tweed.nsw.gov.au.","#know"],
       ["tweed facts history wollumbin caldera border bundjalung why fun","Why the Tweed?","Fun facts about the shire, every one sourced.","/why"],
@@ -363,8 +363,8 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["Tweed River", "River", "bream, mulloway, luderick, flathead, mangrove jack", "Bull sharks can be about. Bass and estuary perch: catch and release only, May to August"]] },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "Tweed Shire Council, Mayor and Councillors", url: "https://www.tweed.nsw.gov.au/council/councillors-meetings/mayor-councillors" },
-      waste: { owner: "Recycling Near You", name: "Recycling Near You, Tweed Shire", url: "https://recyclingnearyou.com.au/otherwaste/TweedNSW" },
+      leadership: { owner: "Council", name: "Tweed Shire Council, Mayor and Councillors (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.tweed.nsw.gov.au/council/councillors-meetings/mayor-councillors" },
+      waste: { owner: "Council", name: "Tweed Shire Council, tip and resource recovery", url: "https://www.tweed.nsw.gov.au/property-rates/waste-recycling/tip-resource-recovery" },
       contact: { owner: "Council", name: "Tweed Shire Council, Contact us", url: "https://www.tweed.nsw.gov.au/contact-us" },
     },
     schools: ["Banora Point Public School","Bilambil Public School","Bogangar Public School","Carool Public School","Centaur Public School","Chillingham Public School","Condong Public School","Crystal Creek Public School","Cudgen Public School","Dungay Public School","Duranbah Public School","Fingal Head Public School","Kingscliff Public School","Murwillumbah East Public School","Murwillumbah Public School","Pottsville Beach Public School","Stokers Siding Public School","Terranora Public School","Tumbulgum Public School","Tweed Heads Public School","Tweed Heads South Public School","Tyalgum Public School","Uki Public School","Banora Point High School","Kingscliff High School","Murwillumbah High School","Tweed River High School","Wollumbin High School","Caldera School"],
@@ -380,7 +380,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["🌏", "Bundjalung Country", "The Tweed Shire is on the Country of the Ngandowal and Minyungbal speaking people of the Bundjalung nation.", "https://www.tweed.nsw.gov.au/community/community-support/people-communities/aboriginal-torres-strait-islander", "Tweed Shire Council"]],
     mavKB: `Site: 2485 Maverick, a free local info site for the Tweed Shire (2484 Murwillumbah, 2485 Tweed Heads, 2486 Banora Point and Tweed Heads South, 2487 Kingscliff). Never charges. A gift from Maverick Digital.
 Pages: /2484 /2485 /2486 /2487 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
-Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Reece Byrnes, deputy Cr Meredith Dennis OAM, council 02 6670 2400, bins via Find my bin day on the council website or 02 6670 2400, tip at Stotts Creek); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
+Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Reece Byrnes, deputy Cr Meredith Dennis OAM, council 02 6670 2400, bins via bin collection day calendar on the council website or 02 6670 2400, tip at Stotts Creek); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
 Emergencies: 000. Tides are estimates, not for navigation. NSW and Queensland clocks differ by an hour in daylight saving time.`,
   },
   "2430": {
@@ -445,21 +445,21 @@ Emergencies: 000. Tides are estimates, not for navigation. NSW and Queensland cl
       ["Lansdowne River", "River", "flathead, mud crabs", ""]] },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "MidCoast Council, Mayor and Councillors", url: "https://www.midcoast.nsw.gov.au/Your-Council/Mayor-Councillors" },
-      waste: { owner: "Recycling Near You", name: "Recycling Near You, MidCoast Council", url: "https://recyclingnearyou.com.au/council/MidCoastNSW" },
+      leadership: { owner: "Council", name: "MidCoast Council, Mayor and Councillors (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.midcoast.nsw.gov.au/Your-Council/Mayor-Councillors" },
+      waste: { owner: "Council", name: "MidCoast Council, Taree Waste Management Centre", url: "https://www.midcoast.nsw.gov.au/Services/Facilities-and-venues/Find-a-Facility/Outdoor-Facilities/Taree-Waste-Management-Centre" },
       contact: { owner: "Council", name: "MidCoast Council website", url: "https://www.midcoast.nsw.gov.au/Contact" },
     },
     schools: ["Taree Public School","Taree West Public School","Chatham Public School","Manning Gardens Public School","Cundletown Public School","Tinonee Public School",
       "Old Bar Public School","Wingham Public School","Wingham Brush Public School","Harrington Public School","Coopernook Public School","Lansdowne Public School",
       "Krambach Public School","Taree High School","Chatham High School","Wingham High School"],
-    faves: [["Wingham Brush boardwalk","Easy walk","1.9 km loop through rainforest under a grey-headed flying-fox colony. Check NPWS alerts before you go."],["Ellenborough Falls","Free","View the falls from the top, or take the 641 steps to the bottom."],
+    faves: [["Wingham Brush boardwalk","Easy walk","1.9 km return walk through rainforest under a grey-headed flying-fox colony. Check NPWS alerts before you go."],["Ellenborough Falls","Free","View the falls from the top, or take the 641 steps to the bottom."],
       ["Wingham flying-fox fly-out","Sunset","Watch the flying-foxes leave over the Manning River from Wingham Riverside Reserve."],["Crowdy Head","Lookout","Headland with an 1878 lighthouse and a small fishing harbour."]],
     facts: [
       ["🌊", "A double delta river", "The Manning is called the only double delta river in the southern hemisphere with two permanent entrances to the sea, at Harrington and Old Bar.", "https://en.wikipedia.org/wiki/Manning_River", "Wikipedia"],
       ["🌳", "Named after a fig tree", "Taree comes from the Biripi word tareebit, meaning tree by the river: the sandpaper fig.", "https://en.wikipedia.org/wiki/Taree", "Wikipedia"],
       ["💦", "A huge single drop", "Ellenborough Falls, near Wingham, is described as the second longest single-drop waterfall in the Southern Hemisphere.", "https://en.wikipedia.org/wiki/Wingham,_New_South_Wales", "Wikipedia"],
       ["🏮", "Lighthouse since 1878", "Crowdy Head Light was built in 1878.", "https://en.wikipedia.org/wiki/Crowdy_Head", "Wikipedia"],
-      ["🌏", "Biripi Country", "The Manning Valley is on Biripi Country.", "https://en.wikipedia.org/wiki/Biripi", "Wikipedia"]],
+      ["🌏", "Biripi Country", "Taree is on Biripi Country.", "https://en.wikipedia.org/wiki/Biripi", "Wikipedia"]],
     mavKB: `Site: 2430 Maverick, a free local info site for the Manning Valley (2427 Harrington & Crowdy Head, 2429 Wingham, 2430 Taree). Never charges. A gift from Maverick Digital.
 Pages: /2427 /2429 /2430 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
 Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Alan Tickle, deputy Cr Jeremy Miller, MidCoast Council 02 7955 7777, water and sewer faults 1300 133 455, bins via council's bin page, tip at Taree Waste Management Centre, Tinonee); kids=Weekend for kids; flights=flight status (Port Macquarie Airport, Taree has no scheduled flights); holidays; puzzles=crossword; beaches (beach, surf and surf cams).
@@ -525,11 +525,11 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     surf: [], surfNote: "",
     fish: { spots: [
       ["Dumaresq Dam", "Dam", "trout, occasionally bass", "Canoes and kayaks only: no petrol boats"],
-      ["Malpas Dam (near Guyra)", "Dam", "rainbow trout (stocked)", "Trout dam, open all year: check NSW DPI rules"]] },
+      ["Malpas Dam (near Guyra)", "Dam", "rainbow trout (stocked)", "Trout dam: check NSW DPI rules"]] },
     fields: null,
     watch: {
       leadership: { owner: "Council", name: "Armidale Regional Council, Councillors", url: "https://www.armidale.nsw.gov.au/Council/Councillors" },
-      waste: { owner: "Recycling Near You", name: "Recycling Near You, Armidale Regional Council", url: "https://recyclingnearyou.com.au/council/ArmidaleRegionalNSW" },
+      waste: { owner: "Council", name: "Armidale Regional Council, waste management facility", url: "https://www.armidale.nsw.gov.au/Services/Waste-and-recycling-services/Waste-and-recycling-facilities/Armidale-Waste-Management-Facility" },
       contact: { owner: "Council", name: "Armidale Regional Council website", url: "https://www.armidale.nsw.gov.au" },
     },
     schools: ["Armidale City Public School","Armidale Secondary College","Ben Venue Public School","Drummond Memorial Public School","Kellys Plains Public School","Martins Gully Public School","Newling Public School","Sandon Public School","Guyra Central School"],
@@ -620,12 +620,12 @@ Emergencies: 000.`,
       ["Hastings River (upper reaches)", "River", "Aussie bass", "Bass and estuary perch: catch and release only, May to August"]] },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "Port Macquarie-Hastings Council, Mayor and Councillors", url: "https://www.pmhc.nsw.gov.au/Your-Council/Mayor-and-Councillors" },
+      leadership: { owner: "Council", name: "Port Macquarie-Hastings Council, Mayor and Councillors (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.pmhc.nsw.gov.au/Your-Council/Mayor-and-Councillors" },
       waste: { owner: "Council", name: "Port Macquarie-Hastings Council, waste facility locations", url: "https://www.pmhc.nsw.gov.au/Residents/Waste-recycling/Waste-facility-locations" },
       contact: { owner: "Council", name: "Port Macquarie-Hastings Council, Contact us", url: "https://www.pmhc.nsw.gov.au/Your-Council/About-us/Contact-us" },
     },
     schools: ["Port Macquarie Public School","Tacking Point Public School","Hastings Secondary College, Port Macquarie Campus","Hastings Secondary College, Westport Campus","Wauchope Public School","Wauchope High School","Laurieton Public School","Camden Haven High School","Lake Cathie Public School"],
-    faves: [["Port Macquarie Coastal Walk","Free","9 km from Town Beach to Tacking Point Lighthouse, about 3 to 4 hours one way."],["Tacking Point Lighthouse","Free","Built in 1879 and a popular whale-watching spot."],
+    faves: [["Port Macquarie Coastal Walk","Free","9 km from Town Beach to Tacking Point Lighthouse."],["Tacking Point Lighthouse","Free","Built in 1879 and a popular whale-watching spot."],
       ["Koala Hospital","Check tickets","Australia's first dedicated koala hospital, 154 Lord Street. Open daily 8:30am to 4pm."],["Town Beach breakwall","Free","Walk the breakwall where the Hastings River meets the sea."]],
     facts: [
       ["🌏", "Birpai Country", "The Birpai people are recognised as the Traditional Custodians of the Port Macquarie area.", "https://en.wikipedia.org/wiki/Port_Macquarie", "Wikipedia"],
