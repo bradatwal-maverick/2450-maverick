@@ -138,7 +138,7 @@ function hooksStrip(pc) {
   const q = pc === R.code ? "" : "?pc=" + pc, qa = "?pc=" + pc;
   const H = [["Council watchers", "How's council doing? Make your vote count.", `/council${q}`],
     ["Parents", "Games mum will approve of", "/kids"],
-    ["Puzzlers", "The daily crossword", `/fun${q}#puzzles`],
+    ["Puzzlers", "The daily crossword", `/family${q}#puzzles`],
     ["Water lovers", "Tides, swell and today's beaches", `/outside${q}#sea`],
     ["In memoriam", "Remembering locals this week", "/bdm?f=deaths"],
     ["Mums", "The school run, sorted", `/mums${qa}`],
@@ -2628,6 +2628,7 @@ async function route(req, env, ctx) {
     if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
     if (p === "/social" || p === "/social/") return Response.redirect(new URL("/community", url).toString(), 301);
+    if (p === "/fun" || p === "/fun/") return Response.redirect(`https://${url.host}/family${url.search}`, 301);
     if (NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) { const q = (url.searchParams.get("pc") || "").replace(/\D/g, ""); return town(TOWNS[q] && TOWNS[q].live ? q : R.code, env, ctx, false, p.replace(/^\/|\/$/g, "")); }
     if (p === "/signin") return signinPage(env, safeNext(url.searchParams.get("next") || "/"));
     if (p === "/auth/google") return startGoogle(url, env);

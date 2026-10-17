@@ -59,7 +59,7 @@ export const NAV = [
     ["/numbers", "📞", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"],
     ["", "🔎", "Local Business Watch", "Does your money stay in the community?", true],
   ] },
-  { slug: "family", icon: "👪", name: "Family", blurb: "The school run, the kids and your village.", items: [
+  { slug: "family", icon: "👪", name: "Family", blurb: "The school run, the kids, your village, plus puzzles, stars and a bit of fun with your coffee.", items: [
     ["/mums", "👩", "Mums", "School run, countdowns, kids and your village"],
     ["/dads", "👨", "Dads", "School run, countdowns, kids and your village"],
     ["/kids", "🧒", "Kid Zone", "Safe games for 12 and under, with a grown-up's OK"],
@@ -68,8 +68,6 @@ export const NAV = [
     ["/home", "🏡", "My home", "Bin night reminders, house-sitter sheet"],
     ["/fridge", "🧊", "What's in your fridge?", "Dinner ideas from what you've got"],
     ["/genalpha", "🗣️", "Gen Alpha interpreter", "What did your kid just say?"],
-  ] },
-  { slug: "fun", icon: "🧩", name: "Fun", blurb: "Puzzles, stars and a bit of curiosity with your coffee.", items: [
     ["#puzzles", "✏️", "Daily crossword", "Easy, medium and hard"],
     ["#stars", "✨", "Horoscopes", "Western, Vedic and Chinese"],
     ["/bdm", "👶", "Trending baby names", "Locally, across Australia and the world"],
