@@ -363,7 +363,11 @@ var age=((Date.now()-Date.UTC(2000,0,6,18,14))/864e5)%29.530588853,mi=Math.round
 var MN=[['🌑','New moon'],['🌒','Waxing crescent'],['🌓','First quarter'],['🌔','Waxing gibbous'],['🌕','Full moon'],['🌖','Waning gibbous'],['🌗','Last quarter'],['🌘','Waning crescent']];
 $('i-moon',MN[mi][0]);$('t-moon',MN[mi][1]);var tf=(14.765-age+29.530588853)%29.530588853,fd=Math.round(tf);$('t-moon2',(age>14&&age<15.5)?'Full moon tonight':fd<=1?'Full moon tomorrow':'Full moon in '+fd+' days');
 var TIPS={},ORD=['storm','rain','hot','cold','uv','wind','nice','surf','fish'];function tip(k,h){var el=document.getElementById('wxtips');if(!el)return;TIPS[k]=h;el.innerHTML=ORD.filter(function(x){return TIPS[x]}).map(function(x){return '<li>'+TIPS[x]+'</li>'}).join('')}
-var LOC=null;try{LOC=JSON.parse(localStorage.getItem('loc'))}catch(e){};var LAT=LOC?LOC[0]:${t.lat},LON=LOC?LOC[1]:${t.lon};
+var LOC=null;try{LOC=JSON.parse(localStorage.getItem('loc'))}catch(e){};
+(function(){var TN=${JSON.stringify(t.name)},TA=${t.lat},TO=${t.lon},el=document.querySelector('.tloc'),km=0,h='';if(LOC){var r=Math.PI/180,a=Math.sin((LOC[0]-TA)*r/2),b=Math.sin((LOC[1]-TO)*r/2);km=Math.round(12742*Math.asin(Math.sqrt(a*a+Math.cos(TA*r)*Math.cos(LOC[0]*r)*b*b)))}
+if(LOC&&km>30){LOC=null;h='<b>📍 This weather is for '+TN+'.</b> Your saved spot is about '+km+' km away, so we&rsquo;re not using it on this page. '}else if(LOC){h='<b>📍 This weather is for your exact spot</b>, about '+km+' km from '+TN+'. '}else{h='<b>📍 This weather is for '+TN+'</b> (town centre). '}
+if(el){var s=document.createElement('span');s.innerHTML=h;el.insertBefore(s,el.firstChild);var u=el.querySelector('.useloc');if(u&&h.indexOf('not using')>-1)u.textContent='Clear my saved spot';}})();
+var LAT=LOC?LOC[0]:${t.lat},LON=LOC?LOC[1]:${t.lon};
 fetch('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,uv_index_max&forecast_days=1&timezone=Australia%2FSydney')
 .then(function(r){return r.json()}).then(function(d){var c=d.current,y=d.daily,w=W[c.weather_code]||['🌡️',''];
 $('i-wx',w[0]);$('t-temp',Math.round(c.temperature_2m)+'°');$('t-sky',w[1]+' · '+Math.round(y.temperature_2m_max[0])+'°/'+Math.round(y.temperature_2m_min[0])+'°');
