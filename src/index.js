@@ -2930,10 +2930,10 @@ async function namesLookup(url, env) {
   if (!hit) return Response.json({ html: `<p><b>${esc(raw)}</b> hasn't made the NSW top 100 in any year since ${idx.from}. A true original. 🌟</p>` });
   const out = [["girls", "👧", fmt(hit[2])], ["boys", "👦", fmt(hit[1])]].filter(x => x[2].length).map(([g, ico, ys]) => {
     const best = ys.reduce((a, b) => b[1] < a[1] || (b[1] === a[1] && b[0] > a[0]) ? b : a), last = ys[ys.length - 1];
-    const now = last[0] === idx.to ? `#${last[1]} in ${idx.to}` : `last in the top 100 in ${last[0]}`;
+    const now = last[0] !== idx.to ? `last in the top 100 in ${last[0]}` : best === last ? `#${last[1]} in ${idx.to} is its best yet` : `#${last[1]} in ${idx.to}`;
     const bars = []; for (let d = Math.floor(idx.from / 10) * 10; d <= idx.to; d += 10) { const inD = ys.filter(y => y[0] >= d && y[0] < d + 10), b = inD.length ? Math.min(...inD.map(y => y[1])) : 0;
       bars.push(`<span title="${d}s${b ? `: best #${b}` : ": not in the top 100"}"><i style="height:${b ? Math.max(8, 101 - b) : 2}%"></i><small>${String(d).slice(2)}</small></span>`); }
-    return `<p>${ico} <b>${esc(hit[0])}</b> (${g}): in the NSW top 100 for <b>${ys.length}</b> year${ys.length > 1 ? "s" : ""}. Peak <b>#${best[1]}</b> in ${best[0]}; ${now}.</p><div class="nspark" aria-hidden="true">${bars.join("")}</div>`; });
+    return `<p>${ico} <b>${esc(hit[0])}</b> (${g}): in the NSW top 100 for <b>${ys.length}</b> year${ys.length > 1 ? "s" : ""}. ${best === last && last[0] === idx.to ? `${now[0].toUpperCase()}${now.slice(1)}` : `Peak <b>#${best[1]}</b> in ${best[0]}; ${now}`}.</p><div class="nspark" aria-hidden="true">${bars.join("")}</div>`; });
   return Response.json({ html: out.join("") + `<p class="mute">Best rank each decade. Taller means more popular.</p>` });
 }
 // Baby name ideas: Mav asks a few questions, AI suggests names, the official NSW list adds how common each one is.
@@ -2961,7 +2961,7 @@ async function namesIdeas(req, env) {
     .map(n => { if (!idx) return n; const h = idx.names[n.name.toLowerCase()]; if (!h) return { ...n, pop: "Rare in NSW" };
       const sets = (g === "boy" ? [h[1]] : g === "girl" ? [h[2]] : [h[1], h[2]]).join(",").split(",").filter(Boolean).map(p => p.split(":").map(Number));
       const now = sets.filter(p => p[0] === idx.to).sort((a, b) => a[1] - b[1])[0];
-      return { ...n, pop: now ? `NSW #${now[1]} in ${idx.to}` : sets.length ? `Last in NSW top 100: ${Math.max(...sets.map(p => p[0]))}` : "Rare in NSW" }; });
+      return { ...n, pop: now ? `NSW #${now[1]} in ${idx.to}` : sets.length ? `Last in NSW top 100: ${Math.max(...sets.map(p => p[0]))}` : `Rare for ${g}s in NSW` }; });
   const res = Response.json({ say: clip(out.say, 140), names }), h = new Headers(res.headers);
   if (!em) h.append("set-cookie", "names1=1; Path=/; Max-Age=31536000; Secure; SameSite=Lax");
   return new Response(res.body, { status: res.status, headers: h });
