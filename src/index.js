@@ -2597,13 +2597,23 @@ function faqList() {
   return out;
 }
 function faqPage() {
-  const groups = faqList(), all = groups.flatMap(g => g[1]);
+  const groups = faqList(), all = groups.flatMap(g => g[1]), about = groups.find(g => /^About /.test(g[0])), main = groups[0];
   const ld = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: all.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) };
-  return page(`Questions about ${R.place}`, `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Questions about ${esc(R.place)} and the shire</h1>
+  // People see one tidy set, grouped by topic. Every town's version stays in the data for search engines and AI.
+  const TOP = [["📰 News, events &amp; notices", /news|what's on|event|obituar|funeral|birth|wedding|engagement/i], ["🌊 Weather, beach &amp; sea", /weather|tide|surf|swim|beach|moon|bushfire|fire/i],
+    ["🚗 Getting around", /fuel|flight|open now|traffic/i], ["🏛️ Council &amp; community", /bin|council|pet|traditional land|list an event/i],
+    ["🧒 Family, food &amp; fun", /kids|holiday|crossword|horoscope|birthday|cook|fridge|dinner/i]];
+  const qs = main ? main[1] : [], used = new Set(), sec = TOP.map(([h, re]) => [h, qs.filter(x => !used.has(x) && re.test(x[0]) && used.add(x))]);
+  const rest = qs.filter(x => !used.has(x)); if (rest.length) sec.push(["More questions", rest]);
+  if (about) sec.push(["ℹ️ About the Daily Maverick", about[1]]);
+  const qa = ([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a).replace(/(https:\/\/[^\s,]+?)(?=[.,]?(\s|$))/g, '<a href="$1">$1</a>')}</p></details>`;
+  const towns = groups.filter(g => g !== main && g !== about).map(g => g[0]);
+  return page(`Questions about ${R.place}`, `<p class="mute"><a href="/">‹ ${R.code}</a></p><h1>Questions about ${esc(R.place)}</h1>
 <p class="mute">Quick answers to what locals ask most. This page is mostly here so search engines and AI assistants get the facts right, but every answer is here for you too.</p>
 <input id="faqq" type="search" placeholder="🔎 Search the questions" aria-label="Search the questions" style="width:100%;margin:6px 0 10px">
 <script>document.getElementById('faqq').oninput=function(){var q=this.value.toLowerCase();document.querySelectorAll('details.faq').forEach(function(d){var hit=!q||d.textContent.toLowerCase().indexOf(q)>-1;d.style.display=hit?'':'none';if(q&&hit)d.open=true})}</script>
-${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a).replace(/(https:\/\/[^\s,]+?)(?=[.,]?(\s|$))/g, '<a href="$1">$1</a>')}</p></details>`).join("")}`).join("")}
+${sec.filter(x => x[1].length).map(([h, L]) => `<h2>${h}</h2>${L.map(qa).join("")}`).join("")}
+${towns.length ? `<p class="mute">The same answers apply to ${towns.map(esc).join(", ")}.</p>` : ""}
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>`, R.code);
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
