@@ -106,7 +106,7 @@ b.setAttribute('aria-label','Where this information comes from');b.setAttribute(
 b.onclick=function(){p.hidden=!p.hidden;b.setAttribute('aria-expanded',String(!p.hidden));b.classList.toggle('on',!p.hidden);try{localStorage.setItem('src_hint','1')}catch(e){}var h=document.getElementById('srchint');if(h)h.remove()};
 p.parentNode.insertBefore(b,p);if(!first)first=b});
 })();</script>
-<script>(function(){var TW=${JSON.stringify(Object.entries(TOWNS).filter(([, t]) => t.live).map(([k, t]) => [k, t.lat, t.lon]))};var L=null;try{L=JSON.parse(localStorage.getItem("loc"))}catch(e){}document.querySelectorAll(".useloc").forEach(function(a){if(L)a.textContent="📍 Using your location (reset)";
+<script>(function(){var TW=${JSON.stringify(Object.entries(TOWNS).filter(([, t]) => t.live).map(([k, t]) => [k, t.lat, t.lon]))};var L=null;try{L=JSON.parse(localStorage.getItem("loc"))}catch(e){}document.querySelectorAll(".useloc").forEach(function(a){if(L)a.textContent=a.dataset.on||"🎯 Tuned to exactly where you are (reset)";
 a.onclick=function(e){e.preventDefault();if(L){try{localStorage.removeItem("loc")}catch(_){}location.reload();return}if(!navigator.geolocation){a.textContent="Location not available on this device";return}a.textContent="📍 Finding you…";
 navigator.geolocation.getCurrentPosition(function(p){var la=+p.coords.latitude.toFixed(2),lo=+p.coords.longitude.toFixed(2);try{localStorage.setItem("loc",JSON.stringify([la,lo]))}catch(_){}
 var best=null,bd=1e9;TW.forEach(function(t){var d=Math.pow(t[1]-la,2)+Math.pow((t[2]-lo)*Math.cos(la*Math.PI/180),2);if(d<bd){bd=d;best=t[0]}});
@@ -213,7 +213,6 @@ async function town(pc, env, ctx, isRoot = false) {
 <p class="mast">Daily ${esc(pc)} Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised daily news.</b> We don't write the news, we gather it. No opinions. Make your own.</p><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised daily news."}}catch(e){}<\/script>
 <h1>${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page" title="${esc(v.name)}">${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
-${rallyStrip(nLocals)}
 <div class="qs" hidden><input id="qs" type="search" placeholder="🔎 What do you need? Try bins, tides, mayor…" autocomplete="off" aria-label="Search ${esc(pc)}">
 <div id="qs-saved" class="chips"></div><div id="qs-res"></div></div>
 ${ann}${live.alertNote}
@@ -227,7 +226,8 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">🏄</span><b id="t-swell">–</b><small>Swell</small></div>
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
 ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>` : ""}
-</div><p class="mute tloc"><a href="#" class="useloc">📍 Use my location for weather</a></p><div id="frs"></div></section>
+</div><p class="mute tloc"><a href="#" class="useloc" data-on="🎯 Weather tuned to exactly where you are (reset)">🎯 We know you're in ${esc(t.name)}. But where exactly? Tap to fine-tune your weather to where you're standing right now.</a></p><div id="frs"></div></section>
+${live.alerts}
 ${quoteBlock()}
 ${live.news}
 ${await plannerBlock(env)}
@@ -288,7 +288,7 @@ B.innerHTML='<h3>🏄 Best beach for a surf today</h3><p class="mute">'+sz+' '+d
 +(SNOTE?'<p class="mute">'+SNOTE+'</p>':'')+(h>=2.5?'<p class="note">🌊 Big swell today. Experienced surfers only.</p>':'')+'<p class="mute">A guide from forecast models and surf guides, not a promise. Check it with your own eyes before you paddle out.</p>'}
 fetch('https://marine-api.open-meteo.com/v1/marine?latitude='+t.mlat+'&longitude='+t.mlon+'&current=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,sea_surface_temperature&timezone=Australia%2FSydney').then(function(r){return r.json()}).then(function(j){var c=j.current||{};SW=[c.swell_wave_direction!=null?c.swell_wave_direction:c.wave_direction,c.swell_wave_height!=null?c.swell_wave_height:c.wave_height];best();if(c.sea_surface_temperature!=null)$('b-sst',Math.round(c.sea_surface_temperature)+'°C');if(c.wave_height!=null){$('b-wave',c.wave_height.toFixed(1)+' m');$('b-wave2',dir(c.wave_direction)+' · '+Math.round(c.wave_period)+' s')}}).catch(function(){});
 fetch('https://api.open-meteo.com/v1/forecast?latitude='+t.lat+'&longitude='+t.lon+'&current=wind_speed_10m,wind_direction_10m&daily=uv_index_max&timezone=Australia%2FSydney&forecast_days=1').then(function(r){return r.json()}).then(function(j){var c=j.current||{},u=(j.daily||{}).uv_index_max;if(c.wind_speed_10m!=null){WD=[c.wind_direction_10m,c.wind_speed_10m];best();$('b-wind',Math.round(c.wind_speed_10m)+' km/h');$('b-wind2',dir(c.wind_direction_10m)+' wind')}if(u&&u[0]!=null){var v=Math.round(u[0]);$('b-uv',v);$('b-uv2',v>=11?'Extreme UV':v>=8?'Very high UV':v>=6?'High UV':v>=3?'Moderate UV':'Low UV')}}).catch(function(){});})();</script></section>
-${live.alerts}</div>
+</div>
 ${PUSH_JS()}${rally(nLocals, pc)}
 <script>
 try{localStorage.setItem('pc','${pc}')}catch(e){}
@@ -1026,7 +1026,7 @@ const charter = () => page("Our charter", `<p class="mute"><a href="/">${R.brand
 const privacy = () => page("Privacy policy", `<p class="mute"><a href="/">${R.brand}</a></p><h1>Privacy policy</h1>
 <p class="mute">Plain English. Last updated ${UPDATED}.</p>
 <p>We collect as little as we can, we never sell it, and we follow the Australian Privacy Principles.</p>
-<h2>Kept on your phone, not with us</h2><p>If you tap &ldquo;Use my location&rdquo;, it's rounded to about a kilometre and saved on your phone. It's used for your weather and to find fuel near you, never stored by us, and you can reset it any time. Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. If you sign in, your page settings (what you pin, show or hide, your stars, the events you like, saved searches and bin night) are also saved to your account, so they follow you to any phone. Your location, school, birthday and friends&rsquo; clocks stay on your phone only. We never see them. Clear your browser data and they're gone.</p>
+<h2>Kept on your phone, not with us</h2><p>If you tap to fine-tune your weather to your exact location, it's rounded to about a kilometre and saved on your phone. It's used for your weather and to find fuel near you, never stored by us, and you can reset it any time. Your postcode, which sections you show or hide, your school and your birthday (day and month only) are saved in your own browser. If you sign in, your page settings (what you pin, show or hide, your stars, the events you like, saved searches and bin night) are also saved to your account, so they follow you to any phone. Your location, school, birthday and friends&rsquo; clocks stay on your phone only. We never see them. Clear your browser data and they're gone.</p>
 <h2>What we do keep</h2><ul>
 <li><b>Weekly email or fridge sign-up:</b> your email, first name if you give it, postcode and that you agreed to the email.</li>
 <li><b>Events and birthday offers:</b> what you submit, plus a contact email so we can check details. The email is never shown publicly.</li>
