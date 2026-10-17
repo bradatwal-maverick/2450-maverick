@@ -1919,7 +1919,7 @@ function statusPage(env) {
 function appsSaved() {
   const a = ["BOM Weather", "WillyWeather (tides)", "Hazards Near Me", "Live Traffic NSW", "FuelCheck", "Woolworths", "ALDI", "Coles",
     ...R.news.map(n => n.name), "Facebook community groups", "Eventbrite", "Council website", "realestate.com.au", "Domain", "Rent.com.au", "Flatmates",
-    "SEEK", "Indeed", "Jora", "LinkedIn Jobs", "Google Maps (what's open)", "The Lott", "Horoscope app", "Crossword app", "School holiday calendar", "Bank and rates news"];
+    "SEEK", "Indeed", "Jora", "LinkedIn Jobs", "Google Maps (what's open)", "Horoscope app", "Crossword app", "School holiday calendar", "Bank and rates news"];
   if (R.surf) a.push("Surf report app");
   if (R.airport) a.push("Flight tracker");
   if (R.funerals) a.push(...R.funerals.map(f => f.name + " notices"));
