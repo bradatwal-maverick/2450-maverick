@@ -1971,7 +1971,7 @@ async function wineApi(req, env, url) {
   if (req.method === "POST") {
     const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: `/${R.code}#wine` } });
     const shop = String(f.get("shop") || "").replace(/[<>]/g, "").trim().slice(0, 60), sub = String(f.get("suburb") || "").replace(/[<>]/g, "").trim().slice(0, 40),
-      beer = String(f.get("beer") || WINE_DEFAULT).replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
+      beer = String(f.get("wine") || WINE_DEFAULT).replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
     if (!shop || !sub || !(price > 5 && price < 400) || f.get("ok") !== "yes") return page("Check your details", `<h1>Nearly</h1><p>Please add the shop, suburb, a price, and tick the box. <a href="/${R.code}#wine">Back</a></p>`);
     const k = (shop + "|" + beer).toLowerCase(), rest = L.filter(x => (x.shop + "|" + x.beer).toLowerCase() !== k);
     await env.DATA.put("winelocal", JSON.stringify([{ shop, sub, beer, price, at: new Date().toISOString() }, ...rest].slice(0, 300)));
