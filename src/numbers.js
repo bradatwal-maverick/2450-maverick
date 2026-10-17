@@ -10,6 +10,10 @@ const CATS = ["NSW essentials", "Banks", "Government", "Phone and internet", "En
 const LCATS = ["Police", "Health", "Council", "Banks", "Motoring and transport"];
 const telOf = n => String(n || "").replace(/[^\d+]/g, "");
 const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return "source"; } };
+// Show the full address the number sits at, so readers see how deep it's buried.
+const buried = u => { try { const x = new URL(u), segs = x.pathname.split("/").filter(Boolean).map(p => decodeURIComponent(p).replace(/\.(html?|aspx?|php)$/i, ""));
+  return { path: [x.hostname.replace(/^www\./, ""), ...segs].join(" › "), deep: segs.length }; } catch (e) { return null; } };
+const dig = u => { const b = buried(u); return b ? `<p class="hndig">🔎 Buried at: <a href="${String(u).replace(/"/g, "&quot;")}" rel="noopener">${b.path.replace(/</g, "&lt;")}</a>${b.deep >= 2 ? ` <span class="mute">(${b.deep} pages deep)</span>` : ""}</p>` : ""; };
 const slug = c => c.toLowerCase().replace(/[^a-z]+/g, "-");
 const okNum = n => /^(0[2378]\d{8}|04\d{8}|1[38]00\d{6}|13\d{4})$/.test(telOf(n));
 const fmtNum = n => { const d = telOf(n); return d.length === 6 ? d.replace(/(\d{2})(\d{2})(\d{2})/, "$1 $2 $3") : /^1[38]00/.test(d) ? d.replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3") : /^04/.test(d) ? d.replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3") : d.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2 $3"); };
@@ -26,14 +30,14 @@ export function numbersApi({ esc, page, R, fresh, member, cleanText, nameOf, TOW
 ${x.hours ? `<small>🕘 ${esc(x.hours)}</small>` : ""}
 ${x.tree ? `<p class="hntree">👉 <b>To reach a person:</b> ${esc(x.tree)}<span class="src"><span class="srcw">Source:</span> <a href="${esc(x.treeSrc)}" rel="noopener">${esc(x.treeSrcName || host(x.treeSrc))}</a></span></p>` : ""}
 ${x.tip ? `<p class="hntree">💡 ${esc(x.tip)}</p>` : ""}
-<p class="src">${fresh ? fresh(x.checked) : ""}<span class="srcw">Source:</span> <a href="${esc(x.src)}" rel="noopener">${esc(x.srcName || host(x.src))}</a> · checked ${esc(x.checked)}</p></li>`;
+<p class="src">${fresh ? fresh(x.checked) : ""}<span class="srcw">Source:</span> <a href="${esc(x.src)}" rel="noopener">${esc(x.srcName || host(x.src))}</a> · checked ${esc(x.checked)}</p>${dig(x.src)}</li>`;
     const litem = x => `<li class="hn"><div class="hnh"><b>${esc(x.org)}</b> <span class="mute">${esc(x.branch)}</span> <a class="hnum" href="tel:${telOf(x.num)}">📞 ${esc(x.num)}</a></div>
 <p class="src"><span class="srcw">Shared by:</span> ${esc(x.name)}, a local · ${esc(x.at.slice(0, 10))} · found it: ${esc(x.where)}. Not checked by us.</p>
 <p class="hnv"><button type="button" data-id="${x.id}" data-v="good">✅ Worked <span>${x.good}</span></button> <button type="button" data-id="${x.id}" data-v="bad">❌ Didn't work <span>${x.bad}</span></button></p></li>`;
     const off = (LOCAL[R.code] || []).slice().sort((a, b) => LCATS.indexOf(a.cat) - LCATS.indexOf(b.cat) || a.name.localeCompare(b.name));
     const oitem = x => `<li class="hn"><div class="hnh"><b>${esc(x.name)}</b>${x.where ? ` <span class="mute">${esc(x.where)}</span>` : ""} <a class="hnum" href="tel:${telOf(x.num)}">📞 ${esc(x.num)}</a></div>
 ${x.hours ? `<small>🕘 ${esc(x.hours)}</small>` : ""}
-<p class="src">${fresh ? fresh(x.checked) : ""}<span class="srcw">Source:</span> <a href="${esc(x.src)}" rel="noopener">${esc(x.srcName || host(x.src))}</a> · checked ${esc(x.checked)}</p></li>`;
+<p class="src">${fresh ? fresh(x.checked) : ""}<span class="srcw">Source:</span> <a href="${esc(x.src)}" rel="noopener">${esc(x.srcName || host(x.src))}</a> · checked ${esc(x.checked)}</p>${dig(x.src)}</li>`;
     const groups = CATS.map(c => [c, LIST.filter(x => x.cat === c)]).filter(([, xs]) => xs.length);
     const form = em ? `<details class="hnadd"><summary><b>+ Share a direct local number</b></summary><form id="lnf">
 <label>Business<input name="org" maxlength="50" required placeholder="e.g. CommBank"></label>
@@ -54,7 +58,7 @@ ${off.length ? `<ul class="hnl">${off.map(oitem).join("")}</ul>` : ""}
 ${loc.length ? `<ul class="hnl">${loc.map(litem).join("")}</ul>` : `<p class="mute">None shared for ${esc(pc)} yet. Be the first.</p>`}
 ${form}
 ${groups.map(([c, xs]) => `<h2 id="${slug(c)}">${esc(c)}</h2>${c === "If they won't help" ? `<p class="mute">Free, independent help when a company won't sort it out.</p>` : c === "NSW essentials" ? `<p class="mute">In an emergency call <a href="tel:000">000</a>.</p>` : ""}<ul class="hnl">${xs.map(item).join("")}</ul>`).join("")}
-<style>.hnl{list-style:none;padding:0}.hn{padding:10px 0;border-bottom:1px solid var(--line)}.hnh{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}.hnum{font-weight:bold;white-space:nowrap}.hntree{margin:6px 0 2px;font-size:.92rem}.hntree .src{display:block;margin-top:2px}.hnv button{font-size:.85rem;padding:3px 10px;margin-right:6px}.hnv button.on{outline:2px solid var(--fg)}.hnadd{margin:10px 0 18px}.hnadd summary{cursor:pointer}</style>
+<style>.hnl{list-style:none;padding:0}.hn{padding:10px 0;border-bottom:1px solid var(--line)}.hnh{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}.hnum{font-weight:bold;white-space:nowrap}.hntree{margin:6px 0 2px;font-size:.92rem}.hntree .src{display:block;margin-top:2px}.hnv button{font-size:.85rem;padding:3px 10px;margin-right:6px}.hnv button.on{outline:2px solid var(--fg)}.hndig{margin:2px 0 0;font-size:.78rem;color:var(--mute);word-break:break-word}.hndig a{color:inherit}.hnadd{margin:10px 0 18px}.hnadd summary{cursor:pointer}</style>
 <script>(function(){document.querySelectorAll('.hnv button').forEach(function(b){b.onclick=function(){fetch('/api/numbers-vote?pc=${pc}&id='+b.dataset.id+'&v='+b.dataset.v,{method:'POST'}).then(function(r){return r.json()}).then(function(j){if(j.error){alert(j.error);return}var p=b.parentNode;p.querySelector('[data-v=good] span').textContent=j.good;p.querySelector('[data-v=bad] span').textContent=j.bad;b.classList.add('on')})}});
 var f=document.getElementById('lnf'),m=document.getElementById('lnm');if(!f)return;f.onsubmit=function(e){e.preventDefault();var d=Object.fromEntries(new FormData(f));
 fetch('/api/numbers?pc=${pc}',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()}).then(function(j){m.innerHTML=j.msg||j.error;m.hidden=false;if(j.ok){f.reset();f.hidden=true}})}})()</script>`, pc,
