@@ -5,6 +5,7 @@ export const NAV = [
   { slug: "news", icon: "📰", name: "News", blurb: "Local news, alerts and who's making the calls. Sourced, never written by us.", items: [
     ["#news", "📰", "Local news", "Today's local headlines, each with its source"],
     ["#alerts", "🚨", "Alerts", "Fires, floods, storms and road closures"],
+    ["#scams", "🛡️", "Scam watch", "What's going around and how to check before you buy"],
     ["#numbers", "🔢", "News in numbers", "The day's news, by the numbers"],
     ["#bypass", "🛣️", "Bypass updates", "Progress on the bypass, from the source"],
     ["#aigb", "🤖", "AI for good, AI for bad", "What AI did this week, both sides"],
@@ -58,6 +59,7 @@ export const NAV = [
     ["#wine", "🍷", "Wine watch", "Today's prices"],
     ["/jobs", "💼", "Jobs", "Every job site in one place"],
     ["/rent", "🏠", "Renting", "Every rental site, your rights, bond help"],
+    ["/scams", "🛡️", "Scam watch", "Report a scam, check a business, the tips banks agree on"],
     ["/numbers", "📞", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"],
     ["", "🔎", "Local Business Watch", "Does your money stay in the community?", true],
   ] },

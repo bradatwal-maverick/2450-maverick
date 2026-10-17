@@ -13,6 +13,7 @@ import { numbersApi } from "./numbers.js";
 import { edData, edBlock } from "./ed.js";
 import { trafficNear, trafficList } from "./traffic.js";
 import { nswPage } from "./nswgov.js";
+import { scamsApi, scamFeeds, scamTeaser } from "./scams.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -314,7 +315,7 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
   const SH = secSlug ? sectionHead(secSlug, { esc, R, pc }) : null;
-  const hero = SH ? "" : await potdBlock(env, pc); let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; }
+  const hero = SH ? "" : await potdBlock(env, pc); let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; } let scB = ""; try { scB = scamTeaser(await scamFeeds(env), esc); } catch (e) { scB = ""; }
   let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
   // Section pages are today's paper filtered to that section: the nameplate and front-page extras step aside.
   const secCss = SH ? `<style>.mast,.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute,#founding{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
@@ -346,6 +347,7 @@ ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b
 ${oneAppBlock(nLocals)}
 ${live.alerts}
 ${edB}
+${scB}
 ${live.news}
 ${hooksStrip(pc)}
 ${SH && SH.ids.includes("love") ? loveBlock(pc) : ""}
@@ -2427,7 +2429,7 @@ ${await plusList(env)}
 function allPage() {
   const G = [["🗞️ Sections", NAV.map(x => [`/${x.slug}`, x.name, x.blurb])], ["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
     ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free, Some Cool Things or Every Cool Thing"]]],
-    ["🧰 Handy tools", [["/numbers", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"], ["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
+    ["🧰 Handy tools", [["/numbers", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"], ["/scams", "Scam watch", "What's going around, check before you buy, report a scam"], ["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
     ["👤 You", [["/me", "My page", "Your settings and what Mav knows"], ["/signin", "Sign in", "Free, one tap"]]],
@@ -2798,6 +2800,8 @@ async function route(req, env, ctx) {
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/credits") return creditsPage(env, url);
     if (p === "/nsw") return nswPage({ esc, page, R, fresh })(url);
+    if (p === "/scams") return scamsApi({ esc, page, R, member, fresh }).view(req, env, url);
+    if (p === "/api/scamcheck" && req.method === "POST") return scamsApi({ esc, page, R, member, fresh }).checkApi(req, env);
     if (p === "/api/ed") { const d = await edData(env, R.code); return Response.json({ ok: !!d?.list?.length, n: d?.list?.length || 0, errs: d?.errs || [], at: d?.at }); }
     if (p === "/numbers" || p === "/api/numbers" || p === "/api/numbers-vote") { const N = numbersApi({ esc, page, R, fresh, member, cleanText, nameOf, TOWNS, todayISO });
       if (p === "/numbers") return N.view(req, env, url); if (req.method !== "POST") return new Response("Not found", { status: 404 }); return p === "/api/numbers" ? N.add(req, env, url) : N.vote(req, env, url); }

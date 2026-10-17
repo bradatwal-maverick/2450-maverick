@@ -1,0 +1,96 @@
+{
+  "register": {
+    "name": "NSW Fair Trading Complaints Register",
+    "url": "https://www.nsw.gov.au/departments-and-agencies/fair-trading/complaints-and-enquiries/complaints-register",
+    "guidelinesUrl": "https://www.nsw.gov.au/departments-and-agencies/fair-trading/who-we-are/nsw-fair-trading-complaints-register-guidelines",
+    "guidelinesPdf": "https://www.nsw.gov.au/sites/default/files/noindex/2024-08/nsw-fair-trading-complaints-register-guidelines.pdf",
+    "threshold": "Businesses (including online businesses) that received 10 or more complaints in a calendar month",
+    "format": "Interactive Power BI dashboard only (embedded on the page). No CSV/JSON/XLSX download and no dataset on data.nsw.gov.au (CKAN API searches for the register returned nothing).",
+    "dashboardUrl": "https://app.powerbi.com/view?r=eyJrIjoiMDJmZDBmNWUtNDY1ZS00YjgxLTk4MjgtOGI5YTA3YWFhZDFhIiwidCI6IjFlZjk3YTY4LWU4YWItNDRlZC1hMTZkLWI1NzlmZTJkN2NkOCJ9",
+    "downloadable": false,
+    "workerFetchable": false,
+    "workerNote": "Not a plain file URL. Power BI 'publish to web' renders client-side via an undocumented API; scraping it is fragile and not an official data feed. Link out or embed the official dashboard instead.",
+    "fieldsShown": ["Business name", "Number of complaints", "Complaint type/issue (e.g. quality of service)", "Suburb/location in NSW", "Industry (Property, Motor vehicle, Consumer services)", "Month/date period"],
+    "notPublished": "Outcomes, penalties or details of specific complaints; anonymous complaints are excluded (a complaint needs a name and at least one contact method)",
+    "history": "Past 2 years",
+    "updateFrequency": "Monthly, published in the second half of each month, covering complaints received in the previous calendar month",
+    "latestMonthExpected": "September 2026 (published second half of October 2026); the page itself does not state the month shown, so confirm in the dashboard",
+    "disclaimer": "No verbatim disclaimer is shown on the register page. Suggested wording based on official statements: 'The register shows businesses with 10 or more complaints lodged with NSW Fair Trading in a month. A listing is a count of complaints, not a finding of wrongdoing. Each complaint is assessed and NSW Fair Trading considers the trader's conduct before deciding whether action is needed. Source: NSW Fair Trading Complaints Register.'",
+    "disclaimerSources": [
+      "https://www.nsw.gov.au/departments-and-agencies/fair-trading/complaints-and-enquiries/complaints-register",
+      "https://www.nsw.gov.au/departments-and-agencies/fair-trading/news/electronics-company-notorious-filtration-supplier-top-complaints-list"
+    ],
+    "contact": "NSW Fair Trading 13 32 20 (Mon-Fri 8:30am-5pm)"
+  },
+  "accc": {
+    "mostComplainedList": false,
+    "note": "The ACCC does not publish a 'most complained about businesses' list or complaints data by business.",
+    "equivalents": [
+      {"name": "ACCC Public Warning Notice Register", "url": "https://www.accc.gov.au/public-registers/public-warning-notice-register"},
+      {"name": "ACCC news centre - Compliance and enforcement topic", "url": "https://www.accc.gov.au/news-centre?f%5B0%5D=topic%3A12039"},
+      {"name": "ACCC media releases", "url": "https://www.accc.gov.au/media/media-releases"},
+      {"name": "Scamwatch Targeting Scams report (aggregate scam statistics, not by business)", "url": "https://www.scamwatch.gov.au/scam-statistics/targeting-scams"}
+    ],
+    "rss": "No ACCC media-release RSS feed found (page offers email subscription only); news list loads via JavaScript."
+  },
+  "feeds": {
+    "scamwatch": {
+      "url": "https://www.scamwatch.gov.au/rss/news-feed.xml",
+      "format": "RSS 2.0, UTF-8",
+      "channelTitle": "Latest news from Scamwatch",
+      "items": 10,
+      "order": "Newest first (unparameterised URL). WARNING: the ?page=N variant returns archived pages (e.g. 2009 items), so never append page.",
+      "itemFields": {"title": "string (may have trailing space - trim)", "link": "absolute URL", "pubDate": "RFC 822, e.g. Mon, 28 Sep 2026 01:05:00 +0000", "guid": "UUID, isPermaLink=false", "description": "escaped HTML fragment (div wrappers + <time>) - strip tags"},
+      "latestItem": {"title": "Scam alert: Investment scams hiding in plain sight", "pubDate": "Mon, 28 Sep 2026 01:05:00 +0000", "link": "https://www.scamwatch.gov.au/about-us/news-and-alerts/scam-alert-investment-scams-hiding-in-plain-sight"},
+      "listingPage": "https://www.scamwatch.gov.au/about-us/news-and-alerts/browse-news-and-alerts",
+      "emailAlerts": "https://www.scamwatch.gov.au/news-alerts/subscribe-to-scam-alert-emails",
+      "workerFetchable": true,
+      "fetchNote": "Plain static XML URL; fetchable from a Worker (set a User-Agent, cache 1-6h)."
+    },
+    "productSafety": {
+      "url": "https://www.productsafety.gov.au/rss/recalls.xml",
+      "format": "RSS 2.0",
+      "channelTitle": "Product Safety Australia - Recalls",
+      "items": 20,
+      "order": "Newest first",
+      "itemFields": {"title": "product name", "link": "https://www.productsafety.gov.au/search-consumer-product-recalls/<slug>", "pubDate": "RFC 822, e.g. Thu, 15 Oct 2026 00:00:00 +0000", "guid": "UUID, isPermaLink=false", "category": "one or more <category> elements (product category names)", "description": "HTML summary of hazard and what to do - strip tags"},
+      "latestItem": {"title": "HICELL Super Lithium button batteries", "pubDate": "Thu, 15 Oct 2026 00:00:00 +0000", "link": "https://www.productsafety.gov.au/search-consumer-product-recalls/hicell-super-lithium-button-batteries"},
+      "categoryFeedPattern": "https://www.productsafety.gov.au/rss/recalls.xml?f%5B%5D=field_psa_product_category%3A<id>",
+      "usefulCategoryIds": {"compulsory": 40159, "babyToddler": 10001, "electronics": 10035, "buttonBatteries": 10036, "lithiumIon": 10038, "kidsToys": 10067, "homeGarden": 10044, "eBikesScooters": 10112},
+      "feedIndex": "https://www.productsafety.gov.au/about-us/product-safety-news/subscribe-to-rss-feeds",
+      "workerFetchable": true,
+      "fetchNote": "Plain static XML URL; the unfiltered URL returns all recalls (not listed on the index page but works). Descriptions are long - parse with a tolerant parser and truncate."
+    },
+    "acccWarnings": {
+      "url": "https://www.accc.gov.au/public-registers/public-warning-notice-register",
+      "format": "HTML page only, no feed",
+      "workerFetchable": false
+    }
+  },
+  "report": [
+    {"step": "In danger? Call Triple Zero", "detail": "If you or someone else is in immediate danger, call 000.", "phone": "000", "url": "https://www.scamwatch.gov.au/report-a-scam", "srcName": "Scamwatch"},
+    {"step": "Contact your bank straight away", "detail": "Call your bank or card provider immediately to report the scam and ask them to stop any transactions. Use the number on your card or the bank's official app/website.", "phone": "CommBank 13 2221 | Westpac 1300 364 294 | NAB 13 22 65 | ANZ cards 13 22 73, internet banking 13 33 50", "url": "https://www.scamwatch.gov.au/protect-yourself/what-to-do-if-youve-been-scammed", "srcName": "Scamwatch; bank pages: commbank.com.au/support/security.html, westpac.com.au/security/how-to-report/, nab.com.au/about-us/security/report-fraud-scams, anz.com.au/security/report-scams-fraud/"},
+    {"step": "Get free recovery help from IDCARE", "detail": "IDCARE is the national identity and cyber support service. It helps you make a free plan to limit the damage (Mon-Fri 7am-7pm AEST). NSW/ACT direct line 02 8999 3356.", "phone": "1800 595 160", "url": "https://www.idcare.org/get_help/help_main", "srcName": "IDCARE"},
+    {"step": "Report cybercrime or money lost to police (ReportCyber)", "detail": "Make an official online report to police through ReportCyber, run by the Australian Cyber Security Centre. Advice line: Australian Cyber Security Hotline.", "phone": "1300 CYBER1 (1300 292 371)", "url": "https://www.cyber.gov.au/report-and-recover/report", "srcName": "Australian Cyber Security Centre (cyber.gov.au)"},
+    {"step": "Tell NSW Police", "detail": "NSW Police directs fraud and cybercrime reports to ReportCyber. For non-urgent police help call the Police Assistance Line; you can also attend a police station with a completed Fraud Report Form. Share information anonymously with Crime Stoppers on 1800 333 000.", "phone": "131 444", "url": "https://www.police.nsw.gov.au/crime/frauds_and_scams/fraud_categories/victims_of_fraud", "srcName": "NSW Police Force"},
+    {"step": "Report it to Scamwatch", "detail": "Report the scam to Scamwatch (National Anti-Scam Centre) to help warn others and disrupt scammers. Scam websites have their own form: https://forms.scamwatch.gov.au/report-a-scamwebsite/", "phone": "", "url": "https://portal.scamwatch.gov.au/report-a-scam/", "srcName": "Scamwatch"},
+    {"step": "Not happy with your bank's response?", "detail": "Complain to the Australian Financial Complaints Authority (AFCA), a free, independent service.", "phone": "", "url": "https://www.afca.org.au/make-a-complaint", "srcName": "Scamwatch (links AFCA)"},
+    {"step": "Watch for follow-up scams", "detail": "Scammers often come back to past victims, especially offering to 'help you get your money back'. Change passwords on your devices and accounts.", "phone": "", "url": "https://www.scamwatch.gov.au/protect-yourself/what-to-do-if-youve-been-scammed", "srcName": "Scamwatch"},
+    {"step": "Look after yourself", "detail": "Scams are stressful. Free, confidential support is available 24/7 from Lifeline (13 11 14) and Beyond Blue (1300 22 4636), and free financial counselling via Moneysmart.", "phone": "13 11 14", "url": "https://www.scamwatch.gov.au/protect-yourself/what-to-do-if-youve-been-scammed", "srcName": "Scamwatch"},
+    {"step": "Complaint about a NSW business (not a scam)", "detail": "For a dispute with a legitimate business, contact NSW Fair Trading.", "phone": "13 32 20", "url": "https://www.nsw.gov.au/departments-and-agencies/fair-trading/complaints-and-enquiries", "srcName": "NSW Fair Trading"}
+  ],
+  "tips": [
+    {"tip": "Stop. Check. Protect.", "detail": "Stop: take a moment before giving money or personal info to anyone. Check: make sure the person or organisation is real. Protect: act quickly if something feels wrong.", "sources": [{"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/protect-yourself"}]},
+    {"tip": "Never share one-time codes, PINs or passwords", "detail": "No real bank or agency will ask for your passwords, PINs, NetCode/security codes or one-time passcodes. Anyone who does is a scammer.", "sources": [{"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/types-of-scams/phishing"}, {"name": "ANZ", "url": "https://www.anz.com.au/security/types-of-scams/bank-impersonation-scams/"}]},
+    {"tip": "There is no such thing as a 'safe account'", "detail": "Your bank will never ask you to move money to another account to keep it safe. That account belongs to the scammer.", "sources": [{"name": "CommBank", "url": "https://www.commbank.com.au/support/security.html"}, {"name": "Westpac", "url": "https://www.westpac.com.au/security/"}]},
+    {"tip": "Hang up and call back on a number you find yourself", "detail": "If a call feels off, hang up. Call the organisation back using the number on your card or its official website or app, never the number the caller gives you.", "sources": [{"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/about-us/news-and-alerts/bank-impersonation-scams-robbing-australians-of-their-life-savings"}, {"name": "ANZ", "url": "https://www.anz.com.au/security/types-of-scams/bank-impersonation-scams/"}]},
+    {"tip": "Caller ID and SMS names can be faked", "detail": "Scammers can make a call or text look like it is from your bank's real number, even in the same message thread. A familiar number proves nothing.", "sources": [{"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/about-us/news-and-alerts/bank-impersonation-scams-robbing-australians-of-their-life-savings"}, {"name": "ANZ", "url": "https://www.anz.com.au/security/types-of-scams/bank-impersonation-scams/"}]},
+    {"tip": "Don't tap links in unexpected texts or emails", "detail": "Log in by typing the bank's address yourself or using its official app. Banks won't ask you to log on via a link in an SMS or email.", "sources": [{"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/types-of-scams/phishing"}, {"name": "NAB", "url": "https://www.nab.com.au/about-us/security/account-security-tips"}]},
+    {"tip": "Never let a caller onto your device", "detail": "Don't download software, share your screen or give remote access to someone who contacts you. Banks and government agencies won't ask.", "sources": [{"name": "CommBank", "url": "https://www.commbank.com.au/support/security.html"}, {"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/types-of-scams/phishing"}]},
+    {"tip": "Pressure is a red flag", "detail": "Scammers rush you so you don't spot the warning signs. Don't let anyone hurry you into paying or sharing details - a genuine organisation will wait.", "sources": [{"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/stay-protected/help-to-spot-and-avoid-scams"}, {"name": "Westpac", "url": "https://www.westpac.com.au/security/types-of-scams/"}]},
+    {"tip": "Be wary of odd ways to pay", "detail": "Requests to pay by gift cards, cash withdrawals, crypto or crypto ATMs are classic scam signs. CommBank will never ask you to withdraw cash or buy gift cards.", "sources": [{"name": "CommBank", "url": "https://www.commbank.com.au/support/security.html"}, {"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/types-of-scams/investment-scams"}]},
+    {"tip": "Big returns, no risk? It's a scam", "detail": "Check any adviser holds an Australian financial services (AFS) licence with ASIC and isn't on the Moneysmart investor alert list before investing.", "sources": [{"name": "Scamwatch", "url": "https://www.scamwatch.gov.au/types-of-scams/investment-scams"}]}
+  ],
+  "fetchTestNote": "Sources verified via WebFetch on 2026-10-18. Direct curl from the build sandbox was blocked by its egress proxy, so Worker fetchability is inferred from plain static XML URLs, not tested from a Worker.",
+  "checked": "2026-10-18"
+}
