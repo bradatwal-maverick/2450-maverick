@@ -67,6 +67,12 @@ export const REGIONS = {
       ["WOOLGOOLGA", "Beach town home to Australia's first Sikh gurdwara"], ["KORORA", "Bay just north of town"], ["SOLITARY", "___ Islands Marine Park"],
       ["ORARA", "Valley and river behind Coffs"], ["BANANA", "Big one turned 50 in 2014"], ["GUMBAYNGGIRR", "Traditional custodians of the Coffs Coast"]],
     why: { slug: "coffs", title: "Why Coffs?", card: "Fun facts: the spelling mistake, the moon island, where the mountains meet the sea", intro: "What can Coffs say that nowhere else can? Plenty. Here's the pitch, every fact sourced." },
+    fish: { park: ["Solitary Islands Marine Park", "https://www.dpi.nsw.gov.au/__data/assets/pdf_file/0007/656305/INT16-103355-CURRENT_Solitary_Islands_Marine_Park_Zoning_Map.pdf"], spots: [
+      ["Coffs Harbour Jetty", "Jetty", "bream, trevally, whiting; sometimes kingfish and mulloway", ""], ["Northern Breakwall (Muttonbird Island)", "Breakwall", "tailor, tuna, mulloway, bream, flathead", "Rock fishing: watch the swell. No lobster traps in the harbour"],
+      ["Corambirra Point & Gallows Beach", "Rocks & beach", "tailor, mulloway, bream, flathead, trevally", "Rock fishing: watch the swell"], ["Park Beach", "Beach", "tailor, bream, whiting, mulloway", ""],
+      ["Coffs Creek (near the mouth)", "Estuary", "flathead, bream, blackfish, whiting", ""], ["Boambee Creek Reserve", "Estuary", "whiting, mulloway, flathead, bream, mangrove jack", "Small entry fee to the reserve"],
+      ["Bonville Creek, Sawtell", "Estuary", "sand whiting, flathead, mullet, mangrove jack", ""], ["Moonee Creek & Beach", "Estuary & beach", "whiting, flathead, blackfish, bream, trevally, mangrove jack", "Marine park: line fishing only from shore here, no bait collecting"],
+      ["Woolgoolga Creek & headlands", "Estuary & rocks", "mangrove jack, flathead, bream", "Headlands depend on tide and swell"], ["Corindi River & Red Rock", "Estuary", "sand whiting, bream, flathead, mangrove jack", "Part of Corindi River is a sanctuary zone (no fishing). Check the map"]] },
     fields: { url: "https://coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Sports-facilities/Sports-grounds/Sports-field-closure-arrangements", info: `<h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
 <li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>`, name: "City of Coffs Harbour, Sports field closure arrangements" },
     watch: {
@@ -162,6 +168,10 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["BANGALOW", "Village up the hill, postcode 2479"], ["ARAKWAL", "Traditional custodians of Byron Bay"], ["CAVVANBAH", "Traditional name meaning meeting place"],
       ["TALLOW", "Long beach south of the cape"], ["POETS", "Byron's streets are named after them"], ["SUFFOLK", "___ Park, just south of town"], ["EASTERLY", "Cape Byron is the most ___ point of the mainland"]],
     why: { slug: "why", title: "Why Byron?", card: "Fun facts: the poets' streets mix-up, the most easterly point, the meeting place", intro: "Everyone knows Byron. Here's what they don't know, every fact sourced." },
+    fish: { park: ["Cape Byron Marine Park", "https://www.dpi.nsw.gov.au/__data/assets/pdf_file/0005/656267/INT16-103353-CURRENT_Cape_Byron_Marine_Park_Zoning_Map.pdf"], spots: [
+      ["Brunswick River rock walls", "Breakwall", "mulloway (in season), bream, tailor", "Rock fishing: watch the swell"], ["Brunswick River Boat Harbour", "Estuary", "", "Fishing allowed here (special purpose zone)"],
+      ["Tallow Beach", "Beach", "tailor, mulloway", ""], ["Tyagarah Beach (south end)", "Beach", "", "Habitat protection zone: fishing allowed"]],
+      note: "Byron Bay, Broken Head and the creeks beside Brunswick Heads have sanctuary zones where you can't fish at all. Check the map before you cast." },
     fields: null,
     watch: {
       leadership: { owner: "Council", name: "Byron Shire Council, Leadership page", url: "https://www.byron.nsw.gov.au/Council/Leadership" },
@@ -245,6 +255,11 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["KALANG", "River that joins the Bellinger at Urunga"], ["DANGAR", "___ Falls, just outside Dorrigo"], ["SKYWALK", "Dorrigo's walkway above the rainforest canopy"],
       ["GUMBAYNGGIRR", "Traditional custodians of the Bellingen Shire"], ["MYLESTOM", "Riverside village near Urunga"]],
     why: { slug: "why", title: "Why Bello?", card: "Fun facts: World Heritage rainforest, where the rivers meet the sea", intro: "Small shire, big story. Every fact sourced." },
+    fish: { spots: [
+      ["Urunga Boardwalk (breakwall end)", "Breakwall", "mulloway, bream, luderick", ""], ["Lido breakwall, Urunga", "Breakwall", "bream, luderick", ""], ["Kalang River rock wall", "Breakwall", "bream, luderick", ""],
+      ["Newry Island bridge (Kalang River)", "Estuary", "flathead, bream, mulloway, mangrove jack", ""], ["Hungry Head", "Rocks", "bream, snapper, whiting", "Rock fishing: watch the swell"],
+      ["Wenonah Headland", "Rocks", "bream, snapper, drummer, tailor, mulloway", "Dirt road can wash out"], ["North Beach, Mylestom", "Beach", "bream, tailor, mulloway, whiting", "4WD permit needed"],
+      ["Bellinger River", "River", "sand whiting, luderick, mulloway; Aussie bass upstream", "Bass and estuary perch: catch and release only, May to August"]] },
     fields: null,
     watch: {
       leadership: { owner: "Council", name: "Bellingen Shire Council, Our Mayor and Councillors", url: "https://www.bellingen.nsw.gov.au/Your-Council/Our-Mayor-and-Councillors" },

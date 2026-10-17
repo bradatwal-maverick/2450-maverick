@@ -255,7 +255,7 @@ ${await shopBlock(env)}
 ${await ratesBlock(env)}
 ${await projectBlock(env)}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
-<p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p></section>
+<p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p>${fishBlock()}</section>
 <section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it. We tell you where it&rsquo;s from and how well the owner keeps it up to date.</p>
 ${R.know(W, accLine)}<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
 ${await councilBlock(env)}
@@ -1289,6 +1289,26 @@ async function getSource(env, ctx, key) {
   // The 30-minute schedule keeps sources fresh; page views never do the heavy lifting.
   return v;
 }
+// ---- Where to fish & what's biting. Spots and seasons from NSW DPIRD's GoFishing Coffs Coast guide, coffscoast.com.au,
+// the marine park user guides and local fishing guides. Rules and links straight from NSW DPIRD.
+const FISH_SEASON = [["Snapper", [1,2,3,4,5,6,7,8,9,10,11,12], [4,5,6,7,8,9,10]], ["Pearl perch", [1,2,3,4,5,6,7,8,9,10,11,12]], ["Spanish mackerel", [2,3,4,5]],
+  ["Longtail tuna & cobia", [2,3,4,5]], ["Sand whiting", [11,12,1,2,3,4]], ["Tailor, whiting & flathead", [9,10,11,3,4,5]]];
+function fishBlock() {
+  const F = R.fish; if (!F) return "";
+  const m = +todayISO().slice(5, 7), mn = new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { month: "long" });
+  const biting = FISH_SEASON.filter(x => x[1].includes(m)).map(([n, , best]) => `<li>🐟 <b>${n}</b>${best && best.includes(m) ? " <span class=\"fl ok\">peak</span>" : ""}</li>`).join("");
+  const map = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q + ", " + R.place + " NSW")}`;
+  return `<h3>🎣 What's biting in ${esc(mn)}</h3><ul class="fls">${biting}</ul>${m >= 5 && m <= 8 ? `<p class="mute">Aussie bass and estuary perch: catch and release only until the end of August.</p>` : ""}
+<p class="src">Seasons from <a href="https://dpird-web.matrix.squiz.cloud/__data/assets/pdf_file/0010/1276660/16610-GoFishingGuide_CoffsCoastWeb-2024.pdf" rel="noopener">NSW DPIRD GoFishing guide (Coffs Coast)</a>${R.code === "2481" ? ", the nearest official guide" : ""} and <a href="https://www.coffscoast.com.au/article/fishing-on-the-coffs-coast/" rel="noopener">Coffs Coast tourism</a>.</p>
+<h3>📍 Where to fish (from the shore)</h3><ul class="fls">${F.spots.map(([n, t, sp, note]) => `<li><b>${esc(n)}</b> <span class="mute">${esc(t)}</span>${sp ? `<br>Known for: ${esc(sp)}` : ""}${note ? `<br><small>⚠️ ${esc(note)}</small>` : ""}<br><a href="${map(n)}" rel="noopener">🧭 Directions</a></li>`).join("")}</ul>
+${F.note ? `<p class="note">⚠️ ${esc(F.note)}</p>` : ""}
+<details><summary><b>Before you cast: licence, limits and no-fishing zones</b></summary><ul>
+<li>🪪 <b>You need a NSW fishing licence</b> (from $7 for 3 days). <a href="https://www.dpird.nsw.gov.au/fishing/recreational/recreational-fishing-fee" rel="noopener">Get one</a></li>
+<li>📏 <a href="https://www.dpi.nsw.gov.au/fishing/recreational/fishing-rules-and-regs/saltwater-bag-and-size-limits" rel="noopener">Bag and size limits</a>, or carry them in the free <a href="https://www.dpird.nsw.gov.au/fishing/recreational/resources/fishsmart-app" rel="noopener">FishSmart app</a> (it shows marine park zones too)</li>
+${F.park ? `<li>🚫 <b>${esc(F.park[0])}</b> has sanctuary zones where all fishing is banned. <a href="${F.park[1]}" rel="noopener">Zoning map</a></li>` : ""}
+<li>🦺 Rock fishing? A lifejacket is strongly recommended. <a href="https://www.nsw.gov.au/environment-land-and-water/coasts-waterways-and-marine/rock-fishing-lifejacket-law" rel="noopener">NSW rock fishing safety</a></li></ul></details>`;
+}
+
 // Fire danger rating + plain-English "can I light it?", straight from the RFS rules. Total Fire Ban rules from rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules
 const FDR = { "no rating": ["⚪", "#9ca3af", "No rating today. Stay alert."], moderate: ["🟢", "#16a34a", "Plan and prepare."], high: ["🟡", "#eab308", "Be ready to act."],
   extreme: ["🟠", "#ea580c", "Take action now to protect life and property."], catastrophic: ["🔴", "#991b1b", "For your survival, leave bush fire risk areas."] };
