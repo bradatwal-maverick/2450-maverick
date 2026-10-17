@@ -98,11 +98,12 @@ export function sectionPage(slug, { page, esc, R }) {
     { "@type": "CollectionPage", name: `${s.name}: ${R.brand} ${R.place}`, url: `${base}/${s.slug}`, description: s.blurb,
       hasPart: live.map(([u, , n]) => ({ "@type": "WebPage", name: n, url: base + href(u, R.why.slug) })) },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: R.brand, item: base + "/" }, { "@type": "ListItem", position: 2, name: s.name, item: `${base}/${s.slug}` }] }] };
+  const fun = s.slug === "fun", ic = i => fun ? `<span class="i">${i}</span>` : "";
   const card = ([u, i, n, d, soon]) => soon
-    ? `<div class="soon"><span class="i">${i}</span><span><b>${esc(n)}</b><span class="wipb">Team Smarketing is on it</span><small>${esc(d)}</small></span></div>`
-    : `<a href="${esc(href(u, R.why.slug))}"><span class="i">${i}</span><span><b>${esc(n)}</b><small>${esc(d)}</small></span></a>`;
+    ? `<div class="soon">${ic(i)}<span><b>${esc(n)}</b><span class="wipb">Team Smarketing is on it</span><small>${esc(d)}</small></span></div>`
+    : `<a href="${esc(href(u, R.why.slug))}">${ic(i)}<span><b>${esc(n)}</b><small>${esc(d)}</small></span></a>`;
   return page(`${s.name}: ${R.place} ${R.code} local ${s.name.toLowerCase()} | The Daily Maverick`, `<p class="mute"><a href="/">‹ Today's paper</a></p>
-<h1>${s.icon} ${esc(s.name)}</h1><p>${esc(s.blurb)}</p>
+<h1>${esc(s.name)}</h1><p>${esc(s.blurb)}</p>
 <nav class="subnav" aria-label="${esc(s.name)} sections">${live.map(([u, , n]) => `<a href="${esc(href(u, R.why.slug))}">${esc(n)}</a>`).join("")}</nav>
 <div class="secg">${s.items.map(card).join("")}</div>
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}<\/script>`, R.code, { desc: `${s.blurb} Local ${s.name.toLowerCase()} for ${R.place} ${R.code}, free, every item sourced.`, canonical: `${base}/${s.slug}` });
