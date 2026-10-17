@@ -4,8 +4,10 @@
 // Direct local numbers (the branch that actually answers): shared by signed-in locals, labelled as shared by a local,
 // with where they found it. Locals vote "worked" or "didn't work"; a number that keeps failing drops off by itself.
 import LIST from "./hardnumbers.json";
+import LOCAL from "./localnumbers.json";
 
-const CATS = ["Banks", "Government", "Phone and internet", "Energy", "Travel", "Shopping and apps", "If they won't help"];
+const CATS = ["NSW essentials", "Banks", "Government", "Phone and internet", "Energy", "Travel", "Shopping and apps", "If they won't help"];
+const LCATS = ["Police", "Health", "Council", "Banks", "Motoring and transport"];
 const telOf = n => String(n || "").replace(/[^\d+]/g, "");
 const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return "source"; } };
 const slug = c => c.toLowerCase().replace(/[^a-z]+/g, "-");
@@ -28,6 +30,10 @@ ${x.tip ? `<p class="hntree">💡 ${esc(x.tip)}</p>` : ""}
     const litem = x => `<li class="hn"><div class="hnh"><b>${esc(x.org)}</b> <span class="mute">${esc(x.branch)}</span> <a class="hnum" href="tel:${telOf(x.num)}">📞 ${esc(x.num)}</a></div>
 <p class="src"><span class="srcw">Shared by:</span> ${esc(x.name)}, a local · ${esc(x.at.slice(0, 10))} · found it: ${esc(x.where)}. Not checked by us.</p>
 <p class="hnv"><button type="button" data-id="${x.id}" data-v="good">✅ Worked <span>${x.good}</span></button> <button type="button" data-id="${x.id}" data-v="bad">❌ Didn't work <span>${x.bad}</span></button></p></li>`;
+    const off = (LOCAL[R.code] || []).slice().sort((a, b) => LCATS.indexOf(a.cat) - LCATS.indexOf(b.cat) || a.name.localeCompare(b.name));
+    const oitem = x => `<li class="hn"><div class="hnh"><b>${esc(x.name)}</b>${x.where ? ` <span class="mute">${esc(x.where)}</span>` : ""} <a class="hnum" href="tel:${telOf(x.num)}">📞 ${esc(x.num)}</a></div>
+${x.hours ? `<small>🕘 ${esc(x.hours)}</small>` : ""}
+<p class="src">${fresh ? fresh(x.checked) : ""}<span class="srcw">Source:</span> <a href="${esc(x.src)}" rel="noopener">${esc(x.srcName || host(x.src))}</a> · checked ${esc(x.checked)}</p></li>`;
     const groups = CATS.map(c => [c, LIST.filter(x => x.cat === c)]).filter(([, xs]) => xs.length);
     const form = em ? `<details class="hnadd"><summary><b>+ Share a direct local number</b></summary><form id="lnf">
 <label>Business<input name="org" maxlength="50" required placeholder="e.g. CommBank"></label>
@@ -42,10 +48,12 @@ ${x.tip ? `<p class="hntree">💡 ${esc(x.tip)}</p>` : ""}
 <p class="mute">We don't make any of this up. Every national number is from the organisation's own website, and every phone-tree shortcut is from the published source shown under it. Menus change, so if a shortcut no longer works, <a href="/feedback">tell us</a>.</p>
 <nav class="subnav"><a href="#local">Local direct lines</a>${groups.map(([c]) => `<a href="#${slug(c)}">${esc(c)}</a>`).join("")}</nav>
 <h2 id="local">📍 Direct local numbers in ${esc(pc)}</h2>
-<p class="mute">Big companies send you to a call centre. These are the numbers locals have found that reach the actual local branch or office, shared by locals. Tap ✅ or ❌ after you call: numbers that keep failing drop off by themselves.</p>
+<p class="mute">Big companies send you to a call centre. These reach the actual local station, branch or office: first the ones published on the organisation&rsquo;s own website, then ones locals have found. Tap ✅ or ❌ after you call: numbers that keep failing drop off by themselves.</p>
+${off.length ? `<ul class="hnl">${off.map(oitem).join("")}</ul>` : ""}
+<h3>Shared by locals</h3>
 ${loc.length ? `<ul class="hnl">${loc.map(litem).join("")}</ul>` : `<p class="mute">None shared for ${esc(pc)} yet. Be the first.</p>`}
 ${form}
-${groups.map(([c, xs]) => `<h2 id="${slug(c)}">${esc(c)}</h2>${c === "If they won't help" ? `<p class="mute">Free, independent help when a company won't sort it out.</p>` : ""}<ul class="hnl">${xs.map(item).join("")}</ul>`).join("")}
+${groups.map(([c, xs]) => `<h2 id="${slug(c)}">${esc(c)}</h2>${c === "If they won't help" ? `<p class="mute">Free, independent help when a company won't sort it out.</p>` : c === "NSW essentials" ? `<p class="mute">In an emergency call <a href="tel:000">000</a>.</p>` : ""}<ul class="hnl">${xs.map(item).join("")}</ul>`).join("")}
 <style>.hnl{list-style:none;padding:0}.hn{padding:10px 0;border-bottom:1px solid var(--line)}.hnh{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}.hnum{font-weight:bold;white-space:nowrap}.hntree{margin:6px 0 2px;font-size:.92rem}.hntree .src{display:block;margin-top:2px}.hnv button{font-size:.85rem;padding:3px 10px;margin-right:6px}.hnv button.on{outline:2px solid var(--fg)}.hnadd{margin:10px 0 18px}.hnadd summary{cursor:pointer}</style>
 <script>(function(){document.querySelectorAll('.hnv button').forEach(function(b){b.onclick=function(){fetch('/api/numbers-vote?pc=${pc}&id='+b.dataset.id+'&v='+b.dataset.v,{method:'POST'}).then(function(r){return r.json()}).then(function(j){if(j.error){alert(j.error);return}var p=b.parentNode;p.querySelector('[data-v=good] span').textContent=j.good;p.querySelector('[data-v=bad] span').textContent=j.bad;b.classList.add('on')})}});
 var f=document.getElementById('lnf'),m=document.getElementById('lnm');if(!f)return;f.onsubmit=function(e){e.preventDefault();var d=Object.fromEntries(new FormData(f));
