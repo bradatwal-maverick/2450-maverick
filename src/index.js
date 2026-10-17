@@ -8,6 +8,7 @@ import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
 import { localToday, photosApi } from "./photos.js";
+import { sidePics, withPics, SIDE_CSS, THEMES } from "./sidepics.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -157,7 +158,7 @@ function page(title, body, pc = "", opts = {}) {
 <meta name="description" content="${esc(opts.desc || "Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.")}">${opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : ""}
 <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>${CSS}${NAV_CSS}</style></head><body><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}
+<style>${CSS}${NAV_CSS}${SIDE_CSS}</style></head><body><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}";var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onerror=function(){im.remove()};a.textContent=a.textContent.replace("💬 ","");a.prepend(im)}}}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${fixSecLinks(formal(body), R.code)}</main>
 <div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
@@ -171,7 +172,7 @@ document.querySelectorAll('#rate button[data-v]').forEach(function(b){if(done===
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down'){f.hidden=false;document.getElementById('rnote').focus()}else{f.hidden=true;say('Thanks! Glad it helped.')}}});
 document.getElementById('rwrong').onclick=function(e){e.preventDefault();f.hidden=false;document.getElementById('rnote').focus()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote').value.trim();if(!n)return;send({note:n,email:document.getElementById('remail').value.trim()});f.hidden=true;say('Thanks for telling us. We read every one and fix what we got wrong.')}})();</script>
-<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/timesaved", "Time saved"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
+<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/timesaved", "Time saved"], ["/credits", "Photo credits"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Supporting regional Australia: ${abc(Object.values(REGIONS), x => x.code).map(x => x.code === R.code ? `<b title="${esc(x.place)}">${x.code}</b>` : `<a href="https://${x.domain}" title="${esc(x.place)}">${x.code}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
@@ -309,10 +310,11 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
   const SH = secSlug ? sectionHead(secSlug, { esc, R, pc }) : null;
+  const hero = SH ? "" : await potdBlock(env, pc); let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
   // Section pages are today's paper filtered to that section: the nameplate and front-page extras step aside.
   const secCss = SH ? `<style>.mast,.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute,#founding{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
-  return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
-<p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath" id="pers">${dailyLine()}</p><p class="tloc"><a href="#" class="useloc" data-on="Reset">Refine your local news</a></p>${live.newsLead}<details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent="✨ "+pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
+  return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, withPics(pics, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
+<p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath" id="pers">${dailyLine()}</p><p class="tloc"><a href="#" class="useloc" data-on="Reset">Refine your local news</a></p>${hero}${live.newsLead}<details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent="✨ "+pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh sr">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(v.name)} ${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
 <div id="radiobar" hidden></div>
@@ -516,7 +518,7 @@ else tip('surf','🏄 <b>Fun-sized surf</b> around '+now0.toFixed(1)+' m. Check 
 var hiT=out.filter(function(o){return o[0]==='High'})[0];if(hiT){var hrs=(new Date(hiT[1])-now)/36e5;if(hrs>0&&hrs<5)tip('fish','🎣 <b>Tide’s coming in.</b> High tide at '+tm(hiT[1])+'. Plenty of anglers like the run-up to the top of the tide.')}
 document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return o[0]+' '+tm(o[1])}).join(' · '):'Tide times unavailable')+'<br>Waves '+(h.wave_height[j]||0).toFixed(1)+' m · Swell '+(h.swell_wave_height[j]||0).toFixed(1)+' m · Moon: '+MN[mi][1];
 }).catch(function(){$('tide','Tides unavailable right now.')});
-</script>`, pc, SH ? SH.opts : {});
+</script>`, esc), pc, SH ? SH.opts : {});
 }
 
 const LOCALS_GOAL = 15000;
@@ -2256,16 +2258,35 @@ ${G.map(([h, L]) => `<h2>${h}</h2>${L.map(([u, n, d]) => `<a class="card" href="
 // ---- Why Coffs: fun facts, every one sourced ----
 // Each postcode's own reasons to love it (src/love.js): only things that postcode has and its neighbours don't. Every fact sourced.
 const factLi = ([i, h, b, u, n]) => `<li class="idea"><span style="font-size:1.6rem">${i}</span><div><b>${esc(h)}</b><br>${esc(b)}<p class="src"><span class="srcw">Source:</span> <a href="${u}" rel="noopener">${esc(n)}</a></p></div></li>`;
+const wikiUrl = name => `https://en.wikipedia.org/wiki/Special:Search?go=Go&search=${encodeURIComponent(name + ", New South Wales")}`;
+const aboutLinks = pc => `<a href="${wikiUrl(TOWNS[pc].name)}" rel="noopener" data-noutm>${esc(TOWNS[pc].name)} on Wikipedia</a> · <a href="/credits?pc=${pc}">Photo credits</a>`;
+// ---- Photo credits: every photo on today's paper, who took it and its free licence, plus how locals can keep their place up to date.
+async function creditsPage(env, url) {
+  const q = (url.searchParams.get("pc") || R.code).replace(/\D/g, "").slice(0, 4), pc = TOWNS[q]?.live ? q : R.code, t = TOWNS[pc], day = todayISO(), nm = esc(t.name);
+  const hero = await env.DATA.get(`potd2:${pc}:${day}`, "json"), side = (await env.DATA.get(`spics:${pc}:${day}`, "json")) || {};
+  const label = Object.fromEntries(THEMES.map(([id]) => [id, (NAV.flatMap(n => n.items).find(i => i[0] === "#" + id) || [])[2] || id]));
+  const row = (where, ph) => `<li><b>${esc(where)}</b>: <a href="${esc(ph.page)}" rel="noopener" data-noutm>${esc(ph.caption)}</a><br><span class="mute">Photo: ${esc(ph.artist)} · ${ph.licenseUrl ? `<a href="${esc(ph.licenseUrl)}" rel="noopener license" data-noutm>${esc(ph.license)}</a>` : esc(ph.license)} · Wikimedia Commons</span></li>`;
+  const rows = [...(hero && !hero.none ? [row("Your place today", hero)] : []), ...Object.entries(side).map(([id, ph]) => row(label[id], ph))];
+  return page(`Photo credits: ${t.name}`, `<p class="mute"><a href="/${pc}">‹ ${pc} ${nm}</a></p><h1>Photo credits</h1>
+<p>Every photo on The Daily Maverick is either shared by a local or is a free, open-licensed photo from <a href="https://commons.wikimedia.org" rel="noopener" data-noutm>Wikimedia Commons</a>, the free photo library behind Wikipedia. We only use photos licensed CC BY, CC BY-SA (Creative Commons), CC0 or public domain, and we credit the photographer and licence under every one. Nothing paid, nothing with strings attached.</p>
+<h2>Today in ${pc}</h2>${rows.length ? `<ul>${rows.join("")}</ul>` : `<p class="mute">No Commons photos on today's ${pc} paper yet.</p>`}
+<h2>Learn more about ${nm}</h2><p><a href="${wikiUrl(t.name)}" rel="noopener" data-noutm><b>${nm} on Wikipedia →</b></a></p>
+<h2>Help keep ${nm} up to date</h2><p>Wikipedia and Wikimedia Commons are written and photographed by volunteers. The better locals keep them, the better your Daily Maverick looks.</p>
+<ul class="ideas"><li class="idea"><span style="font-size:1.6rem">📷</span><div><b>Add your photos to Wikimedia Commons</b><br>Upload your shots of ${nm} under a free licence and turn on the location, so they show up here for everyone. <a href="https://commons.wikimedia.org/wiki/Special:UploadWizard" rel="noopener" data-noutm>Upload to Commons →</a></div></li>
+<li class="idea"><span style="font-size:1.6rem">✏️</span><div><b>Fix or add to ${nm}'s Wikipedia page</b><br>Something out of date? Anyone can edit. Hit "Edit" at the top of the page. <a href="${wikiUrl(t.name)}" rel="noopener" data-noutm>Open the page →</a></div></li>
+<li class="idea"><span style="font-size:1.6rem">🌅</span><div><b>Share a photo with us directly</b><br>It gets its own day as Your place today, with your first name on it. <a href="/photo?pc=${pc}">Share your photo →</a></div></li>
+<li class="idea"><span style="font-size:1.6rem">🚩</span><div><b>Wrong photo, wrong place?</b><br>Tell us and we'll sort it. <a href="/feedback">Let us know →</a></div></li></ul>`, pc);
+}
 async function potdBlock(env, pc) { const t = TOWNS[pc], nm = esc(LOVE[pc]?.name || t.name), day = todayISO(); let lo = null, ph = null;
   try { lo = await localToday(env, pc, day); } catch (e) { lo = null; }
   const share = `<a href="/photo?pc=${pc}"><b>📷 Share your shot of ${nm}</b></a> and it gets its own day here, with your name on it.`;
   if (lo) return `<figure class="potd"><a href="/photos?pc=${pc}"><img src="/p/${lo.id}.jpg" alt="${esc(lo.cap)}" fetchpriority="high" decoding="async"></a>
-<figcaption><b>📸 Your place today, shot by ${esc(lo.name)}, a local</b> ${esc(lo.cap)}<small>${share} · <a href="#" class="prep" data-id="${lo.id}">Report</a></small></figcaption></figure>
+<figcaption><b>📸 Your place today, shot by ${esc(lo.name)}, a local</b> ${esc(lo.cap)}<small>${share} · ${aboutLinks(pc)} · <a href="#" class="prep" data-id="${lo.id}">Report</a></small></figcaption></figure>
 <script>document.querySelectorAll('.prep').forEach(function(a){a.onclick=function(e){e.preventDefault();if(!confirm('Report this photo? It comes down straight away.'))return;fetch('/api/photo-report?id='+a.dataset.id,{method:'POST'}).then(function(){a.closest('figure').remove()})}})<\/script>`;
   try { ph = await photoOfDay(env, pc, t, HOME, day, UA); } catch (e) { ph = null; }
   if (!ph) return `<p class="card">📸 <b>Your place today</b> ${share}</p>`;
   return `<figure class="potd"><a href="${esc(ph.page)}" rel="noopener" data-noutm><img src="${esc(ph.src)}" width="${ph.w}" height="${ph.h}" alt="${esc(ph.caption)}" fetchpriority="high" decoding="async"></a>
-<figcaption><b>📸 Your place today</b> ${esc(ph.caption)}<small>Photo: ${esc(ph.artist)} · ${ph.licenseUrl ? `<a href="${esc(ph.licenseUrl)}" rel="noopener license" data-noutm>${esc(ph.license)}</a>` : esc(ph.license)} · <a href="${esc(ph.page)}" rel="noopener" data-noutm>Wikimedia Commons</a><br>${share}</small></figcaption></figure>`; }
+<figcaption><b>📸 Your place today</b> ${esc(ph.caption)}<small>Photo: ${esc(ph.artist)} · ${ph.licenseUrl ? `<a href="${esc(ph.licenseUrl)}" rel="noopener license" data-noutm>${esc(ph.license)}</a>` : esc(ph.license)} · <a href="${esc(ph.page)}" rel="noopener" data-noutm>Wikimedia Commons</a><br>${share} · ${aboutLinks(pc)}</small></figcaption></figure>`; }
 function loveBlock(pc) { const L = LOVE[pc]; if (!L?.facts?.length) return "";
   return `<section id="love"><h2>❤️ Why you'll love ${esc(L.name)}</h2><p class="mute">What ${esc(pc)} has that nowhere else does. Every fact sourced.</p>
 <ul class="ideas">${dayMix(L.facts, "love" + pc).slice(0, 3).map(factLi).join("")}</ul><p><a href="/${R.why.slug}?pc=${pc}">All the reasons to love ${esc(L.name)} →</a></p></section>`; }
@@ -2588,6 +2609,7 @@ async function route(req, env, ctx) {
     if (p === "/localsforlife") return req.method === "POST" ? lflApply(req, env) : lflPage(req, env);
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
+    if (p === "/credits") return creditsPage(env, url);
     if (p === "/api/photo" && req.method === "POST") return PHOTOS().upload(req, env, url);
     if (p === "/api/photo-report" && req.method === "POST") return PHOTOS().report(req, env, url);
     if (p.startsWith("/p/") && p.endsWith(".jpg")) return PHOTOS().image(env, p.slice(3, -4).replace(/[^a-z0-9]/g, ""));

@@ -32,7 +32,7 @@ export function candidates(pages, recent = []) {
     && /^(CC|Public domain|PD)/i.test(i.extmetadata?.LicenseShortName?.value || "") && !recent.includes(p.title))
     .map(x => ({ ...x, s: score(x.p) })).filter(x => x.s >= 3).sort((a, b) => b.s - a.s || a.p.title.localeCompare(b.p.title));
 }
-const shape = ({ p, i }) => { const m = i.extmetadata || {}, name = strip(m.ObjectName?.value) || tidyTitle(p.title);
+export const shape = ({ p, i }) => { const m = i.extmetadata || {}, name = strip(m.ObjectName?.value) || tidyTitle(p.title);
   return { title: p.title, src: i.thumburl || i.url, w: i.thumbwidth || i.width, h: i.thumbheight || i.height, page: i.descriptionurl,
     caption: name.length > 90 ? name.slice(0, 87) + "…" : name, artist: (strip(m.Artist?.value) || "Unknown photographer").slice(0, 60),
     license: strip(m.LicenseShortName?.value), licenseUrl: m.LicenseUrl?.value || "" }; };
@@ -60,9 +60,9 @@ export function pickPhoto(pages, recent = [], salt = "") {
     license: strip(m.LicenseShortName?.value), licenseUrl: m.LicenseUrl?.value || "" };
 }
 
-async function search(lat, lon, UA) {
+export async function search(lat, lon, UA) {
   const q = new URLSearchParams({ action: "query", format: "json", generator: "geosearch", ggscoord: `${lat}|${lon}`, ggsradius: "10000", ggslimit: "500", ggsnamespace: "6",
-    prop: "imageinfo|categories", iiprop: "url|size|extmetadata", iiurlwidth: "1400", iiextmetadatafilter: "Artist|LicenseShortName|LicenseUrl|ObjectName",
+    prop: "imageinfo|categories", iiprop: "url|size|extmetadata", iiurlwidth: "1400", iiextmetadatafilter: "Artist|LicenseShortName|LicenseUrl|ObjectName|ImageDescription",
     clcategories: "Category:Quality images|Category:Featured pictures on Wikimedia Commons|Category:Valued images", cllimit: "max", origin: "*" });
   const r = await fetch(`${API}?${q}`, { headers: UA, cf: { cacheTtl: 3600 } });
   if (!r.ok) return {};
