@@ -27,13 +27,12 @@ const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<":
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
 
 // ---- Not done yet? Say so, clearly and with a smile. Team Smarketing is on it. ----
-const WIP_WHO = ["Mav", "Strategi Sam", "Tezza the Techie", "Anne Audit", "Jargon Johal", "Leaf"];
-const WIP_LINES = ["rebuilding regional news is a big job, and we're doing it properly.", "big tech had a 20-year head start. Give us a minute.", "small team, very big plans.", "we're putting the whole town in one place. That takes a bit.", "good things take time. Great things take a little longer."];
+const WIP_LINES = ["It's a big job. We'll get there.", "Small team, big plans.", "Good things take time.", "We're building it right, not fast."];
 function wip(what, link, linkText) {
-  const h = [...String(what)].reduce((a, c) => a + c.charCodeAt(0), 0), w = String(what).trim();
-  return `<div class="wip"><span class="wipb">🚧 In the works</span> <b>Team Smarketing is on it.</b> ${w}${/[.!?]$/.test(w) ? "" : "."} <span class="mute">${WIP_WHO[h % WIP_WHO.length]} says ${WIP_LINES[h % WIP_LINES.length]}</span>${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</div>`;
+  const w = String(what).trim(), h = [...w].reduce((a, c) => a + c.charCodeAt(0), 0);
+  return `<div class="wip"><span class="wipb">🚧 Coming soon</span><p><b>Team Smarketing is on it.</b></p><p>${w}${/[.!?]$/.test(w) ? "" : "."}</p>${link ? `<p>For now, try <a href="${link}" rel="noopener">${linkText}</a>.</p>` : ""}<p class="mute"><small>${WIP_LINES[h % WIP_LINES.length]}</small></p></div>`;
 }
-const CSS = `.wip{border:2px dashed var(--gold);border-radius:12px;padding:10px 14px;margin:10px 0}.wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;margin-right:4px}.done{display:inline-block;background:#1f8a4c;color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}
+const CSS = `.wip{border:2px dashed var(--gold);border-radius:12px;padding:12px 14px;margin:12px auto;text-align:center;max-width:520px}.wip p{margin:4px 0}.wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}.done{display:inline-block;background:#1f8a4c;color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}
 
 :root{--bg:#fff;--fg:#12233f;--gold:#f2b01e;--mute:#5a6578;--link:#2b4a7a;--line:#e2e7ef;--accent:#2b4a7a;--soft:#eef2f8}
 @media (prefers-color-scheme:dark){:root{--bg:#0B1526;--fg:#e8edf2;--gold:#f2b01e;--mute:#9aa6b4;--link:#9fb8e0;--line:#24324a;--accent:#7f9fd1;--soft:#13203a}}
@@ -338,7 +337,7 @@ var l=e.target.closest('.sq');if(l){qs.value=l.firstChild.textContent.trim();fin
 function find(){var v=qs.value.toLowerCase().trim();if(v.length<2){qr.innerHTML='';return}var w=v.split(/\\s+/),hits=IDX.map(function(r){var sc=w.filter(function(x){return (r[0]+' '+r[1].toLowerCase()).indexOf(x)>-1}).length;return[sc,r]}).filter(function(x){return x[0]}).sort(function(a,b){return b[0]-a[0]}).slice(0,4).map(function(x){return x[1]});
 document.querySelectorAll('#events li').forEach(function(li){if(hits.length<6&&li.textContent.toLowerCase().indexOf(v)>-1)hits.push(['',li.querySelector('b')?li.textContent.slice(0,60):'Event',li.textContent.slice(0,140),'#events'])});
 qr.innerHTML=(hits.length?hits.map(function(r){return '<a class="card qhit" href="'+r[3]+'"><b>'+esc2(r[1])+'</b><br><span class="mute">'+esc2(r[2])+'</span></a>'}).join(''):'<p class="mute">Nothing yet. <a href="/feedback">Tell us what you were looking for</a>.</p>')
-+'<p class="mute"><a href="#" id="qs-save">☆ Save this search</a> · ⏰ Schedule it: 🚧 Team Smarketing is on it</p>';
++'<p class="mute"><a href="#" id="qs-save">☆ Save this search</a> · ⏰ Schedule it: 🚧 coming soon</p>';
 document.getElementById('qs-save').onclick=function(e){e.preventDefault();var a=saved();if(a.indexOf(v)<0){a.unshift(v);a=a.slice(0,8)}try{localStorage.setItem('saved_q',JSON.stringify(a))}catch(_){}drawSaved();this.textContent='★ Saved'}}
 qr.onclick=function(e){var a=e.target.closest('a.qhit');if(a&&a.getAttribute('href').charAt(0)=='#'){var t=document.querySelector(a.getAttribute('href'));if(t&&t.classList.contains('panel')&&window.openPanel){e.preventDefault();openPanel(t.id);return}if(t){t.hidden=false;t.querySelectorAll('details').forEach(function(d){d.open=true})}}};
 qs.oninput=find;drawSaved();
@@ -1885,7 +1884,7 @@ function statusPage(env) {
   return page(`What's done: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>What's done, what's next</h1>
 <p>We're rebuilding regional news from scratch, so here's exactly where it's at. No spin.</p>
 <h2>Live now</h2><ul class="fls">${li(done, "done", "✅ Live")}</ul>
-<h2>In the works</h2><p class="mute">Team Smarketing is on it. Want something here sooner, or something new? <a href="/feedback">Vote for it</a>: 30 votes and it gets built.</p><ul class="fls">${li(todo, "wipb", "🚧 In the works")}</ul>`);
+<h2>Coming soon</h2><p class="mute">Team Smarketing is on it. Want something here sooner, or something new? <a href="/feedback">Vote for it</a>: 30 votes and it gets built.</p><ul class="fls">${li(todo, "wipb", "🚧 Coming soon")}</ul>`);
 }
 
 // ---- Why Coffs: fun facts, every one sourced ----
