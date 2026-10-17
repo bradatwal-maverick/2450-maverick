@@ -26,7 +26,15 @@ const SECTIONS = [["today", "At a glance"], ["tools", "Handy tools"], ["alerts",
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
 
-const CSS = `
+// ---- Not done yet? Say so, clearly and with a smile. Team Smarketing is on it. ----
+const WIP_WHO = ["Mav", "Strategi Sam", "Tezza the Techie", "Anne Audit", "Jargon Johal", "Leaf"];
+const WIP_LINES = ["rebuilding regional news is a big job, and we're doing it properly.", "big tech had a 20-year head start. Give us a minute.", "small team, very big plans.", "we're putting the whole town in one place. That takes a bit.", "good things take time. Great things take a little longer."];
+function wip(what, link, linkText) {
+  const h = [...String(what)].reduce((a, c) => a + c.charCodeAt(0), 0), w = String(what).trim();
+  return `<div class="wip"><span class="wipb">🚧 In the works</span> <b>Team Smarketing is on it.</b> ${w}${/[.!?]$/.test(w) ? "" : "."} <span class="mute">${WIP_WHO[h % WIP_WHO.length]} says ${WIP_LINES[h % WIP_LINES.length]}</span>${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</div>`;
+}
+const CSS = `.wip{border:2px dashed var(--gold);border-radius:12px;padding:10px 14px;margin:10px 0}.wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;margin-right:4px}.done{display:inline-block;background:#1f8a4c;color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700}
+
 :root{--bg:#fff;--fg:#12233f;--gold:#f2b01e;--mute:#5a6578;--link:#2b4a7a;--line:#e2e7ef;--accent:#2b4a7a;--soft:#eef2f8}
 @media (prefers-color-scheme:dark){:root{--bg:#0B1526;--fg:#e8edf2;--gold:#f2b01e;--mute:#9aa6b4;--link:#9fb8e0;--line:#24324a;--accent:#7f9fd1;--soft:#13203a}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 Arial,Helvetica,sans-serif}
@@ -94,7 +102,7 @@ document.querySelectorAll('#rate button[data-v]').forEach(function(b){if(done===
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down'){f.hidden=false;document.getElementById('rnote').focus()}else{f.hidden=true;say('Thanks! Glad it helped.')}}});
 document.getElementById('rwrong').onclick=function(e){e.preventDefault();f.hidden=false;document.getElementById('rnote').focus()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote').value.trim();if(!n)return;send({note:n,email:document.getElementById('remail').value.trim()});f.hidden=true;say('Thanks for telling us. We read every one and fix what we got wrong.')}})();</script>
-<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/timesaved", "Time saved"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
+<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/timesaved", "Time saved"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Our towns: ${abc(Object.values(REGIONS), x => x.place).map(x => x.code === R.code ? `<b>${esc(x.place)}</b>` : `<a href="https://${x.domain}">${esc(x.place)}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
@@ -199,7 +207,7 @@ const evItem = e => `<li${e.cost === 0 ? ' data-free="1"' : ""}${e.kids ? ' data
 async function town(pc, env, ctx, isRoot = false) {
   const t = TOWNS[pc];
   if (!t || !t.live) return page(`${pc} — coming soon`, `<h1>${esc(pc)}${t ? " " + esc(t.name) : ""}</h1>
-<p>Not live yet. ${R.coverage} Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/${R.code}">See ${R.code} ${R.place}</a></p>`, pc);
+${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/${R.code}">See ${R.code} ${R.place}</a></p>`, pc);
 
   // Local submissions first, then events from feeds.
   const local = await listEvents(env, `event:${pc}:`);
@@ -215,7 +223,7 @@ async function town(pc, env, ctx, isRoot = false) {
   const cc = clockChange(), ann = await annBanner(env), live = await liveBlocks(env, ctx, { lat: t.lat, lon: t.lon });
   const nLocals = await localsCount(env);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await env.DATA.get(`srcw:${id}`, "json")])));
-  const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2><p class="mute">${what}${link ? ` For now: <a href="${link}" rel="noopener">${linkText}</a>.` : ""}</p></section>`;
+  const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
   return page(`The Daily Maverick: ${t.name} ${pc}`, `${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp)}catch(e){}</script>` : ""}
 <p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath"><b id="pers">Your personalised local daily news.</b> We don't write the news, we gather it. No opinions. Make your own.</p><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent=pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1>${esc(t.name)} ${esc(pc)}</h1>
@@ -330,7 +338,7 @@ var l=e.target.closest('.sq');if(l){qs.value=l.firstChild.textContent.trim();fin
 function find(){var v=qs.value.toLowerCase().trim();if(v.length<2){qr.innerHTML='';return}var w=v.split(/\\s+/),hits=IDX.map(function(r){var sc=w.filter(function(x){return (r[0]+' '+r[1].toLowerCase()).indexOf(x)>-1}).length;return[sc,r]}).filter(function(x){return x[0]}).sort(function(a,b){return b[0]-a[0]}).slice(0,4).map(function(x){return x[1]});
 document.querySelectorAll('#events li').forEach(function(li){if(hits.length<6&&li.textContent.toLowerCase().indexOf(v)>-1)hits.push(['',li.querySelector('b')?li.textContent.slice(0,60):'Event',li.textContent.slice(0,140),'#events'])});
 qr.innerHTML=(hits.length?hits.map(function(r){return '<a class="card qhit" href="'+r[3]+'"><b>'+esc2(r[1])+'</b><br><span class="mute">'+esc2(r[2])+'</span></a>'}).join(''):'<p class="mute">Nothing yet. <a href="/feedback">Tell us what you were looking for</a>.</p>')
-+'<p class="mute"><a href="#" id="qs-save">☆ Save this search</a> · ⏰ Schedule it: coming soon in your weekly email</p>';
++'<p class="mute"><a href="#" id="qs-save">☆ Save this search</a> · ⏰ Schedule it: 🚧 Team Smarketing is on it</p>';
 document.getElementById('qs-save').onclick=function(e){e.preventDefault();var a=saved();if(a.indexOf(v)<0){a.unshift(v);a=a.slice(0,8)}try{localStorage.setItem('saved_q',JSON.stringify(a))}catch(_){}drawSaved();this.textContent='★ Saved'}}
 qr.onclick=function(e){var a=e.target.closest('a.qhit');if(a&&a.getAttribute('href').charAt(0)=='#'){var t=document.querySelector(a.getAttribute('href'));if(t&&t.classList.contains('panel')&&window.openPanel){e.preventDefault();openPanel(t.id);return}if(t){t.hidden=false;t.querySelectorAll('details').forEach(function(d){d.open=true})}}};
 qs.oninput=find;drawSaved();
@@ -907,10 +915,10 @@ const schoolPage = () => { const t = TOWNS[R.code]; return page("School run chec
 <div class="tile"><span class="ico">🚸</span><b>8–9:30am</b><small>School zone 40 km/h</small></div>
 <div class="tile"><span class="ico">🚸</span><b>2:30–4pm</b><small>School zone 40 km/h</small></div></div>
 <p id="tip" class="note"></p>
-<h2>On your route</h2><p class="mute">Crashes, roadworks and closures near <span id="sn"></span>, coming soon. For now: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a>.</p>
+<h2>On your route</h2>${wip(`Crashes, roadworks and closures near <span id="sn"></span>`, "https://www.livetraffic.com", "Live Traffic NSW")}
 <h2>School holidays</h2>${schoolHols()}<p class="mute">Pupil-free days vary by school: check your school's newsletter. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a>.</p>
-<h2>Field closures &amp; weekend sport</h2><p class="mute">Wet-weather field closures and local junior sport fixtures, coming soon. Clubs will be able to post closures here free. For now: <a href="${R.council.url}" rel="noopener">${R.council.name}</a>.</p>
-<h2>Bell times</h2><p class="mute">Your school's own bell times, coming soon. Check the school newsletter or website for now.</p></div>
+<h2>Field closures &amp; weekend sport</h2>${wip("Wet-weather field closures and junior sport fixtures. Clubs will be able to post closures here free", R.council.url, R.council.name)}
+<h2>Bell times</h2>${wip("Your school's own bell times. Check the school newsletter or website for now")}</div>
 <script>
 var sel=document.getElementById('sch');try{sel.value=localStorage.getItem('school')||''}catch(e){}
 function show(){var v=sel.value;try{v?localStorage.setItem('school',v):localStorage.removeItem('school')}catch(e){}
@@ -1400,14 +1408,14 @@ function skyFortnight(neo) {
 }
 async function liveBlocks(env, ctx, at = HOME) {
   const [news, fires, warn, hol, fdr, neo] = await Promise.all(["news", "fires", "warnings", "holidays", "fdr", "neo"].map(k => getSource(env, ctx, k)));
-  const S = SOURCES, fail = s => `<p class="mute">Couldn't reach the source just now.</p>`;
+  const S = SOURCES, fail = s => wip("We couldn't reach the source just now, so we'll try again within 30 minutes");
   const alerts = `<section id="alerts"><h2>Alerts</h2><p class="mute">In an emergency call <a href="tel:000">000</a>.</p>
 ${fdrBlock(fdr)}
 <h3>🔥 Fires within 100 km</h3>${fires.ok === false ? fail() : (fires.items = fires.items.map(f => ({ ...f, km: f.pt ? Math.round(km(at, f.pt)) : f.km })).sort((a, b) => a.km - b.km)).length ? `<ul>${fires.items.map(f => `<li><b>${esc(f.title)}</b> <span class="tagg">${esc(f.level)}</span><br><span class="mute">${esc(f.where)} · ${f.km} km away${f.status ? " · " + esc(f.status) : ""}${f.size ? " · " + esc(f.size) : ""}</span></li>`).join("")}</ul>` : "<p>✅ No fires listed within 100 km.</p>"}
 ${srcLine(S.fires.name, S.fires.url, fires.asof)}
 <h3>⚠️ Weather warnings</h3>${warn.ok === false ? fail() : warn.items.length ? `<ul>${warn.items.map(w => `<li>${w.link ? `<a href="${esc(w.link)}" rel="noopener">${esc(w.title)}</a>` : esc(w.title)}</li>`).join("")}</ul>` : "<p>✅ No current warnings for our area.</p>"}
 ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
-<p class="mute">Roads and traffic: <a href="https://www.livetraffic.com" rel="noopener">Live Traffic NSW</a> (live feed coming soon).</p></section>`;
+${wip("A live roads and traffic feed", "https://www.livetraffic.com", "Live Traffic NSW")}</section>`;
   const nd = n => n.date ? esc(new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" })) : "";
   const nsrc = n => n.src ? `<span class="kick">${esc(n.src)}</span>` : "";
   const nimg = (n, cls) => n.img ? `<img class="${cls}" src="${esc(n.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('wimg');this.remove()">` : "";
@@ -1475,7 +1483,7 @@ const fuelBlock = (t = HOME) => `<section id="fuel"><h2>Fuel</h2>
 <p class="src" id="fsrc">Info from <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a></p>
 <script>(function(){var ft=document.getElementById('ft'),fo=document.getElementById('fout'),pos=null;try{var L=JSON.parse(localStorage.getItem('loc'));if(L){pos=L;document.getElementById('fnear').textContent='📍 Near you'}}catch(e){}try{ft.value=localStorage.getItem('fuel')||'U91'}catch(e){}
 function load(){try{localStorage.setItem('fuel',ft.value)}catch(e){}fo.textContent='Loading…';var q='/api/fuel?t='+ft.value+(pos?'&lat='+pos[0]+'&lon='+pos[1]:'&lat=${t.lat}&lon=${t.lon}');
-fetch(q).then(function(r){return r.json()}).then(function(j){if(j.error){fo.innerHTML=j.error=='not_set_up'?'Live prices coming soon. For now, check <a href="https://www.fuelcheck.nsw.gov.au">NSW FuelCheck</a>.':'Couldn’t reach FuelCheck just now.';return}
+fetch(q).then(function(r){return r.json()}).then(function(j){if(j.error){fo.innerHTML=j.error=='not_set_up'?${JSON.stringify(wip("Live fuel prices", "https://www.fuelcheck.nsw.gov.au", "NSW FuelCheck"))}:'Couldn’t reach FuelCheck just now.';return}
 if(!j.list.length){fo.textContent='No prices found nearby.';return}
 fo.innerHTML='<ol class="fuel">'+j.list.map(function(s,i){return '<li><b>'+(s.price/100).toFixed(2).replace(/^/,'$')+'</b> '+(i==0?'⭐ ':'')+s.name+'<br><span class="mute">'+(s.address||'')+(s.km!=null?' · '+(+s.km).toFixed(1)+' km':'')+'</span></li>'}).join('')+'</ol>';
 document.getElementById('fsrc').innerHTML='Info from <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a>, the NSW Government fuel price site. Updated '+new Date(j.asof).toLocaleString('en-AU',{hour:'numeric',minute:'2-digit',weekday:'short'})+'. Prices are per litre.';}).catch(function(){fo.textContent='Couldn’t reach FuelCheck just now.'})}
@@ -1861,6 +1869,25 @@ d.querySelector('form').addEventListener('submit',function(e){e.preventDefault()
 fetch('/api/timesaved',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tool:k,before:b,after:a,freq:+F.f.value})}).then(function(r){return r.json()}).then(function(j){if(!j.ok){M.textContent=j.error||'Something went wrong.';return}
 M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b> Thanks for telling us. All up, locals have saved '+H(j.total.mins)+' a week.'}).catch(function(){M.textContent='Something went wrong. Try again?'})})})();`;
 
+// ---- What's done and what's in the works, in one honest list ----
+function statusPage(env) {
+  const done = [["Your daily page", "Weather, tides, swell, moon, sunrise and clock changes"], ["Alerts", "Fires within 100 km and weather warnings"], ["News", "Local headlines, sourced"],
+    ["Community events", "Locals first, free to add"], ["Births, Deaths and Marriages", "Family notices"], ["Supermarket watch", "Woolworths and ALDI, twice a day"], ["My shopping list", "Tell Mav what to watch"],
+    ["Renting", "Every rental site in one place"], ["Jobs", "Every job site in one place"], ["Local radio", "Community stations in the shire"], ["Time saved", "How much time our tools give back"],
+    ["Open now?", "What's open near you"], ["What's in your fridge?", "Dinner ideas"], ["Birthday deals", "Say \"Maverick\""], ["Kid Zone", "Safe games, with a grown-up's OK"], ["Crossword", "Three levels, every day"], ["Mav", "Talk or type to set up your page"]];
+  if (R.fields) done.push(["Sport & field closures", "With phone alerts"]);
+  if (env.FUEL_KEY) done.push(["Fuel", "Cheapest near you"]);
+  const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["Live roads and traffic", "Crashes and roadworks on your route"], ["School bell times", "Your school's own times"],
+    ["Everything membership", "$99 a year, 14 days free, no card"], ["Saved searches by email", "Your searches, in your weekly email"]];
+  if (!R.fields) todo.push(["Sport & field closures", "Field closures and local fixtures"]);
+  if (!env.FUEL_KEY) todo.push(["Live fuel prices", "Cheapest fuel near you"]);
+  const li = (b, cls, txt) => b.map(([n, d]) => `<li><span class="${cls}">${txt}</span> <b>${esc(n)}</b> <span class="mute">${esc(d)}</span></li>`).join("");
+  return page(`What's done: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>What's done, what's next</h1>
+<p>We're rebuilding regional news from scratch, so here's exactly where it's at. No spin.</p>
+<h2>Live now</h2><ul class="fls">${li(done, "done", "✅ Live")}</ul>
+<h2>In the works</h2><p class="mute">Team Smarketing is on it. Want something here sooner, or something new? <a href="/feedback">Vote for it</a>: 30 votes and it gets built.</p><ul class="fls">${li(todo, "wipb", "🚧 In the works")}</ul>`);
+}
+
 // ---- Why Coffs: fun facts, every one sourced ----
 const whyPage = () => page(R.why.title.replace("?", ""), `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🌊 ${R.why.title}</h1>
 <p>${R.why.intro}</p>
@@ -2111,6 +2138,7 @@ async function route(req, env, ctx) {
     if (p === "/home") return homePage();
     if (p === "/rent") return dirPage("rent");
     if (p === "/timesaved") return timeSavedPage(env);
+    if (p === "/status") return statusPage(env);
     if (p === "/api/timesaved") return timeApi(req, env, url);
     if (p === "/jobs") return dirPage("jobs");
     if (p === "/api/mylist") return myListApi(req, env);
@@ -2399,7 +2427,7 @@ ${groups.map(([g, qs]) => `<h2>${esc(g)}</h2>${qs.map(([q, a]) => `<details clas
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
+  const b = `https://${R.domain}`, paths = ["/", ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
@@ -2538,7 +2566,7 @@ async function refreshShop(env) {
 }
 async function shopBlock(env) {
   const s = await env.DATA.get("shop", "json"), ks = Object.keys(STORES);
-  if (!s || s.v !== 2 || !Object.keys(s.items || {}).length) return `<section id="shop"><h2>Supermarket watch</h2><p class="mute">Comparing everyday prices at Woolworths, ALDI and Coles. First prices are on their way.</p></section>`;
+  if (!s || s.v !== 2 || !Object.keys(s.items || {}).length) return `<section id="shop"><h2>Supermarket watch</h2>${wip("Comparing everyday prices at Woolworths, ALDI and Coles. The first prices land at the next check")}</section>`;
   const tot = {}; ks.forEach(k => { tot[k] = SHOP.filter(i => i.basket).every(i => s.items[i.id] && s.items[i.id][k]) ? SHOP.filter(i => i.basket).reduce((a, i) => a + s.items[i.id][k].price, 0) : null; });
   const best = ks.filter(k => tot[k] != null).sort((a, b) => tot[a] - tot[b])[0];
   const blk = s.blocked || {}, row = i => { const p = s.items[i.id] || {}, vals = ks.map(k => p[k] && p[k].price).filter(x => x != null), lo = Math.min(...vals);
@@ -2572,7 +2600,7 @@ async function refreshProject(env) {
 async function projectBlock(env) {
   if (!R.project) return "";
   const p = await env.DATA.get("project", "json");
-  return `<section id="bypass"><h2>🚧 ${esc(R.project.name)}</h2>${p && p.points.length ? `${p.updated ? `<p class="mute">Weekly update: ${esc(p.updated)}</p>` : ""}<ul>${p.points.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="mute">The latest update is on its way.</p>`}
+  return `<section id="bypass"><h2>🚧 ${esc(R.project.name)}</h2>${p && p.points.length ? `${p.updated ? `<p class="mute">Weekly update: ${esc(p.updated)}</p>` : ""}<ul>${p.points.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : wip("The latest weekly update lands at the next check")}
 <p class="src">${p && p.asof ? fresh(p.asof) : ""}Info from <a href="${R.project.url}" rel="noopener">Transport for NSW's weekly update</a>${p && p.asof ? `, checked ${esc(asOf(p.asof))}` : ""}. More on the <a href="${R.project.home}" rel="noopener">project page</a>.</p></section>`;
 }
 
