@@ -67,7 +67,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 #know,#council,#tools,#sport{--acc:#475569!important}
 .pills button{border-left:4px solid var(--pc,var(--line))}
 .pills{padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.pills::before{content:"More in today's paper";display:block;width:100%;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}
+.pills::before{content:"More in today's Maverick";display:block;width:100%;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:2px}
 @media (prefers-color-scheme:dark){#flow>section{background:color-mix(in srgb,var(--acc) 9%,var(--bg))}}
 .mavtalk{padding:0 14px 8px;display:flex;flex-direction:column;gap:4px}.mavtalk small{font-size:.75rem}.pinlab{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:14px 0 4px}.pinlab b{color:var(--fg)}.frs{list-style:none;padding:0;margin:0 0 8px}.frs li{padding:6px 0;border-bottom:1px solid var(--line);font-size:.92rem}.frs small{font-size:.8rem}.frx{padding:0 8px;margin-left:4px}.me .row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}.me .row input{flex:1 1 130px}.me .row label{flex:1 1 140px}.me .row select{width:100%}.rules li{margin:4px 0}#sq li{display:flex;justify-content:space-between;align-items:center}
 `;
