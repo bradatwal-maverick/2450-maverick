@@ -85,11 +85,11 @@ export const fixSecLinks = (html, home) => html.replace(/href="\/(\d{4})?#([a-z0
 
 // The section row under the masthead. Scrolls sideways on phones, like a newspaper app.
 export function navBar() {
-  return `<nav class="snav" aria-label="Sections"><div>${NAV.map(s => `<a href="/${s.slug}" data-s="${s.slug}">${s.name}</a>`).join("")}</div></nav>
+  return `<nav class="snav" aria-label="Sections"><div>${NAV.map(s => `<a href="/${s.slug}" data-s="${s.slug}"${s.slug === "money" ? ` aria-label="Money" title="Money: affordable, local"` : ""}>${s.slug === "money" ? `$$$<span class="dim">$$</span>` : s.name}</a>`).join("")}</div></nav>
 <script>(function(){var p=location.pathname.split('/')[1],n=document.querySelector('.snav');if(!p||/^\\d{4}$/.test(p))p='news';if(!n)return;n.querySelectorAll('a').forEach(function(a){if(a.dataset.s===p){a.classList.add('on');a.setAttribute('aria-current','page');a.scrollIntoView({inline:'center',block:'nearest'})}})})()<\/script>`;
 }
 
-export const NAV_CSS = `.snav{border-top:1px solid var(--line);border-bottom:3px solid var(--fg);max-width:640px;margin:0 auto}.snav div{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px}.snav div::-webkit-scrollbar{display:none}
+export const NAV_CSS = `.snav a .dim{opacity:.3}.snav{border-top:1px solid var(--line);border-bottom:3px solid var(--fg);max-width:640px;margin:0 auto}.snav div{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px}.snav div::-webkit-scrollbar{display:none}
 .snav a{flex:0 0 auto;padding:9px 11px 7px;font-weight:bold;font-size:.95rem;color:var(--fg);text-decoration:none;border-bottom:4px solid transparent;margin-bottom:-3px;white-space:nowrap}.snav a:hover{color:var(--link)}.snav a.on{border-bottom-color:var(--gold)}
 .subnav{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}.subnav a{background:var(--soft);border-radius:999px;padding:4px 12px;font-size:.85rem;text-decoration:none;color:var(--fg)}
 .secg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.secg a,.secg div{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--fg)}.secg a:hover{border-color:var(--gold)}.secg span.i{font-size:1.5rem;line-height:1}.secg small{display:block;color:var(--mute)}.secg .soon{border-style:dashed;border-color:var(--gold)}.secg .wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:0 8px;font-size:.72rem;margin-left:4px}`;
