@@ -9,7 +9,7 @@ import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
 import { localToday, photosApi } from "./photos.js";
 import { sidePics, withPics, SIDE_CSS, THEMES } from "./sidepics.js";
-import { numbersPage } from "./numbers.js";
+import { numbersApi } from "./numbers.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -706,8 +706,9 @@ const MANIFEST = (first = "") => JSON.stringify({ id: "/", name: first ? `${firs
   icons: [...(ICONS[R.code] ? [{ src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }] : []),
     { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }] });
 const AREA = () => areaPages({ esc, page, wip, R, TOWNS, SCHOOL_HOLS, todayISO });
+const nameOf = async (env, em) => { const u = await env.DATA.get(`user:${em}`, "json"); return String(u?.name || em.split("@")[0]).split(/\s+/)[0].slice(0, 30); };
 const PHOTOS = () => photosApi({ esc, page, member, cleanText, todayISO, TOWNS, R,
-  nameOf: async (env, em) => { const u = await env.DATA.get(`user:${em}`, "json"); return String(u?.name || em.split("@")[0]).split(/\s+/)[0].slice(0, 30); } });
+  nameOf });
 // Home-screen PNG icons (baked in by tools/build-icons.py). Falls back to the SVG for a brand-new town until the script is re-run.
 function iconPng(size) { const b = ICONS[R.code]?.[size]; if (!b) return Response.redirect("/icon.svg", 302);
   return new Response(Uint8Array.from(atob(b), c => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=604800" } }); }
@@ -2713,7 +2714,8 @@ async function route(req, env, ctx) {
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/credits") return creditsPage(env, url);
-    if (p === "/numbers") return numbersPage({ esc, page, R, fresh })(url);
+    if (p === "/numbers" || p === "/api/numbers" || p === "/api/numbers-vote") { const N = numbersApi({ esc, page, R, fresh, member, cleanText, nameOf, TOWNS, todayISO });
+      if (p === "/numbers") return N.view(req, env, url); if (req.method !== "POST") return new Response("Not found", { status: 404 }); return p === "/api/numbers" ? N.add(req, env, url) : N.vote(req, env, url); }
     if (p === "/api/photo" && req.method === "POST") return PHOTOS().upload(req, env, url);
     if (p === "/api/photo-report" && req.method === "POST") return PHOTOS().report(req, env, url);
     if (p.startsWith("/p/") && p.endsWith(".jpg")) return PHOTOS().image(env, p.slice(3, -4).replace(/[^a-z0-9]/g, ""));
