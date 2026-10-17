@@ -231,7 +231,6 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>` : ""}
 </div><p class="mute tloc"><a href="#" class="useloc" data-on="🎯 Weather tuned to exactly where you are (reset)">🎯 We know you're in ${esc(t.name)}. But where exactly? Tap to fine-tune your weather to where you're standing right now.</a></p><div id="frs"></div></section>
 ${live.alerts}
-${quoteBlock()}
 ${live.news}
 ${await plannerBlock(env)}
 <section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
@@ -1361,14 +1360,14 @@ ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
   const ni = news.ok === false ? [] : freshFirst(news.items, "news"), withImg = ni.findIndex(n => n.img), leadI = withImg > -1 && withImg < 3 ? withImg : 0;
   const lead = ni[leadI], rest = ni.filter((_, k) => k !== leadI), top = rest.slice(0, 4), more = rest.slice(4);
   const newsB = `<section id="news" class="paper"><h2 class="sech">📰 Today's news</h2>
-${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just now.</p>" : `${story(lead, true)}<div class="grid2">${top.map(n => story(n, false)).join("")}</div>${more.length ? `<h3 class="sub">More headlines</h3><ul class="heads">${more.map(n => `<li>${nsrc(n)} <a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a> <span class="mute">${nd(n)}</span></li>`).join("")}</ul>` : ""}`}
+${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just now.</p>" : `${story(lead, true)}<div class="grid2">${top.map(n => story(n, false)).join("")}</div>${quoteBlock()}${more.length ? `<h3 class="sub">More headlines</h3><ul class="heads">${more.map(n => `<li>${nsrc(n)} <a href="${esc(n.link)}" rel="noopener">${esc(n.title)}</a> <span class="mute">${nd(n)}</span></li>`).join("")}</ul>` : ""}`}
 <p class="src">These stories are written and owned by ${R.news.map(n => esc(n.name)).join(", ")}, not us. We show the headline and a short summary; tap a story to read it in full on their site.${news.asof ? ` Updated ${esc(asOf(news.asof))}.` : ""}</p></section>`;
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
 ${srcLine(S.holidays.name, S.holidays.url, hol.asof)}${(() => { const wk = new Date(Date.now() + 7 * 864e5 + 11 * 3600e3).toISOString().slice(0, 10), up = skyNext().filter(e => e.d <= wk); return up.length ? `<h3>🔭 This week in the sky</h3><ul>${up.map(e => `<li><b>${esc(fmtDate(e.d))}</b>: ${esc(e.name)}${away(e.d)}</li>`).join("")}</ul><p class="src">Dates are the usual peaks; meteor showers are best away from town lights. Info from <a href="https://www.timeanddate.com/astronomy/meteor-shower/" rel="noopener">timeanddate.com</a>.</p>` : ""; })()}<h3>Next school holidays</h3>${schoolHols()}<p class="src">${R.schoolsArea}. Info from <a href="https://education.nsw.gov.au/schooling/calendar" rel="noopener">NSW Department of Education</a> · Private schools may differ</p></section>`;
   const nf = fires.ok === false ? 0 : fires.items.length, nw = warn.ok === false ? 0 : warn.items.length;
   const alertNote = nf || nw ? `<p class="note alertnote">⚠️ <b>Live alerts:</b> ${[nf ? `${nf} fire${nf > 1 ? "s" : ""} within 100 km` : "", nw ? `${nw} weather warning${nw > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ")}. <a href="#alerts" data-open="alerts">See alerts →</a></p>`
     : `<p class="mute alertnote">✅ No fires or weather warnings near us right now. <a href="#alerts" data-open="alerts">Alerts</a></p>`;
-  return { alerts, alertNote, news: newsB, holidays: holB };
+  return { alerts, alertNote, news: ni.length ? newsB : newsB + quoteBlock(), holidays: holB };
 }
 
 // ---- FuelCheck (NSW Government API; needs free FUEL_KEY + FUEL_SECRET secrets) ----
