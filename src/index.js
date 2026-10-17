@@ -22,7 +22,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["shop", "Supermarket watch"], ["beer", "Beer watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -286,7 +286,6 @@ el.innerHTML='<b>'+c[1]+'</b>: '+(it.length?it.length+' near you. '+it.slice(0,3
 ${fuelBlock(t)}
 ${await numbersBlock(env)}
 ${await aiBlock(env)}
-${await shopBlock(env)}
 ${beerBlock()}
 ${await ratesBlock(env)}
 ${await projectBlock(env)}
@@ -1643,8 +1642,7 @@ const OPEN_CATS = { pharmacy: ["💊 Pharmacies", 'nwr["amenity"="pharmacy"]'], 
   pub: ["🍺 Pubs & bars", 'nwr["amenity"~"^(pub|bar)$"]'], cafe: ["☕ Cafés", 'nwr["amenity"="cafe"]'], food: ["🍔 Takeaway & restaurants", 'nwr["amenity"~"^(fast_food|restaurant)$"]'],
   vet: ["🐾 Vets", 'nwr["amenity"="veterinary"]'], dogs: ["🐕 Dog beaches & parks", 'nwr["leisure"="dog_park"];nwr["natural"="beach"]["dog"~"^(yes|leashed|unleashed|designated)$"];nwr["dog"~"^(unleashed|designated)$"]["leisure"~"^(park|beach_resort)$"]'], petfriendly: ["🐶 Dog-friendly cafés & pubs", 'nwr["amenity"~"^(cafe|restaurant|pub|bar|fast_food)$"]["dog"~"^(yes|leashed|outside)$"]'], pets: ["🐾 Pet shops, groomers & shelters", 'nwr["shop"~"^(pet|pet_grooming)$"];nwr["amenity"~"^(animal_shelter|animal_boarding)$"]'],
   lgbtq: ["🏳️‍🌈 LGBTQ+ friendly", 'nwr["lgbtq"~"^(welcome|primary|friendly|yes)$"]'], nudist: ["🏖️ Clothing-optional beaches", 'nwr["natural"="beach"]["nudism"~"^(yes|designated|customary|permissive)$"]'], hardware: ["🔨 Hardware", 'nwr["shop"~"^(hardware|doityourself)$"]'] };
-// Local businesses only: in these categories, big-brand chains (anything the map tags with a brand) are left out. Essentials like pharmacies and servos stay.
-const LOCAL_ONLY = ["cafe", "food", "pub", "bottle", "petfriendly", "lgbtq", "pets"];
+// Local regional businesses only: anything the map tags with a brand (chains and multinationals) is left out of every category.
 // Add the places we found on the web, skipping any the map already has
 function withExtras(cat, out) {
   const ex = (EXTRA_PLACES[R.code] || {})[cat] || []; if (!ex.length || !out || out.error) return out;
@@ -1653,16 +1651,16 @@ function withExtras(cat, out) {
 }
 async function openApi(req, env) {
   const cat = new URL(req.url).searchParams.get("c"); if (!OPEN_CATS[cat]) return Response.json({ error: "bad" }, { status: 400 });
-  const c = await env.DATA.get("osm2:" + cat, "json");
+  const c = await env.DATA.get("osm3:" + cat, "json");
   if (c && Date.now() - new Date(c.asof) < 864e5) return Response.json(withExtras(cat, c));
   try {
     const q = `[out:json][timeout:25];(${OPEN_CATS[cat][1].split(";").map(s => s + `(${R.bbox});`).join("")});out center tags;`;
     const j = await (await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) })).json();
-    const items = (j.elements || []).filter(e => e.tags?.name && !(LOCAL_ONLY.includes(cat) && (e.tags["brand:wikidata"] || e.tags.brand))).map(e => { const t = e.tags;
+    const items = (j.elements || []).filter(e => e.tags?.name && !(e.tags["brand:wikidata"] || e.tags.brand)).map(e => { const t = e.tags;
       return { name: t.name, hours: t.opening_hours || "", phone: t.phone || t["contact:phone"] || "", lat: e.lat ?? e.center?.lat, lon: e.lon ?? e.center?.lon,
         addr: [t["addr:housenumber"], t["addr:street"], t["addr:suburb"] || t["addr:city"]].filter(Boolean).join(" "), web: t.website || t["contact:website"] || "", osm: `${e.type}/${e.id}` }; });
     const out = { cat, items, asof: new Date().toISOString() };
-    await env.DATA.put("osm2:" + cat, JSON.stringify(out));
+    await env.DATA.put("osm3:" + cat, JSON.stringify(out));
     return Response.json(withExtras(cat, out));
   } catch (e) { return Response.json(withExtras(cat, c) || { error: "unreachable" }); }
 }
@@ -1725,7 +1723,7 @@ MAV'S RULES (never break these):
 4. Never ask for personal details. First names (theirs or a friend's), a friend's city, bin night, school and birthday day and month are fine. Never ask for an address, phone number, email, year of birth or anything private.
 5. Only take actions when they ask for a change, and say in the reply what you changed. Settings follow them when signed in; location, birthday, school and friends stay on their phone.
 ${MAV_KB}
-Also on every Daily Maverick: /rent Renting (every rental site searched for this town, renters' rights, bond and rent help); /jobs Jobs (every job site searched for this town, council and government jobs, harvest work); My shopping list in Supermarket watch (tell Mav what to watch); radio = Local radio (community radio stations in the shire, with listen-live links).
+Also on every Daily Maverick: /rent Renting (every rental site searched for this town, renters' rights, bond and rent help); /jobs Jobs (every job site searched for this town, council and government jobs, harvest work); radio = Local radio (community radio stations in the shire, with listen-live links).
 Parental safety: grown-ups set, change or remove a Kid Zone secret word at /kids/parent (signed in). When it's set, kids must type it to open Kid Zone on that account; wrong guesses are shown to the grown-up. If someone asks about kids, parental controls or keeping Kid Zone safe, point them to /kids/parent.
 The person is viewing area ${pc}. Their settings now: ${st}
 Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6):
@@ -1735,7 +1733,7 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6
 {"type":"bins","day":"Monday"}; {"type":"school","value":"exact name from: ${SCHOOLS.join("; ")}"}; {"type":"birthday","day":1-31,"month":1-12}; {"type":"search","value":"a few words"};
 {"type":"alerts","topic":"alerts|fields"} (alerts = fires and weather warnings, fields = sport field closures; shows a button they tap); {"type":"events","likes":[${LIKES.join(",")}]} (what they like doing: tailors What's on, with their picks first as "For you", and Community events; [] shows all; when they tell you their interests, set this);
 {"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"};
-{"type":"beer","value":"beer name and pack, e.g. Great Northern Original 24 pack"} sets the beer they watch in Beer watch (local bottle shops only; default Tooheys New 24 cans); {"type":"watch","item":"brand, product and size, e.g. Vegemite 380g"} adds it to their shopping list in Supermarket watch (prices checked twice a day at Woolworths and ALDI; free members watch 1 item, premium members up to 20; signed in only); {"type":"unwatch","item":"..."}. If they ask to watch something vague like "cheese", ask which brand and size before adding it.
+{"type":"beer","value":"beer name and pack, e.g. Great Northern Original 24 pack"} sets the beer they watch in Beer watch (local bottle shops only; default Tooheys New 24 cans).
 Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
   try {
     const ask = { max_tokens: 450, messages: [{ role: "system", content: sys }, ...msgs] };
@@ -1899,7 +1897,7 @@ M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b
 // ---- What's done and what's in the works, in one honest list ----
 function statusPage(env) {
   const done = [["Your daily page", "Weather, tides, swell, moon, sunrise and clock changes"], ["Alerts", "Fires within 100 km and weather warnings"], ["News", "Local headlines, sourced"],
-    ["Community events", "Locals first, free to add"], ["Births, Deaths and Marriages", "Family notices"], ["Supermarket watch", "Woolworths and ALDI, twice a day"], ["My shopping list", "Tell Mav what to watch"],
+    ["Community events", "Locals first, free to add"], ["Births, Deaths and Marriages", "Family notices"], 
     ["Renting", "Every rental site in one place"], ["Jobs", "Every job site in one place"], ["Local radio", "Community stations in the shire"], ["Time saved", "How much time our tools give back"],
     ["Open now?", "What's open near you"], ["What's in your fridge?", "Dinner ideas"], ["Birthday deals", "Say \"Maverick\""], ["Kid Zone", "Safe games, with a grown-up's OK"], ["Crossword", "Three levels, every day"], ["Mav", "Talk or type to set up your page"]];
   if (R.fields) done.push(["Sport & field closures", "With phone alerts"]);
@@ -1917,7 +1915,7 @@ function statusPage(env) {
 
 // ---- One app instead of many: every app or site this page saves you checking. Counted honestly from what's actually here. ----
 function appsSaved() {
-  const a = ["BOM Weather", "WillyWeather (tides)", "Hazards Near Me", "Live Traffic NSW", "FuelCheck", "Woolworths", "ALDI", "Coles",
+  const a = ["BOM Weather", "WillyWeather (tides)", "Hazards Near Me", "Live Traffic NSW", "FuelCheck", 
     ...R.news.map(n => n.name), "Facebook community groups", "Eventbrite", "Council website", "realestate.com.au", "Domain", "Rent.com.au", "Flatmates",
     "SEEK", "Indeed", "Jora", "LinkedIn Jobs", "Google Maps (what's open)", "Horoscope app", "Crossword app", "School holiday calendar", "Bank and rates news"];
   if (R.surf) a.push("Surf report app");
@@ -2172,7 +2170,7 @@ export default {
     ctx.waitUntil(acSync(env).catch(() => {}));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60, neo: 12 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
-    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshVenues(env), refreshShop(env), refreshShopList(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
+    ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshVenues(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
   async fetch(req, env, ctx) {
     initRegion(env);
