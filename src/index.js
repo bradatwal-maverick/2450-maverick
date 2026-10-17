@@ -1266,6 +1266,11 @@ const SOURCES = {
     return (j.features || []).map(f => { const p = f.properties || {}, pt = firstPoint(f.geometry), d = p.description || "", g = k => (d.match(new RegExp(k + ":\\s*([^<]*)")) || [])[1]?.trim() || "";
       return { title: (p.title || "").trim(), level: p.category || g("ALERT LEVEL"), where: g("LOCATION"), status: g("STATUS"), size: g("SIZE"), link: p.link, pt, km: pt ? Math.round(km(HOME, pt)) : 999 }; })
       .filter(f => f.km <= 100).sort((a, b) => a.km - b.km).slice(0, 8); } },
+  fdr: { name: "NSW Rural Fire Service, Fire Danger Ratings", url: "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans", get: async () => {
+    const x = await (await fetch("https://www.rfs.nsw.gov.au/feeds/fdrToban.xml", { headers: UA })).text(), want = R.council.name.replace(/\s+(City\s+|Shire\s+)?Council$/i, "").toLowerCase();
+    const tag = (d, t) => ((d.match(new RegExp(`<${t}>([\\s\\S]*?)</${t}>`)) || [])[1] || "").replace(/<!\[CDATA\[|\]\]>/g, "").trim();
+    const d = (x.match(/<District>[\s\S]*?<\/District>/g) || []).find(d => tag(d, "Councils").toLowerCase().includes(want)); if (!d) throw new Error("no district");
+    return [{ district: tag(d, "Name"), today: tag(d, "DangerLevelToday"), tomorrow: tag(d, "DangerLevelTomorrow"), banToday: /^yes/i.test(tag(d, "FireBanToday")), banTomorrow: /^yes/i.test(tag(d, "FireBanTomorrow")) }]; } },
   warnings: { name: "Bureau of Meteorology, NSW warnings", url: "http://www.bom.gov.au/nsw/warnings/", get: async () =>
     rss(await (await fetch("http://www.bom.gov.au/fwo/IDZ00054.warnings_nsw.xml", { headers: UA })).text()).filter(i => R.warnRe.test(i.title)).slice(0, 6) },
   holidays: { name: "Nager.Date public holidays", url: "https://date.nager.at", get: async () => {
@@ -1284,10 +1289,28 @@ async function getSource(env, ctx, key) {
   // The 30-minute schedule keeps sources fresh; page views never do the heavy lifting.
   return v;
 }
+// Fire danger rating + plain-English "can I light it?", straight from the RFS rules. Total Fire Ban rules from rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules
+const FDR = { "no rating": ["⚪", "#9ca3af", "No rating today. Stay alert."], moderate: ["🟢", "#16a34a", "Plan and prepare."], high: ["🟡", "#eab308", "Be ready to act."],
+  extreme: ["🟠", "#ea580c", "Take action now to protect life and property."], catastrophic: ["🔴", "#991b1b", "For your survival, leave bush fire risk areas."] };
+function fdrBlock(fdr) {
+  const f = fdr?.items?.[0]; if (!f) return "";
+  const lv = t => FDR[String(t || "").toLowerCase()] || FDR["no rating"], pill = (t, ban) => { const [e, c] = lv(t); return `<span class="fdr" style="--c:${c}">${e} ${esc(t || "No rating")}</span>${ban ? ` <span class="fdr ban">🚫 Total Fire Ban</span>` : ""}`; };
+  const ban = f.banToday, can = ban ? `<div class="fdrgrid"><div class="aib bad"><b>❌ Not allowed today</b><ul>
+<li>Wood, charcoal or heat-bead BBQs outside</li><li>Wood-fired pizza ovens outside</li><li>Campfires, fire pits and burning off</li><li>Welding, grinding or anything that sparks, outside</li></ul></div>
+<div class="aib good"><b>✅ Allowed, if you follow the rules</b><ul><li><b>Gas BBQ:</b> within 20 m of a house (or a council/NPWS-approved picnic area BBQ), an adult watching it the whole time, nothing that burns within 2 m, and a hose or water ready</li>
+<li><b>Electric BBQ:</b> an adult watching it, nothing that burns within 2 m</li></ul></div></div>
+<p class="mute">Fines start at $2,200 on the spot. <a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules" rel="noopener">Full Total Fire Ban rules (RFS)</a></p>`
+    : `<p>✅ <b>No Total Fire Ban today.</b> Gas, electric, wood and charcoal BBQs are fine with care: keep an adult on it, water handy and nothing that burns nearby. Burning off or a fire in the open? <a href="https://www.rfs.nsw.gov.au/fire-information/BFDP" rel="noopener">Check if you need a permit</a>.</p>`;
+  return `<h3>🔥 Fire danger today</h3><p>${pill(f.today, f.banToday)} <b>${esc(lv(f.today)[2])}</b></p>${can}
+<p class="mute">Tomorrow: ${pill(f.tomorrow, f.banTomorrow)}</p>
+<style>.fdr{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:.85rem;color:#fff;background:var(--c)}.fdr.ban{background:#7f1d1d}.fdrgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0}.fdrgrid ul{margin:4px 0;padding-left:18px}.fdrgrid li{padding:2px 0}@media(max-width:560px){.fdrgrid{grid-template-columns:1fr}}</style>
+${srcLine(SOURCES.fdr.name + ` (${f.district})`, SOURCES.fdr.url, fdr.asof)}`;
+}
 async function liveBlocks(env, ctx, at = HOME) {
-  const [news, fires, warn, hol] = await Promise.all(["news", "fires", "warnings", "holidays"].map(k => getSource(env, ctx, k)));
+  const [news, fires, warn, hol, fdr] = await Promise.all(["news", "fires", "warnings", "holidays", "fdr"].map(k => getSource(env, ctx, k)));
   const S = SOURCES, fail = s => `<p class="mute">Couldn't reach the source just now.</p>`;
   const alerts = `<section id="alerts"><h2>Alerts</h2><p class="mute">In an emergency call <a href="tel:000">000</a>.</p>
+${fdrBlock(fdr)}
 <h3>🔥 Fires within 100 km</h3>${fires.ok === false ? fail() : (fires.items = fires.items.map(f => ({ ...f, km: f.pt ? Math.round(km(at, f.pt)) : f.km })).sort((a, b) => a.km - b.km)).length ? `<ul>${fires.items.map(f => `<li><b>${esc(f.title)}</b> <span class="tagg">${esc(f.level)}</span><br><span class="mute">${esc(f.where)} · ${f.km} km away${f.status ? " · " + esc(f.status) : ""}${f.size ? " · " + esc(f.size) : ""}</span></li>`).join("")}</ul>` : "<p>✅ No fires listed within 100 km.</p>"}
 ${srcLine(S.fires.name, S.fires.url, fires.asof)}
 <h3>⚠️ Weather warnings</h3>${warn.ok === false ? fail() : warn.items.length ? `<ul>${warn.items.map(w => `<li>${w.link ? `<a href="${esc(w.link)}" rel="noopener">${esc(w.title)}</a>` : esc(w.title)}</li>`).join("")}</ul>` : "<p>✅ No current warnings for our area.</p>"}
@@ -1795,7 +1818,7 @@ export default {
     ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     ctx.waitUntil(acSync(env).catch(() => {}));
-    const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60 }; // minutes; keeps storage writes inside the free allowance
+    const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
     ctx.waitUntil(Promise.all([...Object.keys(SOURCES).map(async k => (await due(k)) && refreshSource(env, k)), checkFields(env), checkWatched(env), refreshObits(env), refreshLotto(env), refreshVenues(env), refreshShop(env), refreshProject(env), refreshFlights(env), refreshCouncil(env), refreshProgress(env), refreshBankRates(env), refreshAiNews(env), healthMail(env, ctx)]));
   },
