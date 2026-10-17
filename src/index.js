@@ -12,6 +12,7 @@ import { sidePics, withPics, SIDE_CSS, THEMES } from "./sidepics.js";
 import { numbersApi } from "./numbers.js";
 import { edData, edBlock } from "./ed.js";
 import { trafficNear, trafficList } from "./traffic.js";
+import { nswPage } from "./nswgov.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -1411,14 +1412,57 @@ const cut = (t, n) => { t = String(t || ""); if (t.length <= n) return t; const 
 const km = (a, b) => { const r = Math.PI / 180, d = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(d)); };
 const firstPoint = g => !g ? null : g.type === "Point" ? { lon: g.coordinates[0], lat: g.coordinates[1] } : (g.geometries || []).map(firstPoint).find(Boolean) || null;
 
+// ---- National outlets: when the big papers and broadcasters mention one of our towns, it goes in the news too.
+// Headline and link only (their words stay on their site). Paywalled outlets are clearly labelled.
+const NATIONAL = [
+  { name: "ABC News", feed: "https://www.abc.net.au/news/feed/51120/rss.xml" },
+  { name: "SBS News", feed: "https://www.sbs.com.au/news/feed" },
+  { name: "The Guardian", feed: "https://www.theguardian.com/australia-news/rss" },
+  { name: "news.com.au", feed: "https://www.news.com.au/content-feeds/latest-news-national/" },
+  { name: "The Sydney Morning Herald", feed: "https://www.smh.com.au/rss/feed.xml", gated: "May need a subscription" },
+  { name: "The Daily Telegraph", feed: "https://www.dailytelegraph.com.au/news/nsw/rss", gated: "Subscribers only" },
+];
+// Town names that are also everyday words or other places would match the wrong stories, so they're left out.
+const NAT_SKIP = /^(federal|central|northern beaches|north|south|east|west|beaches|harbour|heads|point|lake|valley|hills|park|island)$/i;
+const natRe = () => { const ph = [...new Set([R.place, ...Object.values(TOWNS).filter(t => t.live).flatMap(t => String(t.name).split(/\s*(?:&|\/|,| and )\s*/))]
+  .map(x => x.trim()).filter(x => x.length >= 4 && !NAT_SKIP.test(x)))];
+  return ph.length ? new RegExp(`\\b(${ph.map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})\\b`) : null; };
+// Paywalled sites, labelled wherever their stories show up (hard paywall first, then metered).
+const GATED = [[/(^|\.)(dailytelegraph|theaustralian|couriermail|heraldsun|goldcoastbulletin|afr)\.com(\.au)?$/, "Subscribers only"],
+  [/(^|\.)(smh|theage|portnews|manningrivertimes|armidaleexpress|northerndailyleader)\.(com|net)\.au$/, "May need a subscription"]];
+const gateOf = host => (GATED.find(([re]) => re.test(host)) || [])[1] || "";
+// Brave Search news (optional: set a BRAVE_KEY secret). Catches mentions anywhere, not just the feeds above. Checked every 3 hours.
+async function braveNews(env, re) {
+  if (!env?.BRAVE_KEY) return [];
+  const k = "brave:news", hit = await env.DATA.get(k, "json"); if (hit) return hit;
+  const words = String(re.source).replace(/^\\b\(|\)\\b$/g, "").split("|").slice(0, 6), q = words.map(w => `"${w.replace(/\\/g, "")}"`).join(" OR ");
+  let out = [];
+  try { const r = await fetch(`https://api.search.brave.com/res/v1/news/search?q=${encodeURIComponent(q)}&country=AU&search_lang=en&freshness=pd&count=20`, { headers: { accept: "application/json", "X-Subscription-Token": env.BRAVE_KEY } });
+    if (r.ok) out = ((await r.json()).results || []).filter(i => re.test(i.title + " " + (i.description || ""))).map(i => { const host = (i.meta_url?.hostname || (() => { try { return new URL(i.url).hostname; } catch (e) { return ""; } })()).replace(/^www\./, "");
+      return { title: String(i.title || "").replace(/<[^>]+>/g, ""), link: i.url, date: i.page_age || null, src: i.meta_url?.netloc || host, gated: gateOf(host), national: 1 }; }).slice(0, 8); } catch (e) { out = []; }
+  await env.DATA.put(k, JSON.stringify(out), { expirationTtl: 3 * 3600 });
+  return out;
+}
+async function nationalNews(env) {
+  const re = natRe(); if (!re) return [];
+  const out = [];
+  try { out.push(...await braveNews(env, re)); } catch (e) {}
+  await Promise.all(NATIONAL.map(async src => { try {
+    const r = await fetch(src.feed, { headers: UA, cf: { cacheTtl: 900 } }); if (!r.ok) return;
+    for (const i of rss(await r.text())) if (re.test(i.title + " " + i.desc)) out.push({ title: i.title, link: i.link, date: i.date, src: src.name, gated: src.gated || "", national: 1 });
+  } catch (e) {} }));
+  return out.slice(0, 8);
+}
+
 const SOURCES = {
-  news: { get name() { return R.news.map(n => n.name).join(", "); }, get url() { return R.news[0].url; }, get: async () => {
+  news: { get name() { return R.news.map(n => n.name).join(", "); }, get url() { return R.news[0].url; }, get: async (env) => {
     const all = [];
     for (const src of R.news) { try {
       const items = rss(await (await fetch(src.feed, { headers: UA })).text())
         .filter(i => (!src.skip || !src.skip.test(i.title)) && (!src.cat || src.cat.test(i.cats)) && (!src.need || src.need.test(i.title + " " + i.desc)));
-      all.push(...items.slice(0, 8).map(i => ({ title: i.title, link: i.link, date: i.date, src: src.name, desc: cut(i.desc, 240), img: i.img })));
+      all.push(...items.slice(0, 8).map(i => ({ title: i.title, link: i.link, date: i.date, src: src.name, desc: cut(i.desc, 240), img: i.img, gated: (() => { try { return gateOf(new URL(i.link).hostname.replace(/^www\./, "")); } catch (e) { return ""; } })() })));
     } catch (e) {} }
+    try { all.push(...await nationalNews(env)); } catch (e) {}
     if (!all.length) throw new Error("no news");
     const seen = new Set(); return all.sort((x, y) => new Date(y.date || 0) - new Date(x.date || 0)).filter(i => { const k = i.title.toLowerCase().replace(/\W+/g, ""); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 14); } },
   fires: { name: "NSW Rural Fire Service, Fires Near Me", url: "https://www.rfs.nsw.gov.au/fire-information/fires-near-me", get: async () => {
@@ -1481,7 +1525,7 @@ const SOURCES = {
 };
 async function refreshSource(env, key) {
   const S = SOURCES[key];
-  try { const items = await S.get(); if (items && items._side) { for (const [k, val] of Object.entries(items._side)) await env.DATA.put(k, JSON.stringify(val)); delete items._side; } const v = { items, asof: new Date().toISOString(), ok: true }; await env.DATA.put("src:" + key, JSON.stringify(v)); return v; }
+  try { const items = await S.get(env); if (items && items._side) { for (const [k, val] of Object.entries(items._side)) await env.DATA.put(k, JSON.stringify(val)); delete items._side; } const v = { items, asof: new Date().toISOString(), ok: true }; await env.DATA.put("src:" + key, JSON.stringify(v)); return v; }
   catch (e) { const old = await env.DATA.get("src:" + key, "json"); return old ? { ...old, stale: true } : { items: [], ok: false }; }
 }
 async function getSource(env, ctx, key) {
@@ -1571,14 +1615,14 @@ ${srcLine(S.warnings.name, S.warnings.url, warn.asof)}
 <h3>🚗 Roads now</h3>${trafficList(tr, esc)}</section>`;
   const ago2 = n => { if (!n.date) return ""; const m = Math.round((Date.now() - new Date(n.date)) / 6e4); return m < 1 ? "just now" : m < 60 ? m + "m ago" : m < 24 * 60 ? Math.round(m / 60) + "h ago" : m < 48 * 60 ? "yesterday" : nd(n); };
   const nd = n => n.date ? esc(new Date(n.date).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" })) : "";
-  const nsrc = n => n.src ? `<span class="kick"><span class="srcw">Source:</span> ${esc(n.src)}</span>` : "";
+  const nsrc = n => n.src ? `<span class="kick"><span class="srcw">Source:</span> ${esc(n.src)}${n.gated ? ` <span class="gate">🔒 ${esc(n.gated)}</span>` : ""}</span>` : "";
   const nimg = (n, cls) => n.img ? `<img class="${cls}" src="${esc(n.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('wimg');this.remove()">` : "";
   const story = (n, lead) => `<a class="story${lead ? " lead" : ""}${n.img ? " wimg" : ""}" href="${esc(n.link)}" rel="noopener">${nimg(n, "simg")}<span class="sbody">${nsrc(n)}<span class="hl">${esc(n.title)}</span>${n.desc ? `<span class="dek">${esc(lead ? n.desc : cut(n.desc, 95))}</span>` : ""}<span class="byl">${nd(n)} · Read the full story →</span></span></a>`;
   const ni = news.ok === false ? [] : freshFirst(news.items, "news"), withImg = ni.findIndex(n => n.img), leadI = withImg > -1 && withImg < 3 ? withImg : 0;
   const lead = ni[leadI], rest = ni.filter((_, k) => k !== leadI), top = rest.slice(0, 4), more = rest.slice(4);
   const newsB = `<section id="news" class="paper"><h2 class="sech">📰 More news today</h2>
 ${news.ok === false ? fail() : !ni.length ? "<p class=mute>No new stories just now.</p>" : `<div class="grid2">${top.map(n => story(n, false)).join("")}</div>${quoteBlock()}${more.length ? `<h3 class="sub">More headlines</h3><ul class="heads">${more.map(n => `<li>${nsrc(n)}<a href="${esc(n.link)}" rel="noopener" title="${esc(n.title)}">${esc(n.title)}</a><time class="mute"${n.date ? ` datetime="${esc(new Date(n.date).toISOString())}"` : ""}>${ago2(n)}</time></li>`).join("")}</ul>` : ""}`}
-<p class="src">These stories are written and owned by ${R.news.map(n => esc(n.name)).join(", ")}, not us. We show the headline and a short summary; tap a story to read it in full on their site.${news.asof ? ` Updated ${esc(asOf(news.asof))}.` : ""}</p></section>`;
+<p class="src">These stories are written and owned by ${R.news.map(n => esc(n.name)).join(", ")} and, when they mention your area, national outlets like the ABC, SBS and The Guardian, not us. We show the headline (and for local outlets a short summary); tap a story to read it in full on their site. 🔒 means that site may ask you to subscribe.${news.asof ? ` Updated ${esc(asOf(news.asof))}.` : ""}</p></section>`;
   const newsLead = news.ok !== false && lead ? `<section id="lead" class="paper" aria-label="Top story">${story(lead, true)}</section>` : "";
   const sky = skyFortnight(neo);
   const holB = `<section id="holidays"><h2>Holidays</h2><h3>Next NSW public holidays</h3>${hol.ok === false ? fail() : `<ul>${hol.items.map(h => `<li><b>${esc(fmtDate(h.date))}</b>: ${esc(h.name)}${away(h.date)}</li>`).join("")}</ul>`}
@@ -2733,6 +2777,7 @@ async function route(req, env, ctx) {
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/credits") return creditsPage(env, url);
+    if (p === "/nsw") return nswPage({ esc, page, R, fresh })(url);
     if (p === "/api/ed") { const d = await edData(env, R.code); return Response.json({ ok: !!d?.list?.length, n: d?.list?.length || 0, errs: d?.errs || [], at: d?.at }); }
     if (p === "/numbers" || p === "/api/numbers" || p === "/api/numbers-vote") { const N = numbersApi({ esc, page, R, fresh, member, cleanText, nameOf, TOWNS, todayISO });
       if (p === "/numbers") return N.view(req, env, url); if (req.method !== "POST") return new Response("Not found", { status: 404 }); return p === "/api/numbers" ? N.add(req, env, url) : N.vote(req, env, url); }

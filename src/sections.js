@@ -13,6 +13,7 @@ export const NAV = [
     ["#council", "🏛️", "Council watch today", "Next meeting, how to complain, what was promised"],
     ["#know", "📍", "Know your area", "Mayor, councillors, bins and council contacts"],
     ["/au", "🗳️", "Who represents you", "Your council, MPs and senators, fact-checked"],
+    ["/nsw", "🏛️", "NSW Government help", "Rebates, travel help, vouchers and services you might not know about"],
   ] },
   { slug: "community", icon: "🤝", name: "Community", blurb: "Your town's notice board, family news, what's on and where to meet people.", items: [
     ["#events", "🎪", "Community events", "What's on, local submissions first"],
@@ -47,7 +48,7 @@ export const NAV = [
     ["/open?c=pharmacy", "💊", "Pharmacies", "Open ones first"],
     ["/open?c=doctor", "🩺", "Doctors & clinics", "Open ones first"],
     ["/open?c=vet", "🐾", "Vets", "For the four-legged locals"],
-    ["", "🚑", "Medical help you might not know about", "Travel help for city specialist visits (IPTAAS: Isolated Patients Travel and Accommodation Assistance Scheme) and more", true],
+    ["/nsw#health", "🚑", "Medical help you might not know about", "Travel help for city specialist visits (IPTAAS: Isolated Patients Travel and Accommodation Assistance Scheme) and more"],
   ] },
   { slug: "money", icon: "💰", name: "Money", blurb: "Prices, rates, jobs and rentals. Keep more of your money local.", items: [
     ["#fuel", "⛽", "Fuel prices", "Cheapest servo near you"],

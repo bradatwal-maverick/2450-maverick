@@ -1,0 +1,422 @@
+[
+  {
+    "cat": "Health",
+    "name": "IPTAAS (Isolated Patients Travel and Accommodation Assistance Scheme)",
+    "what": "Money back on travel and accommodation when you have to travel a long way for specialist treatment.",
+    "who": "NSW residents with Medicare travelling 100km+ one way, or 200km+ a week, to the nearest approved specialist.",
+    "phone": "1800 478 227",
+    "url": "https://www.iptaas.health.nsw.gov.au/",
+    "srcName": "NSW Health",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "NSW Mental Health Line",
+    "what": "Free 24/7 phone line that links you with NSW Health mental health services and the right support.",
+    "who": "Anyone struggling, or worried about someone else. In immediate danger call 000.",
+    "phone": "1800 011 511",
+    "url": "https://www.nsw.gov.au/health-and-wellbeing/mental-health-support",
+    "srcName": "NSW Government",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "NSW Poisons Information Centre",
+    "what": "24/7 expert advice if you think someone has been poisoned, bitten or stung. Don't wait for symptoms.",
+    "who": "The public and health professionals. If someone is unconscious or not breathing, call 000.",
+    "phone": "13 11 26",
+    "url": "https://www.poisonsinfo.nsw.gov.au/",
+    "srcName": "NSW Poisons Information Centre",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "Call healthdirect (1800 022 222)",
+    "what": "Free 24/7 call to a registered nurse who can book urgent care, a GP video call or virtual care.",
+    "who": "Anyone in NSW needing health advice, day or night.",
+    "phone": "1800 022 222",
+    "url": "https://www.health.nsw.gov.au/callhealthdirect",
+    "srcName": "NSW Health",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "Get Healthy Service",
+    "what": "Free phone and online health coaching, up to 10 coaching calls, for eating well, moving more and healthy weight.",
+    "who": "People in NSW wanting to improve their health; special programs for pregnancy, Aboriginal people and older adults.",
+    "phone": "1300 806 258",
+    "url": "https://www.nsw.gov.au/health-and-wellbeing/healthy-living/gethealthyservice/about",
+    "srcName": "NSW Health",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "BreastScreen NSW",
+    "what": "Free breast screen (mammogram), with invitations every two years.",
+    "who": "Women 50 to 74 (40+ can attend; Aboriginal and Torres Strait Islander women from 40). Not under 40.",
+    "phone": "13 20 50",
+    "url": "https://www.breastscreen.nsw.gov.au/breast-cancer-and-screening/eligibility/",
+    "srcName": "BreastScreen NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "NSW Spectacles Program",
+    "what": "Free glasses or vision aids: one pair of single vision or bifocal glasses every 2 years.",
+    "who": "NSW permanent residents on a full pension or low income with very low assets, not covered by another scheme.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/referral/apply-for-the-nsw-spectacles-program",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "NSW Ambulance fee exemption",
+    "what": "No ambulance bill if you hold an eligible concession card or private ambulance cover.",
+    "who": "Health Care Card, Pensioner Concession Card, Commonwealth Seniors Health Card or DVA Gold Card holders, or people with ambulance cover.",
+    "phone": "1300 655 200",
+    "url": "https://www.service.nsw.gov.au/transaction/claim-an-exemption-from-nsw-ambulance-fees",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "Concession car parking at NSW Health public hospitals",
+    "what": "Cheaper parking at public hospital car parks where fees apply.",
+    "who": "Patients and carers with long-term treatment, visits more than twice a week, or financial hardship.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/referral/claim-concession-car-parking-at-nsw-health-public-hospitals",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Health",
+    "name": "NSW Companion Card",
+    "what": "Lets your support person into participating venues and events for free.",
+    "who": "NSW residents with a significant, permanent disability who need lifelong attendant care.",
+    "phone": "1800 893 044",
+    "url": "https://www.nsw.gov.au/community-services/companion-card/get-a-card",
+    "srcName": "NSW Government",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "Savings Finder",
+    "what": "Answer a few questions to find every NSW Government saving you can claim, or book a free specialist to help.",
+    "who": "Everyone in NSW.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/services/savings-finder",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "NSW Low Income Household Rebate",
+    "what": "A rebate credited daily on your electricity bill.",
+    "who": "Electricity account holders with a Pensioner Concession, Health Care, Low Income Health Care or DVA Gold Card.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-the-low-income-household-rebate-retail-customers",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "NSW Family Energy Rebate",
+    "what": "A lump-sum rebate credited to your electricity bill once a year.",
+    "who": "Electricity account holders who received Family Tax Benefit in 2025-26 and finalised it with Centrelink.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-the-family-energy-rebate-retail-customers",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "NSW Medical Energy Rebate",
+    "what": "A rebate credited daily on your electricity bill to help with heating and cooling costs.",
+    "who": "Concession card holders where someone in the home can't regulate body temperature, confirmed by their doctor.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-the-medical-energy-rebate-retail-customers",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "NSW Life Support Energy Rebate",
+    "what": "A daily credit on your electricity bill to cover running approved life support equipment at home.",
+    "who": "Households where a doctor confirms someone needs approved equipment, such as home dialysis or oxygen.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-the-life-support-energy-rebate-retail-customers",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "NSW Gas Rebate",
+    "what": "A rebate on your natural gas or bottled LPG bill.",
+    "who": "Gas account holders with a Pensioner Concession, Health Care, Low Income Health Care or DVA Gold Card.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-the-gas-rebate-retail-customers",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "EAPA (Energy Accounts Payment Assistance)",
+    "what": "Help paying your current home electricity or gas bill when a short-term crisis hits.",
+    "who": "Account holders with an unpaid recent bill due to job loss, medical costs, disaster or a disconnection notice.",
+    "phone": "13 77 88",
+    "url": "https://www.service.nsw.gov.au/transaction/energy-accounts-payment-assistance-eapa-scheme",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "Private vehicle registration discount",
+    "what": "Up to $100 off car rego and $80 off motorcycle rego, applied automatically.",
+    "who": "Privately registered vehicles renewing between 1 September 2026 and 31 August 2027.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/private-vehicle-registration-discount",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Money and bills",
+    "name": "Toll relief rebate ($50 weekly cap)",
+    "what": "Money back on toll spending above $50 a week on NSW toll roads.",
+    "who": "Personal toll account holders using a privately registered vehicle.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/claim-the-toll-relief-cap",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Family and kids",
+    "name": "Active and Creative Kids voucher",
+    "what": "A $50 voucher twice a year for sport, creative and cultural activities.",
+    "who": "NSW kids aged 4.5 to 18 whose parent or carer gets Family Tax Benefit Part A or B.",
+    "phone": "13 77 88",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-an-active-and-creative-kids-voucher",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Family and kids",
+    "name": "Start Strong preschool fee relief",
+    "what": "Lower fees at community and mobile preschools and long day care preschool programs.",
+    "who": "Children aged 3 and over at a participating service; amounts depend on age and circumstances.",
+    "phone": "",
+    "url": "https://education.nsw.gov.au/early-childhood-education/operating-an-early-childhood-education-service/grants-and-funded-programs/start-strong-funding/start-strong-for-families",
+    "srcName": "NSW Department of Education",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Family and kids",
+    "name": "Safer Drivers Course (free places)",
+    "what": "Course that earns learners 20 bonus log book hours; free places for eligible young drivers.",
+    "who": "Learners under 25 with 50+ log book hours; free places for concession card holders or those in or leaving out-of-home care.",
+    "phone": "",
+    "url": "https://www.nsw.gov.au/driving-boating-and-transport/driver-and-rider-licences/driver-licences/learner-driver-licence/safer-drivers-course",
+    "srcName": "NSW Government",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Housing and renting",
+    "name": "Rentstart Bond Loan",
+    "what": "An interest-free loan to cover all or part of a private rental bond, repaid fortnightly.",
+    "who": "People eligible for social housing with under $5,000 in savings who've been approved for a rental.",
+    "phone": "1800 422 322",
+    "url": "https://www.nsw.gov.au/housing-and-construction/social-affordable/finding-social-and-affordable-housing/apply-for-housing-assistance/applying-for-a-rentstart-bond-loan",
+    "srcName": "Homes NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Housing and renting",
+    "name": "NSW Fair Trading tenancy help",
+    "what": "Free advice and complaint service to help sort out problems with your landlord or agent.",
+    "who": "Tenants, landlords and agents.",
+    "phone": "13 32 20",
+    "url": "https://www.nsw.gov.au/departments-and-agencies/fair-trading/complaints-and-enquiries/housing-and-property/tenancy-landlord-and-agent",
+    "srcName": "NSW Fair Trading",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Housing and renting",
+    "name": "Rent Check",
+    "what": "See the median rent range for your postcode to check if a rent is fair.",
+    "who": "Renters, landlords and anyone in NSW.",
+    "phone": "",
+    "url": "https://www.nsw.gov.au/housing-and-construction/renting-a-place-to-live/rent-check",
+    "srcName": "NSW Government",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Housing and renting",
+    "name": "Pensioner council rates rebate",
+    "what": "Up to $250 off council rates and waste charges, plus $87.50 each off council water and sewerage.",
+    "who": "Pensioner Concession Card holders, eligible DVA Gold Card holders and war widows/widowers. Apply through your council.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-pensioner-council-rates-rebates",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Seniors",
+    "name": "NSW Seniors Card",
+    "what": "Free card for discounts at thousands of businesses, plus a Gold Opal card and transport concessions.",
+    "who": "NSW residents 60+ working 20 hours a week or less (Senior Savers Card if you work more).",
+    "phone": "13 77 88",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-a-nsw-seniors-card-or-nsw-senior-savers-card",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Seniors",
+    "name": "NSW Seniors Energy Rebate",
+    "what": "A rebate paid into your bank account to help with your electricity bill.",
+    "who": "Electricity account holders with a Commonwealth Seniors Health Card (not Pensioner Concession or Gold Card holders).",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-the-seniors-energy-rebate",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Seniors",
+    "name": "Pensioner Travel Vouchers",
+    "what": "4 vouchers a year for free or discounted NSW TrainLink regional train and coach trips.",
+    "who": "NSW/ACT Pensioner Concession Card holders and NSW War Widow/er transport concession card holders.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/referral/use-your-concession-card-to-access-pensioner-travel-vouchers",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Seniors",
+    "name": "Free Will with NSW Trustee and Guardian",
+    "what": "Your Will and estate planning documents made at no charge.",
+    "who": "People eligible for the full Age Pension, or on a DVA or Disability Support Pension who'd qualify for it.",
+    "phone": "1300 102 030",
+    "url": "https://www.nsw.gov.au/family-and-relationships/planning-for-end-of-life/make-your-will-nsw-trustee-guardian",
+    "srcName": "NSW Trustee and Guardian",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Getting around",
+    "name": "Gold Opal (Senior and Pensioner fares)",
+    "what": "Unlimited travel on the Opal network for no more than $2.50 a day.",
+    "who": "NSW or ACT Seniors Card holders and eligible pensioners.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/referral/travel-concessions-seniors-and-pensioners",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Getting around",
+    "name": "Country Pensioner Excursion ticket",
+    "what": "A $2.50 ticket for affordable travel on regional NSW services.",
+    "who": "Eligible pensioners and seniors in regional NSW.",
+    "phone": "",
+    "url": "https://transportnsw.info/regional-travel/regional-offers/country-pensioner-excursion-tickets",
+    "srcName": "Transport for NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Getting around",
+    "name": "Live Traffic NSW",
+    "what": "Live road closures, roadworks, flooding, incidents and traffic cameras across NSW.",
+    "who": "Anyone driving in NSW.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/live-traffic-nsw",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Emergencies",
+    "name": "Hazards Near Me app",
+    "what": "Free app with local bush fire, flood and tsunami warnings, fire danger ratings and push alerts.",
+    "who": "Anyone in NSW.",
+    "phone": "",
+    "url": "https://www.nsw.gov.au/emergency/hazards-near-me-app",
+    "srcName": "NSW Government",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Emergencies",
+    "name": "Service NSW disaster customer care",
+    "what": "One number for help after a disaster, including finding support and emergency accommodation.",
+    "who": "People affected by a disaster or emergency in NSW.",
+    "phone": "13 77 88",
+    "url": "https://www.service.nsw.gov.au/guide/storm-and-flood-preparation-and-recovery",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Small business",
+    "name": "Service NSW Business Concierge",
+    "what": "Free one-on-one help with government programs, licences, permits, growth and disaster support.",
+    "who": "NSW businesses at any stage.",
+    "phone": "13 77 88",
+    "url": "https://www.service.nsw.gov.au/business/business-concierge-service",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Small business",
+    "name": "NSW Small Business Commission mediation",
+    "what": "Confidential mediation to settle business or lease disputes, cheaper and quicker than court.",
+    "who": "Small businesses with a dispute; no application fee.",
+    "phone": "",
+    "url": "https://www.smallbusiness.nsw.gov.au/mediation/apply-for-mediation",
+    "srcName": "NSW Small Business Commission",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Small business",
+    "name": "Natural Disaster Relief Loans for small businesses",
+    "what": "Up to $130,000 at a low interest rate, with the first two years interest and repayment free.",
+    "who": "Small businesses directly hit by a declared natural disaster in a declared area.",
+    "phone": "1800 678 593",
+    "url": "https://www.raa.nsw.gov.au/loans/natural-disaster-relief-loans/natural-disaster-relief-loans-for-small-businesses",
+    "srcName": "NSW Rural Assistance Authority",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Your records",
+    "name": "NSW birth certificates (Births, Deaths and Marriages)",
+    "what": "Order a standard or commemorative birth certificate online, by post or at Service NSW.",
+    "who": "People born in NSW, or parents of a child under 18; others need extra documents.",
+    "phone": "",
+    "url": "https://www.nsw.gov.au/family-and-relationships/births/birth-certificates",
+    "srcName": "NSW Registry of Births, Deaths and Marriages",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Your records",
+    "name": "NSW Digital Birth Certificate",
+    "what": "A digital version of your birth certificate.",
+    "who": "People 16 to 21 born in NSW with a NSW Photo Card or Driver Licence.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/services/births",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Your records",
+    "name": "NSW Digital Driver Licence",
+    "what": "Your licence in the Service NSW app, same legal status as the plastic card, no extra cost.",
+    "who": "Any NSW driver licence holder with a MyServiceNSW Account.",
+    "phone": "13 77 88",
+    "url": "https://www.service.nsw.gov.au/nsw-digital-driver-licence",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  },
+  {
+    "cat": "Your records",
+    "name": "WWCC (Working with Children Check)",
+    "what": "A 5-year clearance to work or volunteer with kids; free for volunteers.",
+    "who": "Anyone working or volunteering with children in NSW.",
+    "phone": "",
+    "url": "https://www.service.nsw.gov.au/transaction/apply-for-a-working-with-children-check",
+    "srcName": "Service NSW",
+    "checked": "2026-10-18"
+  }
+]
