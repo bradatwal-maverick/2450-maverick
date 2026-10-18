@@ -934,7 +934,7 @@ if(t.dataset.v){mood=t.dataset.v;post({v:mood});f.src='/mav.svg?m='+(mood==='up'
 q.innerHTML='<b>'+(mood==='up'?'Love that!':'Ah, facepalm.')+'</b> '+(mood==='up'?'What&rsquo;s saving you the most time?':'What would save you more time?')+'<form class="mavwhy"><input maxlength="200" placeholder="'+(mood==='up'?'e.g. fuel prices, bin night':'e.g. too much to scroll')+'" aria-label="Why?"><button>Send</button></form><a href="#" class="mavskip mute">Skip</a>';
 var fm=q.querySelector('form');setTimeout(function(){fm.querySelector('input').focus()},50);
 fm.onsubmit=function(ev){ev.preventDefault();var w=fm.querySelector('input').value.trim();if(w)post({v:mood,why:w});done(w)};q.querySelector('.mavskip').onclick=function(ev){ev.preventDefault();done('')};return}});
-function done(w){q.innerHTML='<b>Thanks!</b> '+(w?'I&rsquo;ll pass that on to Brad. ':'')+'<a href="/results#poll-saving-time">See what locals said</a>';setTimeout(function(){b.remove()},6000)}},2500)})();`;
+function done(w){q.innerHTML='<b>Thanks!</b> '+(w?'I&rsquo;ll pass that on to Team Smarketing. ':'')+'<a href="/results#poll-saving-time">See what locals said</a>';setTimeout(function(){b.remove()},6000)}},2500)})();`;
 
 // ---- Turn off anything on the home page: every section and tile gets a clear ✕. Hidden items can be brought back in one tap.
 const HIDE_JS = String.raw`(function(){var f=document.getElementById('flow');if(!f)return;function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function s(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
