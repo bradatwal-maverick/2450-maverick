@@ -126,7 +126,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 /* UX rules: keyboard focus you can see, a skip link, calmer motion, live-data timestamps, fix-it links */
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}.skip{position:absolute;left:-9999px;top:8px}.skip:focus{left:12px;z-index:100;background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-.tile[hidden],.tiles[hidden]{display:none!important}.upd{font-size:.75rem;color:var(--mute);margin:-6px 0 10px}.upd:empty{display:none}.fix{font-size:.78rem;color:var(--mute);margin:4px 0 0}
+.tile[hidden],.tiles[hidden]{display:none!important}.upd{font-size:.75rem;color:var(--mute);margin:-6px 0 10px}.upd:empty{display:none}.fix{font-size:.78rem;color:var(--mute);margin:4px 0 0}#xerr{border:0;border-radius:14px;padding:20px;width:min(440px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25);background:var(--bg);color:var(--fg)}#xerr::backdrop{background:rgba(11,21,38,.55)}#xerr h2{margin:0 0 6px;font-size:1.15rem}#xerr label{display:block;margin:12px 0 4px;font-weight:600}#xerr select,#xerr textarea,#xerr input{width:100%;box-sizing:border-box;font:inherit}.xbtns{margin-top:14px;display:flex;gap:8px}.xno{background:none;border:1px solid currentColor;opacity:.75}
 `;
 
 // Formal look: emojis come off headings, buttons, cards and notes across the site (about 10% left).
@@ -175,15 +175,30 @@ function page(title, body, pc = "", opts = {}) {
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(body), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
 <div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
 <span class="mute">Did we mess up? <a href="#" id="rwrong">Tell us and we'll fix it</a>.</span>
-<form id="rform" hidden><label for="rnote">What did we get wrong, or what's missing?</label><textarea id="rnote" rows="3" maxlength="800"></textarea><input type="email" id="remail" maxlength="120" placeholder="Your email if you'd like to hear back (optional)"><button>Send</button></form><p id="rmsg" class="mute" hidden></p></div>
-<script>(function(){var P=location.pathname,K='rated:'+P,f=document.getElementById('rform'),m=document.getElementById('rmsg');
+<p id="rmsg" class="mute" hidden></p></div>
+<dialog id="xerr" aria-labelledby="xerrh"><form id="rform" method="dialog"><h2 id="xerrh">Spot an error?</h2>
+<p class="mute">Thanks for helping keep ${R.code} right. We'll send this page's link with it, so we can find it.</p>
+<label for="xwhere">Where is it?</label><select id="xwhere"></select>
+<label for="rnote">What's wrong, or what's missing?</label><textarea id="rnote" rows="4" maxlength="800" required></textarea>
+<label for="remail">Your email <span class="mute">(optional)</span></label><input type="email" id="remail" maxlength="120" placeholder="Leave blank to stay anonymous">
+<div class="xbtns"><button type="submit">Send</button> <button type="button" class="xno" id="xcancel">Cancel</button></div></form>
+<div id="xdone" hidden><h2>Thanks, got it 🙏</h2><p>We read every one and fix what we got wrong.</p><button type="button" id="xclose">Close</button></div></dialog>
+<script>(function(){var P=location.pathname,K='rated:'+P,d=document.getElementById('xerr'),f=document.getElementById('rform'),w=document.getElementById('xwhere'),m=document.getElementById('rmsg');
 function send(o){o.p=P;return fetch('/api/rate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(o)}).catch(function(){})}
 function say(t){m.textContent=t;m.hidden=false}
+/* Spot an error: pops up straight away, asks where, and sends the page link with it. Name and email are optional. */
+window.m2err=function(sec){w.innerHTML='';var seen={};[].forEach.call(document.querySelectorAll('main h2'),function(h){var t=h.textContent.trim().slice(0,80);if(!t||seen[t])return;seen[t]=1;var o=document.createElement('option');o.textContent=t;w.appendChild(o)});
+var o=document.createElement('option');o.textContent='Somewhere else on this page';w.appendChild(o);w.value=sec&&seen[sec]?sec:o.textContent;
+f.hidden=false;document.getElementById('xdone').hidden=true;if(d.showModal)d.showModal();else d.setAttribute('open','');setTimeout(function(){document.getElementById('rnote').focus()},30)};
+function shut(){if(d.close)d.close();else d.removeAttribute('open')}
+document.getElementById('xcancel').onclick=shut;document.getElementById('xclose').onclick=shut;
+d.addEventListener('click',function(e){if(e.target===d)shut()});
 var done=null;try{done=localStorage.getItem(K)}catch(e){}
 document.querySelectorAll('#rate button[data-v]').forEach(function(b){if(done===b.dataset.v)b.classList.add('on');b.onclick=function(){var v=b.dataset.v;if(done!==v){send({v:v});try{localStorage.setItem(K,v)}catch(e){}done=v}
-document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down'){f.hidden=false;document.getElementById('rnote').focus()}else{f.hidden=true;say('Thanks! Glad it helped.')}}});
-document.getElementById('rwrong').onclick=function(e){e.preventDefault();f.hidden=false;document.getElementById('rnote').focus()};
-f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote').value.trim();if(!n)return;send({note:n,email:document.getElementById('remail').value.trim()});f.hidden=true;say('Thanks for telling us. We read every one and fix what we got wrong.')}})();</script>
+document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down')m2err();else say('Thanks! Glad it helped.')}});
+document.getElementById('rwrong').onclick=function(e){e.preventDefault();m2err()};
+f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote'),em=document.getElementById('remail');if(!n.value.trim()){n.focus();return}
+send({note:n.value.trim(),email:em.value.trim(),sec:w.value});n.value='';f.hidden=true;document.getElementById('xdone').hidden=false;document.getElementById('xclose').focus()}})();</script>
 <footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/timesaved", "Time saved"], ["/credits", "Photo credits"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
@@ -206,8 +221,8 @@ function live(){return[].some.call(c.querySelectorAll('.tile b'),function(b){ret
 new MutationObserver(function(){if(live())st.textContent='Live data · updated '+hm()}).observe(c,{subtree:true,characterData:true,childList:true});
 setTimeout(function(){var all=[].slice.call(c.querySelectorAll('.tile')),dead=all.filter(function(t){var b=t.querySelector('b');return b&&b.textContent.trim()==='–'});if(!dead.length)return;dead.forEach(function(t){t.hidden=true});if(dead.length===all.length){c.hidden=true;st.textContent='Live data is taking a short break. Check back soon.'}},12000)});
 setTimeout(function(){document.querySelectorAll('main p,main span,main div').forEach(function(e){if(!e.children.length&&/^(Loading…|checking…)$/.test(e.textContent.trim()))e.textContent='Couldn’t load just now. Check back soon.'})},15000);
-var f=document.getElementById('rform');document.querySelectorAll('#flow>section').forEach(function(sc){var ps=sc.querySelectorAll('p.src');if(!ps.length||sc.querySelector('.fix'))return;var h=sc.querySelector('h2'),nm=h?h.textContent.trim():'this section',p=document.createElement('p');p.className='fix';p.innerHTML='Spot an error, or want to add something? <a href="#rate">Tell us</a>.';
-p.querySelector('a').onclick=function(e){if(!f)return;e.preventDefault();f.hidden=false;var n=document.getElementById('rnote');if(n){if(!n.value)n.value=nm+': ';n.focus()}document.getElementById('rate').scrollIntoView({block:'center'})};var last=ps[ps.length-1];last.parentNode.insertBefore(p,last.nextSibling)})})();</script>
+var f=document.getElementById('rform');document.querySelectorAll('#flow>section').forEach(function(sc){var ps=sc.querySelectorAll('p.src');if(!ps.length||sc.querySelector('.fix'))return;var h=sc.querySelector('h2'),nm=h?h.textContent.trim():'this section',p=document.createElement('p');p.className='fix';p.innerHTML='<a href="#rate">Spot an error, or want to add something?</a>';
+p.querySelector('a').onclick=function(e){if(!window.m2err)return;e.preventDefault();window.m2err(nm)};var last=ps[ps.length-1];last.parentNode.insertBefore(p,last.nextSibling)})})();</script>
 <script>(function(){var first=null,seen=false;try{seen=!!localStorage.getItem('src_hint')}catch(e){}
 document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=document.createElement('button');b.type='button';b.className='srcbtn';b.innerHTML='ⓘ <span>Where from?</span>';
 b.setAttribute('aria-label','Where this information comes from');b.setAttribute('aria-expanded','false');
@@ -2962,9 +2977,10 @@ async function rate(req, env, ctx) {
   if (b.v === "up" || b.v === "down") { const k = "rate:" + p, c = (await env.DATA.get(k, "json")) || { up: 0, down: 0 }; c[b.v]++; await env.DATA.put(k, JSON.stringify(c)); }
   const note = String(b.note || "").trim().slice(0, 800), email = String(b.email || "").trim().slice(0, 120);
   if (note) {
-    const fb = { kind: "We messed up (page " + p + ")", msg: note, name: "", email, at: new Date().toISOString() };
+    const sec = String(b.sec || "").trim().slice(0, 80);
+    const fb = { kind: "Spot an error: " + p + (sec ? " › " + sec : ""), msg: note, name: "", email: email || "anonymous", page: `https://${R.domain}${p}`, sec, at: new Date().toISOString() };
     await env.DATA.put(`fb:${fb.at}:${crypto.randomUUID().slice(0, 6)}`, JSON.stringify(fb));
-    mailUs(env, ctx, `${R.code}: someone says we got something wrong on ${p}`, `Page: https://${R.domain}${p}\n\n${note}\n\nEmail: ${email || "(none)"}`, email);
+    mailUs(env, ctx, `${R.code} error spotted: ${p}${sec ? " › " + sec : ""}`, `Page: https://${R.domain}${p}\nWhere: ${sec || "(not given)"}\n\n${note}\n\nFrom: ${email || "anonymous"}`, email);
   }
   return Response.json({ ok: true });
 }
