@@ -59,8 +59,8 @@ async function checkout(req, env, url, deps) {
   const t = TIERS[b.tier]; if (!t) return J({ error: "bad request" }, 400);
   const email = await deps.member(req, env);
   if (t.free) return J(email ? { url: `${url.origin}/membership?welcome=some` } : { signin: "/signin?next=" + encodeURIComponent("/membership?welcome=some") }, email ? 200 : 401);
-  if (!email) return J({ signin: "/signin?next=" + encodeURIComponent("/membership?buy=" + b.tier) }, 401);
-  const m = (await env.MEMBERS.get(`m:${email}`, "json")) || {};
+  // Not signed in? No sign-up form first: straight to Stripe, which asks for their email. They come back signed in.
+  const m = (email && (await env.MEMBERS.get(`m:${email}`, "json"))) || {};
   const key = t.key;
   const { data } = await stripe(env, "GET", "prices", { "lookup_keys[]": key, active: "true" });
   if (!data?.[0]) return J({ error: "That membership isn't on sale yet." }, 503);
@@ -72,21 +72,32 @@ async function checkout(req, env, url, deps) {
     await save(env, email, { tier: b.tier });
     return J({ url: `${url.origin}/membership?welcome=${b.tier}` });
   }
-  const meta = { brand: BRAND, email, tier: b.tier, town: deps.R.code };
+  const meta = { brand: BRAND, email: email || "", tier: b.tier, town: deps.R.code };
   const trial = !m.trialUsed;
   const s = await stripe(env, "POST", "checkout/sessions", {
     mode: "subscription",
     line_items: { 0: { price: data[0].id, quantity: 1 } },
     customer: m.customer || undefined,
-    customer_email: m.customer ? undefined : email,
+    customer_email: m.customer || !email ? undefined : email,
     metadata: meta,
     subscription_data: { metadata: meta, ...(trial ? { trial_period_days: TRIAL_DAYS, trial_settings: { end_behavior: { missing_payment_method: "cancel" } } } : {}) },
     payment_method_collection: trial ? "if_required" : undefined, // the free trial needs no card
     allow_promotion_codes: "true",
-    success_url: `${url.origin}/membership?welcome=${b.tier}`,
+    success_url: `${url.origin}/membership/paid?s={CHECKOUT_SESSION_ID}`,
     cancel_url: `${url.origin}/membership`,
   });
   return J({ url: s.url });
+}
+
+// Back from Stripe: confirm the checkout really finished (by its id, from Stripe) and return the buyer's email.
+export async function paidEmail(env, sid) {
+  if (!paymentsOn(env) || !/^cs_[A-Za-z0-9_]+$/.test(sid || "")) return null;
+  const o = await stripe(env, "GET", "checkout/sessions/" + sid);
+  if (o.status !== "complete" || o.metadata?.brand !== BRAND) return null;
+  const email = String(o.metadata.email || o.customer_details?.email || "").toLowerCase(); if (!email) return null;
+  const sub = o.subscription ? await stripe(env, "GET", "subscriptions/" + o.subscription) : null;
+  await save(env, email, { tier: o.metadata.tier, status: sub?.status || "active", customer: o.customer, subscription: o.subscription, town: o.metadata.town, trialUsed: true });
+  return { email, name: String(o.customer_details?.name || "").split(" ")[0].slice(0, 40), tier: o.metadata.tier };
 }
 
 async function portal(req, env, url, deps, email) {
@@ -135,6 +146,9 @@ async function webhook(req, env, ctx, deps) {
 
   if (ev.type === "checkout.session.completed" && o.mode === "subscription") {
     const sub = await stripe(env, "GET", "subscriptions/" + o.subscription);
+    const who = String(o.metadata.email || o.customer_details?.email || "").toLowerCase(); if (!who) return J({ ok: true });
+    if (!sub.metadata?.email) await stripe(env, "POST", "subscriptions/" + o.subscription, { metadata: { ...sub.metadata, email: who } });
+    o.metadata.email = who;
     await save(env, o.metadata.email, { tier: o.metadata.tier, status: sub.status, customer: o.customer, subscription: o.subscription, town: o.metadata.town, trialUsed: true });
     ctx.waitUntil(deps.acTag(env, o.metadata.email, `Daily Maverick - ${TIERS[o.metadata.tier]?.name || o.metadata.tier}`).catch(() => {}));
   }
