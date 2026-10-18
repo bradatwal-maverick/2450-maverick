@@ -2,8 +2,8 @@
 //
 //   Free for life     the sourced local information. No sign-in, no email, always free.
 //   Maverick Lite  free with your email (sign in): your page personalised, Mav, a few cool tools
-//   Full Maverick  $49 a year: every tool unlocked, now and everything we add later
-// Full Maverick: 14 days free with no card, then they choose to pay. 7-day money-back: cancel within 7 days of paying = automatic refund.
+//   110% Maverick  $49 a year: every tool unlocked, now and everything we add later
+// 110% Maverick: 14 days free with no card, then they choose to pay. 7-day money-back: cancel within 7 days of paying = automatic refund.
 //
 // Secret: STRIPE_SECRET_KEY (account-wide, Secrets Store, see secrets.js). Unset = payments off and nothing is locked.
 // Storage: MEMBERS KV, shared by every town, so a member is a member on every Daily Maverick.
@@ -19,7 +19,7 @@ const RANK = { free: 0, some: 1, every: 2 };
 const TRIAL_DAYS = 14, REFUND_DAYS = 7;
 export const TIERS = {
   some: { name: "Maverick Lite", price: 0, free: true }, // free with sign-in, no Stripe
-  every: { name: "Full Maverick", price: 49, key: "dm_every_year" },
+  every: { name: "110% Maverick", price: 49, key: "dm_every_year" },
 };
 
 function form(obj, prefix, out = new URLSearchParams()) {
@@ -48,7 +48,7 @@ export async function tierOf(env, email) {
   const owners = `${env.OWNERS || ""},${env.FEEDBACK_TO || ""}`.toLowerCase().split(",").map(x => x.trim()).filter(Boolean);
   if (owners.includes(String(email).toLowerCase())) return "every";
   const m = await env.MEMBERS.get(`m:${email}`, "json");
-  // Signed in = Maverick Lite, free. Paying (or on the free trial) = Full Maverick.
+  // Signed in = Maverick Lite, free. Paying (or on the free trial) = 110% Maverick.
   return m && LIVE.includes(m.status) && m.tier === "every" ? "every" : "some";
 }
 // Gate check. With payments off nothing is locked, so the site works exactly as it does today.
