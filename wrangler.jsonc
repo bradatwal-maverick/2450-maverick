@@ -11,9 +11,11 @@
   "send_email": [ { "name": "MAILER" } ],
   // Free daily AI allowance powers "Tell Mav" setup
   "ai": { "binding": "AI" },
+  // Shared NSW Government API gateway (FuelCheck and registers); keys live on the nsw-api Worker
+  "services": [ { "binding": "NSW", "service": "nsw-api" } ],
   // Every 30 min: refresh news, fires, warnings, holidays and watch the council field page. Every 5 min: send queued phone alerts
   "triggers": { "crons": [ "*/5 * * * *" ] },
-  // Secrets (set in Cloudflare dashboard, never in this repo): AC_URL, AC_KEY, ADMIN_KEY, FEEDBACK_TO, FUEL_KEY, FUEL_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GRAVATAR_API_KEY
+  // Secrets (set in Cloudflare dashboard, never in this repo): AC_URL, AC_KEY, ADMIN_KEY, FEEDBACK_TO, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GRAVATAR_API_KEY
   // ---- Byron Bay: same engine, own town settings and own data. Deploy with: npx wrangler deploy --env byron
   "env": {
     "byron": {
@@ -23,6 +25,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "b41681c8ad1c43fd98c48d1fe761c243" }, { "binding": "MEMBERS", "id": "b854cb2d980d4013b9fc20eced501906" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
+      "services": [ { "binding": "NSW", "service": "nsw-api" } ],
       "triggers": { "crons": [ "*/5 * * * *" ] }
     },
     "bellingen": {
@@ -32,6 +35,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "11b90efb8d4241b189a0aba5e024d7e0" }, { "binding": "MEMBERS", "id": "b854cb2d980d4013b9fc20eced501906" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
+      "services": [ { "binding": "NSW", "service": "nsw-api" } ],
       "triggers": { "crons": [ "*/5 * * * *" ] }
     },
     "tweed": {
@@ -41,6 +45,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "88b7ca32e9af428ea7f89be4eb4fc0b2" }, { "binding": "MEMBERS", "id": "b854cb2d980d4013b9fc20eced501906" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
+      "services": [ { "binding": "NSW", "service": "nsw-api" } ],
       "triggers": { "crons": [ "*/5 * * * *" ] }
     },
     "taree": {
@@ -50,6 +55,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "46257678f2034da0aa3ac90a743c823e" }, { "binding": "MEMBERS", "id": "b854cb2d980d4013b9fc20eced501906" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
+      "services": [ { "binding": "NSW", "service": "nsw-api" } ],
       "triggers": { "crons": [ "*/5 * * * *" ] }
     },
     "armidale": {
@@ -59,6 +65,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "e5a1bcd842cd4063a4b520c14d48ec53" }, { "binding": "MEMBERS", "id": "b854cb2d980d4013b9fc20eced501906" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
+      "services": [ { "binding": "NSW", "service": "nsw-api" } ],
       "triggers": { "crons": [ "*/5 * * * *" ] }
     },
     "portmac": {
@@ -68,6 +75,7 @@
       "kv_namespaces": [ { "binding": "DATA", "id": "c9b5e850715a444f8b25d91e3bceb8ca" }, { "binding": "MEMBERS", "id": "b854cb2d980d4013b9fc20eced501906" } ],
       "send_email": [ { "name": "MAILER" } ],
       "ai": { "binding": "AI" },
+      "services": [ { "binding": "NSW", "service": "nsw-api" } ],
       "triggers": { "crons": [ "*/5 * * * *" ] }
     }
   }
