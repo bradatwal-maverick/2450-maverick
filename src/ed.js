@@ -29,14 +29,14 @@ const tm = iso => new Date(iso).toLocaleTimeString("en-AU", { timeZone: "Austral
 export function edBlock(d, esc) {
   if (!d) return "";
   const row = h => { const busy = h.usual != null ? (h.wait > h.usual * 1.3 ? "Busier than usual" : h.wait < h.usual * 0.7 ? "Quieter than usual" : "About usual") : "";
-    return `<li class="edr"><div><b>${esc(h.name)}</b>${h.phone ? ` <a href="tel:${esc(h.phone.replace(/\s/g, ""))}">${esc(h.phone)}</a>` : ""}</div>
-<div class="edn"><span class="edw">${h.wait}</span> waiting for treatment${h.usual != null ? ` · usually ${h.usual} at this time` : ""}${busy ? ` · <b>${busy}</b>` : ""}</div>
-${h.at ? `<small class="mute">NSW Health figure from ${esc(tm(h.at))}</small>` : ""}</li>`; };
+    return `<li class="edr"><div class="edbig"><span class="edw">${h.wait}</span><span class="edwl">waiting right now</span></div>
+<div class="edsub">${h.usual != null ? `Usually ${h.usual} at this time${busy ? ` · <b>${busy}</b>` : ""}` : ""}</div>
+<div class="edname"><b>${esc(h.name)}</b>${h.phone ? ` · <a href="tel:${esc(h.phone.replace(/\s/g, ""))}">${esc(h.phone)}</a>` : ""}${h.at ? `<br><small class="mute">NSW Health figure from ${esc(tm(h.at))}</small>` : ""}</div></li>`; };
   return `<section id="ed"><h2>🏥 Emergency wait now</h2>
-<p class="mute">People already assessed by a triage nurse and waiting for treatment, live from NSW Health. The most seriously ill are always seen first. <b>In an emergency call <a href="tel:000">000</a>.</b></p>
 ${d.list.length ? `<ul class="edl">${d.list.map(row).join("")}</ul>` : `<p class="mute">NSW Health's live figures aren't coming through right now.</p>`}
+<p class="mute">The number already assessed by a triage nurse and waiting for treatment. The most seriously ill are always seen first. <b>In an emergency call <a href="tel:000">000</a>.</b></p>
 ${d.quiet ? `<p class="mute">${esc(d.quiet)} doesn't report wait times to NSW Health.</p>` : ""}
 <p>Not sure you need emergency? Call <b>healthdirect</b> on <a href="tel:1800022222">1800 022 222</a>, 24/7, to talk to a registered nurse.</p>
 <p class="src"><span class="srcw">Source:</span> <a href="${ED_SRC}" rel="noopener">NSW Health Emergency Department Waiting Times</a></p>
-<style>.edl{list-style:none;padding:0}.edr{padding:8px 0;border-bottom:1px solid var(--line)}.edn{margin-top:2px}.edw{font-size:1.4rem;font-weight:bold}</style></section>`;
+<style>.edl{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.edr{padding:12px;border:1px solid var(--line);border-radius:14px;text-align:center}.edbig{display:flex;flex-direction:column;align-items:center}.edw{font-size:3rem;font-weight:800;line-height:1}.edwl{font-size:1rem;font-weight:bold;margin-top:2px}.edsub{font-size:.85rem;color:var(--mute);margin:4px 0 8px}.edname{font-size:.85rem}</style></section>`;
 }
