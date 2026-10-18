@@ -3397,7 +3397,7 @@ export default {
       if (u.pathname === "/api/v") return Response.json({ v: BUILD }, { headers: { "cache-control": "no-store" } });
       if (req.method === "GET" && isPaperPath(u.pathname)) return await edgeCached(u, ctx, () => route(req, env, ctx));
       return await route(req, env, ctx); }); }
-    catch (e) { console.log("page error", String(e)); return page("Back soon", `<h1>Back in a moment</h1><p>Something hiccuped on our end. Try again in a minute.</p><p><a href="/">Home</a></p>`); }
+    catch (e) { console.log("page error", String(e)); const r = page("Back soon", `<h1>Back in a moment</h1><p>Something hiccuped on our end. Try again in a minute.</p><p><a href="/">Home</a></p>`); return new Response(r.body, { status: 503, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "retry-after": "60" } }); }
   },
 };
 // ---- Speed: the daily paper and its section pages are the same for everyone (personal touches are added on the phone),
