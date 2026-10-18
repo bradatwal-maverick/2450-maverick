@@ -80,6 +80,12 @@ export const NAV = [
 ];
 export const NAV_SLUGS = NAV.map(s => s.slug);
 
+// Every standalone page and the section it lives in, so "back" and the highlighted section are always right.
+// Keys are the path (or path?query for /open?c=...). First section listed wins.
+export const PARENT = {};
+for (const s of NAV) for (const [u] of s.items) { if (!u || u.startsWith("#")) continue; const k = u.split("#")[0]; if (!(k in PARENT)) PARENT[k] = s.slug; const b = k.split("?")[0]; if (!(b in PARENT) && !k.includes("?")) PARENT[b] = s.slug; }
+export const parentOf = (path, search = "") => { const c = new URLSearchParams(search).get("c"); return (c && PARENT[`${path}?c=${c}`]) || PARENT[path] || null; };
+
 // Every on-page section id, and the section page that shows it.
 export const SEC_OF = Object.fromEntries(NAV.flatMap(s => s.items.filter(i => i[0].startsWith("#")).map(i => [i[0].slice(1), s.slug])));
 // Links that used to send people to the front page for a section now open that section's page, in place.
@@ -88,7 +94,7 @@ export const fixSecLinks = (html, home) => html.replace(/href="\/(\d{4})?#([a-z0
 // The section row under the masthead. Scrolls sideways on phones, like a newspaper app.
 export function navBar() {
   return `<nav class="snav" aria-label="Sections"><div>${NAV.map(s => `<a href="/${s.slug}" data-s="${s.slug}"${s.slug === "money" ? ` aria-label="Money" title="Money: affordable, local"` : ""}>${s.slug === "money" ? `$$$<span class="dim">$$</span>` : s.name}</a>`).join("")}</div></nav>
-<script>(function(){var p=location.pathname.split('/')[1],n=document.querySelector('.snav');if(!p||/^\\d{4}$/.test(p))p='news';if(!n)return;n.querySelectorAll('a').forEach(function(a){if(a.dataset.s===p){a.classList.add('on');a.setAttribute('aria-current','page');a.scrollIntoView({inline:'center',block:'nearest'})}})})()<\/script>`;
+<script>(function(){var P=${JSON.stringify(PARENT)},c=new URLSearchParams(location.search).get('c'),path=location.pathname,path=path.length>1&&path.slice(-1)==='/'?path.slice(0,-1):path,p=path.split('/')[1],n=document.querySelector('.snav');if(!p||/^\\d{4}$/.test(p))p='news';else if(P[path+'?c='+c])p=P[path+'?c='+c];else if(P[path])p=P[path];if(!n)return;n.querySelectorAll('a').forEach(function(a){if(a.dataset.s===p){a.classList.add('on');a.setAttribute('aria-current','page');a.scrollIntoView({inline:'center',block:'nearest'})}})})()<\/script>`;
 }
 
 export const NAV_CSS = `.snav a .dim{opacity:.3}.snav{border-top:1px solid var(--line);border-bottom:3px solid var(--fg);max-width:640px;margin:0 auto}.snav div{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px}.snav div::-webkit-scrollbar{display:none}

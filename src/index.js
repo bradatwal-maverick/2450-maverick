@@ -4,7 +4,7 @@ import { REGIONS } from "./regions.js";
 import { withSecrets } from "./secrets.js";
 import { BIN_SRC, binsApi, BIN_ITEMS, BINS_JS, BINS_CSS } from "./bins.js";
 import { billingApi, tierOf, hasTier, paymentsOn, TIERS, paidEmail } from "./billing.js";
-import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionHead, fixSecLinks } from "./sections.js";
+import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionHead, fixSecLinks, parentOf } from "./sections.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
@@ -133,13 +133,23 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 
 // Formal look: emojis come off headings, buttons, cards and notes across the site (about 10% left).
 // Fun places keep them: Kid Zone, crossword, the Fun section, the key-area zones and in-page fun blocks.
-let CUR_PATH = "/";
+// Each request keeps its own address, so pages built at the same time never pick up another visitor's page (wrong back link or section).
+import { AsyncLocalStorage } from "node:async_hooks";
+const REQ = new AsyncLocalStorage();
+const curPath = () => REQ.getStore()?.path || "/", curSearch = () => REQ.getStore()?.search || "";
+// "Back" always goes one step up: a page inside a section goes back to that section (keeping another town's ?pc), anything else to the front page.
+function backFix(body) {
+  const sec = parentOf(curPath(), curSearch()); if (!sec) return body;
+  const S = NAV.find(x => x.slug === sec), pc = (new URLSearchParams(curSearch()).get("pc") || "").replace(/\D/g, "");
+  const href = `/${sec}${pc && pc !== R.code && TOWNS[pc]?.live ? "?pc=" + pc : ""}`;
+  return body.replace(/<p class="mute"><a href="\/(?:\d{4})?">‹ [^<]*<\/a>(?:[^<]*)<\/p>/, `<p class="mute"><a href="${href}">‹ ${S.name}</a></p>`);
+}
 const EMO = /(?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u20E3|[\u{1F3FB}-\u{1F3FF}]|\u200D(?:\p{Extended_Pictographic}|\p{Regional_Indicator})\uFE0F?)*\uFE0F?\s?/gu;
 const FUN_PATHS = /^\/(kids|crossword|fun|genalpha)(\/|$)/;
 const KEEP_EMO = /<nav class="areas"[\s\S]*?<\/nav>|<div class="tiles">[\s\S]*?<\/div>(?=<p class="mute tloc")|<section id="(?:stars|puzzles|kids)"[\s\S]*?<\/section>|<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<select[\s\S]*?<\/select>/g;
 const LIGHTS = /[\u{1F7E2}\u{1F7E1}\u{1F534}]/u; // freshness traffic lights stay: they carry meaning
 function formal(html) {
-  if (FUN_PATHS.test(CUR_PATH)) return html;
+  if (FUN_PATHS.test(curPath())) return html;
   const kept = [];
   return html.replace(KEEP_EMO, m => `\u0000${kept.push(m) - 1}\u0000`)
     .replace(/>([^<]+)</g, (m, x) => ">" + x.replace(EMO, e => LIGHTS.test(e) ? e : "") + "<")
@@ -221,7 +231,7 @@ var go=function(e){e.preventDefault();e.stopPropagation();var nx=need===2?"/memb
 i.addEventListener("click",go);i.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")go(e)});var b=a.querySelector("b");(b||a).appendChild(i)})}
 var k=(/(?:^|; )m2450n=/.test(document.cookie)?"in":"out")+(/[?&]welcome=/.test(location.search)?"w":""),c;try{c=(sessionStorage.getItem("dmrank")||"").split(":")}catch(e){c=[]}if(c[0]===k){paint(+c[1]);return}
 fetch("/api/billing/status").then(function(r){return r.json()}).then(function(j){var r=j.tier==="every"?2:j.signedIn?1:0;try{sessionStorage.setItem("dmrank",k+":"+r)}catch(e){}paint(r)}).catch(function(){paint(/(?:^|; )m2450n=/.test(document.cookie)?1:0)})})();<\/script>
-<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(body), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
+<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(backFix(body)), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
 <div id="rate" hidden><p id="rmsg" class="mute" hidden></p></div>
 <dialog id="xerr" aria-labelledby="xerrh"><form id="rform" method="dialog"><h2 id="xerrh">Spot an error?</h2>
 <p class="mute">Thanks for helping keep ${R.code} right. We'll send this page's link with it, so we can find it.</p>
@@ -1309,7 +1319,7 @@ ${TIPS_PICK}<label class="mute"><input type="checkbox" name="consent" required> 
 <p><button>Sign me in</button></p></form>${HELLO_JS}<p class="mute">We only keep your name, email and photo (from Google, or your public Gravatar if you have one). <a href="/privacy">Privacy</a></p>`);
 
 function startGoogle(url, env) {
-  if (!env.GOOGLE_CLIENT_ID) return Response.redirect(url.origin + "/signin", 302);
+  if (!env.GOOGLE_CLIENT_ID) return Response.redirect(url.origin + "/signin?next=" + encodeURIComponent(safeNext(url.searchParams.get("next") || "/")), 302);
   const state = crypto.randomUUID(), next = safeNext(url.searchParams.get("next") || "/");
   const to = "https://accounts.google.com/o/oauth2/v2/auth?" + new URLSearchParams({ client_id: env.GOOGLE_CLIENT_ID, redirect_uri: `${url.origin}/auth/google/callback`, response_type: "code", scope: "openid email profile", state, prompt: "select_account" });
   const h = new Headers({ location: to });
@@ -1368,7 +1378,7 @@ const FOODS = ["chicken","beef mince","sausages","steak","bacon","ham","fish","p
 const unlockPage = (msg = "") => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
 <p>Tell us what you've got, how many you're feeding and what you like. Get dinner ideas in seconds, with links to the recipes.</p>
 <p><b>Part of 110% Maverick membership.</b> Pop in your email to sign in first (and get the weekly "This week in ${R.code}" email).</p>${msg}
-<form method="post" action="/unlock"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<form method="post" action="/unlock"><input type="hidden" name="next" value="/fridge"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
 ${TIPS_PICK}<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from ${R.brand} (Maverick Digital). Unsubscribe any time.</label>
 <p><button>Unlock the fridge</button></p></form>${HELLO_JS}`);
@@ -1391,8 +1401,10 @@ async function fridgePhoto(req, env) {
 
 async function unlock(req, env) {
   const f = await req.formData(), email = String(f.get("email") || "").trim().toLowerCase();
-  if (f.get("website")) return unlockPage();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !f.get("consent")) return unlockPage(`<p class="note">Please add your email and tick the box.</p>`);
+  const back = f.get("next") ? safeNext(String(f.get("next"))) : "/";
+  if (f.get("website")) return new Response(null, { status: 303, headers: { location: back } });
+  // A mistake keeps them where they were heading: the fridge shows its own page, everywhere else the sign-in page.
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !f.get("consent")) { const msg = `<p class="note">Please add your email and tick the box.</p>`; return back === "/fridge" ? unlockPage(msg) : signinPage(env, back, msg); }
   // Already have an account? Prove it's you: we email a one-tap sign-in link (no passwords, ever).
   if ((await env.DATA.get(`user:${email}`)) && env.MAILER) return sendSignInLink(req, env, email, f.get("next") ? safeNext(String(f.get("next"))) : "/");
   const g = await gravatar(env, email);
@@ -1403,7 +1415,7 @@ async function unlock(req, env) {
   await acQueue(env, email);
   const prev = await env.DATA.get(`user:${email}`, "json"), now = new Date().toISOString();
   await env.DATA.put(`user:${email}`, JSON.stringify({ ...(prev || {}), email, name: name || prev?.name || "", picture: prev?.picture || g?.photo || "", via: prev?.via || "email", first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
-  return new Response(null, { status: 303, headers: sessionHeaders(tok, name, f.get("next") ? safeNext(String(f.get("next"))) : "/fridge", prev?.picture || g?.photo) });
+  return new Response(null, { status: 303, headers: sessionHeaders(tok, name, back, prev?.picture || g?.photo) });
 }
 
 // ---- Optional email on a form = a free sign-in plus the community list. Every form says so right beside the box (joinNote).
@@ -1444,7 +1456,7 @@ async function sendSignInLink(req, env, email, next) {
 }
 async function signInFromLink(url, env) {
   const tok = String(url.searchParams.get("t") || "").replace(/[^a-f0-9]/g, ""), m = tok && await env.DATA.get(`magic:${tok}`, "json");
-  if (!m) return page("Link expired", `<h1>That link has run out</h1><p>Sign-in links work once and last 15 minutes. <a href="/signin">Get a new one</a>.</p>`);
+  if (!m) return page("Link expired", `<h1>That link has run out</h1><p>Sign-in links work once and last 15 minutes. <a href="/signin?next=/">Get a new one</a>.</p>`);
   await env.DATA.delete(`magic:${tok}`);
   const prev = await env.DATA.get(`user:${m.email}`, "json"), now = new Date().toISOString(), s = crypto.randomUUID();
   await env.DATA.put(`user:${m.email}`, JSON.stringify({ ...(prev || {}), email: m.email, last: now, visits: (prev?.visits || 0) + 1, first: prev?.first || now, via: prev?.via || "email" }));
@@ -2843,7 +2855,7 @@ const alcAll = async env => { const fresh = x => Date.now() - new Date(x.at) < 3
 const alcFind = (L, q) => { const w = alcWords(q); return w.length ? L.filter(x => { const t = x.item.toLowerCase(); return w.every(y => t.includes(y)); }).sort((a, b) => a.price - b.price) : []; };
 async function alcoholApi(req, env, url) {
   if (req.method === "POST") {
-    const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: `/${R.code}#alcohol` } });
+    const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: "/money#alcohol" } });
     const shop = String(f.get("shop") || "").replace(/[<>]/g, "").trim().slice(0, 60), sub = String(f.get("suburb") || "").replace(/[<>]/g, "").trim().slice(0, 40),
       item = String(f.get("item") || f.get("beer") || f.get("wine") || "").replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
     if (!shop || !sub || item.length < 3 || !(price > 3 && price < 600) || f.get("ok") !== "yes") return page("Check your details", `<h1>Nearly</h1><p>Please add the shop, suburb, the drink and size, a price, and tick the box. <a href="/${R.code}#alcohol">Back</a></p>`);
@@ -3252,10 +3264,11 @@ export default {
     env = await withSecrets(env);
     initRegion(env);
     BUILD = (env.CF_VERSION_METADATA && env.CF_VERSION_METADATA.id) || "dev";
-    try { const u = new URL(req.url); CUR_PATH = u.pathname;
+    try { const u = new URL(req.url);
+      return await REQ.run({ path: u.pathname.length > 1 ? u.pathname.replace(/\/$/, "") : u.pathname, search: u.search }, async () => {
       if (u.pathname === "/api/v") return Response.json({ v: BUILD }, { headers: { "cache-control": "no-store" } });
       if (req.method === "GET" && isPaperPath(u.pathname)) return await edgeCached(u, ctx, () => route(req, env, ctx));
-      return await route(req, env, ctx); }
+      return await route(req, env, ctx); }); }
     catch (e) { console.log("page error", String(e)); return page("Back soon", `<h1>Back in a moment</h1><p>Something hiccuped on our end. Try again in a minute.</p><p><a href="/">Home</a></p>`); }
   },
 };

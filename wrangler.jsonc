@@ -2,6 +2,8 @@
   "name": "2450-maverick",
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
+  // Lets each request keep its own address while the page is built (see REQ in src/index.js)
+  "compatibility_flags": ["nodejs_als"],
   // MEMBERS is shared by every town: a member on one Daily Maverick is a member on all of them
   "kv_namespaces": [
     { "binding": "DATA", "id": "17b9dc394f2345f79dc5ad071cc3b3d9" },
