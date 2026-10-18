@@ -193,6 +193,8 @@ f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote')
 <script>window.M2C=${JSON.stringify({ code: R.code, secs: SECTIONS, towns: Object.fromEntries(Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => [k, [v.name, v.lat, v.lon]])) }).replace(/</g, "\\u003c")}<\/script><script>${PERSONAL_JS}<\/script>
 ${MAV_WIDGET()}
 <script>${TS_JS}<\/script>
+<script>/* ActiveCampaign context: remember the reader's chosen postcode and the page they're on, so sign-ups record both */
+try{var _pc=localStorage.getItem("pc");if(/^\\d{4}$/.test(_pc||""))document.cookie="mpc="+_pc+"; Path=/; Max-Age=31536000; Secure; SameSite=Lax";if(!/^\\/(signin|welcome|unlock|optin|auth|subscribe|api)/.test(location.pathname))document.cookie="mpg="+encodeURIComponent(location.pathname)+"; Path=/; Max-Age=86400; Secure; SameSite=Lax"}catch(_){}<\/script>
 <script>/* External links: open in a new tab and tell the site the visit came from this Daily Maverick (UTM tags), so their analytics credit us. */
 function m2utm(a){try{var u=new URL(a.href,location.href);if(!/^https?:$/.test(u.protocol)||u.host===location.host||u.host==="accounts.google.com"||(/(^|\\.)google\\./.test(u.host)&&/^\\/maps/.test(u.pathname))||u.searchParams.has("utm_source")||a.dataset.noutm!=null)return u;
 var s=a.closest("section[id]");u.searchParams.set("utm_source",location.host);u.searchParams.set("utm_medium","referral");u.searchParams.set("utm_campaign","daily-maverick");if(s)u.searchParams.set("utm_content",s.id);a.href=u.toString();return u}catch(_){return null}}
@@ -604,11 +606,21 @@ async function handleSubmit(req, env) {
   return page("Thanks", `<h1>Thanks, it's in!</h1><p>We'll check it and it'll appear on <a href="/${esc(pc)}">${esc(pc)}</a> soon.</p>`, pc);
 }
 
+// Sign-up context for ActiveCampaign: the sub-region postcode the reader chose (falls back to the page's postcode, then the town)
+// and the page they signed up from (last page they were reading, else the referring page).
+function joinCtx(req, pc) {
+  const chosen = cookie(req, "mpc"), okPc = x => /^\d{4}$/.test(String(x || "")) ? String(x) : "";
+  let page = ""; try { page = decodeURIComponent(cookie(req, "mpg") || ""); } catch {}
+  if (!/^\/[\w\-\/.%]{0,200}$/.test(page)) { try { page = new URL(req.headers.get("referer") || "").pathname; } catch { page = ""; } }
+  if (/^\/(signin|welcome|unlock|optin|auth|subscribe)/.test(page)) page = "";
+  return { pc: okPc(chosen) || okPc(pc) || R.code, page: (page || "/").slice(0, 200) };
+}
+
 async function handleSubscribe(req, env) {
   const f = await req.formData();
   const pc = String(f.get("pc") || R.code).slice(0, 4), email = String(f.get("email") || "").trim().toLowerCase();
   if (!f.get("website") && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
-    { await env.DATA.put(`sub:${email}`, JSON.stringify({ email, pc, consent: true, at: new Date().toISOString() })); await acQueue(env, email); }
+    { const cx = joinCtx(req, pc); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, pc: cx.pc, page: cx.page, consent: true, source: "email", at: new Date().toISOString() })); await acQueue(env, email); }
   return page("You're in", `<h1>You're in!</h1><p>Thanks for helping a brother out. Watch for "This week in ${esc(pc)}".</p>
 <p class="note">🎁 ${GIFT_URL ? `Your free guide: <a href="${GIFT_URL}" rel="noopener"><b>how AI can help in your everyday life</b></a>, from Maverick Digital.` : `Your free guide from Maverick Digital, <b>how AI can help in your everyday life</b>, arrives with your first weekly email.`}</p><p><a href="/${esc(pc)}">Back to ${esc(pc)}</a></p>`, pc);
 }
@@ -870,6 +882,22 @@ async function acFieldId(env) { // finds (or makes, once) the "Daily Maverick po
   if (id) await env.DATA.put("ac:field", String(id));
   return id;
 }
+// Brad's segmentation fields (created in AC under "Daily Maverick"), looked up by personalisation tag and cached.
+const AC_REGION = "MAVERICK_REGION", AC_REGION_PC = "MAVERICK_REGION_POSTCODE", AC_PAGE = "SUBSCRIBED_PAGE";
+async function acFieldByTag(env, tag) {
+  let id = await env.DATA.get(`ac:f:${tag}`); if (id) return id === "-" ? null : id;
+  const f = (await ac(env, `fields?limit=100&filters[perstag]=${tag}`)).fields?.find(x => x.perstag === tag);
+  if (f) await env.DATA.put(`ac:f:${tag}`, String(f.id)); else await env.DATA.put(`ac:f:${tag}`, "-", { expirationTtl: 3600 });
+  return f ? String(f.id) : null;
+}
+// The Daily Maverick form in AC (form 5): every opted-in sign-up is also put through it, so its list and form automations fire.
+const AC_FORM = { host: "https://bradatwal.activehosted.com", id: "5", consentField: "6", consent: "I understand I am being added to a list." };
+async function acForm(email, first, vals) {
+  const b = new URLSearchParams({ u: AC_FORM.id, f: AC_FORM.id, s: "", c: "0", m: "0", act: "sub", v: "2", email, firstname: first || "Local" });
+  b.append(`field[${AC_FORM.consentField}][]`, "~|"); b.append(`field[${AC_FORM.consentField}][]`, AC_FORM.consent);
+  for (const [tag, v] of Object.entries(vals)) b.append(`field[%${tag}%,0]`, v);
+  const r = await fetch(`${AC_FORM.host}/proc.php?${b}&jsonp=true`); if (!r.ok) throw new Error(`AC form ${r.status}`);
+}
 async function acTagId(env, name) {
   let id = await env.DATA.get(`ac:tag:${name}`); if (id) return id;
   id = (await ac(env, `tags?search=${encodeURIComponent(name)}`)).tags?.find(t => t.tag === name)?.id || (await ac(env, "tags", { tag: { tag: name, tagType: "contact", description: "Daily Maverick AI tips pick" } })).tag?.id;
@@ -883,16 +911,21 @@ async function acTag(env, email, name) { // tags one person in ActiveCampaign (m
 }
 async function acSync(env) {
   if (!env.AC_URL || !env.AC_KEY) return;
+  // One-off re-send of everyone so the new region, postcode and page fields are filled for people who joined before them.
+  if (!(await env.DATA.get("ac:backfill2"))) { for (const pre of ["user:", "sub:"]) for (const { name } of await listAll(env, pre)) await acQueue(env, name.slice(pre.length)); await env.DATA.put("ac:backfill2", new Date().toISOString()); await env.DATA.put("ac:backfill", "1"); }
   if (!(await env.DATA.get("ac:backfill"))) { for (const pre of ["user:", "sub:"]) for (const { name } of await listAll(env, pre)) await acQueue(env, name.slice(pre.length)); await env.DATA.put("ac:backfill", new Date().toISOString()); }
   const q = (await env.DATA.list({ prefix: "acq:", limit: 40 })).keys; if (!q.length) return;
-  const field = await acFieldId(env);
+  const field = await acFieldId(env), fRegion = await acFieldByTag(env, AC_REGION), fPc = await acFieldByTag(env, AC_REGION_PC), fPage = await acFieldByTag(env, AC_PAGE);
+  const region = R.domain.replace(/\.live$/, "");
   for (const { name } of q) {
     const email = name.slice(4);
     try {
       const u = await env.DATA.get(`user:${email}`, "json"), sub = await env.DATA.get(`sub:${email}`, "json");
       if (u || sub) {
-        const pc = String(sub?.pc || R.code), first = String(sub?.name || u?.name || "").slice(0, 40);
-        const c = (await ac(env, "contact/sync", { contact: { email, ...(first ? { firstName: first } : {}), ...(field ? { fieldValues: [{ field: String(field), value: pc }] } : {}) } })).contact;
+        const pc = String(sub?.pc || u?.pc || R.code), first = String(sub?.name || u?.name || "").slice(0, 40), page = String(sub?.page || u?.page || "/ (joined before page tracking)");
+        const fv = [[field, pc], [fRegion, region], [fPc, pc], [fPage, page]].filter(([f]) => f).map(([f, value]) => ({ field: String(f), value }));
+        const c = (await ac(env, "contact/sync", { contact: { email, ...(first ? { firstName: first } : {}), fieldValues: fv } })).contact;
+        if (sub?.consent && !(await env.DATA.get(`acf:${email}`))) { await acForm(email, first, { [AC_REGION]: region, [AC_REGION_PC]: pc, [AC_PAGE]: page }); await env.DATA.put(`acf:${email}`, "1"); }
         if (c?.id && sub?.consent) await ac(env, "contactLists", { contactList: { list: AC_LIST, contact: c.id, status: 1 } });
         if (c?.id && sub?.tips) { const t = await acTagId(env, `Tips: ${TIPPERS.find(x => x[0] === sub.tips)?.[1].replace(/^\S+\s/, "") || sub.tips}`); if (t) await ac(env, "contactTags", { contactTag: { contact: c.id, tag: t } }); }
       }
@@ -976,7 +1009,7 @@ async function finishGoogle(req, url, env) {
   if (!email || c.email_verified === false || c.aud !== env.GOOGLE_CLIENT_ID) return fail("We couldn't confirm that Google account. Please try again.");
   const name = String(c.given_name || c.name || "").slice(0, 40), now = new Date().toISOString();
   const prev = await env.DATA.get(`user:${email}`, "json");
-  await env.DATA.put(`user:${email}`, JSON.stringify({ email, name, fullName: String(c.name || "").slice(0, 80), picture: c.picture || "", via: "google", first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
+  await env.DATA.put(`user:${email}`, JSON.stringify({ email, name, fullName: String(c.name || "").slice(0, 80), picture: c.picture || "", via: "google", pc: prev?.pc || joinCtx(req).pc, page: prev?.page || (next !== "/" ? next.split("?")[0] : joinCtx(req).page), first: prev?.first || now, last: now, visits: (prev?.visits || 0) + 1 }));
   if (!prev) await acQueue(env, email);
   const tok = crypto.randomUUID();
   await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
@@ -994,7 +1027,7 @@ const welcomePage = (url) => { const next = safeNext(url.searchParams.get("next"
 
 async function optin(req, env) {
   const f = await req.formData(), next = safeNext(String(f.get("next") || "/")), email = await member(req, env);
-  if (email) { const u = await env.DATA.get(`user:${email}`, "json"); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name: u?.name || "", pc: R.code, consent: true, source: "google", tips: tipPick(f.get("tips")), at: new Date().toISOString() })); await acQueue(env, email); }
+  if (email) { const u = await env.DATA.get(`user:${email}`, "json"); await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name: u?.name || "", ...(cx => ({ pc: cx.pc, page: u?.page || (next !== "/" ? next.split("?")[0] : cx.page) }))(joinCtx(req)), consent: true, source: "google", tips: tipPick(f.get("tips")), at: new Date().toISOString() })); await acQueue(env, email); }
   return new Response(null, { status: 303, headers: { location: next } });
 }
 
@@ -1041,7 +1074,8 @@ async function unlock(req, env) {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !f.get("consent")) return unlockPage(`<p class="note">Please add your email and tick the box.</p>`);
   const g = await gravatar(env, email);
   const name = String(f.get("name") || g?.first || "").slice(0, 40), tok = crypto.randomUUID();
-  await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: R.code, consent: true, source: "fridge", tips: tipPick(f.get("tips")), at: new Date().toISOString() }));
+  const cx = joinCtx(req, f.get("pc")), nx = f.get("next") ? safeNext(String(f.get("next"))) : "";
+  await env.DATA.put(`sub:${email}`, JSON.stringify({ email, name, pc: cx.pc, page: nx && nx !== "/" ? nx.split("?")[0] : cx.page, consent: true, source: "email", tips: tipPick(f.get("tips")), at: new Date().toISOString() }));
   await env.DATA.put(`sess:${tok}`, email, { expirationTtl: 31536000 });
   await acQueue(env, email);
   const prev = await env.DATA.get(`user:${email}`, "json"), now = new Date().toISOString();
