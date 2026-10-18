@@ -14,6 +14,7 @@ import { edData, edBlock } from "./ed.js";
 import { trafficNear, trafficList } from "./traffic.js";
 import { nswPage } from "./nswgov.js";
 import { scamsApi, scamFeeds, scamTeaser } from "./scams.js";
+import { helpApi, HELP_UI, HELP_PANEL } from "./helpme.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -163,7 +164,7 @@ function page(title, body, pc = "", opts = {}) {
 <meta name="description" content="${esc(opts.desc || "Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.")}">${opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : ""}
 <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>${CSS}${NAV_CSS}${SIDE_CSS}</style></head><body><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}
+<style>${CSS}${NAV_CSS}${SIDE_CSS}</style></head><body><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}${HELP_UI(R.brand)}${HELP_PANEL()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}";var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onerror=function(){im.remove()};a.textContent=a.textContent.replace("💬 ","");a.prepend(im)}}}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main>${fixSecLinks(formal(body), R.code)}</main>
 <div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
@@ -2790,6 +2791,7 @@ async function route(req, env, ctx) {
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/credits") return creditsPage(env, url);
     if (p === "/nsw") return nswPage({ esc, page, R, fresh })(url);
+    if ((p === "/api/helpme" || p === "/api/helpme/vote") && req.method === "POST") { const H = helpApi({ esc, R, NAV, member, hasTier, todayISO, guard: mavGuard }); return p === "/api/helpme" ? H.ask(req, env) : H.vote(req, env); }
     if (p === "/scams") return scamsApi({ esc, page, R, member, fresh }).view(req, env, url);
     if (p === "/api/scamcheck" && req.method === "POST") return scamsApi({ esc, page, R, member, fresh }).checkApi(req, env);
     if (p === "/api/ed") { const d = await edData(env, R.code); return Response.json({ ok: !!d?.list?.length, n: d?.list?.length || 0, errs: d?.errs || [], at: d?.at }); }
