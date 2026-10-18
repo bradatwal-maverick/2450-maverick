@@ -763,12 +763,19 @@ async function dailyStats(env) {
 // ---- Kid Zone secret word. A grown-up sets it on their account; kids type it to get in on that account.
 // Stored only as a salted hash. Wrong guesses are counted and shown to the grown-up. 5 wrong in a row = 15 min pause.
 const kzHash = async (salt, word) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + String(word).trim().toLowerCase())))].map(b => b.toString(16).padStart(2, "0")).join("");
+// Daily time limit: 20 minutes unless the grown-up sets another on /kids/parent. Time used is counted on the account
+// (every device) when signed in, and on the device otherwise. When it runs out, Kid Zone locks until tomorrow.
+const KZ_MINS = 20;
 async function kzApi(req, env) {
-  const em = await member(req, env), rec = em ? await env.DATA.get(`kzw:${em}`, "json") : null;
-  if (req.method !== "POST") return Response.json({ word: !!rec, ok: !rec || cookie(req, "kzok") === "1" });
+  const em = await member(req, env), rec = em ? await env.DATA.get(`kzw:${em}`, "json") : null, day = todayISO();
+  const mins = em ? ((await env.DATA.get(`kzt:${em}`, "json"))?.mins ?? KZ_MINS) : KZ_MINS, uk = em ? `kzu:${em}:${day}` : "";
+  const used = em ? +(await env.DATA.get(uk)) || 0 : 0;
+  if (req.method !== "POST") return Response.json({ word: !!rec, ok: !rec || cookie(req, "kzok") === "1", mins, used, day });
+  const body = await req.json().catch(() => ({}));
+  if (body.tick) { const add = Math.max(0, Math.min(60, +body.tick || 0)); if (em) await env.DATA.put(uk, String(used + add), { expirationTtl: 2 * 86400 }); return Response.json({ mins, used: used + add }); }
   if (!rec) return Response.json({ ok: true });
   if (rec.pause && Date.now() < rec.pause) return Response.json({ ok: false, msg: "Too many tries. Ask your grown-up, then try again in a little while." });
-  const { word } = await req.json().catch(() => ({}));
+  const { word } = body;
   if (word && (await kzHash(rec.salt, word)) === rec.hash) {
     rec.row = 0; delete rec.pause; await env.DATA.put(`kzw:${em}`, JSON.stringify(rec));
     return Response.json({ ok: true }, { headers: { "set-cookie": "kzok=1; Path=/; Max-Age=14400; HttpOnly; Secure; SameSite=Lax" } });
@@ -784,7 +791,8 @@ async function kzParent(req, env) {
   let rec = await env.DATA.get(`kzw:${em}`, "json"), note = "";
   if (req.method === "POST") {
     const f = await req.formData(), w = String(f.get("word") || "").trim();
-    if (f.get("act") === "off") { await env.DATA.delete(`kzw:${em}`); rec = null; note = "Secret word removed. Kid Zone opens with the usual grown-up check."; }
+    if (f.get("act") === "mins") { const m = Math.max(5, Math.min(120, Math.round(+f.get("mins") || KZ_MINS))); await env.DATA.put(`kzt:${em}`, JSON.stringify({ mins: m })); note = `Saved. Kid Zone now stops after ${m} minutes a day on your account, on every device.`; }
+    else if (f.get("act") === "off") { await env.DATA.delete(`kzw:${em}`); rec = null; note = "Secret word removed. Kid Zone opens with the usual grown-up check."; }
     else if (w.length < 3 || w.length > 40) note = "Pick a word between 3 and 40 letters.";
     else { const salt = crypto.randomUUID(); rec = { salt, hash: await kzHash(salt, w), set: new Date().toISOString(), wrong: 0 }; await env.DATA.put(`kzw:${em}`, JSON.stringify(rec)); note = "Saved. Kids now need this word to open Kid Zone on your account. Change it as often as you like."; }
   }
@@ -795,7 +803,21 @@ ${note ? `<p class="note">${note}</p>` : ""}
 ${rec ? `<p><b>Secret word is on</b> (set ${when(rec.set)}).<br>${rec.wrong ? `⚠️ <b>${rec.wrong} wrong ${rec.wrong === 1 ? "guess" : "guesses"}</b> since you set it, the last on ${when(rec.lastWrong)}.` : "✅ No wrong guesses since you set it."}</p>` : `<p><b>No secret word yet.</b></p>`}
 <form method="post"><label>${rec ? "Change it to" : "Your secret word"}</label><div class="row"><input name="word" type="password" minlength="3" maxlength="40" required autocomplete="off" placeholder="Something the kids won't guess"><button>${rec ? "Change word" : "Turn it on"}</button></div></form>
 ${rec ? `<form method="post"><input type="hidden" name="act" value="off"><button class="ghost">Turn the secret word off</button></form>` : ""}
+<h2>⏱️ Daily time limit</h2><p>Kid Zone stops after <b>${(await env.DATA.get(`kzt:${em}`, "json"))?.mins ?? KZ_MINS} minutes a day</b>, with a countdown so kids know how long is left. Then it's locked until tomorrow, on every device signed in to your account.</p>
+<form method="post"><input type="hidden" name="act" value="mins"><div class="row"><input name="mins" type="number" min="5" max="120" step="5" value="${(await env.DATA.get(`kzt:${em}`, "json"))?.mins ?? KZ_MINS}" aria-label="Minutes a day"><button>Save minutes a day</button></div></form>
 <h2>👀 What the kids did</h2><p>Every visit, answer, score and minute in Kid Zone is kept on the device they played on. <a href="/kids/log">See it here</a> (open it on the kids&rsquo; device). <button type="button" class="ghost" onclick="if(confirm('Clear the Kid Zone activity on this device?')){try{localStorage.removeItem('kz_log')}catch(e){}alert('Cleared on this device.')}">Clear it on this device</button></p>
+<h2>🕵️ How kids get around controls (ours included)</h2>
+<p>Kids are often a step ahead with tech. Here's how they commonly get around controls, so you know what to look for. We'd rather you hear it from us.</p>
+<ul class="rules">
+<li><b>A private or incognito window, another browser, or clearing the history.</b> On a device that isn't signed in, this resets our time count and wipes the activity log. Sign in to your account on their device: then the time limit counts across every device and can't be reset. <i>Sign to look for: an empty activity log when you know they played.</i></li>
+<li><b>Another device.</b> A tablet, a sibling's phone or a friend's device. Our limit follows your account, not a device that isn't signed in.</li>
+<li><b>Watching you type the secret word</b>, or guessing it. Wrong guesses are counted above, so you'll see if someone's been trying. Change the word now and then.</li>
+<li><b>Changing the date or time on the device</b> to beat screen-time limits. Our signed-in limit uses our clock, not theirs, but some device limits can be fooled this way.</li>
+<li><b>A fake birthday</b> to get past age checks on apps and games, and <b>second accounts</b> parents don't know about.</li>
+<li><b>A VPN or proxy app</b> to get around home or school filters, and <b>hidden apps</b> tucked in folders or disguised as a calculator.</li>
+</ul>
+<p><b>What helps most:</b> use the controls built into the device as well as ours (Apple Screen Time, Google Family Link, or your internet router's settings), keep devices in shared spaces, and talk about it: kids who know why the rules exist are less likely to dodge them.</p>
+<p><a href="https://www.esafety.gov.au/parents" rel="noopener"><b>eSafety Commissioner: advice for parents and carers →</b></a> · <a href="https://www.apple.com/au/families/" rel="noopener">Apple: Screen Time and Family Sharing</a> · <a href="https://families.google/familylink/" rel="noopener">Google Family Link</a></p>
 <p class="mute">We only keep a scrambled version of the word, never the word itself, so even we can't read it. Forgot it? Just set a new one here. <a href="/kids">Back to Kid Zone</a></p>`);
 }
 
