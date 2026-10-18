@@ -193,7 +193,7 @@ const az = t => t.replace(/^[^A-Za-z0-9]+/, "").toLowerCase();
 function menuDrawer(signin, inst) {
   // ⭐ Memberships row in the menu (styles below)
   const G = allGroups().map(([h, L]) => [h, [...L].sort((a, b) => az(a[1]).localeCompare(az(b[1])))]).sort((a, b) => az(a[0]).localeCompare(az(b[0])));
-  return `<dialog id="m2nav" class="mdraw" aria-label="Menu"><div class="mtop"><span></span><button type="button" class="mx" id="m2x" aria-label="Close menu">✕</button></div>
+  return `<dialog id="m2nav" class="mdraw" aria-label="Menu"><div class="mtop"><span class="mbrand"><svg viewBox="3 4.5 28 23.5" aria-hidden="true"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>The Daily Maverick <b>${R.code}</b></span><button type="button" class="mx" id="m2x" aria-label="Close menu">✕</button></div>
 <div class="mme"><div class="mrow">${signin}<a id="my2450t" href="/signin?next=/me">Sign in, free</a></div><div class="mrow">${inst}</div><a class="mmem" href="/membership?buy=every"><b>⭐ Go 110% Maverick</b><small>14 days free, no card · $49 a year after</small></a></div>
 <input id="m2q" type="search" placeholder="🔎 Find a page, e.g. fuel, bins, licence" autocomplete="off" aria-label="Find a page">
 <p id="m2none" class="mute" hidden>No page matches. <a href="/all">See everything</a></p>
@@ -213,7 +213,22 @@ const MENU_CSS = `.mmem{display:block;margin:8px 0 2px;padding:10px 12px;border-
 .mdraw .inst{width:auto;height:auto;border-radius:0;background:none;color:var(--fg);gap:10px;font-weight:600;font-size:1rem;padding:0}.mdraw .inst svg{width:30px;height:30px;padding:6px;box-sizing:border-box;border-radius:50%;background:var(--soft)}
 #m2q{width:100%;font-size:1rem;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:0 0 6px;box-sizing:border-box;background:var(--bg);color:var(--fg)}
 .mg{border-bottom:1px solid var(--line)}.mg>summary{cursor:pointer;list-style:none;padding:12px 2px;font-weight:bold;display:flex}.mg>summary::-webkit-details-marker{display:none}.mg>summary::after{content:"+";margin-left:auto;color:var(--mute);font-weight:normal}.mg[open]>summary::after{content:"–"}
-.mg ul{list-style:none;padding:0;margin:0 0 8px}.mg li a{display:block;padding:7px 4px;color:var(--fg);text-decoration:none;border-radius:8px}.mg li a:hover{background:var(--soft)}.mg small{display:block;color:var(--mute);font-size:.8rem}.mfoot{margin-top:14px}`;
+.mg ul{list-style:none;padding:0;margin:0 0 8px}.mg li a{display:block;padding:7px 4px;color:var(--fg);text-decoration:none;border-radius:8px}.mg li a:hover{background:var(--soft)}.mg small{display:block;color:var(--mute);font-size:.8rem}.mfoot{margin-top:14px}
+/* Menu, polished: one clean panel, quiet lines, gold only where it matters */
+.menub{width:42px;height:42px;padding:0;justify-content:center;border:1px solid var(--line);border-radius:12px;transition:background .15s,border-color .15s}.menub:hover{background:var(--soft);border-color:var(--fg)}.menub svg{width:22px;height:22px}
+.mdraw{width:min(400px,100vw);padding:0 0 28px;animation:mslide .22s ease-out}@keyframes mslide{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+.mdraw::backdrop{background:rgba(11,21,38,.6);backdrop-filter:blur(2px)}
+.mtop{padding:16px 18px;margin:0 0 14px;background:#0B1526;color:#fff;border-bottom:3px solid #f2b01e}
+.mbrand{display:flex;align-items:center;gap:8px;font-size:1rem;font-weight:600;letter-spacing:.01em}.mbrand svg{width:22px;height:19px;color:#f2b01e}.mbrand b{background:#f2b01e;color:#0B1526;border-radius:6px;padding:1px 7px;font-size:.85rem}
+.mtop .mx{background:rgba(255,255,255,.12);color:#fff;width:36px;height:36px}.mtop .mx:hover{background:rgba(255,255,255,.22)}
+.mdraw>*:not(.mtop){margin-left:18px;margin-right:18px}
+.mme{border:0;background:var(--soft);border-radius:14px;padding:4px 14px}
+.mmem{margin:6px 0 10px;padding:12px 14px;border:0;border-radius:12px;background:linear-gradient(135deg,#f2b01e,#ffcb4d);color:#0B1526!important;box-shadow:0 6px 18px -8px rgba(242,176,30,.8)}.mmem small{opacity:.85}
+#m2q{border-radius:12px;padding:11px 14px;margin:0 0 10px;background:var(--soft);border-color:transparent}#m2q:focus{outline:2px solid #f2b01e;background:var(--bg)}
+.mg{border-bottom:1px solid var(--line)}.mg>summary{padding:14px 2px;font-weight:600;font-size:1rem}
+.mg>summary::after{content:"";width:8px;height:8px;margin:6px 4px 0 auto;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .2s}.mg[open]>summary::after{content:"";transform:rotate(-135deg)}
+.mg li a{padding:9px 10px;border-left:3px solid transparent;border-radius:0 8px 8px 0}.mg li a:hover{background:var(--soft);border-left-color:#f2b01e}.mg li a b{font-weight:600}
+.mfoot{margin-top:18px;font-size:.9rem}`;
 function page(title, body, pc = "", opts = {}) {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
