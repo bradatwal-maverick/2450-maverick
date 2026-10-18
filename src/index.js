@@ -40,7 +40,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["love", "Why you'll love it"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["alcohol", "Grog watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["trails", "Trails & World Heritage"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["love", "Why you'll love it"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["alcohol", "Grog watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Award"], ["kids", "Get outside"], ["trails", "Trails & World Heritage"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -2893,17 +2893,19 @@ function list(){O.className='mute';O.textContent='Checking local prices…';fetc
 document.getElementById('alcf').onsubmit=function(ev){ev.preventDefault();var q=Q.value.trim();if(q.length<2){name(T);list();return}name(ty(q));O.className='mute';O.textContent='Searching local shops…';fetch('/api/alcohol?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){O.className='';O.innerHTML=j.items.length?'<p class="mute">'+j.items.length+' local price'+(j.items.length>1?'s':'')+' for '+e(q)+'.</p>'+table(j.items,'Drink'):none(q)}).catch(function(){O.textContent='Couldn’t reach us just now. Try again soon.'})};
 document.getElementById('alcp').onclick=function(ev){var b=ev.target.closest('button');if(!b)return;T=b.dataset.t;name(T);[].forEach.call(this.children,function(x){x.classList.toggle('on',x===b)});Q.value='';list()};list()})();</script></section>`;
 
-// ---- Mini Maverick Encouragement Award: grown-ups nominate a local kid; the winner gets $50 to spend at a local business of their choice. Never fast food. ----
-const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$50 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
-<p class="note">📍 The award must be spent at a <b>local ${"${R.place}"} business</b>. No multinationals, no chains, no fast food.</p>
-<p class="mute">Kindness, courage, trying hard, helping out. Anything worth encouraging. Grown-ups nominate; kids don&rsquo;t sign up themselves.</p>`;
-const awardBlock = () => `<section id="award"><h2>🏅 Mini Maverick Encouragement Award</h2>${AWARD_INFO.split("${R.place}").join(esc(R.place))}<p><a href="/award"><b>Nominate a local kid →</b></a> · <a href="/award#apply">Clubs and local businesses: apply</a></p></section>`;
+// ---- Mini Maverick Award: each month the top three on the Kid Zone leaderboards win $25, $15 and $10. Never fast food. ----
+const AWARD_INFO = `<p>Maverick Digital encourages <b>digital safety for kids</b>. Every Kid Zone game is designed to help with that: a safe place where kids can play and mums and dads can feel safe.</p>
+<p>Each month, the <b>top three kids on the Kid Zone leaderboards</b> win the <b>Mini Maverick Award</b>, for proving they&rsquo;re little mini Mavericks:</p>
+<ul class="fls"><li>🥇 <b>$25</b> first place</li><li>🥈 <b>$15</b> second place</li><li>🥉 <b>$10</b> third place</li></ul>
+<p class="note">📍 Spent at a <b>local ${"${R.place}"} business</b>. No multinationals, no chains, no fast food.</p>
+<p class="mute">Only a winner&rsquo;s first name is ever shown, with their parent or carer&rsquo;s OK.</p>`;
+const awardBlock = () => `<section id="award"><h2>🏅 Mini Maverick Award</h2>${AWARD_INFO.split("${R.place}").join(esc(R.place))}<p><a href="/kids"><b>Play in Kid Zone →</b></a> · <a href="/award#apply">Local businesses: be a place winners spend it</a></p></section>`;
 async function plusList(env) {
   const A = ((await env.DATA.get("award:apps", "json")) || []).filter(x => x.plus10 && x.pc === R.code);
   return `<h2>💪 Making it go 10% further</h2>${A.length ? `<p class="mute">These local businesses add 10% when a winner spends their award with them.</p><ul class="fls">${A.map(x => `<li><b>${esc(x.org)}</b>${x.sub ? `, ${esc(x.sub)}` : ""}</li>`).join("")}</ul>` : `<p class="mute">No local business has signed up yet. Be the first: tick the 10% box below.</p>`}`;
 }
 async function awardPage(req, env, ctx) {
-  const head = `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🏅 Mini Maverick Encouragement Award</h1>${AWARD_INFO.split("${R.place}").join(esc(R.place))}`;
+  const head = `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🏅 Mini Maverick Award</h1>${AWARD_INFO.split("${R.place}").join(esc(R.place))}`;
   if (req.method === "POST") {
     const f = await req.formData(); if (f.get("website")) return page("Thanks", head + `<p class="note">Thanks, it&rsquo;s in.</p>`);
     const v = k => String(f.get(k) || "").replace(/[<>]/g, "").trim();
@@ -2911,37 +2913,23 @@ async function awardPage(req, env, ctx) {
       const org = v("org").slice(0, 80), sub = v("asub").slice(0, 40), plus10 = f.get("plus10") === "yes", kind = v("kind").slice(0, 40), who = v("who").slice(0, 40), mail = v("aemail").slice(0, 80), more = v("more").slice(0, 600);
       if (!org || !kind || !who || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return page("Nearly there", head + `<p class="note">Please fill in every field marked *.</p>`);
       const A = (await env.DATA.get("award:apps", "json")) || []; await env.DATA.put("award:apps", JSON.stringify([{ org, sub, plus10, kind, who, mail, more, pc: R.code, at: new Date().toISOString() }, ...A.filter(x => x.org.toLowerCase() !== org.toLowerCase())].slice(0, 500)));
-      mailUs(env, ctx, `Encouragement Award application: ${org} (${kind}, ${R.code})`, `Organisation: ${org}${sub ? " (" + sub + ")" : ""}\nType: ${kind}\nMakes it go 10% further: ${plus10 ? "YES" : "no"}\nContact: ${who}\nEmail: ${mail}\n\n${more}\n\nDaily Maverick: ${R.code}`, mail);
+      mailUs(env, ctx, `Mini Maverick Award business: ${org} (${kind}, ${R.code})`, `Organisation: ${org}${sub ? " (" + sub + ")" : ""}\nType: ${kind}\nMakes it go 10% further: ${plus10 ? "YES" : "no"}\nContact: ${who}\nEmail: ${mail}\n\n${more}\n\nDaily Maverick: ${R.code}`, mail);
       return page("Application in", head + `<p class="note">Thanks, ${esc(who)}! ${esc(org)}&rsquo;s application is in. We&rsquo;ll be in touch by email.</p>`);
     }
-    const kid = v("kid").slice(0, 30), where = v("where").slice(0, 60), why = v("why").slice(0, 600), me = v("me").slice(0, 40), email = v("email").slice(0, 80), role = v("role").slice(0, 40);
-    if (!kid || !why || !me || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || f.get("ok") !== "yes") return page("Nearly there", head + `<p class="note">Please fill in every field marked * and tick the box.</p>`);
-    const n = { kid, where, why, me, email, role, pc: R.code, at: new Date().toISOString() }, L = (await env.DATA.get("award:noms", "json")) || [];
-    await env.DATA.put("award:noms", JSON.stringify([n, ...L].slice(0, 500)));
-    mailUs(env, ctx, `Encouragement Award nomination: ${kid} (${R.code})`, `Kid's first name: ${kid}\nSchool, club or group: ${where}\nWhy: ${why}\n\nNominated by: ${me} (${role})\nEmail: ${email}\nDaily Maverick: ${R.code}`, email);
-    return page("Nomination in", head + `<p class="note">Thanks, ${esc(me)}! ${esc(kid)}&rsquo;s nomination is in. If they win, we&rsquo;ll email you to sort out the $50 with their parent or carer. It must be spent at a local business, never a multinational or fast food.</p>`);
+    return page("Thanks", head);
   }
-  return page(`Mini Maverick Encouragement Award: ${R.brand}`, head + `<form method="post"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-<label>Kid&rsquo;s first name only *</label><input name="kid" maxlength="30" required>
-<label>School, club or group (optional)</label><input name="where" maxlength="60">
-<label>What did they do? *</label><textarea name="why" rows="4" maxlength="600" required placeholder="e.g. Kept showing up to training all winter and helped the little ones"></textarea>
-<label>Your name *</label><input name="me" maxlength="40" required>
-<label>You are their… *</label><select name="role" required><option value="">Choose</option><option>Parent or carer</option><option>Teacher</option><option>Coach</option><option>Family friend</option><option>Other grown-up</option></select>
-<label>Your email * (only to contact you if they win)</label><input name="email" type="email" maxlength="80" required>
-<label><input type="checkbox" name="ok" value="yes" required> I&rsquo;m an adult, and the kid&rsquo;s parent or carer is OK with this nomination</label>
-<button>Nominate</button></form>
-<p class="src">We only ever show a winner&rsquo;s first name, with their parent or carer&rsquo;s OK. Nominations go straight to us and are never shared.</p>
+  return page(`Mini Maverick Award: ${R.brand}`, head + `<p><a class="btn" href="/kids">Play in Kid Zone</a></p>
 ${await plusList(env)}
-<h2 id="apply">Clubs, schools and local businesses: apply</h2>
-<p>Run a junior sporting club or association? Swap the fast-food voucher for the <b>Mini Maverick Encouragement Award</b> at your presentations or player of the week. Run a local business? Apply to be a place where winners can spend their $50, and <b>make it go 10% further</b>: $55 of goods for the winner, and your name on this page.</p>
+<h2 id="apply">Local businesses: be a place winners spend it</h2>
+<p>Run a local business? Apply to be a place where winners can spend their award, and <b>make it go 10% further</b> for them, with your name on this page.</p>
 <form method="post"><input type="hidden" name="form" value="apply"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-<label>Club, school or business name *</label><input name="org" maxlength="80" required>
+<label>Business name *</label><input name="org" maxlength="80" required>
 <label>Suburb</label><input name="asub" maxlength="40">
-<label>You are a… *</label><select name="kind" required><option value="">Choose</option><option>Sporting club or association</option><option>School</option><option>Community group</option><option>Local business (where winners can spend it)</option></select>
+<label>You are a… *</label><select name="kind" required><option value="">Choose</option><option>Local business (where winners can spend it)</option></select>
 <label>Your name *</label><input name="who" maxlength="40" required>
 <label>Your email *</label><input name="aemail" type="email" maxlength="80" required>
-<label><input type="checkbox" name="plus10" value="yes"> 💪 We&rsquo;ll make it go <b>10% further</b>: a winner spending their $50 with us gets $55 worth</label>
-<label>Tell us a bit more (optional)</label><textarea name="more" rows="3" maxlength="600" placeholder="e.g. Under 9s to under 14s, about 200 kids, presentations in September"></textarea>
+<label><input type="checkbox" name="plus10" value="yes"> 💪 We&rsquo;ll make it go <b>10% further</b>: a winner spending their award with us gets 10% extra</label>
+<label>Tell us a bit more (optional)</label><textarea name="more" rows="3" maxlength="600" placeholder="e.g. What you sell, and anything kids would love"></textarea>
 <button>Apply</button></form>
 <p class="src">Local regional businesses only. No fast food, no multinationals.</p>`);
 }
@@ -2951,7 +2939,7 @@ function allGroups() {
   return [["🗞️ Sections", NAV.map(x => [`/${x.slug}`, x.name, x.blurb])], ["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
     ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free for life, Maverick Lite or 110% Maverick"]]],
     ["🧰 Handy tools", [["/nsw", "NSW Government help", "Check a licence live, rebates and services"], ["/numbers", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"], ["/scams", "Scam watch", "What's going around, check before you buy, report a scam"], ["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What are you binging?", "Shows, podcasts and channels locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
-    ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
+    ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Award", "$25, $15 and $10 each month for the top 3 Kid Zone players"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
     ["👤 You", [["/me", "My page", "Your settings and what Mav knows"], ["/signin", "Sign in", "Free, one tap"]]],
     ["ℹ️ About us", [["/about", "Nobody pays to be here", "How we stay free"], ["/charter", "Our charter", "No BS, no opinions, just sources"], ["/status", "What's done", "Live now and coming soon"], ["/timesaved", "Time saved", "How much time we give back"], ["/new", "What's new", "Latest changes"], ["/ai-log", "AI log", "What our AI does, in the open"], ["/faq", "FAQ", "Common questions"], ["/privacy", "Privacy", "What we keep, and don't"]]]];

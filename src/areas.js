@@ -33,7 +33,7 @@ ${traffic}
 ${card("/kids", "🧒", "Kid Zone", "Safe games for 12 and under, with your OK. No chat, no ads, nothing collected")}
 ${card("/kids/parent", "🔐", "Kid Zone secret word", "Set a word your kids need to get in")}
 ${card(`/${pc}#kids`, "🌳", "Get outside this weekend", "Affordable things to do outdoors with the kids")}
-${card(`/${pc}#award`, "🏅", "Mini Maverick Encouragement Award", "$50 for a kid to spend at a local business")}
+${card(`/${pc}#award`, "🏅", "Mini Maverick Award", "$25, $15 and $10 each month for the top 3 Kid Zone players")}
 <h2>👋 Your village</h2>
 ${card(`/${pc}#events`, "🎪", "Community events", "Locals first, free to add")}
 ${card("/notices", "📌", "Community notice board", "Lost pets, volunteers, clubs and classes")}

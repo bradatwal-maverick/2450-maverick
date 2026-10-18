@@ -23,7 +23,7 @@ export const NAV = [
     ["/celebrations", "🎉", "Celebrations", "New babies, engagements, weddings"],
     ["/rip", "🕊️", "Death notices", "Remembering locals"],
     ["#love", "❤️", "Why you'll love it here", "What your place has that nowhere else does"],
-    ["#award", "🏅", "Mini Maverick Encouragement Award", "$50 for a local kid to spend local"],
+    ["#award", "🏅", "Mini Maverick Award", "$25, $15 and $10 each month for the top 3 Kid Zone players"],
     ["/photos", "📸", "Locals' photos", "Your place, through locals' eyes"],
     ["#radio", "📻", "Local radio", "Community and public radio, one tap to listen"],
     ["/feedback", "💡", "Ideas and votes", "30 votes and we build it"],
