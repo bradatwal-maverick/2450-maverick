@@ -906,12 +906,38 @@ const kzHash = async (salt, word) => [...new Uint8Array(await crypto.subtle.dige
 // Daily time limit: 20 minutes unless the grown-up sets another on /kids/parent. Time used is counted on the account
 // (every device) when signed in, and on the device otherwise. When it runs out, Kid Zone locks until tomorrow.
 const KZ_MINS = 20;
+// ---- Mini Maverick Award leaderboard, run by Lola (our fun QCO). First name or nickname and points only, never anything else. ----
+const KZ_DAY_PTS = 300; // most points a kid can add in a day
+const prevMonth = m => { const [y, mo] = m.split("-").map(Number); return mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, "0")}`; };
+const monthName = m => new Date(m + "-01T00:00:00Z").toLocaleString("en-AU", { month: "long", year: "numeric", timeZone: "UTC" });
+async function kzBoard(env, m) { const B = (await env.DATA.get(`kzlb:${m}:${R.code}`, "json")) || {}; return Object.entries(B).map(([em, x]) => ({ em, nick: x.nick, pts: x.pts })).sort((a, b) => b.pts - a.pts); }
+async function leaderBlock(env) {
+  const m = todayISO().slice(0, 7), L = (await kzBoard(env, m)).slice(0, 10), W = (await kzBoard(env, prevMonth(m))).slice(0, 3), medal = ["🥇", "🥈", "🥉"];
+  const row = (x, i) => `<li><span class="lbn">${medal[i] || i + 1}</span> <b>${esc(x.nick)}</b> <span class="mute">${x.pts.toLocaleString("en-AU")} pts</span></li>`;
+  return `<div class="card2 lb"><p class="lbby"><img class="tav" src="/team/lola.svg" alt="" width="28" height="28"> <b>Lola&rsquo;s leaderboard</b> · ${esc(monthName(m))}</p>
+${L.length ? `<ol class="lbl">${L.map(row).join("")}</ol>` : `<p>No one on the board yet this month. Be the first!</p>`}
+<p class="mute2">Top 3 on the 1st of next month win the Mini Maverick Award: 🥇 $25 · 🥈 $15 · 🥉 $10. A grown-up enters you on the <a href="/kids/parent#award">grown-ups page</a>.</p>
+${W.length ? `<p class="mute2"><b>${esc(monthName(prevMonth(m)))} winners:</b> ${W.map((x, i) => `${medal[i]} ${esc(x.nick)}`).join(" · ")}</p>` : ""}</div>`;
+}
+// On the 1st, Lola sends Brad last month's top 3 with each parent's email, once.
+async function awardWinners(env, ctx) {
+  const m = prevMonth(todayISO().slice(0, 7)), flag = `kzlb:sent:${m}:${R.code}`; if (await env.DATA.get(flag)) return;
+  const W = (await kzBoard(env, m)).slice(0, 3); await env.DATA.put(flag, "1", { expirationTtl: 400 * 86400 }); if (!W.length) return;
+  mailUs(env, ctx, `Mini Maverick Award winners, ${monthName(m)} (${R.code})`, W.map((x, i) => `${["1st, $25", "2nd, $15", "3rd, $10"][i]}: ${x.nick}, ${x.pts} pts. Parent: ${x.em}`).join("\n") + `\n\nSpend at a local business, never fast food. Ask each parent before showing a first name anywhere else.`);
+}
 async function kzApi(req, env) {
   const em = await member(req, env), rec = em ? await env.DATA.get(`kzw:${em}`, "json") : null, day = todayISO();
   const mins = em ? ((await env.DATA.get(`kzt:${em}`, "json"))?.mins ?? KZ_MINS) : KZ_MINS, uk = em ? `kzu:${em}:${day}` : "";
   const used = em ? +(await env.DATA.get(uk)) || 0 : 0;
   if (req.method !== "POST") return Response.json({ word: !!rec, ok: !rec || cookie(req, "kzok") === "1", mins, used, day });
   const body = await req.json().catch(() => ({}));
+  // Mini Maverick Award points: only for kids a signed-in parent has entered. Capped so nobody can game it.
+  if (body.pts !== undefined) { if (!em) return Response.json({ ok: false }); const e = await env.DATA.get(`kzl:${em}`, "json"); if (!e?.on) return Response.json({ ok: false });
+    const n = Math.max(0, Math.min(100, Math.round(+body.pts || 0))), dk = `kzlp:${em}:${day}`, today = +(await env.DATA.get(dk)) || 0, add = Math.min(n, Math.max(0, KZ_DAY_PTS - today));
+    if (!add) return Response.json({ ok: true, capped: true });
+    await env.DATA.put(dk, String(today + add), { expirationTtl: 2 * 86400 });
+    const k = `kzlb:${day.slice(0, 7)}:${R.code}`, B = (await env.DATA.get(k, "json")) || {}; B[em] = { nick: e.nick, pts: (B[em]?.pts || 0) + add };
+    await env.DATA.put(k, JSON.stringify(B), { expirationTtl: 120 * 86400 }); return Response.json({ ok: true, added: add }); }
   if (body.tick) { const add = Math.max(0, Math.min(60, +body.tick || 0)); if (em) await env.DATA.put(uk, String(used + add), { expirationTtl: 2 * 86400 }); return Response.json({ mins, used: used + add }); }
   if (!rec) return Response.json({ ok: true });
   if (rec.pause && Date.now() < rec.pause) return Response.json({ ok: false, msg: "Too many tries. Ask your grown-up, then try again in a little while." });
@@ -925,13 +951,24 @@ async function kzApi(req, env) {
   await env.DATA.put(`kzw:${em}`, JSON.stringify(rec));
   return Response.json({ ok: false, msg: "That's not the secret word. Ask your grown-up." });
 }
+async function awardEntry(env, em) {
+  const e = await env.DATA.get(`kzl:${em}`, "json");
+  return `<p>Each month the top 3 Kid Zone players win 🥇 $25, 🥈 $15 or 🥉 $10 to spend at a local business. Only the first name or nickname you choose is shown on Lola&rsquo;s leaderboard, with their points. If they win, we email you.</p>
+${e?.on ? `<p><b>✅ ${esc(e.nick)} is entered.</b> Kids need to play while signed in to your account for points to count.</p><form method="post"><input type="hidden" name="act" value="award"><input type="hidden" name="off" value="1"><button class="ghost">Take them off the leaderboard</button></form>` :
+`<form method="post"><input type="hidden" name="act" value="award"><label>First name or nickname (shown on the leaderboard)</label><div class="row"><input name="nick" maxlength="20" required placeholder="e.g. Lily or Captain Koala"></div>
+<label><input type="checkbox" name="ok" value="yes" required> I&rsquo;m their parent or carer. Show this name and their points on the leaderboard, and email me if they win.</label><button>Enter them</button></form>`}`;
+}
 async function kzParent(req, env) {
   const em = await member(req, env);
   if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/kids/parent" } });
   let rec = await env.DATA.get(`kzw:${em}`, "json"), note = "";
   if (req.method === "POST") {
     const f = await req.formData(), w = String(f.get("word") || "").trim();
-    if (f.get("act") === "mins") { const m = Math.max(5, Math.min(120, Math.round(+f.get("mins") || KZ_MINS))); await env.DATA.put(`kzt:${em}`, JSON.stringify({ mins: m })); note = `Saved. Kid Zone now stops after ${m} minutes a day on your account, on every device.`; }
+    if (f.get("act") === "award") { const nick = String(f.get("nick") || "").replace(/[^A-Za-z' -]/g, "").trim().slice(0, 20);
+      if (f.get("off")) { await env.DATA.delete(`kzl:${em}`); note = "Taken off the Mini Maverick Award. No more points are sent from Kid Zone."; }
+      else if (nick.length < 2 || f.get("ok") !== "yes") note = "Add a first name or nickname (letters only) and tick the box.";
+      else { await env.DATA.put(`kzl:${em}`, JSON.stringify({ nick, on: true, at: new Date().toISOString() })); note = `${esc(nick)} is in the Mini Maverick Award. Points from Kid Zone on this account now count towards Lola's leaderboard.`; } }
+    else if (f.get("act") === "mins") { const m = Math.max(5, Math.min(120, Math.round(+f.get("mins") || KZ_MINS))); await env.DATA.put(`kzt:${em}`, JSON.stringify({ mins: m })); note = `Saved. Kid Zone now stops after ${m} minutes a day on your account, on every device.`; }
     else if (f.get("act") === "off") { await env.DATA.delete(`kzw:${em}`); rec = null; note = "Secret word removed. Kid Zone opens with the usual grown-up check."; }
     else if (w.length < 3 || w.length > 40) note = "Pick a word between 3 and 40 letters.";
     else { const salt = crypto.randomUUID(); rec = { salt, hash: await kzHash(salt, w), set: new Date().toISOString(), wrong: 0 }; await env.DATA.put(`kzw:${em}`, JSON.stringify(rec)); note = "Saved. Kids now need this word to open Kid Zone on your account. Change it as often as you like."; }
@@ -945,6 +982,7 @@ ${rec ? `<p><b>Secret word is on</b> (set ${when(rec.set)}).<br>${rec.wrong ? `�
 ${rec ? `<form method="post"><input type="hidden" name="act" value="off"><button class="ghost">Turn the secret word off</button></form>` : ""}
 <h2>⏱️ Daily time limit</h2><p>Kid Zone stops after <b>${(await env.DATA.get(`kzt:${em}`, "json"))?.mins ?? KZ_MINS} minutes a day</b>, with a countdown so kids know how long is left. Then it's locked until tomorrow, on every device signed in to your account.</p>
 <form method="post"><input type="hidden" name="act" value="mins"><div class="row"><input name="mins" type="number" min="5" max="120" step="5" value="${(await env.DATA.get(`kzt:${em}`, "json"))?.mins ?? KZ_MINS}" aria-label="Minutes a day"><button>Save minutes a day</button></div></form>
+<h2 id="award">🏅 Mini Maverick Award</h2>${await awardEntry(env, em)}
 <h2>👀 What the kids did</h2><p>Every visit, answer, score and minute in Kid Zone is kept on the device they played on. <a href="/kids/log">See it here</a> (open it on the kids&rsquo; device). <button type="button" class="ghost" onclick="if(confirm('Clear the Kid Zone activity on this device?')){try{localStorage.removeItem('kz_log')}catch(e){}alert('Cleared on this device.')}">Clear it on this device</button></p>
 <h2>🕵️ How kids get around controls (ours included)</h2>
 <p>Kids are often a step ahead with tech. Here's how they commonly get around controls, so you know what to look for. We'd rather you hear it from us.</p>
@@ -2918,7 +2956,7 @@ async function awardPage(req, env, ctx) {
     }
     return page("Thanks", head);
   }
-  return page(`Mini Maverick Award: ${R.brand}`, head + `<p><a class="btn" href="/kids">Play in Kid Zone</a></p>
+  return page(`Mini Maverick Award: ${R.brand}`, head + `<style>.lb{margin:14px 0}.lbby{display:flex;align-items:center;gap:6px;margin:0 0 8px}.lbl{list-style:none;padding:0;margin:0 0 8px}.lbl li{padding:5px 0;border-bottom:1px solid #eee}.lbn{display:inline-block;width:1.6em}</style>${await leaderBlock(env)}<p><a class="btn" href="/kids">Play in Kid Zone</a></p>
 ${await plusList(env)}
 <h2 id="apply">Local businesses: be a place winners spend it</h2>
 <p>Run a local business? Apply to be a place where winners can spend their award, and <b>make it go 10% further</b> for them, with your name on this page.</p>
@@ -3240,6 +3278,7 @@ export default {
     // One cron per Worker (the free plan allows 5 across the account): every 5 minutes for push alerts,
     // and every half hour the rest of the work.
     ctx.waitUntil(pushBatch(env));
+    if (todayISO().slice(8) === "01") ctx.waitUntil(awardWinners(env, ctx).catch(() => {}));
     ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     ctx.waitUntil(acSync(env).catch(() => {}));
@@ -3306,7 +3345,7 @@ async function route(req, env, ctx) {
     if (p === "/crossword") return crosswordPage(url);
     if (p === "/api/cw") return cwApi(req, env);
     if (p === "/api/cwboard") return cwBoard(url, req, env);
-    if (p === "/kids" || p === "/kids/") return page(`Kid Zone: ${R.code} Maverick`, `<style>${KID_CSS}</style>` + kidsHub("/" + R.code));
+    if (p === "/kids" || p === "/kids/") return page(`Kid Zone: ${R.code} Maverick`, `<style>${KID_CSS}.lb{margin:14px 0}.lbby{display:flex;align-items:center;gap:6px;margin:0 0 8px}.lbl{list-style:none;padding:0;margin:0 0 8px}.lbl li{padding:5px 0;border-bottom:1px solid #eee}.lbn{display:inline-block;width:1.6em}</style>` + kidsHub("/" + R.code) + await leaderBlock(env));
     if (p === "/kids/parent") return kzParent(req, env);
     if (p === "/kids/log") return page(`What the kids did: Kid Zone`, `<style>${KID_CSS}</style>` + kidsLog("/" + R.code));
     if (p === "/api/kz") return kzApi(req, env);
