@@ -4,7 +4,7 @@ import { REGIONS } from "./regions.js";
 import { withSecrets } from "./secrets.js";
 import { BIN_SRC, binsApi, BIN_ITEMS, BINS_JS, BINS_CSS } from "./bins.js";
 import { billingApi, tierOf, hasTier, paymentsOn, TIERS, paidEmail } from "./billing.js";
-import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionHead, fixSecLinks, parentOf } from "./sections.js";
+import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionHead, fixSecLinks, parentOf, FOCUS_SLUGS, PAPER_SLUGS } from "./sections.js";
 import { ICONS } from "./icons.js";
 import { LOVE } from "./love.js";
 import { photoOfDay } from "./potd.js";
@@ -305,6 +305,7 @@ function page(title, body, pc = "", opts = {}) {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="${esc(opts.desc || "Community information, all in one place. Everything on in your town, in one place. Free. Nobody pays to be here.")}">${opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : ""}
+<meta property="og:type" content="website"><meta property="og:site_name" content="${esc(R.brand)} ${R.code}"><meta property="og:locale" content="en_AU"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(opts.desc || "Community information, all in one place. Everything on in your town, in one place. Free.")}">${opts.canonical ? `<meta property="og:url" content="${esc(opts.canonical)}">` : ""}<meta property="og:image" content="https://${R.domain}/icon-512.png"><meta name="twitter:card" content="summary">
 <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="/s/app.${assetV("css")}.css"><script defer src="/s/app.${assetV("js")}.js"></script>${SPEC_RULES}<meta name="m2v" content="${BUILD}"></head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a></span><span class="hdr-r">${HELP_UI(R.brand)}<button type="button" id="m2menu" class="menub" aria-haspopup="dialog" aria-controls="m2nav" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></span></header>${menuDrawer(`<a href="/signin?next=/me" id="my2450" class="my signin" aria-label="Sign in" title="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="currentColor"/><path d="M4.5 20.5c.8-4 3.9-6 7.5-6s6.7 2 7.5 6" fill="currentColor"/></svg></a>`, `<button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0l-4.5-4.5M12 14l4.5-4.5M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download the app</span></button>`)}<p class="mast gmast"><a href="/">The Daily Maverick</a></p>${navBar()}${HELP_PANEL()}
@@ -460,17 +461,32 @@ f.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)re
   const nLocals = await S(localsCount(env), 0);
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await S(env.DATA.get(`srcw:${id}`, "json"), null)])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
-  const SH = secSlug ? sectionHead(secSlug, { esc, R, pc }) : null;
+  const SH = secSlug ? sectionHead(secSlug, { esc, R, pc, place: pc === R.code ? R.place : t.name }) : null;
+  // Search: what Google sees. Front page = the news organisation + site search; locals' own events carry Event markup
+  // (eligible for Google's event listings). Feed events and sourced headlines get none: they're someone else's.
+  const base = `https://${R.domain}`, nm = pc === R.code ? R.place : t.name;
+  const frontOpts = { canonical: isRoot || pc === R.code ? base + "/" : `${base}/${pc}`, desc: `${nm} local news, what's on, weather, tides, fuel prices and council in one free daily page. Every item sourced, updated through the day.` };
+  const evLd = SH && !SH.ids.includes("events") ? [] : local.filter(e => e.date && e.title).slice(0, 25).map(e => ({ "@type": "Event", name: e.title, startDate: e.date,
+    eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: { "@type": "Place", name: e.venue || nm, address: { "@type": "PostalAddress", addressLocality: nm, postalCode: pc, addressRegion: R.state || "NSW", addressCountry: "AU" } },
+    ...(e.desc ? { description: e.desc } : {}), ...(e.link ? { url: e.link } : {}),
+    ...(e.cost != null ? { isAccessibleForFree: e.cost === 0, offers: { "@type": "Offer", price: e.cost, priceCurrency: "AUD", ...(e.link ? { url: e.link } : {}) } } : {}) }));
+  const orgLd = SH ? [] : [{ "@type": "NewsMediaOrganization", "@id": base + "/#org", name: `${R.brand} ${R.code}`, alternateName: `${R.brand} ${R.place}`, url: base + "/", logo: base + "/icon-512.png",
+      areaServed: { "@type": "Place", name: R.place }, publishingPrinciples: base + "/charter", parentOrganization: { "@type": "Organization", name: "Maverick Digital", url: "https://maverickdigital.com.ai" } },
+    { "@type": "WebSite", "@id": base + "/#site", name: R.brand, url: base + "/", inLanguage: "en-AU", publisher: { "@id": base + "/#org" },
+      potentialAction: { "@type": "SearchAction", target: `${base}/search?q={search_term_string}`, "query-input": "required name=search_term_string" } },
+    { "@type": "WebPage", name: `${nm} local news today`, url: frontOpts.canonical, dateModified: new Date().toISOString(), isPartOf: { "@id": base + "/#site" } }];
+  const ldTag = orgLd.length || evLd.length ? `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": [...orgLd, ...evLd] }).replace(/</g, "\\u003c")}<\/script>` : "";
   // No photo of the day on the front page: the lead story brings its own image, and the page loads faster. The photo still decorates other pages (membership, photos).
   const hero = ""; let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; } let scB = ""; try { scB = scamTeaser(await scamFeeds(env), esc); } catch (e) { scB = ""; }
   let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
   let wx = await S(env.DATA.get("wx:" + pc, "json"), null); if (wx && !(Date.now() - new Date(wx.asof) < 2 * 36e5)) wx = null;
   const wxV = wxTiles(wx);
   // Section pages are today's paper filtered to that section: the nameplate and front-page extras step aside.
-  const secCss = SH ? `<style>.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
-  return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, withPics(pics, fillTiles(wxV, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
+  const secCss = SH ? `<style>.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute:not(.keep){display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
+  return page(SH ? SH.title : (pc === R.code ? `${R.place} news today, what's on & weather | ${R.brand}` : `${t.name} news today, what's on & weather | ${R.brand}`), withPics(pics, fillTiles(wxV, `${ldTag}${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
 <p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · No. ${editionNo()}</p><p class="gath" id="pers">${dailyLine()}</p><p class="tloc"><a href="#" class="useloc" data-on="Reset">Refine to your area</a></p>${hero}${live.newsLead}<details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent="✨ "+pn+"\\u2019s personalised community information."}}catch(e){}<\/script>
-<h1 class="townh sr">${esc(t.name)} ${esc(pc)}</h1>
+${SH ? "" : `<h1 class="townh">${esc(t.name)} local news today</h1>`}
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(v.name)} ${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
 <div id="radiobar" hidden></div>
 <script>/* Your station: pick one with ☆ in Local radio and it sits up top, one tap to listen live. */
@@ -505,7 +521,7 @@ ${scB}
 ${hooksStrip(pc)}
 ${SH && SH.ids.includes("love") ? loveBlock(pc) : ""}
 ${await S(plannerBlock(env))}
-<section id="events"><h2>🎪 Community events</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
+<section id="events"><h2>🎪 What&rsquo;s on in ${esc(pc === R.code ? R.place : t.name)}</h2>${events}<p><a href="/submit?pc=${pc}">+ Add an event (free)</a></p></section>
 ${await S(bdmBlock(env, ctx))}
 <section id="tools"><h2>Handy tools</h2>
 <a class="card" href="/all">☰ <b>Everything on the Daily Maverick</b> Every page we have, in one place →</a>
@@ -548,7 +564,7 @@ ${await S(aiBlock(env))}
 ${alcoholBlock()}
 ${await S(ratesBlock(env))}
 ${await S(projectBlock(env))}
-<section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
+<section id="sea"><h2>${esc(pc === R.code ? R.place : t.name)} tide times &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
 <p class="mute">Tide times are modelled estimates. Not for navigation; check the Bureau of Meteorology before boating.</p>${fishBlock(t)}</section>
 <section id="know"><h2>Know your ${esc(pc)}</h2><p class="mute">The handy stuff, all in one place. Every item is sourced and shown as the source has it. We don&rsquo;t edit it. We tell you where it&rsquo;s from and how well the owner keeps it up to date.</p>
 ${R.know(W, accLine)}${await S(absBlock(env, R.code, R, esc, fresh))}<p class="mute">Spotted something out of date? <a href="/feedback">Let us know</a>.</p></section>
@@ -567,7 +583,7 @@ ${await S(flightsBlock(env))}
 ${live.holidays}
 <section id="puzzles"><h2>🧩 Crossword</h2><p>Today&rsquo;s ${esc(R.short)} crossword in three levels: 🟢 Easy, 🟡 Medium and 🔴 Hard. Sign in free to keep your streak and best times. <a href="/crossword"><b>Play today&rsquo;s →</b></a></p></section>
 ${starsBlock()}
-<section id="beaches"><h2>🏖️ Beach, surf &amp; surf cams</h2><div class="tiles" id="bch">
+<section id="beaches"><h2>🏖️ ${esc(pc === R.code ? R.place : t.name)} beaches, surf &amp; surf cams</h2><div class="tiles" id="bch">
 <div class="tile"><span class="ico">🌡️</span><b id="b-sst">–</b><small>Water temp</small></div><div class="tile"><span class="ico">🌊</span><b id="b-wave">–</b><small id="b-wave2">Waves</small></div>
 <div class="tile"><span class="ico">💨</span><b id="b-wind">–</b><small id="b-wind2">Wind</small></div><div class="tile"><span class="ico">☀️</span><b id="b-uv">–</b><small id="b-uv2">UV today</small></div></div>
 ${R.surf ? `<div id="bbest"></div>` : ""}
@@ -699,7 +715,7 @@ else tip('surf','🏄 <b>Fun-sized surf</b> around '+now0.toFixed(1)+' m. Check 
 var hiT=out.filter(function(o){return o[0]==='High'})[0];if(hiT){var hrs=(new Date(hiT[1])-now)/36e5;if(hrs>0&&hrs<5)tip('fish','🎣 <b>Tide’s coming in.</b> High tide at '+tm(hiT[1])+'. Plenty of anglers like the run-up to the top of the tide.')}
 document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return o[0]+' '+tm(o[1])}).join(' · '):'Tide times unavailable')+'<br>Waves '+(h.wave_height[j]||0).toFixed(1)+' m · Swell '+(h.swell_wave_height[j]||0).toFixed(1)+' m · Moon: '+MN[mi][1];
 }).catch(function(){$('tide','Tides unavailable right now.')});
-</script>`), esc), pc, SH ? SH.opts : {});
+</script>`), esc), pc, SH ? SH.opts : frontOpts);
 }
 
 // ---- Weather and tides: the scheduled job fetches them for each live town every half hour, and the page prints them
@@ -1953,7 +1969,7 @@ ${list.length ? `<ul>${list.slice(0, 8).map(obitItem).join("")}</ul>` : `<p clas
 }
 async function ripPage(env, msg = "") {
   const list = await obitsWithin(env, 60);
-  return page("In memory", `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🕊️ In memory</h1>
+  return page(`Funeral and death notices, ${R.place} | ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🕊️ In memory: ${esc(R.place)} funeral notices</h1>
 <p>Remembering locals who have passed away in the last two months. Rest in peace.</p>${msg}
 <ul>${list.map(obitItem).join("") || '<li class="mute">No notices in the last two months.</li>'}</ul>
 <p class="mute">Every notice is sourced from the funeral home and links to their official notice for full service details.</p>
@@ -2346,7 +2362,7 @@ async function fuelApi(req, env) {
   const best = Object.fromEntries(FUEL_COLS.map(([t]) => [t, Math.min(...rows.map(r => r.p[t] ?? Infinity))]));
   return Response.json({ cols: FUEL_COLS, rows, best, asof: d.asof });
 }
-const fuelBlock = (t = HOME) => `<section id="fuel"><h2>⛽ Fuel</h2>
+const fuelBlock = (t = HOME) => `<section id="fuel"><h2>⛽ Fuel prices in ${esc(R.place)}</h2>
 <div class="row"><button type="button" id="fnear">📍 Near me</button></div><div id="fout" class="mute">Loading fuel prices…</div>
 <p class="src" id="fsrc"><span class="srcw">Source:</span> <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a></p>
 <script>(function(){var fo=document.getElementById('fout'),nb=document.getElementById('fnear'),pos=null;try{var L=JSON.parse(localStorage.getItem('loc'));if(L){pos=L;nb.textContent='📍 Near you'}}catch(e){}
@@ -2534,7 +2550,7 @@ async function openApi(req, env) {
     return Response.json(withExtras(cat, out));
   } catch (e) { return Response.json(withExtras(cat, c) || { error: "unreachable" }); }
 }
-const openPage = () => page(`What's open in ${R.place}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🟢 What&rsquo;s open in ${esc(R.place)}</h1>
+const openPage = () => page(`What's open now in ${R.place}: pharmacies, doctors, cafés | ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🟢 What&rsquo;s open now in ${esc(R.place)}</h1>
 <p>Local or just visiting? Pick what you need. Open places come first, nearest at the top. <a href="#" class="useloc">📍 Use my location</a></p>
 <div class="pills" id="cats">${Object.entries(OPEN_CATS).map(([k, [l]]) => `<button type="button" data-c="${k}">${l}</button>`).join("")}</div>
 <div id="olist"><p class="mute">Choose a category above.</p></div><p class="src" id="osrc"></p>
@@ -2778,7 +2794,7 @@ function dirSection(id, title, intro, groups, href, more) {
 }
 function dirPage(kind) {
   const rent = kind === "rent", groups = rent ? rentGroups(R) : jobGroups(R);
-  return page(`${rent ? "Renting" : "Jobs"} in ${R.place}: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
+  return page(`${rent ? "Rentals" : "Jobs"} in ${R.place}: every ${rent ? "rental" : "job"} site in one place | ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
 <h1>${rent ? "🏠 Renting in " : "💼 Jobs in "}${esc(R.place)}</h1>
 <p>${rent ? `There are so many rental sites out there. Here they all are in one place, already searched for ${esc(R.place)}, plus where to go for your rights, your bond and help with rent.` : `There are so many job sites out there, and plenty of local employers only post jobs on their own websites. Here they all are in one place, already searched for ${esc(R.place)}.`}</p>
 ${directoryBody(groups, esc)}
@@ -3482,7 +3498,7 @@ export default {
 // served instantly while a fresh copy is built in the background. Pages for signed-in members, forms and APIs are never cached.
 const EDGE_FRESH = 60, EDGE_KEEP = 900;
 let BUILD = "dev"; // this deploy's version id: a new deploy gets new cache entries straight away
-const isPaperPath = p => p === "/" || /^\/\d{4}\/?$/.test(p) || NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""));
+const isPaperPath = p => p === "/" || /^\/\d{4}\/?$/.test(p) || PAPER_SLUGS.includes(p.replace(/^\/|\/$/g, ""));
 async function edgeCached(url, ctx, make) {
   const k = new URL(url); [...k.searchParams.keys()].filter(x => /^(utm_|gclid|fbclid|msclkid)/.test(x)).forEach(x => k.searchParams.delete(x)); k.searchParams.set("__v", BUILD);
   const key = new Request(k.toString()), cache = caches.default;
@@ -3505,7 +3521,8 @@ async function route(req, env, ctx) {
     if (p === "/travelling") return travelPage(env, ctx);
     if (p === "/social" || p === "/social/") return Response.redirect(new URL("/community", url).toString(), 301);
     if (p === "/fun" || p === "/fun/") return Response.redirect(`https://${url.host}/family${url.search}`, 301);
-    if (NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) { const q = (url.searchParams.get("pc") || "").replace(/\D/g, ""); return town(TOWNS[q] && TOWNS[q].live ? q : R.code, env, ctx, false, p.replace(/^\/|\/$/g, "")); }
+    if (/^\/(whatson|what-s-on|events|tide|tide-times)\/?$/.test(p)) return Response.redirect(`https://${url.host}/${/tide/.test(p) ? "tides" : "whats-on"}${url.search}`, 301);
+    if (PAPER_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) { const q = (url.searchParams.get("pc") || "").replace(/\D/g, ""); return town(TOWNS[q] && TOWNS[q].live ? q : R.code, env, ctx, false, p.replace(/^\/|\/$/g, "")); }
     if (p === "/signin") return signinPage(env, safeNext(url.searchParams.get("next") || "/"));
     if (p === "/auth/google") return startGoogle(url, env);
     if (p === "/auth/google/callback") return finishGoogle(req, url, env);
@@ -3972,8 +3989,8 @@ ${towns.length ? `<p class="mute">The same answers apply to ${towns.map(esc).joi
 }
 const robotsTxt = () => new Response(`User-agent: *\nAllow: /\nAllow: /api/health\nDisallow: /admin\nDisallow: /api/\nSitemap: https://${R.domain}/sitemap.xml\n`, { headers: { "content-type": "text/plain" } });
 function sitemapXml() {
-  const b = `https://${R.domain}`, paths = ["/", ...NAV_SLUGS.map(x => "/" + x), ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/award", "/all", "/celebrations", "/ai-log", "/new", "/towns", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest"];
-  return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(x => `<url><loc>${b}${x}</loc><changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
+  const b = `https://${R.domain}`, today = todayISO(), paths = ["/", ...PAPER_SLUGS.map(x => "/" + x), ...Object.keys(TOWNS).filter(k => TOWNS[k].live).map(k => "/" + k), "/faq", "/rip", "/celebrations", "/ai-log", "/crossword", "/watch", "/notices", "/open", "/home", "/rent", "/jobs", "/timesaved", "/status", "/award", "/all", "/celebrations", "/ai-log", "/new", "/towns", "/birthday", "/fridge", "/" + R.why.slug, "/about", "/charter", "/privacy", "/suggest", "/scams", "/numbers", "/nsw", "/bdm", "/photos", "/school", "/kids", "/mums", "/dads"];
+  return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${[...new Set(paths)].map(x => `<url><loc>${b}${x}</loc>${isPaperPath(x) ? `<lastmod>${today}</lastmod>` : ""}<changefreq>daily</changefreq></url>`).join("")}</urlset>`, { headers: { "content-type": "application/xml" } });
 }
 function llmsTxt() {
   const g = faqList();
@@ -4324,7 +4341,7 @@ W.onsubmit=function(e){e.preventDefault();var w=W.querySelector('input').value.t
 async function councilBlock(env) {
   const c = R.council, nx = await env.DATA.get("council:next", "json");
   const meet = nx && nx.date && nx.date >= todayISO() ? `<p><b>Next meeting: ${esc(fmtDate(nx.date))}${nx.time ? ", " + esc(nx.time) : ""}</b>${away(nx.date)}<br><span class="mute">${esc(nx.what)}${nx.where ? " · " + esc(nx.where) : ""}. Meetings are open to the public, and you can ask to speak.</span></p>` : `<p class="mute">Meeting dates are on the council's <a href="${c.meetings || c.url}" rel="noopener">meetings page</a>.</p>`;
-  return `<section id="council"><h2>🏛️ Council watch</h2><p class="mute">Keeping an eye on ${esc(c.name)}, with every item linked to its source.</p>
+  return `<section id="council"><h2>🏛️ ${esc(R.place)} Council watch</h2><p class="mute">Keeping an eye on ${esc(c.name)}, with every item linked to its source.</p>
 ${meet}${nx && nx.asof ? `<p class="src">${fresh(nx.asof)}Read from the <a href="${c.meetings}" rel="noopener">council's meetings page</a>, ${esc(asOf(nx.asof))}.</p>` : ""}
 ${await progressBlock(env)}
 ${await councilPoll(env)}

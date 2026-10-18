@@ -81,6 +81,29 @@ export const NAV = [
 ];
 export const NAV_SLUGS = NAV.map(s => s.slug);
 
+// ---- Search: every section page leads with what locals actually type into Google, with the place in it.
+// p = the place name (the town, or the sub-postcode's name). Titles end " | The Daily Maverick".
+export const SEO = {
+  news: { h1: p => `${p} local news today`, title: p => `${p} news today: local headlines, alerts and scams` },
+  council: { h1: p => `${p} Council watch`, title: p => `${p} council news, meetings and who represents you` },
+  community: { h1: p => `${p} community: what's on, notices and family news`, title: p => `${p} community news, events and notices` },
+  outside: { h1: p => `${p} outdoors: weather, beaches and tides`, title: p => `${p} weather, beaches, tides and trails` },
+  health: { h1: p => `Health help in ${p}`, title: p => `${p} pharmacies, doctors and emergency wait times` },
+  money: { h1: p => `${p} money: fuel, prices, jobs and rentals`, title: p => `${p} fuel prices, jobs, rentals and supermarket watch` },
+  family: { h1: p => `${p} family: school run, kids and puzzles`, title: p => `${p} family: school run, kids, holidays and crossword` },
+};
+// Search-led pages: the things locals Google every day, each on its own plain URL with its own H1.
+// Same live paper, showing just that section. A-Z by slug.
+export const FOCUS = [
+  { slug: "beaches", ids: ["beaches"], parent: "outside", h1: p => `${p} beaches and surf today`, title: p => `${p} beaches, surf and surf cams today`, desc: p => `Patrolled beaches, surf conditions and surf cams for ${p}, updated through the day. Free, every item sourced.` },
+  { slug: "fuel", ids: ["fuel"], parent: "money", h1: p => `Cheapest fuel in ${p} today`, title: p => `Cheapest fuel in ${p} today`, desc: p => `Live fuel prices at ${p} servos from NSW FuelCheck, cheapest first. Free, updated through the day.` },
+  { slug: "tides", ids: ["sea"], parent: "outside", h1: p => `${p} tide times and fishing today`, title: p => `${p} tide times today: tides, swell and fishing`, desc: p => `Today's high and low tides, swell and fishing conditions for ${p}. Free, every item sourced.` },
+  { slug: "weather", ids: ["today"], parent: "outside", h1: p => `${p} weather today`, title: p => `${p} weather today: rain, wind, sunrise and moon`, desc: p => `Today's weather for ${p}: temperature, rain, wind, UV, sunrise and moon. Free, sourced from the Bureau of Meteorology.` },
+  { slug: "whats-on", ids: ["events", "tonight"], parent: "community", h1: p => `What's on in ${p}`, title: p => `What's on in ${p} this week: events, gigs and markets`, desc: p => `Everything on in ${p}: community events, markets, live music, trivia and pub specials, local submissions first. Free to list, free to read.` },
+];
+export const FOCUS_SLUGS = FOCUS.map(f => f.slug);
+export const PAPER_SLUGS = [...NAV_SLUGS, ...FOCUS_SLUGS];
+
 // Every standalone page and the section it lives in, so "back" and the highlighted section are always right.
 // Keys are the path (or path?query for /open?c=...). First section listed wins.
 export const PARENT = {};
@@ -91,6 +114,8 @@ export const parentOf = (path, search = "") => { const c = new URLSearchParams(s
 
 // Every on-page section id, and the section page that shows it.
 export const SEC_OF = Object.fromEntries(NAV.flatMap(s => s.items.filter(i => i[0].startsWith("#")).map(i => [i[0].slice(1), s.slug])));
+// Sections with their own search-led page link there instead, so Google sees locals pointing at /tides, /fuel and friends.
+for (const f of FOCUS) for (const id of f.ids) SEC_OF[id] = f.slug;
 // Links that used to send people to the front page for a section now open that section's page, in place.
 export const fixSecLinks = (html, home) => html.replace(/href="\/(\d{4})?#([a-z0-9-]+)"/g, (m, pc, id) => SEC_OF[id] ? `href="/${SEC_OF[id]}${pc && pc !== home ? "?pc=" + pc : ""}#${id}"` : m);
 
@@ -103,27 +128,35 @@ export function navBar() {
 export const NAV_CSS = `.snav a .dim{opacity:.3}.snav{border-top:1px solid var(--line);border-bottom:3px solid var(--fg);max-width:640px;margin:0 auto}.snav div{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px}.snav div::-webkit-scrollbar{display:none}
 .snav a{flex:0 0 auto;padding:9px 11px 7px;font-weight:bold;font-size:.95rem;color:var(--fg);text-decoration:none;border-bottom:4px solid transparent;margin-bottom:-3px;white-space:nowrap}.snav a:hover{color:var(--link)}.snav a.on{border-bottom-color:var(--gold)}
 .subnav{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}.subnav a{background:var(--soft);border-radius:999px;padding:4px 12px;font-size:.85rem;text-decoration:none;color:var(--fg)}
-.secg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.secg a,.secg div{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--fg)}.secg a:hover{border-color:var(--gold)}.secg span.i{font-size:1.5rem;line-height:1}.secg small{display:block;color:var(--mute)}.secg .soon{border-style:dashed;border-color:var(--gold)}.secg .wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:0 8px;font-size:.72rem;margin-left:4px}`;
+.secg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.secg a,.secg div{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--fg)}.secg a:hover{border-color:var(--gold)}.secg span.i{font-size:1.5rem;line-height:1}.secg small{display:block;color:var(--mute)}.secg .soon{border-style:dashed;border-color:var(--gold)}.crumbs{font-size:.85rem;margin:6px 0 0}.crumbs a{color:inherit}.upd{font-size:.8rem;margin-top:-6px}.secg .wipb{display:inline-block;background:var(--gold);color:#12233f;border-radius:999px;padding:0 8px;font-size:.72rem;margin-left:4px}`;
 
 // The top of a section page. The sections themselves are the live ones from today's paper, shown right here.
-export function sectionHead(slug, { esc, R, pc }) {
-  const s = NAV.find(x => x.slug === slug); if (!s) return null;
-  const base = `https://${R.domain}`, q = pc && pc !== R.code ? "?pc=" + pc : "";
-  const ids = s.items.filter(i => i[0].startsWith("#")).map(i => i[0].slice(1));
+export function sectionHead(slug, { esc, R, pc, place }) {
+  const f = FOCUS.find(x => x.slug === slug), s = NAV.find(x => x.slug === (f ? f.parent : slug)); if (!s) return null;
+  const P = place || R.place, base = `https://${R.domain}`, q = pc && pc !== R.code ? "?pc=" + pc : "";
+  const ids = f ? f.ids : s.items.filter(i => i[0].startsWith("#")).map(i => i[0].slice(1));
   const pages = s.items.filter(i => !i[0].startsWith("#"));
-  const fun = s.slug === "fun", ic = i => fun ? `<span class="i">${i}</span>` : "";
+  const seo = SEO[s.slug] || {}, h1 = f ? f.h1(P) : seo.h1 ? seo.h1(P) : s.name;
+  const title = `${f ? f.title(P) : seo.title ? seo.title(P) : `${s.name}: ${P}`} | ${R.brand}`;
+  const desc = f ? f.desc(P) : `${s.blurb} Local ${s.name.toLowerCase()} for ${P}, free, every item sourced.`;
+  const url = `${base}/${slug}${q}`;
+  const crumbs = [{ "@type": "ListItem", position: 1, name: R.brand, item: base + "/" }, { "@type": "ListItem", position: 2, name: s.name, item: `${base}/${s.slug}` }];
+  if (f) crumbs.push({ "@type": "ListItem", position: 3, name: h1, item: `${base}/${f.slug}` });
   const ld = { "@context": "https://schema.org", "@graph": [
-    { "@type": "CollectionPage", name: `${s.name}: ${R.brand} ${R.place}`, url: `${base}/${s.slug}`, description: s.blurb,
-      hasPart: s.items.filter(i => i[0] && !i[4]).map(([u, , n]) => ({ "@type": "WebPage", name: n, url: base + (u.startsWith("#") ? `/${s.slug}${u}` : u) })) },
-    { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: R.brand, item: base + "/" }, { "@type": "ListItem", position: 2, name: s.name, item: `${base}/${s.slug}` }] }] };
+    { "@type": "CollectionPage", name: h1, url, description: desc, inLanguage: "en-AU", dateModified: new Date().toISOString(),
+      isPartOf: { "@type": "WebSite", name: R.brand, url: base + "/" },
+      ...(f ? {} : { hasPart: s.items.filter(i => i[0] && !i[4]).map(([u, , n]) => ({ "@type": "WebPage", name: n, url: base + (u.startsWith("#") ? `/${s.slug}${u}` : u) })) }) },
+    { "@type": "BreadcrumbList", itemListElement: crumbs }] };
   const card = ([u, i, n, d, soon]) => soon
-    ? `<div class="soon">${ic(i)}<span><b>${esc(n)}</b><span class="wipb">Team Smarketing is on it</span><small>${esc(d)}</small></span></div>`
-    : `<a href="${esc(u)}">${ic(i)}<span><b>${esc(n)}</b><small>${esc(d)}</small></span></a>`;
-  const head = `<h1 class="sech1">${esc(s.name)}</h1><p class="mute">${esc(s.blurb)}</p>
-<nav class="subnav" aria-label="${esc(s.name)} sections">${s.items.filter(i => i[0] && !i[4]).map(([u, , n]) => `<a href="${esc(u)}"${u.startsWith("#") ? ` data-open="${esc(u.slice(1))}"` : ""}>${esc(n)}</a>`).join("")}</nav>
+    ? `<div class="soon"><span><b>${esc(n)}</b><span class="wipb">Team Smarketing is on it</span><small>${esc(d)}</small></span></div>`
+    : `<a href="${esc(u)}"><span><b>${esc(n)}</b><small>${esc(d)}</small></span></a>`;
+  const crumbNav = `<nav class="crumbs mute" aria-label="Breadcrumb"><a href="/">${esc(R.brand)}</a> › ${f ? `<a href="/${s.slug}${q}">${esc(s.name)}</a> › ${esc(h1)}` : esc(s.name)}</nav>`;
+  const sub = f ? "" : `<nav class="subnav" aria-label="${esc(s.name)} sections">${s.items.filter(i => i[0] && !i[4]).map(([u, , n]) => `<a href="${esc(u)}"${u.startsWith("#") ? ` data-open="${esc(u.slice(1))}"` : ""}>${esc(n)}</a>`).join("")}</nav>`;
+  const head = `${crumbNav}<h1 class="sech1">${esc(h1)}</h1><p class="mute keep">${esc(f ? desc : s.blurb)}</p><p class="mute keep upd">Updated <time datetime="${new Date().toISOString()}">${new Date().toLocaleString("en-AU", { timeZone: "Australia/Sydney", weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" })}</time></p>
+${sub}
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}<\/script>
 <script>window.SECT=${JSON.stringify(ids)};try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!==${JSON.stringify(pc)}&&!/[?&]pc=/.test(location.search))location.replace(location.pathname+'?pc='+sp+location.hash)}catch(e){}<\/script>`;
-  const tail = pages.length ? `<h2>More in ${esc(s.name)}</h2><div class="secg">${pages.map(card).join("")}</div>` : "";
-  return { s, ids, head, tail, title: `${s.name}: ${R.place} ${pc} local ${s.name.toLowerCase()} | The Daily Maverick`,
-    opts: { desc: `${s.blurb} Local ${s.name.toLowerCase()} for ${R.place} ${pc}, free, every item sourced.`, canonical: `${base}/${s.slug}${q}` } };
+  const more = f ? `<p><a href="/${s.slug}${q}"><b>More in ${esc(s.name)} →</b></a></p>` : "";
+  const tail = more + (pages.length ? `<h2>More in ${esc(s.name)}</h2><div class="secg">${pages.map(card).join("")}</div>` : "");
+  return { s, ids, head, tail, title, opts: { desc, canonical: url } };
 }
