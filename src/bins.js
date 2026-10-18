@@ -36,7 +36,7 @@ export async function binsApi(url, code) {
   const q = norm(url.searchParams.get("q") || ""), id = String(url.searchParams.get("id") || "").replace(/\D/g, "");
   try {
     if (q) { if (q.length < 4) return J({ list: [] }); const w = q.split(" ");
-      const hit = (await props(src.host)).filter(p => { const n = norm(p[1]); return w.every(x => (" " + n + " ").includes(" " + x)); }).sort((a, b) => a[1].length - b[1].length).slice(0, 8);
+      const hit = (await props(src.host)).filter(p => { const n = norm(p[1]); return w.every(x => /^\d+[a-z]?$/.test(x) ? (" " + n + " ").includes(" " + x + " ") || (" " + n + " ").includes("/" + x + " ") : (" " + n + " ").includes(" " + x)); }).sort((a, b) => a[1].length - b[1].length).slice(0, 8);
       return J({ list: hit.map(([i, n, z]) => ({ id: i, name: n, zone: z })) }); }
     if (!id) return J({ error: "Add an address" }, 400);
     const t = new Date(), s = new Date(t.getTime() - 864e5), e = new Date(t.getTime() + 42 * 864e5);

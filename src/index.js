@@ -175,7 +175,7 @@ const TL_CSS = `.cheap,.shopt td.cheap,.ftab td.cheap{background:#1e7a3c!importa
 const TL_KEY = `<p class="tlkey mute"><i style="background:#1e7a3c"></i>Cheapest <i style="background:#f2b01e"></i>In between <i style="background:#c0392b"></i>Dearest</p>`;
 const tlc = (v, vals) => { const L = vals.filter(x => x != null); if (v == null || L.length < 2) return ""; const lo = Math.min(...L), hi = Math.max(...L); return lo === hi ? "" : v === lo ? "cheap" : v === hi ? "dear" : "mid"; };
 // Pages open instantly: Chrome and Edge start loading a link as soon as your finger or mouse rests on it.
-const SPEC_RULES = `<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go)(/*)?"}},{"not":{"selector_matches":"[rel~=nofollow],[target=_blank]"}}]},"eagerness":"moderate"}]}</script>`;
+const SPEC_RULES = `<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go|subscribe|vote|feedback)"}},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go|subscribe|vote|feedback)/*"}},{"not":{"selector_matches":"[rel~=nofollow],[target=_blank]"}}]},"eagerness":"moderate"}]}</script>`;
 function page(title, body, pc = "", opts = {}) {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
@@ -383,7 +383,7 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">🌊</span><b id="t-tide">–</b><small id="t-tide2">Next tide</small></div>
 <div class="tile"><span class="ico">🏄</span><b id="t-swell">–</b><small>Swell</small></div>
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
-${BIN_SRC[R.code] ? `<a class="tile bintile" href="/home#bauto"><span class="ico" id="i-bin">🗑️</span><b id="t-bin">Bins</b><small id="t-bin2">Set your bin night</small></a>
+${BIN_SRC[R.code] && BIN_SRC[R.code].kind !== "link" ? `<a class="tile bintile" href="/home#bauto"><span class="ico" id="i-bin">🗑️</span><b id="t-bin">Bins</b><small id="t-bin2">Set your bin night</small></a>
 <script>${BINS_JS(R.code)}(function(){var B=window.M2B;if(!B.auto())return;B.next(function(d){var x=B.upcoming(d)[0];if(!x)return;
 document.getElementById('i-bin').innerHTML=x.bins.map(function(b){return B.lid(b,1)}).join('');document.getElementById('t-bin').textContent=B.when(x.date).replace(/^./,function(c){return c.toUpperCase()});
 document.getElementById('t-bin2').textContent=x.bins.map(function(b){return B.NM[b]}).join(' + ')})})()<\/script>` : ""}
@@ -956,7 +956,7 @@ const POLL_AIMS = { "saving-time": "You keep us accountable. If it isn't saving 
 async function pollApi(req, env) {
   let b = {}; try { b = await req.json(); } catch {}
   if (!POLLS[b.q] || (b.v !== "up" && b.v !== "down")) return Response.json({ ok: false }, { status: 400 });
-  const mon = new Date().toISOString().slice(0, 7);
+  const mon = todayISO().slice(0, 7);
   if (b.why) { const k = `pollwhy:${b.q}:${mon}`, L = (await env.DATA.get(k, "json")) || []; // the reasons behind the thumbs; never shown with who said them
     const t = String(b.why).replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 200); let ok = false; try { ok = await cleanText(env, t); } catch (e) {}
     L.unshift({ v: b.v, t, ok, at: new Date().toISOString() }); await env.DATA.put(k, JSON.stringify(L.slice(0, 500))); return Response.json({ ok: true }); }
@@ -967,7 +967,7 @@ async function pollApi(req, env) {
 // ---- What locals told us: every vote and question on the Daily Maverick, out in the open (counts only, never who said what),
 // each with what the vote is for. It starts with how we're doing: the community keeps us accountable too.
 async function resultsPage(env) {
-  const mon = new Date().toISOString().slice(0, 7), lastMon = new Date(Date.UTC(+mon.slice(0, 4), +mon.slice(5) - 2, 1)).toISOString().slice(0, 7);
+  const mon = todayISO().slice(0, 7), lastMon = new Date(Date.UTC(+mon.slice(0, 4), +mon.slice(5) - 2, 1)).toISOString().slice(0, 7);
   const monName = m => new Date(m + "-15").toLocaleDateString("en-AU", { month: "long", year: "numeric" });
   const bar = (c, upL = "Yes", downL = "No") => { const n = (c?.up || 0) + (c?.down || 0); if (!n) return `<p class="mute">No answers yet. Check back soon.</p>`; const pu = Math.round(c.up / n * 100);
     return `<div class="pbar" role="img" aria-label="${pu}% ${upL}, ${100 - pu}% ${downL}"><span style="width:${pu}%"></span></div><p><b>👍 ${pu}% ${upL}</b> · 👎 ${100 - pu}% ${downL} <span class="mute">(${n.toLocaleString("en-AU")} ${n === 1 ? "answer" : "answers"})</span></p>`; };
@@ -2621,8 +2621,9 @@ ${checks ? `<p class="note">With ${nLocals.toLocaleString("en-AU")} locals on bo
 // locals search for anything, filter by type and vote on what we watch. We say plainly what we can and can't find. ----
 const ALC_DEFAULTS = ["Tooheys New 24 cans", "Shiraz 750ml bottle"];
 const ALC_TYPES = [["beer", "🍺 Beer"], ["cider", "🍏 Cider & premixed"], ["spirits", "🥃 Spirits"], ["wine", "🍷 Wine"]];
-const alcType = t => { t = String(t).toLowerCase(); return /\b(wine|shiraz|merlot|cabernet|pinot|chardonnay|sauvignon|riesling|rose|rosé|prosecco|champagne|sparkling|moscato|grenache|tempranillo|malbec|cask|semillon|verdelho|fiano)\b/.test(t) ? "wine"
-  : /\b(gin|vodka|rum|whisky|whiskey|bourbon|scotch|tequila|brandy|liqueur|ouzo|sambuca|baileys|jagermeister|spirit)\b/.test(t) ? "spirits" : /\b(cider|seltzer|premix|rtd|cruiser|vodka cruiser|canadian club|cc|ready to drink)\b/.test(t) ? "cider" : "beer"; };
+const alcType = t => { t = String(t).toLowerCase(); return /\b(cider|seltzer|premix|rtd|cruiser|ready to drink)\b/.test(t) ? "cider"
+  : /\b(wine|shiraz|merlot|cabernet|pinot|chardonnay|sauvignon|riesling|rose|rosé|prosecco|champagne|sparkling|moscato|grenache|tempranillo|malbec|cask|semillon|verdelho|fiano)\b/.test(t) ? "wine"
+  : /\b(gin|vodka|rum|whisky|whiskey|bourbon|scotch|tequila|brandy|liqueur|ouzo|sambuca|baileys|jagermeister|spirit)\b/.test(t) ? "spirits" : "beer"; };
 const alcWords = q => String(q).toLowerCase().replace(/\b(x|cans?|bottles?|ml|l|litres?|pack|carton|block|case|stubbies|dozen|cask)\b/g, " ").split(/\W+/).filter(w => w.length > 1 && !/^\d+$/.test(w));
 const alcAll = async env => { const fresh = x => Date.now() - new Date(x.at) < 30 * 864e5;
   const [a, b, c] = await Promise.all(["alcolocal", "beerlocal", "winelocal"].map(k => env.DATA.get(k, "json").then(v => v || []).catch(() => [])));
@@ -2646,7 +2647,7 @@ async function alcoholApi(req, env, url) {
 const alcCanCant = async (env, text) => { const hits = alcFind(await alcAll(env), text);
   return hits.length ? `Good news: ${hits.length} local shop${hits.length > 1 ? "s have" : " has"} posted a price for ${text}, from $${hits[0].price.toFixed(2)}.`
     : `No local bottle shop has posted ${text} yet. We only show prices local shops post themselves. The big chains aren't in it: we're local only.`; };
-const alcoholBlock = () => `<section id="alcohol"><span id="beer"></span><span id="wine"></span><h2 id="alch">🍻 Grog watch</h2><p class="mute">Beer, wine, spirits, cider: the price at <b>local</b> bottle shops, posted by the shops themselves. Search for anything, or filter by type. Local only, so your money stays in town.</p>
+const alcoholBlock = () => `<section id="alcohol"><span id="beer"></span><span id="wine"></span><h2 id="alch">🍻 <span id="alcn">Grog watch</span></h2><p class="mute">Beer, wine, spirits, cider: the price at <b>local</b> bottle shops, posted by the shops themselves. Search for anything, or filter by type. Local only, so your money stays in town.</p>
 <form class="row" id="alcf" role="search"><input id="alcq" maxlength="60" placeholder="What are you after? e.g. Tooheys New 24 cans, gin, Shiraz" aria-label="Search local bottle shop prices"><button>Search</button></form>
 <div class="alcp" id="alcp"><button type="button" class="on" data-t="">All</button>${ALC_TYPES.map(([k, n]) => `<button type="button" data-t="${k}">${n}</button>`).join("")}</div>
 <div id="alcout" class="mute">Checking local prices…</div>${TL_KEY}
@@ -2658,9 +2659,9 @@ ${cwatchPanel("alcohol")}
 <p class="src"><span class="srcw">Source:</span> prices posted by local shops, with the date they posted. Shown for 30 days. We don't check the big chains: local only. Please drink responsibly.</p>
 <script>${CWATCH_JS}(function(){var O=document.getElementById('alcout'),Q=document.getElementById('alcq'),T='',m=function(n){return '$'+Number(n).toFixed(2)},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var D=new Date(),ago=function(a){var d=Math.round((D-new Date(a))/864e5);return d<1?'today':d===1?'yesterday':d+' days ago'};
-var H=document.getElementById('alch'),NM={'':'🍻 Grog watch',beer:'🍺 Beer watch',wine:'🍷 Wine watch',spirits:'🥃 Spirits watch',cider:'🍏 Cider watch'};
-function ty(t){t=String(t).toLowerCase();return /\b(wine|shiraz|merlot|cabernet|pinot|chardonnay|sauvignon|riesling|rose|rosé|prosecco|champagne|sparkling|moscato|grenache|tempranillo|malbec|cask|semillon|verdelho|fiano)\b/.test(t)?'wine':/\b(gin|vodka|rum|whisky|whiskey|bourbon|scotch|tequila|brandy|liqueur|ouzo|sambuca|baileys|jagermeister|spirits?)\b/.test(t)?'spirits':/\b(cider|seltzer|premix|rtd|cruiser|ready to drink)\b/.test(t)?'cider':/\b(beer|lager|ale|stout|pale|ipa|tooheys|vb|xxxx|carlton|great northern|corona|heineken|coopers|hahn|stone|furphy|balter|pils)\b/.test(t)?'beer':''}
-function name(t){var x=H.querySelector('button');H.firstChild.nodeValue=NM[t]||NM[''];if(x)H.appendChild(x)}
+var H=document.getElementById('alcn'),NM={'':'Grog watch',beer:'Beer watch',wine:'Wine watch',spirits:'Spirits watch',cider:'Cider watch'};
+function ty(t){t=String(t).toLowerCase();return /\\b(cider|seltzer|premix|rtd|cruiser|ready to drink)\\b/.test(t)?'cider':/\\b(wine|shiraz|merlot|cabernet|pinot|chardonnay|sauvignon|riesling|rose|rosé|prosecco|champagne|sparkling|moscato|grenache|tempranillo|malbec|cask|semillon|verdelho|fiano)\\b/.test(t)?'wine':/\\b(gin|vodka|rum|whisky|whiskey|bourbon|scotch|tequila|brandy|liqueur|ouzo|sambuca|baileys|jagermeister|spirits?)\\b/.test(t)?'spirits':/\\b(beer|lager|ale|stout|pale|ipa|tooheys|vb|xxxx|carlton|great northern|corona|heineken|coopers|hahn|stone|furphy|balter|pils)\\b/.test(t)?'beer':''}
+function name(t){if(H)H.textContent=NM[t]||NM['']}
 function tl(v,L){var lo=Math.min.apply(null,L),hi=Math.max.apply(null,L);return L.length<2||lo===hi?'':v===lo?'cheap':v===hi?'dear':'mid'}
 function table(items,head){var by={};items.forEach(function(x){(by[x.item]=by[x.item]||[]).push(x)});return '<div class="tscroll"><table class="shopt"><thead><tr><th>'+head+'</th><th>Local price</th></tr></thead><tbody>'+Object.keys(by).sort().map(function(k){var L=by[k].map(function(x){return x.price});return by[k].sort(function(a,b){return a.price-b.price}).map(function(x,i){return '<tr><th scope="row">'+(i?'':e(k))+'</th><td class="'+tl(x.price,L)+'">'+m(x.price)+'<br><small>'+e(x.shop)+', '+e(x.sub)+' · '+ago(x.at)+'</small></td></tr>'}).join('')}).join('')+'</tbody></table></div>'}
 function none(q){return '<p><b>We can&rsquo;t find '+e(q)+' at a local shop yet.</b></p><p class="mute">What we can do: show prices that local bottle shops post themselves, and put it to a vote below so shops know locals want it. What we can&rsquo;t do: check the big chains. They don&rsquo;t let us, and we&rsquo;re local only. Know a local shop that stocks it? Ask them to post their price here, free.</p>'}
@@ -2902,7 +2903,7 @@ ${em ? `<form method="post"><input name="title" maxlength="80" required placehol
 <p class="mute">Picks are shared by locals and checked automatically to keep it friendly. We don't name or favour any streaming service. Spotted something off? <a href="/feedback">Tell us</a>.</p>
 <style>.wlist{list-style:none;padding:0}.wlist li{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.wlist form{margin:0}.wsvc{font-size:.75rem;font-weight:700;background:var(--soft);border-radius:99px;padding:1px 8px}#wq{width:100%;margin:4px 0 8px}</style>
 <script>(function(){var F='',T='',Q='',L=[].slice.call(document.querySelectorAll('#wl li')),N=document.getElementById('wnone');
-function run(){var n=0,w=Q.toLowerCase().split(/\s+/).filter(function(x){return x.length>1});L.forEach(function(li){var tx=li.textContent.toLowerCase()+' '+li.dataset.t.toLowerCase(),ok=(!F||li.dataset.f===F)&&(!T||li.dataset.t===T)&&w.every(function(x){return tx.indexOf(x.replace(/s$/,''))>-1});li.hidden=!ok;if(ok)n++});if(N)N.hidden=n>0}
+function run(){var n=0,w=Q.toLowerCase().split(/\\s+/).filter(function(x){return x.length>1});L.forEach(function(li){var tx=li.textContent.toLowerCase()+' '+li.dataset.t.toLowerCase(),ok=(!F||li.dataset.f===F)&&(!T||li.dataset.t===T)&&w.every(function(x){return tx.indexOf(x.replace(/s$/,''))>-1});li.hidden=!ok;if(ok)n++});if(N)N.hidden=n>0}
 function pills(id,cb){var P=document.getElementById(id);if(!P)return;P.onclick=function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call(P.children,function(x){x.classList.toggle('on',x===b)});cb(b);run()}}
 pills('wff',function(b){F=b.dataset.f});pills('wft',function(b){T=b.dataset.t});var q=document.getElementById('wq');q.oninput=function(){Q=q.value.trim();run()};
 document.getElementById('wpick').onclick=function(){var v=L.filter(function(li){return !li.hidden}).slice(0,15),o=document.getElementById('wout');if(!v.length){o.textContent='Nothing to pick from yet.';return}var li=v[Math.floor(Math.random()*v.length)];o.innerHTML='Tonight: <b>'+li.querySelector('b').textContent+'</b> 🍿';li.scrollIntoView({behavior:'smooth',block:'center'})};})();</script>`, R.code);
@@ -2922,7 +2923,7 @@ function draw(){var a=B.auto();if(!a){out.innerHTML='';return}out.innerHTML='<p 
 out.innerHTML='<p><b>📍 '+String(a.name).replace(/</g,'')+'</b> <a href="#" id="bareset">change</a></p>'+(L.length?'<ul class="fls">'+L.map(function(x){return '<li><b>'+B.when(x.date).replace(/^./,function(c){return c.toUpperCase()})+'</b>: '+x.bins.map(function(b){return B.lid(b)}).join('')+'</li>'}).join('')+'</ul>':'<p class="mute">The council calendar isn’t answering just now. Try again soon.</p>');
 document.getElementById('bareset').onclick=function(e){e.preventDefault();B.p('bin_auto',null);B.p('bin_cache',null);draw()}})}
 var q=document.getElementById('baq');if(q){var res=document.getElementById('bares'),go=function(){var v=q.value.trim();if(v.length<4){res.innerHTML='<li class="mute">Type your house number and street.</li>';return}res.innerHTML='<li class="mute">Searching…</li>';
-fetch('/api/bins?q='+encodeURIComponent(v)).then(function(r){return r.json()}).then(function(j){res.innerHTML=(j.list||[]).length?j.list.map(function(x){return '<li><button type="button" data-id="'+x.id+'" data-n="'+x.name.replace(/"/g,'')+'">'+x.name.replace(/</g,'')+' <small class="mute">'+String(x.zone||'').replace(/</g,'')+'</small></button></li>'}).join(''):'<li class="mute">No match. Try just the number and street name, like 11 Smith.</li>'}).catch(function(){res.innerHTML='<li class="mute">Couldn’t reach the council calendar. Try again soon.</li>'})};
+fetch('/api/bins?q='+encodeURIComponent(v)).then(function(r){return r.json()}).then(function(j){if(j.error){res.innerHTML='<li class="mute">Couldn\u2019t reach the council calendar. Try again soon.</li>';return}res.innerHTML=(j.list||[]).length?j.list.map(function(x){return '<li><button type="button" data-id="'+x.id+'" data-n="'+x.name.replace(/"/g,'')+'">'+x.name.replace(/</g,'')+' <small class="mute">'+String(x.zone||'').replace(/</g,'')+'</small></button></li>'}).join(''):'<li class="mute">No match. Try just the number and street name, like 11 Smith.</li>'}).catch(function(){res.innerHTML='<li class="mute">Couldn’t reach the council calendar. Try again soon.</li>'})};
 document.getElementById('bago').onclick=go;q.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go()}};
 res.onclick=function(e){var b=e.target.closest('button');if(!b)return;B.p('bin_auto',JSON.stringify({code:'${R.code}',kind:'wi',id:b.dataset.id,name:b.dataset.n}));res.innerHTML='';q.value='';draw()}}
 var ar=document.getElementById('baarea'),dy=document.getElementById('baday');if(ar){var a=B.auto();if(a){ar.value=a.area;dy.value=a.day}var sv=function(){if(ar.value&&dy.value){B.p('bin_auto',JSON.stringify({code:'${R.code}',kind:'byron',area:ar.value,day:+dy.value,name:(ar.value==='north'?'North':'South')+' area, '+dy.options[dy.selectedIndex].text}));B.p('bin_cache',null);draw()}};ar.onchange=dy.onchange=sv}
@@ -3858,7 +3859,7 @@ async function refreshCouncil(env) {
 }
 // "How's council doing?" Unofficial monthly Maverick poll: thumbs up or down plus an optional few words. One answer per phone a month.
 async function councilPoll(env) {
-  const mon = new Date().toISOString().slice(0, 7), c = (await env.DATA.get(`poll:council:${mon}`, "json")) || { up: 0, down: 0 }, n = c.up + c.down, pu = n ? Math.round(c.up / n * 100) : 0;
+  const mon = todayISO().slice(0, 7), c = (await env.DATA.get(`poll:council:${mon}`, "json")) || { up: 0, down: 0 }, n = c.up + c.down, pu = n ? Math.round(c.up / n * 100) : 0;
   return `<div class="cpoll" id="cpoll"><h3>🗳️ How's council doing?</h3><p class="mute">The unofficial Maverick poll, once a month. ${n ? `This month so far: <b>👍 ${pu}%</b> · 👎 ${100 - pu}% (${n} local${n > 1 ? "s" : ""}).` : "Be the first this month."} <a href="/results#poll-council">All results</a></p>
 <div class="mavbtns" id="cpb"><button type="button" data-v="up" aria-label="Council is doing well">👍</button><button type="button" data-v="down" aria-label="Council could do better">👎</button></div><form id="cpw" class="mavwhy" hidden><input maxlength="200" placeholder="Why? (optional, a few words)" aria-label="Why?"><button>Send</button></form><p id="cpm" class="mute" role="status"></p></div>
 <script>(function(){var k='cpoll:${mon}',B=document.getElementById('cpb'),W=document.getElementById('cpw'),M=document.getElementById('cpm'),v='';try{if(localStorage.getItem(k)){B.hidden=true;M.textContent='Thanks, you&rsquo;ve had your say this month. Back next month.'.replace('&rsquo;','\u2019')}}catch(e){}
