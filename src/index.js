@@ -231,15 +231,10 @@ const MENU_CSS = `.pcap{white-space:nowrap;overflow:hidden;text-overflow:ellipsi
 .mg>summary::after{content:"";width:8px;height:8px;margin:6px 4px 0 auto;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .2s}.mg[open]>summary::after{content:"";transform:rotate(-135deg)}
 .mg li a{padding:9px 10px;border-left:3px solid transparent;border-radius:0 8px 8px 0}.mg li a:hover{background:var(--soft);border-left-color:#f2b01e}.mg li a b{font-weight:600}
 .mfoot{margin-top:18px;font-size:.9rem}`;
-function page(title, body, pc = "", opts = {}) {
-  return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
-<meta name="description" content="${esc(opts.desc || "Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.")}">${opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : ""}
-<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
-<link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>${CSS}${MENU_CSS}${NAV_CSS}${SIDE_CSS}${TL_CSS}${BINS_CSS}</style>${SPEC_RULES}<meta name="m2v" content="${BUILD}"></head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a></span><span class="hdr-r">${HELP_UI(R.brand)}<button type="button" id="m2menu" class="menub" aria-haspopup="dialog" aria-controls="m2nav" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></span></header>${menuDrawer(`<a href="/signin?next=/me" id="my2450" class="my signin" aria-label="Sign in" title="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="currentColor"/><path d="M4.5 20.5c.8-4 3.9-6 7.5-6s6.7 2 7.5 6" fill="currentColor"/></svg></a>`, `<button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0l-4.5-4.5M12 14l4.5-4.5M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download the app</span></button>`)}<p class="mast gmast"><a href="/">The Daily Maverick</a></p>${navBar()}${HELP_PANEL()}
-<script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=(decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name")||"").trim();if(n==="Local")n="";a.href="/me";a.classList.remove("signin");a.classList.add("in");var t=(n?n.split(" ")[0]+"\u2019s ":"My ")+"${R.code}";a.title=t;a.setAttribute("aria-label",t);if(n){a.innerHTML="";a.textContent=n.charAt(0).toUpperCase()}var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];var t2=document.getElementById("my2450t");if(t2){t2.textContent=t;t2.href="/me"}if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onload=function(){a.textContent="";a.appendChild(im)}}}}catch(e){}<\/script>
-<script>/* 🔒 Locks: everyone sees everything; a lock shows on what their plan can't use yet. LOCKS = path -> level needed (some = free with email, every = 110% Maverick). */
+// ---- Speed: the shared styling and the reader tools (Mav, locks, sharing, personalising) live in two files the phone keeps,
+// named by their content so a change gets a new name. Pages stay small, and the tools load after the news is on screen.
+const SHELL_JS = () => [
+`/* 🔒 Locks: everyone sees everything; a lock shows on what their plan can't use yet. LOCKS = path -> level needed (some = free with email, every = 110% Maverick). */
 (function(){var LOCKS={"/fridge":2,"/genalpha":2,"/home":1,"/me":1,"/school":1},T={1:"Free when you sign in with your email",2:"Part of 110% Maverick"};
 function paint(rank){var st=document.createElement("style");st.textContent=".lk{font-size:.8em;margin-left:2px;padding:4px 6px;opacity:.75;text-decoration:none;white-space:nowrap;cursor:pointer;border-radius:6px}.lk:hover{opacity:1;background:rgba(242,176,30,.25)}";document.head.appendChild(st);
 document.querySelectorAll("a[href]").forEach(function(a){var u;try{u=new URL(a.getAttribute("href"),location.href)}catch(e){return}if(u.origin!==location.origin)return;var need=LOCKS[u.pathname];if(!need||rank>=need||a.querySelector(".lk"))return;
@@ -247,10 +242,8 @@ var i=document.createElement("span");i.className="lk";i.textContent="🔒";i.tit
 var go=function(e){e.preventDefault();e.stopPropagation();var nx=need===2?"/membership?need=every":u.pathname+u.search;location.href=rank>=1?nx:"/signin?next="+encodeURIComponent(nx)};
 i.addEventListener("click",go);i.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")go(e)});var b=a.querySelector("b");(b||a).appendChild(i)})}
 var k=(/(?:^|; )m2450n=/.test(document.cookie)?"in":"out")+(/[?&]welcome=/.test(location.search)?"w":""),c;try{c=(sessionStorage.getItem("dmrank")||"").split(":")}catch(e){c=[]}if(c[0]===k){paint(+c[1]);return}
-fetch("/api/billing/status").then(function(r){return r.json()}).then(function(j){var r=j.tier==="every"?2:j.signedIn?1:0;try{sessionStorage.setItem("dmrank",k+":"+r)}catch(e){}paint(r)}).catch(function(){paint(/(?:^|; )m2450n=/.test(document.cookie)?1:0)})})();<\/script>
-<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(backFix(body)), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
-<div id="rate" hidden><p id="rmsg" class="mute" hidden></p></div><style>.brk{display:block;background:#b42318;color:#fff!important;text-decoration:none;font-weight:700;padding:9px 14px;border-radius:12px;margin:0 0 12px;font-size:.95rem}.brk span{font-weight:400;opacity:.9}.shr{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;font-size:.75rem;padding:2px 9px;margin-left:6px;cursor:pointer;vertical-align:middle}.story .shr{position:absolute;right:8px;bottom:8px}.story{position:relative}</style>
-<script>(function(){/* Breaking-news bar: live fires and warnings, shown on every page for 30 minutes after they're seen */
+fetch("/api/billing/status").then(function(r){return r.json()}).then(function(j){var r=j.tier==="every"?2:j.signedIn?1:0;try{sessionStorage.setItem("dmrank",k+":"+r)}catch(e){}paint(r)}).catch(function(){paint(/(?:^|; )m2450n=/.test(document.cookie)?1:0)})})();`,
+`(function(){/* Breaking-news bar: live fires and warnings, shown on every page for 30 minutes after they're seen */
 var m=document.getElementById('main'),A=document.getElementById('alerts'),now=Date.now(),b=null;
 function cnt(ic){if(!A)return 0;var h=[].filter.call(A.querySelectorAll('h3'),function(x){return x.textContent.indexOf(ic)===0})[0],u=h&&h.nextElementSibling;return u&&u.tagName==='UL'?u.children.length:0}
 if(A){b={f:cnt('🔥'),w:cnt('⚠️'),t:now};try{localStorage.setItem('brk',JSON.stringify(b))}catch(e){}}else{try{b=JSON.parse(localStorage.getItem('brk')||'null')}catch(e){}if(b&&now-b.t>18e5)b=null}
@@ -259,15 +252,8 @@ if(m&&b&&(b.f||b.w)){var a=document.createElement('a');a.className='brk';a.href=
 function share(t,u,btn){if(navigator.share){navigator.share({title:t,url:u}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){btn.textContent='Link copied';setTimeout(function(){btn.textContent='Share'},1500)})}}
 function add(el,t,u,inner){var x=document.createElement('button');x.type='button';x.className='shr';x.textContent='Share';x.setAttribute('aria-label','Share: '+t);x.onclick=function(e){e.preventDefault();e.stopPropagation();share(t,u,x)};(inner||el).appendChild(x)}
 document.querySelectorAll('a.story').forEach(function(a){add(a,(a.querySelector('.hl')||a).textContent.trim(),a.href)});
-document.querySelectorAll('ul.heads li, #events li, #nlist li[data-c]').forEach(function(li){var a=li.querySelector('a[href]'),t=(li.querySelector('b')||li).textContent.trim().slice(0,90);add(li,t,a&&location.pathname.indexOf('/notices')!==0?a.href:location.href.split('#')[0])})})();</script>
-<dialog id="xerr" aria-labelledby="xerrh"><form id="rform" method="dialog"><h2 id="xerrh">Spot an error?</h2>
-<p class="mute">Thanks for helping keep ${R.code} right. We'll send this page's link with it, so we can find it.</p>
-<label for="xwhere">Where is it?</label><select id="xwhere"></select>
-<label for="rnote">What's wrong, or what's missing?</label><textarea id="rnote" rows="4" maxlength="800" required></textarea>
-<div class="optmail"><label for="remail">Your email <span class="mute">(optional)</span></label><input type="email" id="remail" maxlength="120" placeholder="Leave blank to stay anonymous">${joinNote()}</div>
-<div class="xbtns"><button type="submit">Send</button> <button type="button" class="xno" id="xcancel">Cancel</button></div></form>
-<div id="xdone" hidden><h2>Thanks, got it 🙏</h2><p>We read every one and fix what we got wrong.<span id="xjoin"></span></p><button type="button" id="xclose">Close</button></div></dialog>
-<script>(function(){var P=location.pathname,K='rated:'+P,d=document.getElementById('xerr'),f=document.getElementById('rform'),w=document.getElementById('xwhere'),m=document.getElementById('rmsg');
+document.querySelectorAll('ul.heads li, #events li, #nlist li[data-c]').forEach(function(li){var a=li.querySelector('a[href]'),t=(li.querySelector('b')||li).textContent.trim().slice(0,90);add(li,t,a&&location.pathname.indexOf('/notices')!==0?a.href:location.href.split('#')[0])})})();`,
+`(function(){var P=location.pathname,K='rated:'+P,d=document.getElementById('xerr'),f=document.getElementById('rform'),w=document.getElementById('xwhere'),m=document.getElementById('rmsg');
 function send(o){o.p=P;return fetch('/api/rate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(o)}).catch(function(){})}
 function say(t){m.textContent=t;m.hidden=false}
 /* Spot an error: pops up straight away, asks where, and sends the page link with it. Name and email are optional. */
@@ -282,44 +268,92 @@ var done=null;try{done=localStorage.getItem(K)}catch(e){}
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down')m2err();else say('Thanks! Glad it helped.')}});
 var rw=document.getElementById('rwrong');if(rw)rw.onclick=function(e){e.preventDefault();m2err()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote'),em=document.getElementById('remail');if(!n.value.trim()){n.focus();return}
-send({note:n.value.trim(),email:em?em.value.trim():'',sec:w.value}).then(function(r){return r&&r.json()}).then(function(j){if(j&&j.joined)document.getElementById('xjoin').textContent=' You’re signed in and on the community list. Welcome, local!'}).catch(function(){});n.value='';f.hidden=true;document.getElementById('xdone').hidden=false;document.getElementById('xclose').focus()}})();${JOIN_JS}</script>
+send({note:n.value.trim(),email:em?em.value.trim():'',sec:w.value}).then(function(r){return r&&r.json()}).then(function(j){if(j&&j.joined)document.getElementById('xjoin').textContent=' You’re signed in and on the community list. Welcome, local!'}).catch(function(){});n.value='';f.hidden=true;document.getElementById('xdone').hidden=false;document.getElementById('xclose').focus()}})();${JOIN_JS}`,
+`${PERSONAL_JS}`,
+`try{if(/(?:^|; )m2450n=/.test(document.cookie))document.querySelector('.mavout').hidden=false}catch(e){}`,
+`addEventListener('DOMContentLoaded',function(){setTimeout(function(){${FORYOU_JS}},0)})`,
+`${MAV_JS}`,
+`${MAV_ASK_JS}`,
+`${HIDE_JS}`,
+`${FOLD_JS}`,
+`/* ActiveCampaign context: remember the reader's chosen postcode and the page they're on, so sign-ups record both */
+try{var _pc=localStorage.getItem("pc");if(/^\\d{4}$/.test(_pc||""))document.cookie="mpc="+_pc+"; Path=/; Max-Age=31536000; Secure; SameSite=Lax";if(!/(^|; )mutm=/.test(document.cookie)){var _q=new URLSearchParams(location.search),_u={};["source","medium","campaign","content","term"].forEach(function(k){var v=_q.get("utm_"+k);if(v)_u[k]=v.slice(0,100)});var _r="";try{_r=document.referrer?new URL(document.referrer).hostname:""}catch(_){}if(_r&&_r!==location.hostname)_u.ref=_r;_u.land=location.pathname.slice(0,100);if(_u.source||_u.ref||_q.has("gclid")||_q.has("fbclid")){if(!_u.source&&_q.has("gclid"))_u.source="google",_u.medium="cpc";if(!_u.source&&_q.has("fbclid"))_u.source="facebook",_u.medium="social"}document.cookie="mutm="+encodeURIComponent(JSON.stringify(_u))+"; Path=/; Max-Age=7776000; Secure; SameSite=Lax"}if(!/^\\/(signin|welcome|unlock|optin|auth|subscribe|api)/.test(location.pathname))document.cookie="mpg="+encodeURIComponent(location.pathname)+"; Path=/; Max-Age=86400; Secure; SameSite=Lax"}catch(_){}`,
+`/* External links: open in a new tab and tell the site the visit came from this Daily Maverick (UTM tags), so their analytics credit us. */
+function m2utm(a){try{var u=new URL(a.href,location.href);if(!/^https?:$/.test(u.protocol)||u.host===location.host||u.host==="accounts.google.com"||(/(^|\\.)google\\./.test(u.host)&&/^\\/maps/.test(u.pathname))||u.searchParams.has("utm_source")||a.dataset.noutm!=null)return u;
+var s=a.closest("section[id]");u.searchParams.set("utm_source",location.host);u.searchParams.set("utm_medium","referral");u.searchParams.set("utm_campaign","daily-maverick");if(s)u.searchParams.set("utm_content",s.id);a.href=u.toString();return u}catch(_){return null}}
+["click","auxclick","contextmenu"].forEach(function(ev){document.addEventListener(ev,function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a)return;var u=m2utm(a);if(ev==="click"&&u&&!a.target&&/^https?:$/.test(u.protocol)&&u.host!==location.host){a.target="_blank";a.rel=((a.rel||"")+" noopener").trim()}},true)})`,
+`/* UX rules 1, 4 and 9: live tiles say when they were updated, step aside if a feed is down, and every sourced feed has a fix-it link */
+(function(){function hm(){return new Date().toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'})}
+document.querySelectorAll('.tiles').forEach(function(c){if(!c.querySelector('.tile b'))return;var st=document.createElement('p');st.className='upd';st.setAttribute('aria-live','polite');c.parentNode.insertBefore(st,c.nextSibling);
+function live(){return[].some.call(c.querySelectorAll('.tile b'),function(b){return b.textContent.trim()!=='–'})}
+new MutationObserver(function(){if(live())st.textContent='Live data · updated '+hm()}).observe(c,{subtree:true,characterData:true,childList:true});if(live())st.textContent='Live data · updated '+(c.dataset.asof||hm());
+setTimeout(function(){var all=[].slice.call(c.querySelectorAll('.tile')),dead=all.filter(function(t){var b=t.querySelector('b');return b&&b.textContent.trim()==='–'});if(!dead.length)return;dead.forEach(function(t){t.hidden=true});if(dead.length===all.length){c.hidden=true;st.textContent='Live data is taking a short break. Check back soon.'}},12000)});
+setTimeout(function(){document.querySelectorAll('main p,main span,main div').forEach(function(e){if(!e.children.length&&/^(Loading…|checking…)$/.test(e.textContent.trim()))e.textContent='Couldn’t load just now. Check back soon.'})},15000);
+var f=document.getElementById('rform');document.querySelectorAll('#flow>section,main section').forEach(function(sc){var ps=sc.querySelectorAll('p.src');if(!ps.length||sc.querySelector('.fix'))return;var h=sc.querySelector('h2'),nm=h?h.textContent.trim():'this section',p=document.createElement('p');p.className='fix';p.innerHTML='<a href="#rate">Spot an error, or want to add something?</a>';
+p.querySelector('a').onclick=function(e){if(!window.m2err)return;e.preventDefault();window.m2err(nm)};var last=ps[ps.length-1];last.parentNode.insertBefore(p,last.nextSibling)})})();`,
+`(function(){var first=null,seen=false;try{seen=!!localStorage.getItem('src_hint')}catch(e){}
+document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=document.createElement('button');b.type='button';b.className='srcbtn';b.innerHTML='ⓘ <span>Where from?</span>';
+b.setAttribute('aria-label','Where this information comes from');b.setAttribute('aria-expanded','false');
+b.onclick=function(){p.hidden=!p.hidden;b.setAttribute('aria-expanded',String(!p.hidden));b.classList.toggle('on',!p.hidden);try{localStorage.setItem('src_hint','1')}catch(e){}var h=document.getElementById('srchint');if(h)h.remove()};
+p.parentNode.insertBefore(b,p);if(!first)first=b});
+})();`,
+`${APP_JS}`
+];
+const ASSETS = {};
+function asset(kind) {
+  if (!ASSETS[kind]) {
+    const body = kind === "css" ? `${CSS}${MENU_CSS}${NAV_CSS}${SIDE_CSS}${TL_CSS}${BINS_CSS}`
+      : SHELL_JS().map(x => `try{\n${x}\n}catch(e){console.error(e)}`).join("\n");
+    let h = 2166136261; for (let i = 0; i < body.length; i++) { h ^= body.charCodeAt(i); h = Math.imul(h, 16777619); }
+    ASSETS[kind] = { body, v: (h >>> 0).toString(36) };
+  }
+  return ASSETS[kind];
+}
+const assetV = kind => asset(kind).v;
+function assetResponse(p) {
+  const m = /^\/s\/app\.[a-z0-9]+\.(css|js)$/.exec(p); if (!m) return null;
+  return new Response(asset(m[1]).body, { headers: { "content-type": m[1] === "css" ? "text/css; charset=utf-8" : "text/javascript; charset=utf-8", "cache-control": "public, max-age=31536000, immutable" } });
+}
+function page(title, body, pc = "", opts = {}) {
+  return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
+<meta name="description" content="${esc(opts.desc || "Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.")}">${opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : ""}
+<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
+<link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/s/app.${assetV("css")}.css"><script defer src="/s/app.${assetV("js")}.js"></script>${SPEC_RULES}<meta name="m2v" content="${BUILD}"></head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a></span><span class="hdr-r">${HELP_UI(R.brand)}<button type="button" id="m2menu" class="menub" aria-haspopup="dialog" aria-controls="m2nav" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></span></header>${menuDrawer(`<a href="/signin?next=/me" id="my2450" class="my signin" aria-label="Sign in" title="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="currentColor"/><path d="M4.5 20.5c.8-4 3.9-6 7.5-6s6.7 2 7.5 6" fill="currentColor"/></svg></a>`, `<button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0l-4.5-4.5M12 14l4.5-4.5M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download the app</span></button>`)}<p class="mast gmast"><a href="/">The Daily Maverick</a></p>${navBar()}${HELP_PANEL()}
+<script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=(decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name")||"").trim();if(n==="Local")n="";a.href="/me";a.classList.remove("signin");a.classList.add("in");var t=(n?n.split(" ")[0]+"\u2019s ":"My ")+"${R.code}";a.title=t;a.setAttribute("aria-label",t);if(n){a.innerHTML="";a.textContent=n.charAt(0).toUpperCase()}var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];var t2=document.getElementById("my2450t");if(t2){t2.textContent=t;t2.href="/me"}if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onload=function(){a.textContent="";a.appendChild(im)}}}}catch(e){}<\/script>
+
+<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(backFix(body)), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
+<div id="rate" hidden><p id="rmsg" class="mute" hidden></p></div><style>.brk{display:block;background:#b42318;color:#fff!important;text-decoration:none;font-weight:700;padding:9px 14px;border-radius:12px;margin:0 0 12px;font-size:.95rem}.brk span{font-weight:400;opacity:.9}.shr{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;font-size:.75rem;padding:2px 9px;margin-left:6px;cursor:pointer;vertical-align:middle}.story .shr{position:absolute;right:8px;bottom:8px}.story{position:relative}</style>
+
+<dialog id="xerr" aria-labelledby="xerrh"><form id="rform" method="dialog"><h2 id="xerrh">Spot an error?</h2>
+<p class="mute">Thanks for helping keep ${R.code} right. We'll send this page's link with it, so we can find it.</p>
+<label for="xwhere">Where is it?</label><select id="xwhere"></select>
+<label for="rnote">What's wrong, or what's missing?</label><textarea id="rnote" rows="4" maxlength="800" required></textarea>
+<div class="optmail"><label for="remail">Your email <span class="mute">(optional)</span></label><input type="email" id="remail" maxlength="120" placeholder="Leave blank to stay anonymous">${joinNote()}</div>
+<div class="xbtns"><button type="submit">Send</button> <button type="button" class="xno" id="xcancel">Cancel</button></div></form>
+<div id="xdone" hidden><h2>Thanks, got it 🙏</h2><p>We read every one and fix what we got wrong.<span id="xjoin"></span></p><button type="button" id="xclose">Close</button></div></dialog>
+
 <footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/results" + (pc ? "?pc=" + pc : ""), pc ? `What ${pc} told us` : "What locals told us"], ["/regional", "What regional Australia told us"], ["/credits", "Photo credits"], ["/status", "What's done"], ["/membership", "Memberships"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Supporting regional Australia: ${abc(Object.values(REGIONS), x => x.code).map(x => x.code === R.code ? `<b title="${esc(x.place)}">${x.code}</b>` : `<a href="https://${x.domain}" title="${esc(x.place)}">${x.code}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
 <p class="aoc">${R.ack}<br><a href="https://aiatsis.gov.au/explore/map-indigenous-australia" rel="noopener">Know whose land you're on</a>.</p>
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></p></footer>
-<script>window.M2C=${JSON.stringify({ code: R.code, secs: SECTIONS, towns: Object.fromEntries(Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => [k, [v.name, v.lat, v.lon]])) }).replace(/</g, "\\u003c")}<\/script><script>${PERSONAL_JS}<\/script>
+<script>window.M2C=${JSON.stringify({ code: R.code, secs: SECTIONS, towns: Object.fromEntries(Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => [k, [v.name, v.lat, v.lon]])) }).replace(/</g, "\\u003c")}<\/script>
 ${MAV_WIDGET()}
-<script>${MAV_ASK_JS}<\/script><script>${HIDE_JS}<\/script><script>${FOLD_JS}<\/script>
-<script>/* ActiveCampaign context: remember the reader's chosen postcode and the page they're on, so sign-ups record both */
-try{var _pc=localStorage.getItem("pc");if(/^\\d{4}$/.test(_pc||""))document.cookie="mpc="+_pc+"; Path=/; Max-Age=31536000; Secure; SameSite=Lax";if(!/(^|; )mutm=/.test(document.cookie)){var _q=new URLSearchParams(location.search),_u={};["source","medium","campaign","content","term"].forEach(function(k){var v=_q.get("utm_"+k);if(v)_u[k]=v.slice(0,100)});var _r="";try{_r=document.referrer?new URL(document.referrer).hostname:""}catch(_){}if(_r&&_r!==location.hostname)_u.ref=_r;_u.land=location.pathname.slice(0,100);if(_u.source||_u.ref||_q.has("gclid")||_q.has("fbclid")){if(!_u.source&&_q.has("gclid"))_u.source="google",_u.medium="cpc";if(!_u.source&&_q.has("fbclid"))_u.source="facebook",_u.medium="social"}document.cookie="mutm="+encodeURIComponent(JSON.stringify(_u))+"; Path=/; Max-Age=7776000; Secure; SameSite=Lax"}if(!/^\\/(signin|welcome|unlock|optin|auth|subscribe|api)/.test(location.pathname))document.cookie="mpg="+encodeURIComponent(location.pathname)+"; Path=/; Max-Age=86400; Secure; SameSite=Lax"}catch(_){}<\/script>
-<script>/* External links: open in a new tab and tell the site the visit came from this Daily Maverick (UTM tags), so their analytics credit us. */
-function m2utm(a){try{var u=new URL(a.href,location.href);if(!/^https?:$/.test(u.protocol)||u.host===location.host||u.host==="accounts.google.com"||(/(^|\\.)google\\./.test(u.host)&&/^\\/maps/.test(u.pathname))||u.searchParams.has("utm_source")||a.dataset.noutm!=null)return u;
-var s=a.closest("section[id]");u.searchParams.set("utm_source",location.host);u.searchParams.set("utm_medium","referral");u.searchParams.set("utm_campaign","daily-maverick");if(s)u.searchParams.set("utm_content",s.id);a.href=u.toString();return u}catch(_){return null}}
-["click","auxclick","contextmenu"].forEach(function(ev){document.addEventListener(ev,function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a)return;var u=m2utm(a);if(ev==="click"&&u&&!a.target&&/^https?:$/.test(u.protocol)&&u.host!==location.host){a.target="_blank";a.rel=((a.rel||"")+" noopener").trim()}},true)})</script>
-<script>/* UX rules 1, 4 and 9: live tiles say when they were updated, step aside if a feed is down, and every sourced feed has a fix-it link */
-(function(){function hm(){return new Date().toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'})}
-document.querySelectorAll('.tiles').forEach(function(c){if(!c.querySelector('.tile b'))return;var st=document.createElement('p');st.className='upd';st.setAttribute('aria-live','polite');c.parentNode.insertBefore(st,c.nextSibling);
-function live(){return[].some.call(c.querySelectorAll('.tile b'),function(b){return b.textContent.trim()!=='–'})}
-new MutationObserver(function(){if(live())st.textContent='Live data · updated '+hm()}).observe(c,{subtree:true,characterData:true,childList:true});
-setTimeout(function(){var all=[].slice.call(c.querySelectorAll('.tile')),dead=all.filter(function(t){var b=t.querySelector('b');return b&&b.textContent.trim()==='–'});if(!dead.length)return;dead.forEach(function(t){t.hidden=true});if(dead.length===all.length){c.hidden=true;st.textContent='Live data is taking a short break. Check back soon.'}},12000)});
-setTimeout(function(){document.querySelectorAll('main p,main span,main div').forEach(function(e){if(!e.children.length&&/^(Loading…|checking…)$/.test(e.textContent.trim()))e.textContent='Couldn’t load just now. Check back soon.'})},15000);
-var f=document.getElementById('rform');document.querySelectorAll('#flow>section,main section').forEach(function(sc){var ps=sc.querySelectorAll('p.src');if(!ps.length||sc.querySelector('.fix'))return;var h=sc.querySelector('h2'),nm=h?h.textContent.trim():'this section',p=document.createElement('p');p.className='fix';p.innerHTML='<a href="#rate">Spot an error, or want to add something?</a>';
-p.querySelector('a').onclick=function(e){if(!window.m2err)return;e.preventDefault();window.m2err(nm)};var last=ps[ps.length-1];last.parentNode.insertBefore(p,last.nextSibling)})})();</script>
-<script>(function(){var first=null,seen=false;try{seen=!!localStorage.getItem('src_hint')}catch(e){}
-document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=document.createElement('button');b.type='button';b.className='srcbtn';b.innerHTML='ⓘ <span>Where from?</span>';
-b.setAttribute('aria-label','Where this information comes from');b.setAttribute('aria-expanded','false');
-b.onclick=function(){p.hidden=!p.hidden;b.setAttribute('aria-expanded',String(!p.hidden));b.classList.toggle('on',!p.hidden);try{localStorage.setItem('src_hint','1')}catch(e){}var h=document.getElementById('srchint');if(h)h.remove()};
-p.parentNode.insertBefore(b,p);if(!first)first=b});
-})();</script>
+
+
+
+
+
 <script>(function(){var TW=${JSON.stringify(Object.entries(TOWNS).filter(([, t]) => t.live).map(([k, t]) => [k, t.lat, t.lon]))};var L=null;try{L=JSON.parse(localStorage.getItem("loc"))}catch(e){}document.querySelectorAll(".useloc").forEach(function(a){if(L)a.textContent=a.dataset.on||"🎯 Tuned to exactly where you are (reset)";
 a.onclick=function(e){e.preventDefault();if(L){try{localStorage.removeItem("loc")}catch(_){}location.reload();return}if(!navigator.geolocation){a.textContent="Location not available on this device";return}a.textContent="📍 Finding you…";
 navigator.geolocation.getCurrentPosition(function(p){var la=+p.coords.latitude.toFixed(2),lo=+p.coords.longitude.toFixed(2);try{localStorage.setItem("loc",JSON.stringify([la,lo]))}catch(_){}
 var best=null,bd=1e9;TW.forEach(function(t){var d=Math.pow(t[1]-la,2)+Math.pow((t[2]-lo)*Math.cos(la*Math.PI/180),2);if(d<bd){bd=d;best=t[0]}});
 if(/^\\/\\d{4}\\/?$/.test(location.pathname)&&best&&bd<0.09&&location.pathname.indexOf(best)<0){try{localStorage.setItem("pc",best)}catch(_){}location.replace("/"+best)}else location.reload()},function(){a.textContent="📍 Location not allowed"},{timeout:10000})}})})();
 if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").then(function(r){r.update()}).catch(()=>{})</script>
-<script>${APP_JS}<\/script>
+
 <dialog id="m2sheet" class="instsheet" aria-labelledby="m2sh"><h2 id="m2sh">Download ${esc(/^the /i.test(R.brand) ? R.brand : "the " + R.brand)} ${esc(R.short)} app to your home screen</h2><p id="m2how"></p><p class="mute">One tap and you're in. No app store, nothing to update. Free.</p><button type="button" id="m2go" class="m2go" hidden>⬇️ Download</button><form method="dialog"><button class="xno">Not now</button></form></dialog>
 <script>/* "Get the app": installs this Daily Maverick to the phone home screen or computer desktop. Chrome/Edge/Android get the one-tap prompt; iPhone/iPad and Safari get two-step instructions. Hidden once installed. */
 (function(){var b=document.getElementById("m2inst"),s=document.getElementById("m2sheet"),how=document.getElementById("m2how"),ev=null,ua=navigator.userAgent;
@@ -442,9 +476,11 @@ f.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)re
   const SH = secSlug ? sectionHead(secSlug, { esc, R, pc }) : null;
   const hero = ""; // No photo of the day on the front page: the lead story brings its own image, and the page loads faster. The photo still decorates other pages (membership, photos). let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; } let scB = ""; try { scB = scamTeaser(await scamFeeds(env), esc); } catch (e) { scB = ""; }
   let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
+  let wx = await S(env.DATA.get("wx:" + pc, "json"), null); if (wx && !(Date.now() - new Date(wx.asof) < 2 * 36e5)) wx = null;
+  const wxV = wxTiles(wx);
   // Section pages are today's paper filtered to that section: the nameplate and front-page extras step aside.
   const secCss = SH ? `<style>.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
-  return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, withPics(pics, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
+  return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, withPics(pics, fillTiles(wxV, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
 <p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · No. ${editionNo()}</p><p class="gath" id="pers">${dailyLine()}</p><p class="tloc"><a href="#" class="useloc" data-on="Reset">Refine your local news</a></p>${hero}${live.newsLead}<details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent="✨ "+pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh sr">${esc(t.name)} ${esc(pc)}</h1>
 <nav class="towns" aria-label="Postcode">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => k === pc ? `<span class="pc on" aria-current="page">${esc(v.name)} ${esc(k)}</span>` : `<a class="pc" href="/${esc(k)}" title="${esc(v.name)}" aria-label="${esc(k)} ${esc(v.name)}" onclick="try{localStorage.setItem('pc','${esc(k)}')}catch(e){}">${esc(k)}</a>`).join("")}<a class="pc add" href="/suggest" title="Add your town" aria-label="Add your town">+</a></nav>
@@ -459,7 +495,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <div id="qs-saved" class="chips"></div><div id="qs-res" role="status" aria-live="polite"></div></div>
 ${ann}${live.alertNote}
 ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
-<div id="flow"><section id="today"><div class="tiles">
+<div id="flow"><section id="today"><div class="tiles"${wxV.at ? ` data-asof="${esc(wxV.at)}"` : ""}>
 <div class="tile"><span id="i-wx" class="ico">⛅</span><b id="t-temp">–</b><small id="t-sky">Weather</small></div>
 <div class="tile"><span class="ico">🌧️</span><b id="t-rain">–</b><small>Rain chance</small></div>
 <div class="tile"><span class="ico">💨</span><b id="t-wind">–</b><small id="t-windd">Wind</small></div>
@@ -645,9 +681,10 @@ var LOC=null;try{LOC=JSON.parse(localStorage.getItem('loc'))}catch(e){};
 if(LOC&&km>30){LOC=null;h='Your saved spot is '+km+' km from '+TN+'. '}else if(LOC){var nt=null,nd=1e9;TT.forEach(function(x){var d=Math.pow(x[1]-LOC[0],2)+Math.pow((x[2]-LOC[1])*Math.cos(LOC[0]*Math.PI/180),2);if(d<nd){nd=d;nt=x}});h='Tuned to your area: near <b>'+(nt?nt[0]:TN)+'</b><span id="nbch"></span>. ';
 fetch('/api/open?c=beach').then(function(r){return r.json()}).then(function(j){var b=null,bd=1e9;(j.items||[]).forEach(function(x){if(x.lat==null)return;var r2=Math.PI/180,p=Math.sin((x.lat-LOC[0])*r2/2),q=Math.sin((x.lon-LOC[1])*r2/2),d=12742*Math.asin(Math.sqrt(p*p+Math.cos(LOC[0]*r2)*Math.cos(x.lat*r2)*q*q));if(d<bd){bd=d;b=x}});var n=document.getElementById('nbch');if(b&&n&&bd<40)n.textContent=', and your nearest beach is '+b.name+' ('+(bd<1?'under 1':Math.round(bd))+' km)'}).catch(function(){})}
 if(el){var s=document.createElement('span');s.innerHTML=h;el.insertBefore(s,el.firstChild);var u=el.querySelector('.useloc');if(u&&h.indexOf(' km from ')>-1){u.textContent='Clear';u.dataset.on='Clear'}}})();
+var WX=${JSON.stringify(wx ? { f: wx.f, m: wx.m } : {}).replace(/</g, "\\u003c")};
 var LAT=LOC?LOC[0]:${t.lat},LON=LOC?LOC[1]:${t.lon};
-fetch('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,uv_index_max&forecast_days=1&timezone=Australia%2FSydney')
-.then(function(r){return r.json()}).then(function(d){var c=d.current,y=d.daily,w=W[c.weather_code]||['🌡️',''];
+(LOC||!WX.f?fetch('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,uv_index_max&forecast_days=1&timezone=Australia%2FSydney')
+.then(function(r){return r.json()}):Promise.resolve(WX.f)).then(function(d){var c=d.current,y=d.daily,w=W[c.weather_code]||['🌡️',''];
 $('i-wx',w[0]);$('t-temp',Math.round(c.temperature_2m)+'°');$('t-sky',w[1]+' · '+Math.round(y.temperature_2m_max[0])+'°/'+Math.round(y.temperature_2m_min[0])+'°');
 $('t-rain',y.precipitation_probability_max[0]+'%');$('t-wind',Math.round(c.wind_speed_10m)+' km/h');$('t-windd','Wind from '+dirs[Math.round(c.wind_direction_10m/45)%8]);
 $('t-rise',tm(y.sunrise[0]));$('t-set','Sunset '+tm(y.sunset[0]));
@@ -659,8 +696,8 @@ if(uv>=8)tip('uv','🧴 <b>UV is very high.</b> Slip, slop, slap, even if it loo
 if(ws>=35)tip('wind','💨 <b>Windy.</b> Tie down the trampoline and keep the bins inside.');
 if(rp<20&&hi>=20&&hi<=29&&ws<25&&wc<=3)tip('nice','☀️ <b>Cracker of a day.</b> Get outside: walk, picnic or a swim between the flags.');
 }).catch(function(){$('t-sky','Weather unavailable')});
-fetch('https://marine-api.open-meteo.com/v1/marine?latitude=${t.mlat}&longitude=${t.mlon}&hourly=sea_level_height_msl,wave_height,swell_wave_height&forecast_days=2&timezone=Australia%2FSydney')
-.then(function(r){return r.json()}).then(function(d){var h=d.hourly,s=h.sea_level_height_msl,out=[],now=Date.now();
+(WX.m?Promise.resolve(WX.m):fetch('https://marine-api.open-meteo.com/v1/marine?latitude=${t.mlat}&longitude=${t.mlon}&hourly=sea_level_height_msl,wave_height,swell_wave_height&forecast_days=2&timezone=Australia%2FSydney')
+.then(function(r){return r.json()})).then(function(d){var h=d.hourly,s=h.sea_level_height_msl,out=[],now=Date.now();
 for(var i=1;i<s.length-1;i++){if(new Date(h.time[i])<now)continue;if(s[i]>s[i-1]&&s[i]>=s[i+1])out.push(['High',h.time[i]]);else if(s[i]<s[i-1]&&s[i]<=s[i+1])out.push(['Low',h.time[i]]);if(out.length>=4)break}
 var j=h.time.findIndex(function(x){return new Date(x)>=now});if(j<0)j=0;
 if(out.length){$('t-tide',tm(out[0][1]));$('t-tide2','Next '+out[0][0].toLowerCase()+' tide')}
@@ -674,7 +711,43 @@ else tip('surf','🏄 <b>Fun-sized surf</b> around '+now0.toFixed(1)+' m. Check 
 var hiT=out.filter(function(o){return o[0]==='High'})[0];if(hiT){var hrs=(new Date(hiT[1])-now)/36e5;if(hrs>0&&hrs<5)tip('fish','🎣 <b>Tide’s coming in.</b> High tide at '+tm(hiT[1])+'. Plenty of anglers like the run-up to the top of the tide.')}
 document.getElementById('tide').innerHTML=(out.length?out.map(function(o){return o[0]+' '+tm(o[1])}).join(' · '):'Tide times unavailable')+'<br>Waves '+(h.wave_height[j]||0).toFixed(1)+' m · Swell '+(h.swell_wave_height[j]||0).toFixed(1)+' m · Moon: '+MN[mi][1];
 }).catch(function(){$('tide','Tides unavailable right now.')});
-</script>`, esc), pc, SH ? SH.opts : {});
+</script>`), esc), pc, SH ? SH.opts : {});
+}
+
+// ---- Weather and tides: the scheduled job fetches them for each live town every half hour, and the page prints them
+// straight into the tiles, so readers see numbers at once instead of dashes. A reader's own saved spot still fetches live.
+const WX_F = (la, lo) => `https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,uv_index_max&forecast_days=1&timezone=Australia%2FSydney`;
+const WX_M = (la, lo) => `https://marine-api.open-meteo.com/v1/marine?latitude=${la}&longitude=${lo}&hourly=sea_level_height_msl,wave_height,swell_wave_height&forecast_days=2&timezone=Australia%2FSydney`;
+async function refreshWx(env) {
+  await Promise.all(Object.entries(TOWNS).filter(([, t]) => t.live && t.lat != null).map(async ([pc, t]) => {
+    const j = u => fetch(u, { headers: UA, signal: AbortSignal.timeout(8000) }).then(r => r.ok ? r.json() : null).catch(() => null);
+    const [f, m] = await Promise.all([j(WX_F(t.lat, t.lon)), t.mlat != null ? j(WX_M(t.mlat, t.mlon)) : null]);
+    if (f && f.current && f.daily) await env.DATA.put("wx:" + pc, JSON.stringify({ asof: new Date().toISOString(), f, m: m && m.hourly ? m : null }));
+  }));
+}
+const WX_CODES = { 0: ["☀️", "Clear"], 1: ["🌤️", "Mostly clear"], 2: ["⛅", "Partly cloudy"], 3: ["☁️", "Cloudy"], 45: ["🌫️", "Fog"], 48: ["🌫️", "Fog"], 51: ["🌦️", "Drizzle"], 53: ["🌦️", "Drizzle"], 55: ["🌦️", "Drizzle"], 61: ["🌧️", "Light rain"], 63: ["🌧️", "Rain"], 65: ["🌧️", "Heavy rain"], 80: ["🌦️", "Showers"], 81: ["🌧️", "Showers"], 82: ["⛈️", "Heavy showers"], 95: ["⛈️", "Storms"], 96: ["⛈️", "Storms"], 99: ["⛈️", "Storms"] };
+const sydLocal = d => d.toLocaleString("sv-SE", { timeZone: "Australia/Sydney" }).replace(" ", "T").slice(0, 16);
+const hm12 = s => { const [h, m] = String(s).slice(11, 16).split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`; };
+function wxTiles(wx) {
+  const v = {}; if (!wx || !wx.f) return v;
+  try {
+    const c = wx.f.current, y = wx.f.daily, w = WX_CODES[c.weather_code] || ["🌡️", ""], dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    Object.assign(v, { "i-wx": w[0], "t-temp": Math.round(c.temperature_2m) + "°", "t-sky": w[1] + " · " + Math.round(y.temperature_2m_max[0]) + "°/" + Math.round(y.temperature_2m_min[0]) + "°",
+      "t-rain": y.precipitation_probability_max[0] + "%", "t-wind": Math.round(c.wind_speed_10m) + " km/h", "t-windd": "Wind from " + dirs[Math.round(c.wind_direction_10m / 45) % 8],
+      "t-rise": hm12(y.sunrise[0]), "t-set": "Sunset " + hm12(y.sunset[0]) });
+    const h = wx.m && wx.m.hourly, now = sydLocal(new Date());
+    if (h) { const s = h.sea_level_height_msl; let nx = null;
+      for (let i = 1; i < s.length - 1; i++) { if (h.time[i] < now) continue; if (s[i] > s[i - 1] && s[i] >= s[i + 1]) { nx = ["High", h.time[i]]; break; } if (s[i] < s[i - 1] && s[i] <= s[i + 1]) { nx = ["Low", h.time[i]]; break; } }
+      let j = h.time.findIndex(x => x >= now); if (j < 0) j = 0;
+      if (nx) { v["t-tide"] = hm12(nx[1]); v["t-tide2"] = "Next " + nx[0].toLowerCase() + " tide"; }
+      v["t-swell"] = (h.swell_wave_height[j] || 0).toFixed(1) + " m"; }
+    v.at = hm12(sydLocal(new Date(wx.asof)));
+  } catch (e) { return {}; }
+  return v;
+}
+function fillTiles(v, html) {
+  for (const [id, val] of Object.entries(v)) if (id !== "at") html = html.replace(new RegExp(`(id="${id}"[^>]*>)[^<]*(<)`), (_, a, b) => a + esc(val) + b);
+  return html;
 }
 
 const LOCALS_GOAL = 15000;
@@ -2706,9 +2779,9 @@ const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav"
 <div id="mavlog"></div><p id="mavst" class="mavst" hidden></p><div class="mavtalk"><button type="button" id="mavbig" class="micb">🎤 Tap and tell Mav</button></div><div class="chips" id="mavchips"><label>Hide what I don't read</label><label>I love trivia and live music</label><label>Remind me of Dad’s birthday</label><label>Remind me to take the dog to the vet Friday</label><label>Start my page fresh</label></div>
 <p class="mavmailw"><button type="button" id="mavmail" class="ghost" hidden>📧 Email me this chat</button></p>
 <form id="mavf"><button type="button" id="mavmic" aria-label="Talk">🎤</button><input id="mavin" placeholder="Tell Mav…" autocomplete="off" maxlength="500"><button>Send</button></form></div>
-<script>try{if(/(?:^|; )m2450n=/.test(document.cookie))document.querySelector('.mavout').hidden=false}catch(e){}<\/script>
-<script>addEventListener('DOMContentLoaded',function(){setTimeout(function(){${FORYOU_JS}},0)})<\/script>
-<script>${MAV_JS}<\/script>`;
+
+
+`;
 
 // ---- Renting and Jobs: every site in one place, searched for this town. We only link; nobody pays to be listed. ----
 function dirSection(id, title, intro, groups, href, more) {
@@ -3397,6 +3470,7 @@ export default {
     ctx.waitUntil(dailyStats(env).catch(() => {}));
     if (new Date(evt.scheduledTime || Date.now()).getUTCMinutes() % 30 >= 5) return;
     ctx.waitUntil(acSync(env).catch(() => {}));
+    ctx.waitUntil(refreshWx(env).catch(() => {}));
     ctx.waitUntil(Promise.all(Object.entries(TOWNS).filter(([, t]) => t.live).map(([pc, t]) => localToday(env, pc, todayISO()).then(lo => lo || photoOfDay(env, pc, t, HOME, todayISO(), UA)).catch(() => {}))));
     const TTL = { fires: 25, warnings: 25, news: 55, holidays: 24 * 60, fdr: 55, babynames: 7 * 24 * 60, neo: 12 * 60 }; // minutes; keeps storage writes inside the free allowance
     const due = async k => { const v = await env.DATA.get("src:" + k, "json"); return !v || Date.now() - new Date(v.asof) > (TTL[k] || 25) * 6e4; };
@@ -3408,6 +3482,7 @@ export default {
     BUILD = (env.CF_VERSION_METADATA && env.CF_VERSION_METADATA.id) || "dev";
     try { const u = new URL(req.url);
       return await REQ.run({ path: u.pathname.length > 1 ? u.pathname.replace(/\/$/, "") : u.pathname, search: u.search }, async () => {
+      if (u.pathname.startsWith("/s/app.")) { const a = assetResponse(u.pathname); if (a) return a; }
       if (u.pathname === "/api/v") return Response.json({ v: BUILD }, { headers: { "cache-control": "no-store" } });
       if (req.method === "GET" && isPaperPath(u.pathname)) return await edgeCached(u, ctx, () => route(req, env, ctx));
       return await route(req, env, ctx); }); }
