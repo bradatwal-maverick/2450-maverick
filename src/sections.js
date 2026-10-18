@@ -34,7 +34,7 @@ export const NAV = [
     ["/open?c=pub", "🍺", "Pubs & bars", "Local ones only, open ones first"],
     ["/open?c=cafe", "☕", "Cafés", "Local ones only, open ones first"],
     ["/birthday", "🎂", "Birthday deals", "Local places that look after you on your big day"],
-    ["/watch", "📺", "What to watch tonight", "See what locals rate"],
+    ["/watch", "🍿", "What are you binging?", "Shows, podcasts and channels locals vote for"],
   ] },
   { slug: "outside", icon: "🌳", name: "Outside", blurb: "Beaches, tides, trails and things to do in the fresh air.", items: [
     ["#today", "⛅", "Weather today", "Temperature, rain, wind, sunrise and moon"],
@@ -55,8 +55,7 @@ export const NAV = [
     ["#fuel", "⛽", "Fuel prices", "Cheapest servo near you"],
     ["#shop", "🛒", "Supermarket watch", "Everyday basics compared, twice a day"],
     ["#rates", "🏦", "Banks and the RBA", "Rates from the Reserve Bank of Australia (RBA) and the banks"],
-    ["#beer", "🍺", "Beer watch", "Today's prices"],
-    ["#wine", "🍷", "Wine watch", "Today's prices"],
+    ["#alcohol", "🍻", "Grog watch", "Beer, wine and spirits at local bottle shops"],
     ["/jobs", "💼", "Jobs", "Every job site in one place"],
     ["/rent", "🏠", "Renting", "Every rental site, your rights, bond help"],
     ["/scams", "🛡️", "Scam watch", "Report a scam, check a business, the tips banks agree on"],

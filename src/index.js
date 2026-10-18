@@ -2,6 +2,7 @@
 // One engine, many towns: each Worker sets REGION (default 2450) and gets that town's settings from regions.js.
 import { REGIONS } from "./regions.js";
 import { withSecrets } from "./secrets.js";
+import { BIN_SRC, binsApi, BIN_ITEMS, BINS_JS, BINS_CSS } from "./bins.js";
 import { billingApi, tierOf, hasTier, paymentsOn, TIERS } from "./billing.js";
 import { NAV, NAV_SLUGS, NAV_CSS, navBar, sectionHead, fixSecLinks } from "./sections.js";
 import { ICONS } from "./icons.js";
@@ -38,7 +39,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["love", "Why you'll love it"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["beer", "Beer watch"], ["wine", "Wine watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["love", "Why you'll love it"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["alcohol", "Grog watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -126,7 +127,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 /* UX rules: keyboard focus you can see, a skip link, calmer motion, live-data timestamps, fix-it links */
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}.skip{position:absolute;left:-9999px;top:8px}.skip:focus{left:12px;z-index:100;background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-.tile[hidden],.tiles[hidden]{display:none!important}.upd{font-size:.75rem;color:var(--mute);margin:-6px 0 10px}.upd:empty{display:none}.fix{font-size:.78rem;color:var(--mute);margin:4px 0 0}.xh{display:flex;align-items:center;gap:8px}.xh .xoff{margin-left:auto}.xw{position:relative}.tiles .tile.xw{padding:6px 34px 6px 8px;border-radius:10px;background:var(--bg);touch-action:pan-y;user-select:none;-webkit-user-select:none}.tiles .xw .xoff{top:50%;right:4px;transform:translateY(-50%);width:24px;height:24px}.dh{background:none;color:var(--mute);border:0;padding:4px 6px;margin:-4px 2px -4px -6px;font-size:1.1rem;cursor:grab;touch-action:none;line-height:1}.dragging{opacity:.75;outline:2px dashed var(--gold);outline-offset:2px;position:relative;z-index:6}.nodrag,.nodrag *{user-select:none;-webkit-user-select:none;cursor:grabbing!important}.tailor{margin:4px 0;font-size:.82rem}.xw .xoff{position:absolute;top:2px;right:2px;width:22px;height:22px;font-size:.7rem}.xoff{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:50%;width:28px;height:28px;padding:0;cursor:pointer;font-size:.85rem;line-height:1;flex:none;opacity:.8}.xoff:hover,.xoff:focus-visible{opacity:1;background:var(--soft)}.hidbar{font-size:.8rem;margin:6px 0 0}.hidtoast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0B1526;color:#fff;padding:10px 16px;border-radius:10px;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.3)}.hidtoast a{color:#f2b01e;font-weight:600}.mavask{position:fixed;left:16px;right:16px;bottom:16px;max-width:380px;margin:0 auto;display:flex;gap:10px;align-items:flex-start;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:12px 40px 12px 12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:55}.mavask .xoff{position:absolute;top:8px;right:8px;width:24px;height:24px}.mavface{font-size:1.6rem}.mavbtns{display:flex;gap:8px;margin-top:8px}.mavbtns button{font-size:1.2rem;padding:4px 14px;border-radius:999px;border:1px solid var(--line);background:var(--soft);cursor:pointer}.foldh{cursor:pointer;position:relative;padding-right:28px}.foldh::after{content:"▾";position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:.9em;color:var(--mute);transition:transform .2s}.folded .foldh::after{transform:translateY(-50%) rotate(-90deg)}.folded .foldh{margin-bottom:6px}.foldall{font-size:.8rem;text-align:right;margin:0 0 6px}.pbar{height:14px;background:var(--soft);border-radius:7px;overflow:hidden;margin:8px 0 4px}.pbar span{display:block;height:100%;background:var(--acc,#f2b01e)}#xerr{border:0;border-radius:14px;padding:20px;width:min(440px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25);background:var(--bg);color:var(--fg)}#xerr::backdrop{background:rgba(11,21,38,.55)}#xerr h2{margin:0 0 6px;font-size:1.15rem}#xerr label{display:block;margin:12px 0 4px;font-weight:600}#xerr select,#xerr textarea,#xerr input{width:100%;box-sizing:border-box;font:inherit}.xbtns{margin-top:14px;display:flex;gap:8px}.xno{background:none;border:1px solid currentColor;opacity:.75}
+.tile[hidden],.tiles[hidden]{display:none!important}.upd{font-size:.75rem;color:var(--mute);margin:-6px 0 10px}.upd:empty{display:none}.fix{font-size:.78rem;color:var(--mute);margin:4px 0 0}.xh{display:flex;align-items:center;gap:8px}.xh .xoff{margin-left:auto}.xw{position:relative}.tiles .tile.xw{padding:6px 34px 6px 8px;border-radius:10px;background:var(--bg);touch-action:pan-y;user-select:none;-webkit-user-select:none}.tiles .xw .xoff{top:50%;right:4px;transform:translateY(-50%);width:24px;height:24px}.dh{background:none;color:var(--mute);border:0;padding:4px 6px;margin:-4px 2px -4px -6px;font-size:1.1rem;cursor:grab;touch-action:none;line-height:1}.dragging{opacity:.75;outline:2px dashed var(--gold);outline-offset:2px;position:relative;z-index:6}.nodrag,.nodrag *{user-select:none;-webkit-user-select:none;cursor:grabbing!important}.tailor{margin:4px 0;font-size:.82rem}.xw .xoff{position:absolute;top:2px;right:2px;width:22px;height:22px;font-size:.7rem}.xoff{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:50%;width:28px;height:28px;padding:0;cursor:pointer;font-size:.85rem;line-height:1;flex:none;opacity:.8}.xoff:hover,.xoff:focus-visible{opacity:1;background:var(--soft)}.hidbar{font-size:.8rem;margin:6px 0 0}.hidtoast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0B1526;color:#fff;padding:10px 16px;border-radius:10px;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.3)}.hidtoast a{color:#f2b01e;font-weight:600}.mavask{position:fixed;left:16px;right:16px;bottom:16px;max-width:380px;margin:0 auto;display:flex;gap:10px;align-items:flex-start;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:12px 40px 12px 12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:55}.mavask .xoff{position:absolute;top:8px;right:8px;width:24px;height:24px}.mavface{width:44px;height:44px;flex:none;border-radius:50%}.mavwhy{display:flex;gap:6px;margin:8px 0 4px}.mavwhy input{flex:1;min-width:0}.mavskip{font-size:.8rem}.mavbtns{display:flex;gap:8px;margin-top:8px}.mavbtns button{font-size:1.2rem;padding:4px 14px;border-radius:999px;border:1px solid var(--line);background:var(--soft);cursor:pointer}.foldh{cursor:pointer;position:relative;padding-right:28px}.foldh::after{content:"▾";position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:.9em;color:var(--mute);transition:transform .2s}.folded .foldh::after{transform:translateY(-50%) rotate(-90deg)}.folded .foldh{margin-bottom:6px}.foldall{font-size:.8rem;text-align:right;margin:0 0 6px}.pbar{height:14px;background:var(--soft);border-radius:7px;overflow:hidden;margin:8px 0 4px}.pbar span{display:block;height:100%;background:var(--acc,#f2b01e)}#xerr{border:0;border-radius:14px;padding:20px;width:min(440px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25);background:var(--bg);color:var(--fg)}#xerr::backdrop{background:rgba(11,21,38,.55)}#xerr h2{margin:0 0 6px;font-size:1.15rem}#xerr label{display:block;margin:12px 0 4px;font-weight:600}#xerr select,#xerr textarea,#xerr input{width:100%;box-sizing:border-box;font:inherit}.xbtns{margin-top:14px;display:flex;gap:8px}.xno{background:none;border:1px solid currentColor;opacity:.75}
 `;
 
 // Formal look: emojis come off headings, buttons, cards and notes across the site (about 10% left).
@@ -164,13 +165,24 @@ function hooksStrip(pc) {
 
 // Footer lists always read A to Z
 const abc = (list, key) => [...list].sort((a, b) => key(a).localeCompare(key(b), "en-AU", { sensitivity: "base" }));
+// Traffic lights everywhere prices are compared: green = cheapest, amber = in between, red = dearest.
+// Solid colours with white or navy text so they read clearly in light and dark mode.
+const TL_CSS = `.cheap,.shopt td.cheap,.ftab td.cheap{background:#1e7a3c!important;color:#fff!important;font-weight:700;border-radius:6px}.cheap::before,.ftab td.cheap::before{content:none!important}
+.mid,.shopt td.mid,.ftab td.mid{background:#f2b01e!important;color:#12233f!important;border-radius:6px}.dear,.shopt td.dear,.ftab td.dear{background:#c0392b!important;color:#fff!important;border-radius:6px}
+.cheap small,.dear small,.cheap .mute,.dear .mute{color:#fff!important;opacity:.9}.mid small,.mid .mute{color:#12233f!important}
+.tlkey{font-size:.8rem;margin:6px 0}.alcp{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}.alcp button{background:var(--soft);color:var(--fg);border-radius:18px;padding:4px 11px;font-size:.85rem}.alcp button.on{background:var(--fg);color:var(--bg)}.tlkey i{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:-1px;margin:0 3px 0 8px}.tlkey i:first-child{margin-left:0}
+.rally b,.rally strong{color:#fff!important}.rally .bar span{background:var(--gold)!important}.rally .barlab{color:#e8edf2!important}`;
+const TL_KEY = `<p class="tlkey mute"><i style="background:#1e7a3c"></i>Cheapest <i style="background:#f2b01e"></i>In between <i style="background:#c0392b"></i>Dearest</p>`;
+const tlc = (v, vals) => { const L = vals.filter(x => x != null); if (v == null || L.length < 2) return ""; const lo = Math.min(...L), hi = Math.max(...L); return lo === hi ? "" : v === lo ? "cheap" : v === hi ? "dear" : "mid"; };
+// Pages open instantly: Chrome and Edge start loading a link as soon as your finger or mouse rests on it.
+const SPEC_RULES = `<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go)(/*)?"}},{"not":{"selector_matches":"[rel~=nofollow],[target=_blank]"}}]},"eagerness":"moderate"}]}</script>`;
 function page(title, body, pc = "", opts = {}) {
   return new Response(`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <meta name="description" content="${esc(opts.desc || "Your personalised local daily news. Everything on in your town, in one place. Free. Nobody pays to be here.")}">${opts.canonical ? `<link rel="canonical" href="${esc(opts.canonical)}">` : ""}
 <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0B1526">
 <link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>${CSS}${NAV_CSS}${SIDE_CSS}</style></head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}${HELP_UI(R.brand)}${HELP_PANEL()}
+<style>${CSS}${NAV_CSS}${SIDE_CSS}${TL_CSS}${BINS_CSS}</style>${SPEC_RULES}</head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}${HELP_UI(R.brand)}${HELP_PANEL()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}";var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onerror=function(){im.remove()};a.textContent=a.textContent.replace("💬 ","");a.prepend(im)}}}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(body), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
 <div id="rate" hidden><p id="rmsg" class="mute" hidden></p></div>
@@ -196,7 +208,7 @@ var done=null;try{done=localStorage.getItem(K)}catch(e){}
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down')m2err();else say('Thanks! Glad it helped.')}});
 var rw=document.getElementById('rwrong');if(rw)rw.onclick=function(e){e.preventDefault();m2err()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote'),em=document.getElementById('remail');if(!n.value.trim()){n.focus();return}
-send({note:n.value.trim(),email:em?em.value.trim():'',sec:w.value}).then(function(r){return r&&r.json()}).then(function(j){if(j&&j.joined)document.getElementById('xjoin').textContent=' You\'re signed in and on the community list. Welcome, local!'}).catch(function(){});n.value='';f.hidden=true;document.getElementById('xdone').hidden=false;document.getElementById('xclose').focus()}})();${JOIN_JS}</script>
+send({note:n.value.trim(),email:em?em.value.trim():'',sec:w.value}).then(function(r){return r&&r.json()}).then(function(j){if(j&&j.joined)document.getElementById('xjoin').textContent=' You’re signed in and on the community list. Welcome, local!'}).catch(function(){});n.value='';f.hidden=true;document.getElementById('xdone').hidden=false;document.getElementById('xclose').focus()}})();${JOIN_JS}</script>
 <footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/results", "What locals told us"], ["/credits", "Photo credits"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
@@ -331,12 +343,10 @@ async function town(pc, env, ctx, isRoot = false, secSlug = "") {
 ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave your email and you'll hear when it's up.</p>${signup(pc)}<p><a href="/${R.code}">See ${R.code} ${R.place}</a></p>`, pc);
 
   // Local submissions first, then events from feeds.
-  const local = await listEvents(env, `event:${pc}:`);
-  const feed = await listEvents(env, `feed:${pc}:`);
   const others = Object.entries(TOWNS).filter(([k, v]) => k !== pc && v.live).sort((a, b) => km(t, a[1]) - km(t, b[1]));
-  let nearby = "";
-  for (const [k, v] of others) { const ev = [...await listEvents(env, `event:${k}:`), ...await listEvents(env, `feed:${k}:`)].slice(0, 4);
-    if (ev.length) nearby += `<h3>Nearby: ${esc(v.name)} (${k})</h3><ul>${ev.map(evItem).join("")}</ul>`; }
+  const [local, feed, near] = await Promise.all([listEvents(env, `event:${pc}:`), listEvents(env, `feed:${pc}:`),
+    Promise.all(others.map(([k]) => Promise.all([listEvents(env, `event:${k}:`), listEvents(env, `feed:${k}:`)]).then(([a, b]) => [...a, ...b].slice(0, 4))))]);
+  let nearby = ""; others.forEach(([k, v], i) => { const ev = near[i]; if (ev.length) nearby += `<h3>Nearby: ${esc(v.name)} (${k})</h3><ul>${ev.map(evItem).join("")}</ul>`; });
   const events = ((local.length ? `<h3>From locals</h3><ul>${local.map(evItem).join("")}</ul>` : "")
     + (feed.length ? `<h3>More around town</h3><ul>${feed.map(evItem).join("")}</ul>` : "")
     || `<p>Nothing listed in ${esc(pc)} yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`) + nearby;
@@ -373,6 +383,10 @@ ${cc.soon ? `<p class="note">⏰ ${cc.text}</p>` : ""}
 <div class="tile"><span class="ico">🌊</span><b id="t-tide">–</b><small id="t-tide2">Next tide</small></div>
 <div class="tile"><span class="ico">🏄</span><b id="t-swell">–</b><small>Swell</small></div>
 <div class="tile"><span class="ico" id="i-moon">🌙</span><b id="t-moon">–</b><small id="t-moon2">Moon</small></div>
+${BIN_SRC[R.code] ? `<a class="tile bintile" href="/home#bauto"><span class="ico" id="i-bin">🗑️</span><b id="t-bin">Bins</b><small id="t-bin2">Set your bin night</small></a>
+<script>${BINS_JS(R.code)}(function(){var B=window.M2B;if(!B.auto())return;B.next(function(d){var x=B.upcoming(d)[0];if(!x)return;
+document.getElementById('i-bin').innerHTML=x.bins.map(function(b){return B.lid(b,1)}).join('');document.getElementById('t-bin').textContent=B.when(x.date).replace(/^./,function(c){return c.toUpperCase()});
+document.getElementById('t-bin2').textContent=x.bins.map(function(b){return B.NM[b]}).join(' + ')})})()<\/script>` : ""}
 ${cc.soon ? `<div class="tile"><span class="ico">⏰</span><b>${esc(cc.date)}</b><small>Clocks ${cc.dir}</small></div>` : ""}
 </div><div id="frs"></div></section>
 ${live.alerts}
@@ -395,7 +409,7 @@ ${await S(tsLine(env))}
 <a class="card" href="/open?c=dogs">🐕 <b>Dog beaches & parks</b> Off-leash spots near you →</a>
 <a class="card" href="/open?c=petfriendly">🐶 <b>Dog-friendly cafés & pubs</b> Places happy to see your dog →</a>
 <a class="card" href="/open?c=lgbtq">🏳️‍🌈 <b>LGBTQ+ friendly</b> Local places that welcome everyone →</a>
-<a class="card" href="/watch">📺 <b>What to watch tonight</b> Stop scrolling, start watching. See what locals rate →</a>
+<a class="card" href="/watch">🍿 <b>What are you binging?</b> Shows, podcasts and channels locals vote for, and why →</a>
 <a class="card" href="/fridge">🧊 <b>What's in your fridge?</b> Dinner ideas from what you've already got →</a>
 <a class="card" href="/birthday">🎂 <b>Birthday deals</b> Which local places look after you on your big day →</a>
 <a class="card" href="/kids">🧒 <b>Kid Zone</b> Games for kids 12 and under, with a grown-up&rsquo;s OK. No chat, no ads, nothing collected →</a>
@@ -423,8 +437,7 @@ ${fuelBlock(t)}
 ${await S(shopBlock(env))}
 ${await S(numbersBlock(env))}
 ${await S(aiBlock(env))}
-${beerBlock()}
-${wineBlock()}
+${alcoholBlock()}
 ${await S(ratesBlock(env))}
 ${await S(projectBlock(env))}
 <section id="sea"><h2>Tides &amp; fishing</h2><p id="tide" class="mute">Loading…</p>
@@ -805,7 +818,7 @@ const freshFirst = (items, salt, hrs = 24) => { const cut = Date.now() - hrs * 3
   return [...items.filter(isNew), ...dayMix(items.filter(i => !isNew(i)), salt)]; };
 
 // ---- Who people want their everyday-AI tips from (Team Smarketing). Tags them for ActiveCampaign.
-const TIPPERS = [["mav", "🤖 Mav", "everyday life"], ["johal", "📖 Jargon Johal", "the AI words explained"], ["tezza", "📱 Tezza the Techie", "apps and phone tricks"],
+const TIPPERS = [["mav", `<span class="mavav" aria-hidden="true"></span>Mav`, "everyday life"], ["johal", "📖 Jargon Johal", "the AI words explained"], ["tezza", "📱 Tezza the Techie", "apps and phone tricks"],
   ["sam", "🗓️ Strategi Sam", "saving time"], ["anne", "🔍 Anne Audit", "checking AI is right"], ["leaf", "🌿 Leaf", "doing the right thing"]];
 const tipPick = v => (TIPPERS.some(t => t[0] === v) ? v : "mav");
 const TIPS_PICK = `<fieldset class="tipsp"><legend>Who'd you like your AI tips from?</legend>${TIPPERS.map(([k, n, d], i) => `<label><input type="radio" name="tips" value="${k}"${i ? "" : " checked"}> <b>${n}</b> <span class="mute">${d}</span></label>`).join("")}</fieldset>`;
@@ -885,18 +898,25 @@ ${rec ? `<form method="post"><input type="hidden" name="act" value="off"><button
 <p class="mute">We only keep a scrambled version of the word, never the word itself, so even we can't read it. Forgot it? Just set a new one here. <a href="/kids">Back to Kid Zone</a></p>`);
 }
 
-// ---- Mav asks once (within a reader's first 3 days): "Is your Daily Maverick saving you time?" Thumbs up or down.
-// Asked on their second day back, or after a few pages on day one. Never asked twice. Results show on /results.
+// ---- Mav asks once a week: "Is your Daily Maverick saving you time?" Thumbs up or down, then a quick "why?".
+// First asked on a reader's second day back, or after a few pages on day one; then at most once every 7 days.
+// Mav smiles at a thumbs up and facepalms at a thumbs down. Results (and the reasons, counted) show on /results.
 const MAV_ASK_JS = String.raw`(function(){function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function s(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-if(g('mav_tsq'))return;var now=Date.now(),day=new Date().toDateString(),fs=+g('mav_fs')||0;if(!fs){fs=now;s('mav_fs',String(fs))}
+var now=Date.now(),last=+g('mav_tsq')||0;if(last&&now-last<7*864e5)return;var day=new Date().toDateString(),fs=+g('mav_fs')||0;if(!fs){fs=now;s('mav_fs',String(fs))}
 var days=[];try{days=JSON.parse(g('mav_days')||'[]')}catch(e){}if(days.indexOf(day)<0){days.push(day);s('mav_days',JSON.stringify(days.slice(-5)))}
 var pv=(+g('mav_pv')||0)+1;s('mav_pv',String(pv));var age=(now-fs)/864e5;
 if(!(days.length>=2||pv>=6||age>=3))return;if(/^\/(signin|welcome|unlock|optin|kids)/.test(location.pathname))return;
+function post(o){o.q='saving-time';return fetch('/api/poll',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(o)}).catch(function(){})}
 setTimeout(function(){var b=document.createElement('div');b.className='mavask';b.setAttribute('role','dialog');b.setAttribute('aria-label','Quick question from Mav');
-b.innerHTML='<span class="mavface" aria-hidden="true">🎧</span><div><b>Mav here. Quick one:</b><br>Is your Daily Maverick saving you time?<div class="mavbtns"><button type="button" data-v="up" aria-label="Yes">👍</button><button type="button" data-v="down" aria-label="No">👎</button></div></div><button type="button" class="xoff" aria-label="Close">✕</button>';
-document.body.appendChild(b);b.addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;s('mav_tsq','1');
-if(t.dataset.v){fetch('/api/poll',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:'saving-time',v:t.dataset.v})}).catch(function(){});
-b.querySelector('div').innerHTML='<b>Thanks!</b> '+(t.dataset.v==='up'?'Glad to hear it.':'Tell me what would help and I&rsquo;ll pass it on.')+' <a href="/results">See what locals said</a>';setTimeout(function(){b.remove()},6000)}else b.remove()})},2500)})();`;
+b.innerHTML='<img class="mavface" src="/mav.svg" alt="" width="44" height="44"><div class="mavq"><b>Mav here. Quick one:</b><br>Is your Daily Maverick saving you time?<div class="mavbtns"><button type="button" data-v="up" aria-label="Yes">👍</button><button type="button" data-v="down" aria-label="No">👎</button></div></div><button type="button" class="xoff" aria-label="Close">✕</button>';
+document.body.appendChild(b);var q=b.querySelector('.mavq'),f=b.querySelector('.mavface'),mood='';
+b.addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;s('mav_tsq',String(Date.now()));
+if(t.classList.contains('xoff')){b.remove();return}
+if(t.dataset.v){mood=t.dataset.v;post({v:mood});f.src='/mav.svg?m='+(mood==='up'?'happy':'facepalm');
+q.innerHTML='<b>'+(mood==='up'?'Love that!':'Ah, facepalm.')+'</b> '+(mood==='up'?'What&rsquo;s saving you the most time?':'What would save you more time?')+'<form class="mavwhy"><input maxlength="200" placeholder="'+(mood==='up'?'e.g. fuel prices, bin night':'e.g. too much to scroll')+'" aria-label="Why?"><button>Send</button></form><a href="#" class="mavskip mute">Skip</a>';
+var fm=q.querySelector('form');setTimeout(function(){fm.querySelector('input').focus()},50);
+fm.onsubmit=function(ev){ev.preventDefault();var w=fm.querySelector('input').value.trim();if(w)post({v:mood,why:w});done(w)};q.querySelector('.mavskip').onclick=function(ev){ev.preventDefault();done('')};return}});
+function done(w){q.innerHTML='<b>Thanks!</b> '+(w?'I&rsquo;ll pass that on to Brad. ':'')+'<a href="/results#poll-saving-time">See what locals said</a>';setTimeout(function(){b.remove()},6000)}},2500)})();`;
 
 // ---- Turn off anything on the home page: every section and tile gets a clear ✕. Hidden items can be brought back in one tap.
 const HIDE_JS = String.raw`(function(){var f=document.getElementById('flow');if(!f)return;function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function s(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
@@ -929,34 +949,63 @@ var bar=document.createElement('p');bar.className='foldall mute';bar.innerHTML='
 bar.onclick=function(e){var a=e.target.dataset&&e.target.dataset.a;if(a==null)return;e.preventDefault();[].forEach.call(m.querySelectorAll('.foldh'),function(h){var b=h.parentNode.querySelector(':scope>.foldb');if(b){b.hidden=a!=='1';h.setAttribute('aria-expanded',String(a==='1'));h.parentNode.classList.toggle('folded',a!=='1')}})}})();`;
 
 // ---- One-off reader polls (thumbs up/down). Counts only, no personal details. Shown on /results.
-const POLLS = { "saving-time": "Is your Daily Maverick saving you time?" };
+const POLLS = { "saving-time": "Is your Daily Maverick saving you time?", council: "How's council doing?" };
+// What each vote is for: shown on /results so everyone knows how their vote helps.
+const POLL_AIMS = { "saving-time": "You keep us accountable. If it isn't saving you time, we change it, and the reasons tell us what to fix first.",
+  council: "An unofficial monthly thumbs up or down from locals, so council can see how the community feels in one place, without wading through its website." };
 async function pollApi(req, env) {
   let b = {}; try { b = await req.json(); } catch {}
   if (!POLLS[b.q] || (b.v !== "up" && b.v !== "down")) return Response.json({ ok: false }, { status: 400 });
   const mon = new Date().toISOString().slice(0, 7);
+  if (b.why) { const k = `pollwhy:${b.q}:${mon}`, L = (await env.DATA.get(k, "json")) || []; // the reasons behind the thumbs; never shown with who said them
+    const t = String(b.why).replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 200); let ok = false; try { ok = await cleanText(env, t); } catch (e) {}
+    L.unshift({ v: b.v, t, ok, at: new Date().toISOString() }); await env.DATA.put(k, JSON.stringify(L.slice(0, 500))); return Response.json({ ok: true }); }
   for (const k of [`poll:${b.q}`, `poll:${b.q}:${mon}`]) { const c = (await env.DATA.get(k, "json")) || { up: 0, down: 0 }; c[b.v]++; await env.DATA.put(k, JSON.stringify(c)); }
   return Response.json({ ok: true });
 }
 
-// ---- What locals told us: everything we collect from readers, out in the open (counts only, never who said what).
+// ---- What locals told us: every vote and question on the Daily Maverick, out in the open (counts only, never who said what),
+// each with what the vote is for. It starts with how we're doing: the community keeps us accountable too.
 async function resultsPage(env) {
+  const mon = new Date().toISOString().slice(0, 7), lastMon = new Date(Date.UTC(+mon.slice(0, 4), +mon.slice(5) - 2, 1)).toISOString().slice(0, 7);
+  const monName = m => new Date(m + "-15").toLocaleDateString("en-AU", { month: "long", year: "numeric" });
   const bar = (c, upL = "Yes", downL = "No") => { const n = (c?.up || 0) + (c?.down || 0); if (!n) return `<p class="mute">No answers yet. Check back soon.</p>`; const pu = Math.round(c.up / n * 100);
     return `<div class="pbar" role="img" aria-label="${pu}% ${upL}, ${100 - pu}% ${downL}"><span style="width:${pu}%"></span></div><p><b>👍 ${pu}% ${upL}</b> · 👎 ${100 - pu}% ${downL} <span class="mute">(${n.toLocaleString("en-AU")} ${n === 1 ? "answer" : "answers"})</span></p>`; };
-  const polls = await Promise.all(Object.entries(POLLS).map(async ([q, t]) => `<section id="poll-${q}"><h2>${esc(t)}</h2>${bar(await env.DATA.get(`poll:${q}`, "json"))}<p class="mute">Mav asks each reader once, in their first few days.</p></section>`));
-  const ts = (await env.DATA.get("ts:total", "json")) || { mins: 0 };
-  const rates = (await Promise.all((await klist(env, "rate:")).map(async k => [k.name.slice(5), await env.DATA.get(k.name, "json")]))).filter(x => x[1] && x[1].up + x[1].down >= 3)
-    .sort((a, b) => (b[1].up + b[1].down) - (a[1].up + a[1].down)).slice(0, 10);
-  const top = (await ideas(env)).filter(i => i.status !== "done").sort((a, b) => b.votes - a.votes).slice(0, 5);
+  const aim = t => `<p class="aim"><b>What this vote is for:</b> ${t}</p>`;
+  const why = async q => { const L = ((await env.DATA.get(`pollwhy:${q}:${mon}`, "json")) || []).concat((await env.DATA.get(`pollwhy:${q}:${lastMon}`, "json")) || []).filter(x => x.ok);
+    const li = v => L.filter(x => x.v === v).slice(0, 5).map(x => `<li>“${esc(x.t)}”</li>`).join("");
+    return L.length ? `<div class="whyc"><div><h3>👍 What locals like</h3>${li("up") ? `<ul>${li("up")}</ul>` : `<p class="mute">Nothing yet.</p>`}</div><div><h3>👎 What locals don't like</h3>${li("down") ? `<ul>${li("down")}</ul>` : `<p class="mute">Nothing yet.</p>`}</div></div><p class="mute">The latest reasons, in locals' own words (checked for anything rude first). Never shown with a name.</p>` : ""; };
+  const [st, stMon, cNow, cLast, ts, nLoc, ideaL, watchL] = await Promise.all([env.DATA.get("poll:saving-time", "json"), env.DATA.get(`poll:saving-time:${mon}`, "json"), env.DATA.get(`poll:council:${mon}`, "json"), env.DATA.get(`poll:council:${lastMon}`, "json"),
+    env.DATA.get("ts:total", "json").then(v => v || { mins: 0 }), localsCount(env), ideas(env), watchList(env).catch(() => [])]);
+  const rates = (await Promise.all((await klist(env, "rate:")).map(async k => [k.name.slice(5), await env.DATA.get(k.name, "json")]))).filter(x => x[1]);
+  const rTot = rates.reduce((a, [, c]) => ({ up: a.up + (c.up || 0), down: a.down + (c.down || 0) }), { up: 0, down: 0 });
+  const rTop = rates.filter(x => x[1].up + x[1].down >= 3).sort((a, b) => (b[1].up + b[1].down) - (a[1].up + a[1].down)).slice(0, 10);
+  const days30 = [...Array(30)].map((_, k) => new Date(Date.now() - k * 864e5).toISOString().slice(0, 10)), mavV = (await Promise.all(days30.map(d => env.DATA.get(`help:votes:${d}`, "json")))).reduce((a, c) => ({ up: a.up + (c?.up || 0), down: a.down + (c?.down || 0) }), { up: 0, down: 0 });
+  const top = ideaL.filter(i => i.status !== "done").sort((a, b) => b.votes - a.votes).slice(0, 5);
   const picks = {}; for (const { name } of await klist(env, "sub:")) { const v = await env.DATA.get(name, "json"); if (v?.tips) picks[v.tips] = (picks[v.tips] || 0) + 1; }
-  const nLoc = await localsCount(env);
+  const noms = async k => Object.values(k === "alcohol" ? await alcNoms(env) : await wnoms(env, k)).sort((a, b) => !!a.live - !!b.live || b.voters.length - a.voters.length).slice(0, 5);
+  const [nShop, nGrog] = await Promise.all([noms("shop"), noms("alcohol")]);
+  const nomList = L => L.length ? `<ul>${L.map(n => `<li>${esc(n.text)} <span class="mute">👍 ${n.voters.length}${n.live ? " · ✅ now watched" : ` of ${WATCH_GOAL}`}</span></li>`).join("")}</ul>` : `<p class="mute">No ideas yet.</p>`;
+  const tv = watchL.sort((a, b) => b.ups.length - a.ups.length).slice(0, 5);
+  const S = [
+    ["council", "🏛️ How's council doing?", `${aim(POLL_AIMS.council)}<h3>${monName(mon)}</h3>${bar(cNow, "doing well", "could do better")}<h3>${monName(lastMon)}</h3>${bar(cLast, "doing well", "could do better")}${await why("council")}<p><a href="/council">Have your say in Council watch →</a></p>`],
+    ["ideas", "💡 What locals want built next", `${aim("You decide what we build. Ideas that reach 30 votes get built, in the order locals choose, not the order we'd pick.")}${top.length ? `<ol>${top.map(i => `<li>${esc(i.text)} <span class="mute">👍 ${i.votes}</span></li>`).join("")}</ol>` : `<p class="mute">No ideas yet.</p>`}<p><a href="/feedback">Suggest or vote →</a></p>`],
+    ["locals", "🙌 Locals signed up", `${aim("Help a brother out: once we reach the goal, a few clearly labelled local ads cover the costs and it stays free for everyone, forever.")}<p><b>${nLoc.toLocaleString("en-AU")}</b> of our ${LOCALS_GOAL.toLocaleString("en-AU")} goal.</p>`],
+    ["useful", "⭐ Most-rated pages", `${aim("The 👍 and 👎 at the bottom of every page tell us what's useful and what to fix or drop.")}${rTop.length ? `<ul>${rTop.map(([p, c]) => `<li><a href="${esc(p)}">${esc(p)}</a>: 👍 ${c.up} · 👎 ${c.down}</li>`).join("")}</ul>` : `<p class="mute">Not enough ratings yet.</p>`}`],
+    ["saved", "⏱️ Time saved", `${aim("So we can show, honestly, whether one Daily Maverick really beats checking lots of apps and sites.")}${ts.mins > 0 ? `<p>Locals say our tools save them <b>${tsH(ts.mins)} a week</b> all up, about <b>${tsH(ts.mins * 52)} a year</b>.</p>` : `<p class="mute">No time-saved reports yet.</p>`}`],
+    ["tips", "🧑‍🏫 Who locals want their AI tips from", `${aim("Your pick decides which Team Smarketing persona sends your free everyday-AI tips, so they suit you.")}${Object.keys(picks).length ? `<ul>${TIPPERS.map(([k, n]) => `<li>${n}: <b>${picks[k] || 0}</b></li>`).join("")}</ul>` : `<p class="mute">No picks yet.</p>`}`],
+    ["tv", "🍿 What locals are binging", `${aim("Less time scrolling, more time watching: locals vote for what's worth it, and say why.")}${tv.length ? `<ul>${tv.map(x => `<li>${esc(x.title)} <span class="mute">${esc(x.tag)} · 👍 ${x.ups.length}</span></li>`).join("")}</ul>` : `<p class="mute">Nothing shared yet.</p>`}<p><a href="/watch">Share yours →</a></p>`],
+    ["watch", "🗳️ What locals want us to watch", `${aim(`Locals choose what we track, not us. ${WATCH_GOAL} votes and an item goes up for everyone, all by itself.`)}<h3>🍻 Grog watch</h3>${nomList(nGrog)}<h3>🛒 Supermarket watch</h3>${nomList(nShop)}`],
+    ["numbers", "📞 Hard-to-find numbers", `${aim("Locals vote on whether a number worked, so the ones that don't drop off by themselves.")}<p><a href="/numbers">See the numbers and vote →</a></p>`],
+  ].sort((a, b) => a[1].replace(/^\P{L}+/u, "").localeCompare(b[1].replace(/^\P{L}+/u, "")));
   return page("What locals told us", `<h1>What locals told us</h1>
-<p>Everything we ask readers, out in the open. Counts only: we never show who said what. <span class="mute">Unofficial and from readers of ${R.brand} ${R.code}, so it's not a scientific survey.</span></p>
-${polls.join("")}
-<section id="locals"><h2>Locals signed up</h2><p><b>${nLoc.toLocaleString("en-AU")}</b> of our ${LOCALS_GOAL.toLocaleString("en-AU")} goal.</p></section>
-<section id="saved"><h2>Time saved</h2>${ts.mins > 0 ? `<p>Locals say our tools save them <b>${tsH(ts.mins)} a week</b> all up, about <b>${tsH(ts.mins * 52)} a year</b>.</p>` : `<p class="mute">No time-saved reports yet.</p>`}</section>
-<section id="ideas"><h2>What locals want built next</h2>${top.length ? `<ol>${top.map(i => `<li>${esc(i.text)} <span class="mute">👍 ${i.votes}</span></li>`).join("")}</ol>` : `<p class="mute">No ideas yet.</p>`}<p><a href="/feedback">Suggest or vote →</a></p></section>
-<section id="tips"><h2>Who locals want their AI tips from</h2>${Object.keys(picks).length ? `<ul>${TIPPERS.map(([k, n]) => `<li>${n}: <b>${picks[k] || 0}</b></li>`).join("")}</ul>` : `<p class="mute">No picks yet.</p>`}</section>
-${rates.length ? `<section id="useful"><h2>Most-rated pages</h2><ul>${rates.map(([p, c]) => `<li><a href="${esc(p)}">${esc(p)}</a>: 👍 ${c.up} · 👎 ${c.down}</li>`).join("")}</ul></section>` : ""}`);
+<p>Every vote and question on ${R.brand} ${R.code}, out in the open, with what each one is for. Counts only: we never show who said what. <span class="mute">Unofficial and from readers, so it's not a scientific survey.</span></p>
+<section id="poll-saving-time" class="us"><h2>🪞 How we're doing</h2><p>We keep council and everyone else accountable, so you keep us accountable too. This is how locals rate the Daily Maverick.</p>
+${aim(POLL_AIMS["saving-time"])}<h3>Is your Daily Maverick saving you time?</h3><p class="mute">All time</p>${bar(st)}<p class="mute">${monName(mon)}</p>${bar(stMon)}${await why("saving-time")}
+<h3>Pages: useful or not?</h3>${bar(rTot, "useful", "not useful")}<h3>Mav's answers: helpful or not? <span class="mute">(last 30 days)</span></h3>${bar(mavV, "helpful", "not helpful")}</section>
+<nav class="alcp" aria-label="Jump to">${S.map(([id, t]) => `<a class="tagg" href="#${id === "council" ? "poll-council" : id}">${t.replace(/^\P{L}+/u, "")}</a>`).join(" ")}</nav>
+${S.map(([id, t, b]) => `<section id="${id === "council" ? "poll-council" : id}"><h2>${t}</h2>${b}</section>`).join("")}
+<style>.aim{background:var(--soft);border-left:4px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:.9rem}.whyc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.us{border:2px solid var(--gold);border-radius:14px;padding:4px 16px 12px}</style>`);
 }
 
 // ---- Tracked links to Maverick Digital (key conversion events). Counts clicks per day, then adds UTM tags
@@ -1046,7 +1095,7 @@ async function acSync(env) {
         const c = (await ac(env, "contact/sync", { contact: { email, ...(first ? { firstName: first } : {}), fieldValues: fv } })).contact;
         if (sub?.consent && !(await env.DATA.get(`acf:${email}`))) { await acForm(email, first, { [AC_REGION]: region, [AC_REGION_PC]: pc, [AC_PAGE]: page, ...Object.fromEntries(fUtm.map(([, k, tag]) => [tag, uv(k)])) }); await env.DATA.put(`acf:${email}`, "1"); }
         if (c?.id && sub?.consent) await ac(env, "contactLists", { contactList: { list: AC_LIST, contact: c.id, status: 1 } });
-        if (c?.id && sub?.tips) { const t = await acTagId(env, `Tips: ${TIPPERS.find(x => x[0] === sub.tips)?.[1].replace(/^\S+\s/, "") || sub.tips}`); if (t) await ac(env, "contactTags", { contactTag: { contact: c.id, tag: t } }); }
+        if (c?.id && sub?.tips) { const t = await acTagId(env, `Tips: ${TIPPERS.find(x => x[0] === sub.tips)?.[1].replace(/<[^>]+>/g, "").replace(/^\S+\s/, "") || sub.tips}`); if (t) await ac(env, "contactTags", { contactTag: { contact: c.id, tag: t } }); }
       }
       await env.DATA.delete(name);
     } catch (e) { break; } // AC hiccup or rate limit: leave the rest queued for the next run
@@ -1093,7 +1142,7 @@ function sessionHeaders(tok, name, next, pic = "") {
   return h;
 }
 const JOIN_WHY = () => `<ul class="why">
-<li>💬 <b>Mav.</b> Tell him about your day and he sets up your page in seconds. Signed-in members get more; paid members get unlimited Mav.</li>
+<li><span class="mavav" aria-hidden="true"></span><b>Mav.</b> Tell him about your day and he sets up your page in seconds. Signed-in members get more; paid members get unlimited Mav.</li>
 <li>📱 <b>Your page on any phone.</b> Your pins, stars, bin night and saved searches follow you (Some Cool Things members).</li>
 <li>🧊 <b>What's in your fridge?</b> Snap it, get dinner ideas (Every Cool Thing members).</li>
 <li>🙌 <b>You count.</b> You're one of the locals helping a brother out.</li></ul>
@@ -1952,7 +2001,8 @@ function c(v){return v==null?'<span class="mute">–</span>':(v/100).toFixed(2).
 function load(){var q='/api/fuel?'+(pos?'lat='+pos[0]+'&lon='+pos[1]:'lat=${t.lat}&lon=${t.lon}');
 fetch(q).then(function(r){return r.json()}).then(function(j){if(j.error||!j.rows){fo.textContent='Couldn’t reach FuelCheck just now. Try again soon.';return}
 if(!j.rows.length){fo.textContent='No servos found within 15 km.';return}
-fo.className='';fo.innerHTML='<div class="ftw"><table class="ftab"><thead><tr><th>Nearest servos</th>'+j.cols.map(function(k){return '<th>'+k[1]+'</th>'}).join('')+'</tr></thead><tbody>'+j.rows.map(function(s){return '<tr><td><b>'+s.name+'</b><br><span class="mute">'+(s.km!=null?(+s.km).toFixed(1)+' km · ':'')+(s.address||'')+'</span></td>'+j.cols.map(function(k){var v=s.p[k[0]];return '<td'+(v!=null&&v===j.best[k[0]]?' class="cheap"':'')+'>'+c(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div><p class="mute fnote">Closest first. ⭐ Gold = cheapest of these. Price a litre.</p>';
+var hi={};j.cols.forEach(function(k){var L=j.rows.map(function(r){return r.p[k[0]]}).filter(function(x){return x!=null});hi[k[0]]=L.length?Math.max.apply(null,L):null});function tl(v,t){if(v==null||j.best[t]===hi[t])return '';return v===j.best[t]?'cheap':v===hi[t]?'dear':'mid'}
+fo.className='';fo.innerHTML='<div class="ftw"><table class="ftab"><thead><tr><th>Nearest servos</th>'+j.cols.map(function(k){return '<th>'+k[1]+'</th>'}).join('')+'</tr></thead><tbody>'+j.rows.map(function(s){return '<tr><td><b>'+s.name+'</b><br><span class="mute">'+(s.km!=null?(+s.km).toFixed(1)+' km · ':'')+(s.address||'')+'</span></td>'+j.cols.map(function(k){var v=s.p[k[0]];return '<td class="'+tl(v,k[0])+'">'+c(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>${TL_KEY.replace(/'/g, "\\'")}<p class="mute fnote">Closest first. Price a litre.</p>';
 document.getElementById('fsrc').innerHTML='<span class="srcw">Source:</span> <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a>, the NSW Government fuel price site. Updated '+new Date(j.asof).toLocaleString('en-AU',{hour:'numeric',minute:'2-digit',weekday:'short'})+'.';}).catch(function(){fo.textContent='Couldn’t reach FuelCheck just now. Try again soon.'})}
 nb.onclick=function(){if(!navigator.geolocation)return;nb.textContent='📍 Finding you…';
 navigator.geolocation.getCurrentPosition(function(p){pos=[+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)];try{localStorage.setItem('loc',JSON.stringify(pos))}catch(e){}nb.textContent='📍 Near you';load()},function(){nb.textContent='📍 Near me'})};load()})();</script></section>`;
@@ -2208,7 +2258,7 @@ Reply with ONLY JSON: {"reply":"text","actions":[...]}. Actions (optional, max 6
 {"type":"remind","text":"short plain task, e.g. Take Rua to the vet","date":"YYYY-MM-DD"} saves a reminder on their phone; their page then links them to the local help they need (vets, mechanics, pharmacies…) with numbers ready. Today is ${todayISO()}; work out dates like "Friday" from that; {"type":"unremind","text":"words from the task"};
 {"type":"person","name":"Dad","day":1-31,"month":1-12,"likes":"what they like, e.g. fishing, country music"} remembers someone's birthday (on their phone only) so their page reminds them with local gift ideas; {"type":"unperson","name":"Dad"};
 {"type":"friend","name":"Jimmy","tz":"IANA time zone, e.g. Europe/London","city":"London"}; {"type":"unfriend","name":"Jimmy"}; {"type":"link","url":"/open"};
-{"type":"wine","value":"wine and size, e.g. Shiraz 750ml"} suggests (and votes for) a wine for Wine watch; {"type":"beer","value":"beer name and pack, e.g. Great Northern Original 24 pack"} suggests (and votes for) a beer for Beer watch (local bottle shops only; default Tooheys New 24 cans).
+{"type":"wine","value":"wine and size, e.g. Shiraz 750ml"} suggests (and votes for) a wine for Grog watch; {"type":"beer","value":"beer name and pack, e.g. Great Northern Original 24 pack"} suggests (and votes for) any beer, cider or spirit for Grog watch (local bottle shops only; default Tooheys New 24 cans).
 Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
   try {
     const ask = { max_tokens: 450, messages: [{ role: "system", content: sys }, ...msgs] };
@@ -2220,7 +2270,7 @@ Section ids: ${SECTIONS.map(([id, l]) => `${id} = ${l}`).join("; ")}.`;
     const wa = acts.filter(a => ["watch", "unwatch", "beer", "wine"].includes(a.type));
     if (wa.length) { acts = acts.filter(a => !wa.includes(a)); const em = await member(req, env);
       if (!em) reply = "Locals vote on what Supermarket watch checks. Sign in free and I'll put your vote in: /signin";
-      else { const said = []; for (const a of wa) said.push(a.type === "unwatch" ? "We don't keep personal lists. Locals vote on what we watch, and anything that hits " + WATCH_GOAL + " votes goes up for everyone." : (await nominateWatch(env, a.type === "beer" || a.type === "wine" ? a.type : "shop", em, a.item || a.value)).msg); if (said.length) reply = said.join(" "); } }
+      else { const said = []; for (const a of wa) said.push(a.type === "unwatch" ? "We don't keep personal lists. Locals vote on what we watch, and anything that hits " + WATCH_GOAL + " votes goes up for everyone." : (await nominateWatch(env, a.type === "beer" || a.type === "wine" ? "alcohol" : "shop", em, a.item || a.value)).msg); if (said.length) reply = said.join(" "); } }
     return Response.json({ reply, actions: acts });
   } catch (e) { return Response.json(fallback(false)); }
 }
@@ -2326,7 +2376,7 @@ async function mavSuggest(req, env) {
   if (mavGuard(text)) return Response.json({ error: "Mav can only help with your page here." });
   const ids = SECTIONS.map(x => x[0]).filter(id => id !== "today"), rf = Array.isArray(pr.readfor) ? pr.readfor : [];
   const reads = j.reads && typeof j.reads === "object" ? Object.keys(j.reads).filter(id => ids.includes(id) && +j.reads[id] >= 2) : [];
-  const MAP = { news: ["news", "alerts", "numbers"], rip: ["bdm"], events: ["events", "tonight"], weather: ["sea", "beaches"], sport: ["sport"], council: ["council", "know", "bypass"], deals: ["fuel", "beer", "wine", "rates"], jobs: ["jobs", "rent"], family: ["kids", "award"], puzzles: ["puzzles", "stars"] };
+  const MAP = { news: ["news", "alerts", "numbers"], rip: ["bdm"], events: ["events", "tonight"], weather: ["sea", "beaches"], sport: ["sport"], council: ["council", "know", "bypass"], deals: ["fuel", "alcohol", "rates"], jobs: ["jobs", "rent"], family: ["kids", "award"], puzzles: ["puzzles", "stars"] };
   const base = { show: [...new Set([...rf.flatMap(v => MAP[v] || []), ...reads])], hide: [], likes: [], say: "Mav ticked what matches what you read." };
   const t = text.toLowerCase(); if (/country|music|band|gig|singer/.test(t) || pr.music) base.likes.push("music"); if (/fish/.test(t)) base.show.push("sea"); if (/market/.test(t)) base.likes.push("markets"); if (pr.kids === "Yes") base.likes.push("kids"); if (pr.dog === "Yes") base.show.push("dogs");
   if (!env.AI || (!rf.length && !pr.music && !pr.tv && !pr.weekend)) return Response.json(base);
@@ -2338,7 +2388,12 @@ async function mavSuggest(req, env) {
   } catch (e) { return Response.json(base); }
 }
 // Mav: a friendly, faceless local in a beanie and his noise-cancelling headphones. Human, but not anyone.
-const MAV_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#EAF0F8"/><path d="M10 64c2-12 11-17 22-17s20 5 22 17z" fill="#141414"/><path d="M27 42h10v7c-3 2-7 2-10 0z" fill="#B97F52"/><circle cx="32" cy="31" r="13" fill="#C9915F"/><path d="M18.5 29c0-10 6-16 13.5-16s13.5 6 13.5 16z" fill="#F2B705"/><rect x="17.5" y="25" width="29" height="6" rx="3" fill="#D99E00"/><circle cx="32" cy="12" r="3.2" fill="#F2B705"/><path d="M28 37.5q4 3 8 0" fill="none" stroke="#7A4A2A" stroke-width="1.8" stroke-linecap="round"/><path d="M17 31c0-14 6.5-21 15-21s15 7 15 21" fill="none" stroke="#0B1526" stroke-width="3"/><rect x="13" y="27" width="7" height="12" rx="3.5" fill="#0B1526"/><rect x="44" y="27" width="7" height="12" rx="3.5" fill="#0B1526"/></svg>`;
+const MAV_SVG_BASE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#EAF0F8"/><path d="M10 64c2-12 11-17 22-17s20 5 22 17z" fill="#141414"/><path d="M27 42h10v7c-3 2-7 2-10 0z" fill="#B97F52"/><circle cx="32" cy="31" r="13" fill="#C9915F"/><path d="M18.5 29c0-10 6-16 13.5-16s13.5 6 13.5 16z" fill="#F2B705"/><rect x="17.5" y="25" width="29" height="6" rx="3" fill="#D99E00"/><circle cx="32" cy="12" r="3.2" fill="#F2B705"/><path d="M28 37.5q4 3 8 0" fill="none" stroke="#7A4A2A" stroke-width="1.8" stroke-linecap="round"/><path d="M17 31c0-14 6.5-21 15-21s15 7 15 21" fill="none" stroke="#0B1526" stroke-width="3"/><rect x="13" y="27" width="7" height="12" rx="3.5" fill="#0B1526"/><rect x="44" y="27" width="7" height="12" rx="3.5" fill="#0B1526"/></svg>`;
+// Mav's moods: the same face everywhere, with a big smile for a thumbs up and a facepalm for a thumbs down.
+const mavSvg = (m = "") => m === "happy" ? MAV_SVG_BASE.replace('<path d="M28 37.5q4 3 8 0" fill="none" stroke="#7A4A2A" stroke-width="1.8" stroke-linecap="round"/>', '<path d="M25 34.5q7 9 14 0z" fill="#5a2e1a"/><path d="M26 35.2q6 3 12 0v.6q-6 3-12 0z" fill="#fff"/><circle cx="23.5" cy="34" r="1.6" fill="#e88a6a" opacity=".6"/><circle cx="40.5" cy="34" r="1.6" fill="#e88a6a" opacity=".6"/>')
+  : m === "facepalm" ? MAV_SVG_BASE.replace('<path d="M28 37.5q4 3 8 0" fill="none" stroke="#7A4A2A" stroke-width="1.8" stroke-linecap="round"/>', '<path d="M28.5 39.5q3.5-2.4 7 0" fill="none" stroke="#7A4A2A" stroke-width="1.8" stroke-linecap="round"/><path d="M21 24.5c3-2.5 8-3 12-2.2l6.5 1.5c1.8.4 2 2.6.3 3.2l-1.2.4 1.4.6c1.6.7 1.2 2.9-.5 3l-1.6.1.9.9c1.2 1.2.1 3.1-1.5 2.7L24 31.8c-3-.8-4.6-4.5-3-7.3z" fill="#B97F52" stroke="#7A4A2A" stroke-width=".8"/><path d="M24 33l-4 13" stroke="#B97F52" stroke-width="5" stroke-linecap="round"/>')
+  : MAV_SVG_BASE;
+const MAV_SVG = mavSvg();
 const MAV_WIDGET = () => `<button type="button" id="mavbtn" aria-label="Ask Mav"><span class="mavav" aria-hidden="true"></span>Ask Mav</button>
 <div id="mavp" hidden role="dialog" aria-label="Chat with Mav"><div class="mavh"><b><span class="mavav" aria-hidden="true"></span>Mav</b><span class="mavtools"><button type="button" id="mavreset" title="Put my page back to normal">↺ Start fresh</button><a href="/me" class="mavall">⚙️ My settings</a><a href="/signout" class="mavout" hidden>Sign out</a></span><button type="button" id="mavx" aria-label="Close">×</button></div>
 <div id="mavlog"></div><p id="mavst" class="mavst" hidden></p><div class="mavtalk"><button type="button" id="mavbig" class="micb">🎤 Tap and tell Mav</button></div><div class="chips" id="mavchips"><label>Hide what I don't read</label><label>I love trivia and live music</label><label>Remind me of Dad’s birthday</label><label>Remind me to take the dog to the vet Friday</label><label>Start my page fresh</label></div>
@@ -2366,9 +2421,10 @@ ${directoryBody(groups, esc)}
 // ---- Locals choose what we watch. Signed-in locals nominate an item for Supermarket, Beer or Wine watch and vote.
 // WATCH_GOAL votes and it goes live by itself (no one has to check): it joins the table, and an announcement goes up.
 const WATCH_GOAL = 50;
-const WKINDS = { shop: ["Supermarket watch", "Vegemite 380g", "#shop"], beer: ["Beer watch", "Great Northern Original 24 cans", "#beer"], wine: ["Wine watch", "Jacob's Creek Shiraz 750ml", "#wine"] };
+const WKINDS = { shop: ["Supermarket watch", "Vegemite 380g", "#shop"], alcohol: ["Grog watch", "Great Northern Original 24 cans", "#alcohol"], beer: ["Grog watch", "Great Northern Original 24 cans", "#alcohol"], wine: ["Grog watch", "Jacob's Creek Shiraz 750ml", "#alcohol"] };
 const itemKey = s => String(s || "").toLowerCase().replace(/(\d)\s+(g|kg|ml|l|pk|pack)\b/g, "$1$2").replace(/[^a-z0-9.\- ]/g, " ").replace(/\s+/g, " ").trim().slice(0, 50);
 const wnoms = async (env, kind) => (await env.DATA.get(`wnoms:${kind}`, "json")) || {};
+const alcNoms = async env => ({ ...(await wnoms(env, "wine")), ...(await wnoms(env, "beer")), ...(await wnoms(env, "alcohol")) }); // Beer and Wine watch ideas carry over
 const wHash = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
 async function wScreen(env, kind, text) { // AI check so nothing rude or silly goes up without a person checking. Says no if unsure.
   try {
@@ -2379,7 +2435,7 @@ async function wScreen(env, kind, text) { // AI check so nothing rude or silly g
   } catch (e) { return false; }
 }
 async function nominateWatch(env, kind, em, text) { // returns { ok, msg, item }
-  const all = await wnoms(env, kind), me = await wHash(em), clean = String(text || "").replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 50), id = itemKey(clean);
+  const all = kind === "alcohol" ? await alcNoms(env) : await wnoms(env, kind), me = await wHash(em), clean = String(text || "").replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 50), id = itemKey(clean);
   if (id.length < 3) return { ok: false, msg: `Tell us the product and size, like ${WKINDS[kind][1]}.` };
   if (!all[id]) {
     if (Object.values(all).filter(n => n.by === me && !n.live).length >= 3) return { ok: false, msg: "You've got 3 ideas waiting for votes. Give them time to catch on first." };
@@ -2393,20 +2449,20 @@ async function nominateWatch(env, kind, em, text) { // returns { ok, msg, item }
     await env.DATA.put(`ann:${n.live}`, JSON.stringify({ text: `You voted, we're watching it: ${n.text} is now in ${WKINDS[kind][0]}`, votes: n.voters.length, link: `/${R.code}${WKINDS[kind][2]}`, at: n.live }));
   }
   await env.DATA.put(`wnoms:${kind}`, JSON.stringify(all));
-  const left = WATCH_GOAL - n.voters.length;
-  return { ok: true, item: n, msg: n.live ? `${n.text} is live in ${WKINDS[kind][0]}.` : `${fresh ? "Vote counted" : "You've already voted"} for ${n.text}. ${left} more vote${left === 1 ? "" : "s"} and we watch it.` };
+  const left = WATCH_GOAL - n.voters.length, extra = kind === "alcohol" ? " " + await alcCanCant(env, n.text) : "";
+  return { ok: true, item: n, msg: (n.live ? `${n.text} is live in ${WKINDS[kind][0]}.` : `${fresh ? "Vote counted" : "You've already voted"} for ${n.text}. ${left} more vote${left === 1 ? "" : "s"} and we watch it.`) + extra };
 }
 async function cwatchApi(req, env, url) {
-  const kind = WKINDS[url.searchParams.get("kind")] ? url.searchParams.get("kind") : "shop", em = await member(req, env);
+  let kind = WKINDS[url.searchParams.get("kind")] ? url.searchParams.get("kind") : "shop"; if (kind === "beer" || kind === "wine") kind = "alcohol"; const em = await member(req, env);
   let msg = "";
   if (req.method === "POST") {
     if (!em) return Response.json({ error: "signin" }, { status: 401 });
     let b = {}; try { b = await req.json(); } catch (e) {}
-    const all = await wnoms(env, kind), r = await nominateWatch(env, kind, em, b.id && all[b.id] ? all[b.id].text : b.text);
+    const all = kind === "alcohol" ? await alcNoms(env) : await wnoms(env, kind), r = await nominateWatch(env, kind, em, b.id && all[b.id] ? all[b.id].text : b.text);
     if (!r.ok) return Response.json({ error: r.msg }, { status: 400 });
     msg = r.msg;
   }
-  const all = await wnoms(env, kind), me = em ? await wHash(em) : "";
+  const all = kind === "alcohol" ? await alcNoms(env) : await wnoms(env, kind), me = em ? await wHash(em) : "";
   const items = Object.entries(all).map(([id, n]) => ({ id, text: n.text, votes: n.voters.length, live: !!n.live, mine: n.voters.includes(me) }))
     .sort((a, b) => a.live - b.live || b.votes - a.votes || a.text.localeCompare(b.text));
   return Response.json({ kind, goal: WATCH_GOAL, signedIn: !!em, msg, items }, { headers: { "cache-control": "no-store" } });
@@ -2440,7 +2496,7 @@ async function refreshShopList(env) {
 
 // ---- Time saved: people tell us how long a job took before and how long it takes now with our tool. We add it up and show it. ----
 const TS_TOOLS = { daily: "Your Daily Maverick", "/open": "Open now?", "/fridge": "What's in your fridge?", "/school": "School run check", "/birthday": "Birthday deals",
-  "/rent": "Renting", "/jobs": "Jobs", "/genalpha": "Gen Alpha interpreter", "/home": "My home", "/notices": "Community notice board", "/bdm": "Births, Deaths and Marriages", "/watch": "What to watch tonight" };
+  "/rent": "Renting", "/jobs": "Jobs", "/genalpha": "Gen Alpha interpreter", "/home": "My home", "/notices": "Community notice board", "/bdm": "Births, Deaths and Marriages", "/watch": "What are you binging?" };
 const tsHours = m => { const h = m / 60; return h >= 10 ? Math.round(h).toLocaleString("en-AU") : h >= 1 ? h.toFixed(1) : Math.round(m) + " min"; };
 const tsH = m => { const t = tsHours(m); return /min$/.test(t) ? t : t + (t === "1.0" ? " hour" : " hours"); };
 async function timeApi(req, env, url) {
@@ -2561,55 +2617,56 @@ document.querySelectorAll('#oneapp .oan').forEach(function(x){x.textContent=c});
 ${checks ? `<p class="note">With ${nLocals.toLocaleString("en-AU")} locals on board, that&rsquo;s <b>${checks.toLocaleString("en-AU")} app checks saved every day</b>.</p>` : ""}</section>`;
 }
 
-// ---- Beer watch: local bottle shops post their own price for a beer, cheapest local first. No big chains: local only. Default: Tooheys New, 24 cans. ----
-const BEER_DEFAULT = "Tooheys New 24 cans";
-const beerWords = q => String(q).toLowerCase().replace(/\b(x|cans?|bottles?|ml|pack|carton|block|case|stubbies)\b/g, " ").split(/\W+/).filter(w => w.length > 1 && !/^\d+$/.test(w));
-async function beerApi(req, env, url) {
-  const L = ((await env.DATA.get("beerlocal", "json")) || []).filter(x => Date.now() - new Date(x.at) < 30 * 864e5);
+// ---- Grog watch (was Beer watch and Wine watch): any drink, local bottle shops only. Shops post their own price;
+// locals search for anything, filter by type and vote on what we watch. We say plainly what we can and can't find. ----
+const ALC_DEFAULTS = ["Tooheys New 24 cans", "Shiraz 750ml bottle"];
+const ALC_TYPES = [["beer", "🍺 Beer"], ["cider", "🍏 Cider & premixed"], ["spirits", "🥃 Spirits"], ["wine", "🍷 Wine"]];
+const alcType = t => { t = String(t).toLowerCase(); return /\b(wine|shiraz|merlot|cabernet|pinot|chardonnay|sauvignon|riesling|rose|rosé|prosecco|champagne|sparkling|moscato|grenache|tempranillo|malbec|cask|semillon|verdelho|fiano)\b/.test(t) ? "wine"
+  : /\b(gin|vodka|rum|whisky|whiskey|bourbon|scotch|tequila|brandy|liqueur|ouzo|sambuca|baileys|jagermeister|spirit)\b/.test(t) ? "spirits" : /\b(cider|seltzer|premix|rtd|cruiser|vodka cruiser|canadian club|cc|ready to drink)\b/.test(t) ? "cider" : "beer"; };
+const alcWords = q => String(q).toLowerCase().replace(/\b(x|cans?|bottles?|ml|l|litres?|pack|carton|block|case|stubbies|dozen|cask)\b/g, " ").split(/\W+/).filter(w => w.length > 1 && !/^\d+$/.test(w));
+const alcAll = async env => { const fresh = x => Date.now() - new Date(x.at) < 30 * 864e5;
+  const [a, b, c] = await Promise.all(["alcolocal", "beerlocal", "winelocal"].map(k => env.DATA.get(k, "json").then(v => v || []).catch(() => [])));
+  return [...a, ...b.map(x => ({ ...x, item: x.beer })), ...c.map(x => ({ ...x, item: x.beer }))].map(x => ({ shop: x.shop, sub: x.sub, item: x.item || x.beer, price: x.price, at: x.at })).filter(fresh); };
+const alcFind = (L, q) => { const w = alcWords(q); return w.length ? L.filter(x => { const t = x.item.toLowerCase(); return w.every(y => t.includes(y)); }).sort((a, b) => a.price - b.price) : []; };
+async function alcoholApi(req, env, url) {
   if (req.method === "POST") {
-    const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: `/${R.code}#beer` } });
+    const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: `/${R.code}#alcohol` } });
     const shop = String(f.get("shop") || "").replace(/[<>]/g, "").trim().slice(0, 60), sub = String(f.get("suburb") || "").replace(/[<>]/g, "").trim().slice(0, 40),
-      beer = String(f.get("beer") || BEER_DEFAULT).replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
-    if (!shop || !sub || !(price > 5 && price < 400) || f.get("ok") !== "yes") return page("Check your details", `<h1>Nearly</h1><p>Please add the shop, suburb, a price, and tick the box. <a href="/${R.code}#beer">Back</a></p>`);
-    const k = (shop + "|" + beer).toLowerCase(), rest = L.filter(x => (x.shop + "|" + x.beer).toLowerCase() !== k);
-    await env.DATA.put("beerlocal", JSON.stringify([{ shop, sub, beer, price, at: new Date().toISOString() }, ...rest].slice(0, 300)));
-    return page("Price posted", `<h1>Thanks, it&rsquo;s up!</h1><p>${esc(shop)}: ${esc(beer)} at $${price.toFixed(2)}. It shows for 30 days, so post again whenever it changes.</p><p><a href="/${R.code}#beer">See Beer watch</a></p>`);
+      item = String(f.get("item") || f.get("beer") || f.get("wine") || "").replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
+    if (!shop || !sub || item.length < 3 || !(price > 3 && price < 600) || f.get("ok") !== "yes") return page("Check your details", `<h1>Nearly</h1><p>Please add the shop, suburb, the drink and size, a price, and tick the box. <a href="/${R.code}#alcohol">Back</a></p>`);
+    const L = ((await env.DATA.get("alcolocal", "json")) || []), k = (shop + "|" + item).toLowerCase();
+    await env.DATA.put("alcolocal", JSON.stringify([{ shop, sub, item, price, at: new Date().toISOString() }, ...L.filter(x => (x.shop + "|" + x.item).toLowerCase() !== k)].slice(0, 600)));
+    return page("Price posted", `<h1>Thanks, it&rsquo;s up!</h1><p>${esc(shop)}: ${esc(item)} at $${price.toFixed(2)}. It shows for 30 days, so post again whenever it changes.</p><p><a href="/${R.code}#alcohol">See Grog watch</a></p>`);
   }
-  const q = String(url.searchParams.get("q") || BEER_DEFAULT).slice(0, 60), w = beerWords(q);
-  return Response.json({ q, items: L.filter(x => { const t = x.beer.toLowerCase(); return w.every(y => t.includes(y)); }).sort((a, b) => a.price - b.price) }, { headers: { "cache-control": "no-store" } });
+  const L = await alcAll(env), q = String(url.searchParams.get("q") || "").slice(0, 60), type = url.searchParams.get("type") || "";
+  if (q) return Response.json({ q, items: alcFind(L, q) }, { headers: { "cache-control": "no-store" } });
+  return Response.json({ items: L.filter(x => !type || alcType(x.item) === type).sort((a, b) => a.item.localeCompare(b.item) || a.price - b.price).slice(0, 60) }, { headers: { "cache-control": "no-store" } });
 }
-// Beer and Wine watch share one layout: every item locals voted in, with the cheapest local price for each.
-const liquorBlock = (kind, ico, title, def, noun) => `<section id="${kind}"><h2>${ico} ${title}</h2><p class="mute">The cheapest price at <b>local</b> bottle shops, posted by the shops themselves. No big chains, local only. What we watch is chosen by locals.</p><div id="${kind}out" class="mute">Checking…</div>
-<details><summary><b>Own a local bottle shop? Post your price free</b></summary><form method="post" action="/api/${kind}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+// What we can and can't find for a suggestion, said plainly.
+const alcCanCant = async (env, text) => { const hits = alcFind(await alcAll(env), text);
+  return hits.length ? `Good news: ${hits.length} local shop${hits.length > 1 ? "s have" : " has"} posted a price for ${text}, from $${hits[0].price.toFixed(2)}.`
+    : `No local bottle shop has posted ${text} yet. We only show prices local shops post themselves. The big chains aren't in it: we're local only.`; };
+const alcoholBlock = () => `<section id="alcohol"><span id="beer"></span><span id="wine"></span><h2 id="alch">🍻 Grog watch</h2><p class="mute">Beer, wine, spirits, cider: the price at <b>local</b> bottle shops, posted by the shops themselves. Search for anything, or filter by type. Local only, so your money stays in town.</p>
+<form class="row" id="alcf" role="search"><input id="alcq" maxlength="60" placeholder="What are you after? e.g. Tooheys New 24 cans, gin, Shiraz" aria-label="Search local bottle shop prices"><button>Search</button></form>
+<div class="alcp" id="alcp"><button type="button" class="on" data-t="">All</button>${ALC_TYPES.map(([k, n]) => `<button type="button" data-t="${k}">${n}</button>`).join("")}</div>
+<div id="alcout" class="mute">Checking local prices…</div>${TL_KEY}
+<details><summary><b>Own a local bottle shop? Post your price free</b></summary><form method="post" action="/api/alcohol"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="shop" maxlength="60" placeholder="Shop name *" required><input name="suburb" maxlength="40" placeholder="Suburb *" required></div>
-<div class="row"><input name="${kind}" maxlength="60" value="${def}" aria-label="${noun} and size"><input name="price" type="number" step="0.01" min="5" max="400" placeholder="Price $ *" required></div>
+<div class="row"><input name="item" maxlength="60" placeholder="Drink and size, e.g. Tooheys New 24 cans *" required aria-label="Drink and size"><input name="price" type="number" step="0.01" min="3" max="600" placeholder="Price $ *" required></div>
 <label><input type="checkbox" name="ok" value="yes" required> I run or work at this shop, and this is our current price</label><br><button>Post my price</button></form></details>
-${cwatchPanel(kind)}
-<p class="src">Prices posted by local shops, with the date they posted. Shown for 30 days. Please drink responsibly.</p>
-<script>${CWATCH_JS}(function(){var O=document.getElementById('${kind}out'),P=document.querySelector('#${kind} .cw'),m=function(n){return '$'+Number(n).toFixed(2)},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
-function show(list){Promise.all(list.map(function(q){return fetch('/api/${kind}?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){return {q:q,b:j.items[0]}}).catch(function(){return {q:q}})})).then(function(R){
-R.sort(function(a,b){return a.q.localeCompare(b.q)});O.className='';O.innerHTML='<div class="tscroll"><table class="shopt"><thead><tr><th>${noun}</th><th>Cheapest local</th></tr></thead><tbody>'+R.map(function(x){return '<tr><th scope="row">'+e(x.q)+'</th>'+(x.b?'<td class="cheap">'+m(x.b.price)+'<br><small>'+e(x.b.shop)+', '+e(x.b.sub)+'</small></td>':'<td class="mute">No local price posted yet</td>')+'</tr>'}).join('')+'</tbody></table></div>'})}
-var done=false;P.addEventListener('cwlive',function(ev){done=true;show([${JSON.stringify(def)}].concat(ev.detail.map(function(i){return i.text})))});setTimeout(function(){if(!done)show([${JSON.stringify(def)}])},4000)})();</script></section>`;
-const beerBlock = () => liquorBlock("beer", "🍺", "Beer watch", BEER_DEFAULT, "Beer");
-
-// ---- Wine watch: same as Wine watch, for wine. Default: a bottle of Shiraz. ----
-const WINE_DEFAULT = "Shiraz 750ml bottle";
-const wineWords = q => String(q).toLowerCase().replace(/\b(x|bottles?|ml|l|litres?|cask|pack|case|dozen)\b/g, " ").split(/\W+/).filter(w => w.length > 1 && !/^\d+$/.test(w));
-async function wineApi(req, env, url) {
-  const L = ((await env.DATA.get("winelocal", "json")) || []).filter(x => Date.now() - new Date(x.at) < 30 * 864e5);
-  if (req.method === "POST") {
-    const f = await req.formData(); if (f.get("website")) return new Response(null, { status: 303, headers: { location: `/${R.code}#wine` } });
-    const shop = String(f.get("shop") || "").replace(/[<>]/g, "").trim().slice(0, 60), sub = String(f.get("suburb") || "").replace(/[<>]/g, "").trim().slice(0, 40),
-      beer = String(f.get("wine") || WINE_DEFAULT).replace(/[<>]/g, "").trim().slice(0, 60), price = Math.round(+f.get("price") * 100) / 100;
-    if (!shop || !sub || !(price > 5 && price < 400) || f.get("ok") !== "yes") return page("Check your details", `<h1>Nearly</h1><p>Please add the shop, suburb, a price, and tick the box. <a href="/${R.code}#wine">Back</a></p>`);
-    const k = (shop + "|" + beer).toLowerCase(), rest = L.filter(x => (x.shop + "|" + x.beer).toLowerCase() !== k);
-    await env.DATA.put("winelocal", JSON.stringify([{ shop, sub, beer, price, at: new Date().toISOString() }, ...rest].slice(0, 300)));
-    return page("Price posted", `<h1>Thanks, it&rsquo;s up!</h1><p>${esc(shop)}: ${esc(beer)} at $${price.toFixed(2)}. It shows for 30 days, so post again whenever it changes.</p><p><a href="/${R.code}#wine">See Wine watch</a></p>`);
-  }
-  const q = String(url.searchParams.get("q") || WINE_DEFAULT).slice(0, 60), w = wineWords(q);
-  return Response.json({ q, items: L.filter(x => { const t = x.beer.toLowerCase(); return w.every(y => t.includes(y)); }).sort((a, b) => a.price - b.price) }, { headers: { "cache-control": "no-store" } });
-}
-const wineBlock = () => liquorBlock("wine", "🍷", "Wine watch", WINE_DEFAULT, "Wine");
+${cwatchPanel("alcohol")}
+<p class="src"><span class="srcw">Source:</span> prices posted by local shops, with the date they posted. Shown for 30 days. We don't check the big chains: local only. Please drink responsibly.</p>
+<script>${CWATCH_JS}(function(){var O=document.getElementById('alcout'),Q=document.getElementById('alcq'),T='',m=function(n){return '$'+Number(n).toFixed(2)},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var D=new Date(),ago=function(a){var d=Math.round((D-new Date(a))/864e5);return d<1?'today':d===1?'yesterday':d+' days ago'};
+var H=document.getElementById('alch'),NM={'':'🍻 Grog watch',beer:'🍺 Beer watch',wine:'🍷 Wine watch',spirits:'🥃 Spirits watch',cider:'🍏 Cider watch'};
+function ty(t){t=String(t).toLowerCase();return /\b(wine|shiraz|merlot|cabernet|pinot|chardonnay|sauvignon|riesling|rose|rosé|prosecco|champagne|sparkling|moscato|grenache|tempranillo|malbec|cask|semillon|verdelho|fiano)\b/.test(t)?'wine':/\b(gin|vodka|rum|whisky|whiskey|bourbon|scotch|tequila|brandy|liqueur|ouzo|sambuca|baileys|jagermeister|spirits?)\b/.test(t)?'spirits':/\b(cider|seltzer|premix|rtd|cruiser|ready to drink)\b/.test(t)?'cider':/\b(beer|lager|ale|stout|pale|ipa|tooheys|vb|xxxx|carlton|great northern|corona|heineken|coopers|hahn|stone|furphy|balter|pils)\b/.test(t)?'beer':''}
+function name(t){var x=H.querySelector('button');H.firstChild.nodeValue=NM[t]||NM[''];if(x)H.appendChild(x)}
+function tl(v,L){var lo=Math.min.apply(null,L),hi=Math.max.apply(null,L);return L.length<2||lo===hi?'':v===lo?'cheap':v===hi?'dear':'mid'}
+function table(items,head){var by={};items.forEach(function(x){(by[x.item]=by[x.item]||[]).push(x)});return '<div class="tscroll"><table class="shopt"><thead><tr><th>'+head+'</th><th>Local price</th></tr></thead><tbody>'+Object.keys(by).sort().map(function(k){var L=by[k].map(function(x){return x.price});return by[k].sort(function(a,b){return a.price-b.price}).map(function(x,i){return '<tr><th scope="row">'+(i?'':e(k))+'</th><td class="'+tl(x.price,L)+'">'+m(x.price)+'<br><small>'+e(x.shop)+', '+e(x.sub)+' · '+ago(x.at)+'</small></td></tr>'}).join('')}).join('')+'</tbody></table></div>'}
+function none(q){return '<p><b>We can&rsquo;t find '+e(q)+' at a local shop yet.</b></p><p class="mute">What we can do: show prices that local bottle shops post themselves, and put it to a vote below so shops know locals want it. What we can&rsquo;t do: check the big chains. They don&rsquo;t let us, and we&rsquo;re local only. Know a local shop that stocks it? Ask them to post their price here, free.</p>'}
+function list(){O.className='mute';O.textContent='Checking local prices…';fetch('/api/alcohol'+(T?'?type='+T:'')).then(function(r){return r.json()}).then(function(j){O.className='';O.innerHTML=j.items.length?table(j.items,'Drink'):'<p class="mute">No local shop has posted '+(T?'a price in this type':'a price')+' in the last 30 days. Shop owners: post yours below, free.</p>'}).catch(function(){O.textContent='Couldn’t reach us just now. Try again soon.'})}
+document.getElementById('alcf').onsubmit=function(ev){ev.preventDefault();var q=Q.value.trim();if(q.length<2){name(T);list();return}name(ty(q));O.className='mute';O.textContent='Searching local shops…';fetch('/api/alcohol?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){O.className='';O.innerHTML=j.items.length?'<p class="mute">'+j.items.length+' local price'+(j.items.length>1?'s':'')+' for '+e(q)+'.</p>'+table(j.items,'Drink'):none(q)}).catch(function(){O.textContent='Couldn’t reach us just now. Try again soon.'})};
+document.getElementById('alcp').onclick=function(ev){var b=ev.target.closest('button');if(!b)return;T=b.dataset.t;name(T);[].forEach.call(this.children,function(x){x.classList.toggle('on',x===b)});Q.value='';list()};list()})();</script></section>`;
 
 // ---- Mini Maverick Encouragement Award: grown-ups nominate a local kid; the winner gets $50 to spend at a local business of their choice. Never fast food. ----
 const AWARD_INFO = `<p>Every month one local kid gets the <b>Mini Maverick Encouragement Award</b>: <b>$50 to spend wherever they like</b> at a local ${"${R.place}"} business. Bookshop, surf shop, bakery, the footy club canteen. Anywhere local, except fast food.</p>
@@ -2668,7 +2725,7 @@ ${await plusList(env)}
 function allPage() {
   const G = [["🗞️ Sections", NAV.map(x => [`/${x.slug}`, x.name, x.blurb])], ["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
     ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free, Some Cool Things or Every Cool Thing"]]],
-    ["🧰 Handy tools", [["/numbers", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"], ["/scams", "Scam watch", "What's going around, check before you buy, report a scam"], ["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What to watch tonight", "What locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
+    ["🧰 Handy tools", [["/numbers", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"], ["/scams", "Scam watch", "What's going around, check before you buy, report a scam"], ["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What are you binging?", "Shows, podcasts and channels locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
     ["👤 You", [["/me", "My page", "Your settings and what Mav knows"], ["/signin", "Sign in", "Free, one tap"]]],
@@ -2797,10 +2854,12 @@ async function cwBoard(url, req, env) {
   return Response.json({ n: b.length, top: b.slice(0, 10).map(x => ({ n: x.n, s: x.s, me: x.e === em })), me: me >= 0 ? { rank: me + 1, s: b[me].s } : null }, { headers: { "cache-control": "no-store" } });
 }
 
-// ---- What to watch: locals share what they're streaming and give it a thumbs up, so nobody spends the night scrolling.
-// Signed-in locals only (keeps spam out). Each pick is checked by AI for anything nasty and goes up straight away, no manual work.
-const SERVICES = ["Netflix", "Stan", "Binge", "Prime Video", "Disney+", "ABC iview", "SBS On Demand", "Apple TV+", "Paramount+", "YouTube", "Other"];
-async function watchList(env) { const cut = Date.now() - 60 * 864e5; return ((await env.DATA.get("watch:list", "json")) || []).filter(x => new Date(x.at) > cut); }
+// ---- What are you binging? Locals share what they're watching or listening to (any show, movie, podcast or video channel,
+// on any service: we don't name or favour any), say why, label it (comedy, fishing, politics…) and vote. Anyone can search
+// what the community suggested: "what are you looking for?". Signed-in locals only, each pick checked by AI, no manual work.
+const BFORMS = [["show", "📺 Show or movie"], ["podcast", "🎧 Podcast"], ["channel", "🎥 Video channel"], ["other", "✨ Something else"]];
+const BTAGS = ["Comedy", "Crime", "Documentary", "Drama", "Family", "Fishing", "Food", "History", "Music", "Nature", "Politics", "Reality", "Sci-fi", "Sport", "Surf", "True story", "Other"];
+async function watchList(env) { const cut = Date.now() - 120 * 864e5; return ((await env.DATA.get("watch:list", "json")) || []).filter(x => new Date(x.at) > cut).map(x => ({ form: "show", tag: "Other", ...x })); }
 async function cleanText(env, txt) { // true if fine to show
   if (!txt.trim()) return true;
   try { const r = await env.AI.run("@cf/meta/llama-guard-3-8b", { messages: [{ role: "user", content: txt }] }); const v = r?.response; return !(v?.safe === false || /unsafe/i.test(typeof v === "string" ? v : JSON.stringify(v || ""))); }
@@ -2811,49 +2870,86 @@ async function watchPost(req, env) {
   const f = await req.formData(), L = await watchList(env);
   if (f.get("up")) { const x = L.find(x => x.id === f.get("up")); if (x && !x.ups.includes(em)) x.ups.push(em); }
   else {
-    const title = String(f.get("title") || "").replace(/\s+/g, " ").trim().slice(0, 80), why = String(f.get("why") || "").replace(/\s+/g, " ").trim().slice(0, 90);
-    const svc = SERVICES.includes(f.get("svc")) ? String(f.get("svc")) : "Other", stars = Math.min(5, Math.max(1, +f.get("stars") || 4));
-    if (title.length < 2 || !(await cleanText(env, title + "\n" + why))) return watchPage(req, env, "That one didn't go through. Keep it to the show's name and a few kind words.");
-    const same = L.find(x => x.title.toLowerCase() === title.toLowerCase() && x.svc === svc);
+    const title = String(f.get("title") || "").replace(/\s+/g, " ").trim().slice(0, 80), why = String(f.get("why") || "").replace(/\s+/g, " ").trim().slice(0, 140);
+    const form = BFORMS.some(x => x[0] === f.get("form")) ? String(f.get("form")) : "show", tag = BTAGS.includes(f.get("tag")) ? String(f.get("tag")) : "Other";
+    if (title.length < 2 || why.length < 3) return watchPage(req, env, "Add the name and a few words on why it's worth it.");
+    if (!(await cleanText(env, title + "\n" + why))) return watchPage(req, env, "That one didn't go through. Keep it to the name and a few kind words.");
+    const same = L.find(x => x.title.toLowerCase() === title.toLowerCase() && x.form === form);
     if (same) { if (!same.ups.includes(em)) same.ups.push(em); }
-    else { const u = await env.DATA.get(`user:${em}`, "json"); L.unshift({ id: crypto.randomUUID().slice(0, 8), title, svc, stars, why, by: String(u?.name || "").split(" ")[0].slice(0, 20) || "A local", e: em, ups: [em], at: new Date().toISOString() }); }
+    else { const u = await env.DATA.get(`user:${em}`, "json"); L.unshift({ id: crypto.randomUUID().slice(0, 8), title, form, tag, why, by: String(u?.name || "").split(" ")[0].slice(0, 20) || "A local", e: em, ups: [em], at: new Date().toISOString() }); }
   }
-  await env.DATA.put("watch:list", JSON.stringify(L.slice(0, 200)));
+  await env.DATA.put("watch:list", JSON.stringify(L.slice(0, 300)));
   return new Response(null, { status: 303, headers: { location: "/watch" } });
 }
 async function watchPage(req, env, msg = "") {
   const em = await member(req, env), L = (await watchList(env)).sort((a, b) => b.ups.length - a.ups.length || b.at.localeCompare(a.at));
-  const st = n => "⭐".repeat(n);
-  const item = x => `<li data-svc="${esc(x.svc)}"><div><b>${esc(x.title)}</b> <span class="wsvc">${esc(x.svc)}</span> <span class="mute">${st(x.stars)}</span>${x.why ? `<br><span>“${esc(x.why)}”</span>` : ""}<br><small class="mute">Shared by ${esc(x.by)} · ${x.ups.length} local${x.ups.length > 1 ? "s" : ""} rate it</small></div>
-<form method="post"><input type="hidden" name="up" value="${x.id}"><button class="ghost"${em && x.ups.includes(em) ? " disabled" : ""} title="Thumbs up">👍 ${x.ups.length}</button></form></li>`;
-  return page(`What to watch: ${R.code} Maverick`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>📺 What to watch tonight</h1>
-<p>We all spend longer choosing than watching. Here's what locals are streaming and rating. Add yours, thumbs up the good ones.</p>
+  const FN = Object.fromEntries(BFORMS), tags = BTAGS.filter(t => L.some(x => x.tag === t));
+  const item = x => `<li data-f="${esc(x.form)}" data-t="${esc(x.tag)}"><div><b>${esc(x.title)}</b> <span class="wsvc">${FN[x.form] || FN.show}</span> <span class="wsvc">${esc(x.tag)}</span>${x.why ? `<br><span>Why: “${esc(x.why)}”</span>` : ""}<br><small class="mute">Shared by ${esc(x.by)} · ${x.ups.length} local${x.ups.length > 1 ? "s" : ""} vote${x.ups.length > 1 ? "" : "s"} for it</small></div>
+<form method="post"><input type="hidden" name="up" value="${x.id}"><button class="ghost"${em && x.ups.includes(em) ? " disabled" : ""} title="Vote for it">👍 ${x.ups.length}</button></form></li>`;
+  return page(`What are you binging? ${R.code} Maverick`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>🍿 What are you binging?</h1>
+<p>We all spend longer scrolling than watching. Here's what locals are binging: shows, movies, podcasts, video channels, on whatever they use. Each one with why it's worth it. Vote for the good ones.</p>
 ${msg ? `<p class="note">${esc(msg)}</p>` : ""}
-<div class="ptabs" id="wf"><button type="button" class="on" data-s="">All</button>${SERVICES.filter(v => L.some(x => x.svc === v)).map(v => `<button type="button" data-s="${esc(v)}">${esc(v)}</button>`).join("")}</div>
+<label for="wq"><b>🔎 What are you looking for?</b></label><input id="wq" type="search" maxlength="60" placeholder="e.g. something funny, fishing, true crime podcast" autocomplete="off">
+<div class="alcp" id="wff"><button type="button" class="on" data-f="">All</button>${BFORMS.filter(([k]) => L.some(x => x.form === k)).map(([k, n]) => `<button type="button" data-f="${k}">${n}</button>`).join("")}</div>
+${tags.length ? `<div class="alcp" id="wft"><button type="button" class="on" data-t="">Every topic</button>${tags.map(t => `<button type="button" data-t="${esc(t)}">${esc(t)}</button>`).join("")}</div>` : ""}
 <p><button type="button" id="wpick">🎲 Can't decide? Pick one for me</button> <span id="wout"></span></p>
-${L.length ? `<ul class="wlist" id="wl">${L.map(item).join("")}</ul>` : `<p class="mute">No picks yet. Be the first to share what you're watching.</p>`}
-<h2>➕ What are you watching?</h2>
-${em ? `<form method="post"><input name="title" maxlength="80" required placeholder="Show or movie name">
-<div class="row"><select name="svc">${SERVICES.map(v => `<option>${esc(v)}</option>`).join("")}</select><select name="stars">${[5, 4, 3, 2, 1].map(n => `<option value="${n}">${st(n)}</option>`).join("")}</select></div>
-<input name="why" maxlength="90" placeholder="Why watch it? (optional, a few words)"><p><button>Share it</button></p></form>`
-    : `<p><a href="/signin?next=/watch"><b>Sign in free</b></a> to share what you're watching and thumbs up others.</p>`}
-<p class="mute">Picks are shared by locals and checked automatically to keep it friendly. Spotted something off? <a href="/feedback">Tell us</a>.</p>
-<style>.wlist{list-style:none;padding:0}.wlist li{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.wlist form{margin:0}.wsvc{font-size:.75rem;font-weight:700;background:var(--soft);border-radius:99px;padding:1px 8px}#wf button{background:var(--soft);color:var(--fg);border-radius:99px;padding:5px 12px;font-size:.85rem}#wf button.on{background:var(--fg);color:var(--bg)}</style>
-<script>(function(){var cur='',L=[].slice.call(document.querySelectorAll('#wl li'));
-[].forEach.call(document.querySelectorAll('#wf button'),function(b){b.onclick=function(){cur=b.dataset.s;[].forEach.call(document.querySelectorAll('#wf button'),function(x){x.classList.toggle('on',x==b)});L.forEach(function(li){li.hidden=!!cur&&li.dataset.svc!==cur})}});
-document.getElementById('wpick').onclick=function(){var v=L.filter(function(li){return !li.hidden}).slice(0,15),o=document.getElementById('wout');if(!v.length){o.textContent='Nothing to pick from yet.';return}var li=v[Math.floor(Math.random()*v.length)];o.innerHTML='Tonight: <b>'+li.querySelector('b').textContent+'</b> on '+li.dataset.svc+' 🍿';li.scrollIntoView({behavior:'smooth',block:'center'})};})();</script>`, R.code);
+${L.length ? `<ul class="wlist" id="wl">${L.map(item).join("")}</ul><p class="mute" id="wnone" hidden>Nothing like that yet. Be the first to share one below.</p>` : `<p class="mute">No picks yet. Be the first to share what you're binging.</p>`}
+<h2>➕ What are you binging?</h2>
+${em ? `<form method="post"><input name="title" maxlength="80" required placeholder="Name of the show, movie, podcast or channel">
+<div class="row"><select name="form" aria-label="What is it?">${BFORMS.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select><select name="tag" aria-label="Topic">${BTAGS.map(t => `<option>${esc(t)}</option>`).join("")}</select></div>
+<input name="why" maxlength="140" required placeholder="Why is it worth it? A few words"><p><button>Share it</button></p></form>`
+    : `<p><a href="/signin?next=/watch"><b>Sign in free</b></a> to share what you're binging and vote for others.</p>`}
+<p class="mute">Picks are shared by locals and checked automatically to keep it friendly. We don't name or favour any streaming service. Spotted something off? <a href="/feedback">Tell us</a>.</p>
+<style>.wlist{list-style:none;padding:0}.wlist li{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.wlist form{margin:0}.wsvc{font-size:.75rem;font-weight:700;background:var(--soft);border-radius:99px;padding:1px 8px}#wq{width:100%;margin:4px 0 8px}</style>
+<script>(function(){var F='',T='',Q='',L=[].slice.call(document.querySelectorAll('#wl li')),N=document.getElementById('wnone');
+function run(){var n=0,w=Q.toLowerCase().split(/\s+/).filter(function(x){return x.length>1});L.forEach(function(li){var tx=li.textContent.toLowerCase()+' '+li.dataset.t.toLowerCase(),ok=(!F||li.dataset.f===F)&&(!T||li.dataset.t===T)&&w.every(function(x){return tx.indexOf(x.replace(/s$/,''))>-1});li.hidden=!ok;if(ok)n++});if(N)N.hidden=n>0}
+function pills(id,cb){var P=document.getElementById(id);if(!P)return;P.onclick=function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call(P.children,function(x){x.classList.toggle('on',x===b)});cb(b);run()}}
+pills('wff',function(b){F=b.dataset.f});pills('wft',function(b){T=b.dataset.t});var q=document.getElementById('wq');q.oninput=function(){Q=q.value.trim();run()};
+document.getElementById('wpick').onclick=function(){var v=L.filter(function(li){return !li.hidden}).slice(0,15),o=document.getElementById('wout');if(!v.length){o.textContent='Nothing to pick from yet.';return}var li=v[Math.floor(Math.random()*v.length)];o.innerHTML='Tonight: <b>'+li.querySelector('b').textContent+'</b> 🍿';li.scrollIntoView({behavior:'smooth',block:'center'})};})();</script>`, R.code);
 }
-
+// ---- Bin night, automatic: type your address once (or pick your area), and the coloured bins show up on your front page.
+function binAutoUI() {
+  const src = BIN_SRC[R.code];
+  if (!src) return "";
+  if (src.kind === "link") return `<p>${src.cal ? `Find your bin days on the <a href="${src.cal}" rel="noopener">${esc(src.name)} website</a>, then` : `Check your bin days with ${esc(src.name)}, then`} set them below and we'll show the right bins on your front page.</p>`;
+  const pick = src.kind === "wi" ? `<label for="baq">Your street address</label><div class="row"><input id="baq" maxlength="80" placeholder="e.g. 11 Smith Street" autocomplete="street-address"><button type="button" id="bago">Find</button></div><ul class="baddr" id="bares" aria-live="polite"></ul>`
+    : `<div class="row"><div><label for="baarea">Your area</label><select id="baarea"><option value="">Choose…</option><option value="north">North: Billinudgel, Brunswick Heads, Federal, Mullumbimby, New Brighton, Ocean Shores, South Golden Beach</option><option value="south">South: Bangalow, Byron Bay, Ewingsdale, Suffolk Park</option></select></div>
+<div><label for="baday">Collection day</label><select id="baday"><option value="">Choose…</option>${["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((d, i) => `<option value="${i + 1}">${d}</option>`).join("")}</select></div></div><p class="mute">Not sure of your day? Search your address in the free Recycle Coach app. Rural properties: see the <a href="${src.cal}" rel="noopener">rural calendar</a>.</p>`;
+  return `<div id="bauto"><p>${src.kind === "wi" ? "Type your address once and we'll show which bins go out, in their colours, on your front page. It updates by itself from the council's own calendar." : "Pick your area and day once, and we'll show which bins go out, in their colours, on your front page."}</p>
+${pick}<div id="banext"></div><p class="src"><span class="srcw">Source:</span> <a href="${src.cal}" rel="noopener">${esc(src.name)}</a> collection calendar.${src.phone ? ` Questions: <a href="tel:${src.phone.replace(/\s/g, "")}">${esc(src.phone)}</a>.` : ""} Your address stays on your phone.</p></div>
+<script>${BINS_JS(R.code)}(function(){var B=window.M2B,out=document.getElementById('banext');
+function draw(){var a=B.auto();if(!a){out.innerHTML='';return}out.innerHTML='<p class="mute">Checking your bins…</p>';B.next(function(d){var L=B.upcoming(d).slice(0,5);
+out.innerHTML='<p><b>📍 '+String(a.name).replace(/</g,'')+'</b> <a href="#" id="bareset">change</a></p>'+(L.length?'<ul class="fls">'+L.map(function(x){return '<li><b>'+B.when(x.date).replace(/^./,function(c){return c.toUpperCase()})+'</b>: '+x.bins.map(function(b){return B.lid(b)}).join('')+'</li>'}).join('')+'</ul>':'<p class="mute">The council calendar isn’t answering just now. Try again soon.</p>');
+document.getElementById('bareset').onclick=function(e){e.preventDefault();B.p('bin_auto',null);B.p('bin_cache',null);draw()}})}
+var q=document.getElementById('baq');if(q){var res=document.getElementById('bares'),go=function(){var v=q.value.trim();if(v.length<4){res.innerHTML='<li class="mute">Type your house number and street.</li>';return}res.innerHTML='<li class="mute">Searching…</li>';
+fetch('/api/bins?q='+encodeURIComponent(v)).then(function(r){return r.json()}).then(function(j){res.innerHTML=(j.list||[]).length?j.list.map(function(x){return '<li><button type="button" data-id="'+x.id+'" data-n="'+x.name.replace(/"/g,'')+'">'+x.name.replace(/</g,'')+' <small class="mute">'+String(x.zone||'').replace(/</g,'')+'</small></button></li>'}).join(''):'<li class="mute">No match. Try just the number and street name, like 11 Smith.</li>'}).catch(function(){res.innerHTML='<li class="mute">Couldn’t reach the council calendar. Try again soon.</li>'})};
+document.getElementById('bago').onclick=go;q.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go()}};
+res.onclick=function(e){var b=e.target.closest('button');if(!b)return;B.p('bin_auto',JSON.stringify({code:'${R.code}',kind:'wi',id:b.dataset.id,name:b.dataset.n}));res.innerHTML='';q.value='';draw()}}
+var ar=document.getElementById('baarea'),dy=document.getElementById('baday');if(ar){var a=B.auto();if(a){ar.value=a.area;dy.value=a.day}var sv=function(){if(ar.value&&dy.value){B.p('bin_auto',JSON.stringify({code:'${R.code}',kind:'byron',area:ar.value,day:+dy.value,name:(ar.value==='north'?'North':'South')+' area, '+dy.options[dy.selectedIndex].text}));B.p('bin_cache',null);draw()}};ar.onchange=dy.onchange=sv}
+draw()})()</script>`;
+}
+// ---- Can I throw it in this bin? Type an item, get the bin and why.
+function whichBinUI() {
+  const src = BIN_SRC[R.code] || {};
+  return `<h2 id="whichbin">🤔 Can I throw it in this bin?</h2><p>Type an item and we'll tell you which bin, and why.</p>
+<input id="wbq" type="search" maxlength="40" placeholder="e.g. pizza box, coffee cup, batteries" autocomplete="off" aria-label="What are you throwing out?"><div class="wbres" id="wbres" aria-live="polite"></div>
+<p class="src"><span class="srcw">Source:</span> the councils' own bin guides. Councils differ a little${src.az ? `: check the <a href="${src.az}" rel="noopener">${esc(src.name)} A to Z</a>` : src.cal ? `: check <a href="${src.cal}" rel="noopener">${esc(src.name)}</a>` : ""}.</p>
+<script>(function(){var I=${JSON.stringify(BIN_ITEMS).replace(/</g, "\\u003c")},C={green:['#3f9b2e','Green bin (organics)'],red:['#d0342c','Red bin (rubbish)'],yellow:['#f2c200','Yellow bin (recycling)']},q=document.getElementById('wbq'),o=document.getElementById('wbres');
+q.oninput=function(){var s=q.value.trim().toLowerCase();if(s.length<2){o.innerHTML='';return}var sc=function(i){var b=0;i[3].split(',').concat(i[1].toLowerCase()).forEach(function(k){if(k.indexOf(s)>-1||s.indexOf(k)>-1)b=Math.max(b,Math.min(k.length,s.length)+(k===s?50:0))});return b};var h=I.map(function(i){return [sc(i),i]}).filter(function(x){return x[0]>0}).sort(function(a,b){return b[0]-a[0]||a[1][1].localeCompare(b[1][1])}).map(function(x){return x[1]}).slice(0,5);
+o.innerHTML=h.length?h.map(function(i){var c=C[i[0]];return '<div class="wbhit" style="--c:'+c[0]+'"><span class="blid" style="--c:'+c[0]+'"><i></i></span><div><b>'+(i[1].indexOf('never in any bin')>-1?'Not in any bin':c[1])+': '+i[1]+'</b><span class="mute">'+i[2]+'</span></div></div>'}).join(''):'<p class="mute">Not sure about that one.${src.phone ? ` Call ${esc(src.name)} on <a href="tel:${src.phone.replace(/\s/g, "")}">${esc(src.phone)}</a>.` : " Check with your council."}</p>'}})()</script>`;
+}
 // ---- My home: bin night + a house-sitter sheet. Everything stays on the phone; nothing is sent to us. ----
 const homePage = () => page("My home", `<p class="mute"><a href="/${R.code}">‹ ${R.code}</a></p><h1>🏡 My home</h1>
 <p>Handy home info, saved on <b>your phone only</b>. Nothing here is sent to us.</p>
-<h2>🗑️ Bin night</h2><div class="row"><div><label>Bins go out</label><select id="bday"><option value="">Choose…</option>${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].map((d, i) => `<option value="${i}">${d} night</option>`).join("")}</select></div>
+<h2>🗑️ Bin night</h2>${binAutoUI()}
+<details id="bman"${BIN_SRC[R.code] && BIN_SRC[R.code].kind !== "link" ? "" : " open"}><summary><b>Set bin night by hand</b></summary><div class="row"><div><label>Bins go out</label><select id="bday"><option value="">Choose…</option>${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].map((d, i) => `<option value="${i}">${d} night</option>`).join("")}</select></div>
 </div>
 <label>This bin night, which one goes out with the green bin?</label><select id="bthis"><option value="">Choose…</option><option value="1">Red (general waste)</option><option value="2">Yellow (recycling)</option></select>
 <p class="mute">That&rsquo;s it. Green goes out every week; red and yellow swap each fortnight, and we work out the rest.</p>
 <div id="bcal"></div>
 <details><summary class="mute">Different bins where you live?</summary><div class="row"><div><label>Every week</label><input id="bweekly" value="Green (organics)" maxlength="40"></div><div><label>Fortnightly bin 1</label><input id="balt1" value="Red (general waste)" maxlength="40"></div><div><label>Fortnightly bin 2</label><input id="balt2" value="Yellow (recycling)" maxlength="40"></div></div></details>
-<p class="note" id="bnext" hidden></p><p class="mute">${R.binsTip} We'll remind you on your ${R.code} page the day bins go out.</p>
+<p class="note" id="bnext" hidden></p></details><p class="mute">${R.binsTip} We'll remind you on your ${R.code} page the day bins go out.</p>
+${whichBinUI()}
 <h2>🧳 House-sitter sheet</h2><p>Going away? Fill in what a house-sitter needs, then print or share it.</p>
 <p class="note">⚠️ Please don't put passwords, alarm codes or where the spare key is in here.</p>
 ${[["pets", "Pets: names, feeding, walks", 3], ["plants", "Plants and garden: what needs water and when", 2], ["routine", "House routine: mail, blinds, lights, pool", 3], ["contact", "Who to call if something goes wrong (name and phone)", 2], ["notes", "Anything else they should know", 3]].map(([id, l, r]) => `<label>${l}</label><textarea data-hs="${id}" rows="${r}" maxlength="600"></textarea>`).join("")}
@@ -2939,10 +3035,28 @@ export default {
   async fetch(req, env, ctx) {
     env = await withSecrets(env);
     initRegion(env);
-    try { CUR_PATH = new URL(req.url).pathname; return await route(req, env, ctx); }
+    try { const u = new URL(req.url); CUR_PATH = u.pathname;
+      if (req.method === "GET" && isPaperPath(u.pathname)) return await edgeCached(u, ctx, () => route(req, env, ctx));
+      return await route(req, env, ctx); }
     catch (e) { console.log("page error", String(e)); return page("Back soon", `<h1>Back in a moment</h1><p>Something hiccuped on our end. Try again in a minute.</p><p><a href="/">Home</a></p>`); }
   },
 };
+// ---- Speed: the daily paper and its section pages are the same for everyone (personal touches are added on the phone),
+// so each one is built at most once a minute and served from Cloudflare's edge cache. A page older than a minute is still
+// served instantly while a fresh copy is built in the background. Pages for signed-in members, forms and APIs are never cached.
+const EDGE_FRESH = 60, EDGE_KEEP = 900;
+const isPaperPath = p => p === "/" || /^\/\d{4}\/?$/.test(p) || NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""));
+async function edgeCached(url, ctx, make) {
+  const k = new URL(url); [...k.searchParams.keys()].filter(x => /^(utm_|gclid|fbclid|msclkid)/.test(x)).forEach(x => k.searchParams.delete(x));
+  const key = new Request(k.toString()), cache = caches.default;
+  const build = async () => { const r = await make(); if (r.status !== 200) return r; const body = await r.arrayBuffer(), h = new Headers(r.headers);
+    h.set("cache-control", `public, max-age=${EDGE_KEEP}`); h.set("x-built", String(Date.now())); await cache.put(key, new Response(body, { status: 200, headers: h }));
+    return new Response(body, { status: 200, headers: r.headers }); };
+  const out = r => { const o = new Response(r.body, r); o.headers.set("cache-control", "no-cache"); o.headers.delete("x-built"); return o; };
+  let hit = null; try { hit = await cache.match(key); } catch (e) {}
+  if (hit) { if (Date.now() - (+hit.headers.get("x-built") || 0) > EDGE_FRESH * 1000) ctx.waitUntil(build().catch(() => {})); return out(hit); }
+  return out(await build());
+}
 async function route(req, env, ctx) {
   {
     const url = new URL(req.url), p = url.pathname;
@@ -2979,12 +3093,12 @@ async function route(req, env, ctx) {
     if (p === "/kids/certificate") return page(`Certified Mini Maverick: Kid Zone`, `<style>${KID_CSS}</style>` + certPage("/" + R.code, R.code));
     if (p === "/kids/robot") return page(`Robot Builder: Kid Zone`, `<style>${KID_CSS}</style>` + robotPage("/" + R.code));
     if (p === "/home") return homePage();
+    if (p === "/api/bins") return binsApi(url, R.code);
     if (p === "/rent") return dirPage("rent");
     if (p === "/timesaved") return timeSavedPage(env);
     if (p === "/all" || p === "/everything") return allPage();
     if (p === "/award") return awardPage(req, env, ctx);
-    if (p === "/api/beer") return beerApi(req, env, url);
-    if (p === "/api/wine") return wineApi(req, env, url);
+    if (p === "/api/alcohol" || p === "/api/beer" || p === "/api/wine") return alcoholApi(req, env, url);
     if (p === "/status") return statusPage(env);
     if (p === "/api/timesaved") return timeApi(req, env, url);
     if (p === "/jobs") return dirPage("jobs");
@@ -3054,7 +3168,7 @@ async function route(req, env, ctx) {
     if (p.startsWith("/p/") && p.endsWith(".jpg")) return PHOTOS().image(env, p.slice(3, -4).replace(/[^a-z0-9]/g, ""));
     if (p === "/icon-512.png") return iconPng(512);
     if (p === "/api/installed" && req.method === "POST") { const k = `install:${todayISO()}`; ctx.waitUntil(env.DATA.get(k).then(n => env.DATA.put(k, String((+n || 0) + 1)))); return new Response(null, { status: 204 }); }
-    if (p === "/mav.svg") return new Response(MAV_SVG, { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
+    if (p === "/mav.svg") return new Response(mavSvg(url.searchParams.get("m") || ""), { headers: { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" } });
     if (p === "/manifest.webmanifest") { const f = decodeURIComponent(cookie(req, "m2450n") || "").split(" ")[0].replace(/[^\p{L}'-]/gu, "").slice(0, 20); return new Response(MANIFEST(f && f !== "Local" ? f : ""), { headers: { "content-type": "application/manifest+json", "cache-control": "private, no-store", vary: "Cookie" } }); }
     if (p === "/sw.js") return new Response(SW(), { headers: { "content-type": "text/javascript" } });
     if (p === "/au" || p.startsWith("/au/")) { const r = auHandle(p, url, AU_HELPERS); if (r) return r; }
@@ -3549,8 +3663,8 @@ async function shopBlock(env) {
   const best = ks.filter(k => tot[k] != null).sort((a, b) => tot[a] - tot[b])[0];
   const refused = v => [401, 403, 429].includes(+v), blk = Object.fromEntries(Object.entries(s.blocked || {}).filter(([k, v]) => refused(v) || k === "c")), miss = Object.keys(s.blocked || {}).filter(k => !blk[k]), row = i => { const p = i._p || s.items[i.id] || {}, vals = ks.map(k => p[k] && p[k].price).filter(x => x != null), lo = Math.min(...vals);
     return `<tr><th scope="row">${esc(i.label)}</th>${ks.map(k => { const x = p[k]; if (!x) return blk[k] ? `<td class="mute" title="${STORES[k]} blocks our price checks">blocked</td>` : `<td class="mute">–</td>`;
-      return `<td class="${vals.length > 1 && x.price === lo ? "cheap" : ""}" title="${esc(x.name)}${x.unit ? " · " + esc(x.unit) : ""}">${money(x.price)}${x.was ? `<br><small class="tagg">special</small>` : ""}${x.prev && x.prev !== x.price ? `<br><small class="mute">${x.price > x.prev ? "▲" : "▼"} ${money(x.prev)}</small>` : ""}</td>`; }).join("")}</tr>`; };
-  return `<section id="shop"><h2>Supermarket watch</h2><p class="mute">The everyday basics at each supermarket today. Cheapest in green. We update these prices <b>twice a day</b>, around 6am and 2pm, so you always know how fresh they are.</p>
+      return `<td class="${tlc(x.price, vals)}" title="${esc(x.name)}${x.unit ? " · " + esc(x.unit) : ""}">${money(x.price)}${x.was ? `<br><small class="tagg">special</small>` : ""}${x.prev && x.prev !== x.price ? `<br><small class="mute">${x.price > x.prev ? "▲" : "▼"} ${money(x.prev)}</small>` : ""}</td>`; }).join("")}</tr>`; };
+  return `<section id="shop"><h2>Supermarket watch</h2><p class="mute">The everyday basics at each supermarket today. Green is cheapest, red is dearest. We update these prices <b>twice a day</b>, around 6am and 2pm, so you always know how fresh they are.</p>
 ${best ? `<p class="note">Cheapest basket today (milk, bread, eggs, chocolate): <b>${STORES[best]}</b> at ${money(tot[best])}${ks.filter(k => k !== best && tot[k] != null).map(k => `, ${STORES[k]} ${money(tot[k])}`).join("")}.</p>` : ""}
 <div class="tscroll"><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${STORES[k]}${blk[k] ? `<br><small class="mute">blocks us</small>` : ""}</th>`).join("")}</tr></thead><tbody>${SHOP.map(row).join("")}</tbody>${picks.length ? `<tbody><tr><th colspan="${ks.length + 1}" class="cwh">🗳️ Picked by locals</th></tr>${picks.map(i => row({ id: "_", label: i.label, _p: i })).join("")}</tbody>` : ""}</table></div>
 ${Object.keys(blk).length ? `<p class="note"><b>${Object.keys(blk).map(k => STORES[k]).join(" and ")} ${Object.keys(blk).length > 1 ? "don&rsquo;t" : "doesn&rsquo;t"} let us check ${Object.keys(blk).length > 1 ? "their" : "its"} prices.</b> ${Object.keys(blk).length > 1 ? "Their websites block" : "Its website blocks"} automatic price checks, so we can&rsquo;t show ${Object.keys(blk).length > 1 ? "them" : "it"} side by side with the others. That&rsquo;s ${Object.keys(blk).length > 1 ? "their" : "its"} choice, not ours. We show what we can find, and we tell you when we can&rsquo;t.</p>` : ""}${cwatchPanel("shop")}<script>${CWATCH_JS}</script>${miss.length ? `<p class="mute">${miss.map(k => STORES[k]).join(" and ")} prices didn&rsquo;t load at this check. We&rsquo;ll try again at the next one.</p>` : ""}<p class="src">${fresh(Object.values(s.stores).filter(Boolean).sort().pop())}Online prices from each supermarket's own website, house brand where there is one. Checked: ${ks.map(k => `${STORES[k]} ${s.stores[k] ? esc(asOf(s.stores[k])) : "not available today"}`).join(" · ")}. Prices in store and specials can differ.</p></section>`;
@@ -3742,12 +3856,23 @@ async function refreshCouncil(env) {
     await env.DATA.put("council:next", JSON.stringify(ok ? { date: j.date, time: String(j.time || "").slice(0, 40), what: String(j.what || "Council meeting").slice(0, 60), where: String(j.where || "").slice(0, 80), asof: now, tried: now } : { ...(old || {}), tried: now }));
   } catch (e) { await env.DATA.put("council:next", JSON.stringify({ ...(old || {}), tried: now })); }
 }
+// "How's council doing?" Unofficial monthly Maverick poll: thumbs up or down plus an optional few words. One answer per phone a month.
+async function councilPoll(env) {
+  const mon = new Date().toISOString().slice(0, 7), c = (await env.DATA.get(`poll:council:${mon}`, "json")) || { up: 0, down: 0 }, n = c.up + c.down, pu = n ? Math.round(c.up / n * 100) : 0;
+  return `<div class="cpoll" id="cpoll"><h3>🗳️ How's council doing?</h3><p class="mute">The unofficial Maverick poll, once a month. ${n ? `This month so far: <b>👍 ${pu}%</b> · 👎 ${100 - pu}% (${n} local${n > 1 ? "s" : ""}).` : "Be the first this month."} <a href="/results#poll-council">All results</a></p>
+<div class="mavbtns" id="cpb"><button type="button" data-v="up" aria-label="Council is doing well">👍</button><button type="button" data-v="down" aria-label="Council could do better">👎</button></div><form id="cpw" class="mavwhy" hidden><input maxlength="200" placeholder="Why? (optional, a few words)" aria-label="Why?"><button>Send</button></form><p id="cpm" class="mute" role="status"></p></div>
+<script>(function(){var k='cpoll:${mon}',B=document.getElementById('cpb'),W=document.getElementById('cpw'),M=document.getElementById('cpm'),v='';try{if(localStorage.getItem(k)){B.hidden=true;M.textContent='Thanks, you&rsquo;ve had your say this month. Back next month.'.replace('&rsquo;','\u2019')}}catch(e){}
+function post(o){o.q='council';return fetch('/api/poll',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(o)}).catch(function(){})}
+B.onclick=function(e){var t=e.target.closest('button');if(!t)return;v=t.dataset.v;post({v:v});try{localStorage.setItem(k,v)}catch(_){}B.hidden=true;W.hidden=false;M.textContent='Counted. Want to say why?';W.querySelector('input').focus()};
+W.onsubmit=function(e){e.preventDefault();var w=W.querySelector('input').value.trim();if(w)post({v:v,why:w});W.hidden=true;M.textContent='Thanks! Your words are counted with everyone else\u2019s, never with your name.'}})()<\/script>`;
+}
 async function councilBlock(env) {
   const c = R.council, nx = await env.DATA.get("council:next", "json");
   const meet = nx && nx.date && nx.date >= todayISO() ? `<p><b>Next meeting: ${esc(fmtDate(nx.date))}${nx.time ? ", " + esc(nx.time) : ""}</b>${away(nx.date)}<br><span class="mute">${esc(nx.what)}${nx.where ? " · " + esc(nx.where) : ""}. Meetings are open to the public, and you can ask to speak.</span></p>` : `<p class="mute">Meeting dates are on the council's <a href="${c.meetings || c.url}" rel="noopener">meetings page</a>.</p>`;
   return `<section id="council"><h2>🏛️ Council watch</h2><p class="mute">Keeping an eye on ${esc(c.name)}, with every item linked to its source.</p>
 ${meet}${nx && nx.asof ? `<p class="src">${fresh(nx.asof)}Read from the <a href="${c.meetings}" rel="noopener">council's meetings page</a>, ${esc(asOf(nx.asof))}.</p>` : ""}
 ${await progressBlock(env)}
+${await councilPoll(env)}
 <h3>Have your say or make a complaint</h3><ul>
 <li>Report a problem or make a request: ${esc(c.name)} on <a href="tel:${c.phone.replace(/\s/g, "")}">${esc(c.phone)}</a> or <a href="${c.url}" rel="noopener">their website</a>.</li>
 <li>Not happy with how council handled it? <a href="https://www.ombo.nsw.gov.au" rel="noopener">NSW Ombudsman</a>.</li>
@@ -3869,7 +3994,7 @@ async function ratesBlock(env) {
   const days = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5), dd = d => new Date(d + "T12:00:00").toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
   const now = ks.filter(k => cur.banks[k] && cur.banks[k].rate);
   const low = now.length ? Math.min(...now.map(k => cur.banks[k].rate)) : null;
-  const today = now.length ? `<h3>Lowest advertised variable rate today</h3><p class="mute">Owner-occupier, principal and interest, best rate across each bank's home loans.</p><table class="shopt"><tbody>${ks.map(k => { const b = cur.banks[k]; return `<tr><th scope="row">${BANKS[k]}</th><td class="${b && b.rate === low ? "cheap" : ""}" title="${b ? esc(b.product || "") : ""}">${b && b.rate ? b.rate.toFixed(2) + "%" : "–"}</td></tr>`; }).join("")}</tbody></table><p class="src">${fresh(now.map(k => cur.banks[k].asof).sort().pop())}From each bank's official Open Banking product data, checked daily. Your rate depends on your loan; check with the bank.</p>` : "";
+  const today = now.length ? `<h3>Lowest advertised variable rate today</h3><p class="mute">Owner-occupier, principal and interest, best rate across each bank's home loans.</p><table class="shopt"><tbody>${ks.map(k => { const b = cur.banks[k]; return `<tr><th scope="row">${BANKS[k]}</th><td class="${b && b.rate ? tlc(b.rate, now.map(x => cur.banks[x].rate)) : ""}" title="${b ? esc(b.product || "") : ""}">${b && b.rate ? b.rate.toFixed(2) + "%" : "–"}</td></tr>`; }).join("")}</tbody></table><p class="src">${fresh(now.map(k => cur.banks[k].asof).sort().pop())}From each bank's official Open Banking product data, checked daily. Your rate depends on your loan; check with the bank.</p>` : "";
   const avg = (k, up) => { const l = MOVES.filter(m => (m.ch > 0) === up && m.banks[k]).map(m => days(m.d, m.banks[k][0])); return l.length ? (l.reduce((a, b) => a + b, 0) / l.length).toFixed(1) : "–"; };
   const passed = (k, up) => { const l = MOVES.filter(m => (m.ch > 0) === up && m.banks[k]); return l.length ? l.filter(m => Math.abs(m.banks[k][1]) >= Math.abs(m.ch)).length + " of " + l.length : "–"; };
   const speed = `<h3>How fast they passed on RBA changes</h3><table class="shopt"><thead><tr><th></th>${ks.map(k => `<th>${BANKS[k]}</th>`).join("")}</tr></thead><tbody>
