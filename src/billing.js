@@ -90,14 +90,27 @@ async function checkout(req, env, url, deps) {
 }
 
 // Back from Stripe: confirm the checkout really finished (by its id, from Stripe) and return the buyer's email.
+// Someone who bought without signing in might already be a member, or already had their free trial.
+// Keep one subscription per email (cancel the new duplicate) and one free trial per email (end a second trial now).
+async function settle(env, email, subId, sub) {
+  const m = (await env.MEMBERS.get(`m:${email}`, "json")) || {};
+  if (m.subscription && m.subscription !== subId && LIVE.includes(m.status)) { try { await stripe(env, "DELETE", "subscriptions/" + subId); } catch (e) {} return { dup: true, m }; }
+  if (m.trialUsed && m.subscription !== subId && sub?.status === "trialing") { try { sub = await stripe(env, "POST", "subscriptions/" + subId, { trial_end: "now" }); } catch (e) {} }
+  return { dup: false, sub };
+}
+
 export async function paidEmail(env, sid) {
   if (!paymentsOn(env) || !/^cs_[A-Za-z0-9_]+$/.test(sid || "")) return null;
   const o = await stripe(env, "GET", "checkout/sessions/" + sid);
   if (o.status !== "complete" || o.metadata?.brand !== BRAND) return null;
   const email = String(o.metadata.email || o.customer_details?.email || "").toLowerCase(); if (!email) return null;
-  const sub = o.subscription ? await stripe(env, "GET", "subscriptions/" + o.subscription) : null;
-  await save(env, email, { tier: o.metadata.tier, status: sub?.status || "active", customer: o.customer, subscription: o.subscription, town: o.metadata.town, trialUsed: true });
-  return { email, name: String(o.customer_details?.name || "").split(" ")[0].slice(0, 40), tier: o.metadata.tier };
+  // The return link signs someone in once only, so an old link (history, a screenshot) can't be reused.
+  if (await env.MEMBERS.get("paid:" + sid)) return null;
+  await env.MEMBERS.put("paid:" + sid, "1", { expirationTtl: 30 * 86400 });
+  let sub = o.subscription ? await stripe(env, "GET", "subscriptions/" + o.subscription) : null;
+  const st = o.subscription ? await settle(env, email, o.subscription, sub) : { dup: false, sub };
+  if (!st.dup) await save(env, email, { tier: o.metadata.tier, status: st.sub?.status || "active", customer: o.customer, subscription: o.subscription, town: o.metadata.town, trialUsed: true });
+  return { email, name: String(o.customer_details?.name || "").split(" ")[0].slice(0, 40), tier: st.dup ? st.m.tier : o.metadata.tier };
 }
 
 async function portal(req, env, url, deps, email) {
@@ -149,7 +162,8 @@ async function webhook(req, env, ctx, deps) {
     const who = String(o.metadata.email || o.customer_details?.email || "").toLowerCase(); if (!who) return J({ ok: true });
     if (!sub.metadata?.email) await stripe(env, "POST", "subscriptions/" + o.subscription, { metadata: { ...sub.metadata, email: who } });
     o.metadata.email = who;
-    await save(env, o.metadata.email, { tier: o.metadata.tier, status: sub.status, customer: o.customer, subscription: o.subscription, town: o.metadata.town, trialUsed: true });
+    const st = await settle(env, who, o.subscription, sub); if (st.dup) return J({ ok: true, duplicate: "cancelled" });
+    await save(env, o.metadata.email, { tier: o.metadata.tier, status: st.sub?.status || sub.status, customer: o.customer, subscription: o.subscription, town: o.metadata.town, trialUsed: true });
     ctx.waitUntil(deps.acTag(env, o.metadata.email, `Daily Maverick - ${TIERS[o.metadata.tier]?.name || o.metadata.tier}`).catch(() => {}));
   }
   if (ev.type === "customer.subscription.updated" || ev.type === "customer.subscription.deleted") {

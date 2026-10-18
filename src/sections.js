@@ -85,6 +85,8 @@ export const NAV_SLUGS = NAV.map(s => s.slug);
 // Keys are the path (or path?query for /open?c=...). First section listed wins.
 export const PARENT = {};
 for (const s of NAV) for (const [u] of s.items) { if (!u || u.startsWith("#")) continue; const k = u.split("#")[0]; if (!(k in PARENT)) PARENT[k] = s.slug; const b = k.split("?")[0]; if (!(b in PARENT) && !k.includes("?")) PARENT[b] = s.slug; }
+// Pages that also appear as a section on the paper (e.g. /award) belong to that section too.
+for (const s of NAV) for (const [u] of s.items) if (u.startsWith("#") && !NAV_SLUGS.includes(u.slice(1)) && !(("/" + u.slice(1)) in PARENT)) PARENT["/" + u.slice(1)] = s.slug;
 export const parentOf = (path, search = "") => { const c = new URLSearchParams(search).get("c"); return (c && PARENT[`${path}?c=${c}`]) || PARENT[path] || null; };
 
 // Every on-page section id, and the section page that shows it.

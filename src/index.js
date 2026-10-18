@@ -147,8 +147,8 @@ function backFix(body) {
   return body.replace(/<p class="mute"><a href="\/(?:\d{4})?">‹ [^<]*<\/a>(?:[^<]*)<\/p>/, `<p class="mute"><a href="${href}">‹ ${S.name}</a></p>`);
 }
 const EMO = /(?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u20E3|[\u{1F3FB}-\u{1F3FF}]|\u200D(?:\p{Extended_Pictographic}|\p{Regional_Indicator})\uFE0F?)*\uFE0F?\s?/gu;
-const FUN_PATHS = /^\/(kids|crossword|fun|genalpha)(\/|$)/;
-const KEEP_EMO = /<nav class="areas"[\s\S]*?<\/nav>|<div class="tiles">[\s\S]*?<\/div>(?=<p class="mute tloc")|<section id="(?:stars|puzzles|kids)"[\s\S]*?<\/section>|<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<select[\s\S]*?<\/select>/g;
+const FUN_PATHS = /^\/(kids|crossword|fun|genalpha|award|membership)(\/|$)/;
+const KEEP_EMO = /<nav class="areas"[\s\S]*?<\/nav>|<div class="tiles">[\s\S]*?<\/div>(?=<p class="mute tloc")|<section id="(?:stars|puzzles|kids|award)"[\s\S]*?<\/section>|<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<select[\s\S]*?<\/select>/g;
 const LIGHTS = /[\u{1F7E2}\u{1F7E1}\u{1F534}]/u; // freshness traffic lights stay: they carry meaning
 function formal(html) {
   if (FUN_PATHS.test(curPath())) return html;
@@ -189,7 +189,7 @@ main{max-width:min(672px,100%);box-sizing:border-box}main,footer,#flow{overflow-
 const TL_KEY = `<p class="tlkey mute"><i style="background:#1e7a3c"></i>Cheapest <i style="background:#f2b01e"></i>In between <i style="background:#c0392b"></i>Dearest</p>`;
 const tlc = (v, vals) => { const L = vals.filter(x => x != null); if (v == null || L.length < 2) return ""; const lo = Math.min(...L), hi = Math.max(...L); return lo === hi ? "" : v === lo ? "cheap" : v === hi ? "dear" : "mid"; };
 // Pages open instantly: Chrome and Edge start loading a link as soon as your finger or mouse rests on it.
-const SPEC_RULES = `<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go|subscribe|vote|feedback)"}},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go|subscribe|vote|feedback)/*"}},{"not":{"selector_matches":"[rel~=nofollow],[target=_blank]"}}]},"eagerness":"moderate"}]}</script>`;
+const SPEC_RULES = `<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go|subscribe|vote|feedback|membership)"}},{"not":{"href_matches":"/(api|auth|signin|signout|admin|unlock|optin|welcome|me|go|subscribe|vote|feedback|membership)/*"}},{"not":{"selector_matches":"[rel~=nofollow],[target=_blank]"}}]},"eagerness":"moderate"}]}</script>`;
 // ---- The menu: one button top right. Sign in, download the app and every page, A to Z, so nothing is hidden.
 const az = t => t.replace(/^[^A-Za-z0-9]+/, "").toLowerCase();
 function menuDrawer(signin, inst) {
@@ -984,7 +984,11 @@ const KZ_DAY_PTS = 300; // most points a kid can add in a day
 const prevMonth = m => { const [y, mo] = m.split("-").map(Number); return mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, "0")}`; };
 const monthName = m => new Date(m + "-01T00:00:00Z").toLocaleString("en-AU", { month: "long", year: "numeric", timeZone: "UTC" });
 // One board for every Daily Maverick (shared storage), so kids compare with their own town and every other region.
-async function kzBoard(env, m, town) { const B = (await (env.MEMBERS || env.DATA).get(`kzlb:${m}`, "json")) || {}; return Object.entries(B).map(([em, x]) => ({ em, nick: x.nick, pts: x.pts, town: x.town })).filter(x => !town || x.town === town).sort((a, b) => b.pts - a.pts); }
+async function kzBoard(env, m, town) {
+  const LB = env.MEMBERS || env.DATA, pre = `kzlb:${m}:`, out = []; let cursor;
+  do { const r = await LB.list({ prefix: pre, cursor }); for (const k of r.keys) if (k.metadata) out.push({ em: k.name.slice(pre.length), nick: k.metadata.nick, pts: k.metadata.pts, town: k.metadata.town }); cursor = r.list_complete ? null : r.cursor; } while (cursor);
+  return out.filter(x => !town || x.town === town).sort((a, b) => b.pts - a.pts);
+}
 async function leaderBlock(env) {
   const m = todayISO().slice(0, 7), ALL = await kzBoard(env, m), MINE = ALL.filter(x => x.town === R.code), W = (await kzBoard(env, prevMonth(m), R.code)).slice(0, 3), medal = ["🥇", "🥈", "🥉"];
   const row = (x, i, showTown) => `<li><span class="lbn">${medal[i] || i + 1}</span> <b>${esc(x.nick)}</b>${showTown ? ` <span class="lbt">${esc(x.town)}</span>` : ""} <span class="mute">${x.pts.toLocaleString("en-AU")} pts</span></li>`;
@@ -1017,8 +1021,9 @@ async function kzApi(req, env) {
     const n = Math.max(0, Math.min(100, Math.round(+body.pts || 0))), dk = `kzlp:${em}:${day}`, today = +(await env.DATA.get(dk)) || 0, add = Math.min(n, Math.max(0, KZ_DAY_PTS - today));
     if (!add) return Response.json({ ok: true, capped: true });
     await env.DATA.put(dk, String(today + add), { expirationTtl: 2 * 86400 });
-    const LB = env.MEMBERS || env.DATA, k = `kzlb:${day.slice(0, 7)}`, B = (await LB.get(k, "json")) || {}; B[em] = { nick: e.nick, pts: (B[em]?.pts || 0) + add, town: R.code };
-    await LB.put(k, JSON.stringify(B), { expirationTtl: 120 * 86400 }); return Response.json({ ok: true, added: add }); }
+    // One record per kid (no shared key to overwrite). Name, points and town ride along as metadata, so the board needs no extra reads.
+    const LB = env.MEMBERS || env.DATA, k = `kzlb:${day.slice(0, 7)}:${em}`, prev = (await LB.getWithMetadata(k)).metadata || {}, meta = { nick: e.nick, pts: (prev.pts || 0) + add, town: prev.town || R.code };
+    await LB.put(k, "1", { metadata: meta, expirationTtl: 120 * 86400 }); return Response.json({ ok: true, added: add }); }
   if (body.tick) { const add = Math.max(0, Math.min(60, +body.tick || 0)); if (em) await env.DATA.put(uk, String(used + add), { expirationTtl: 2 * 86400 }); return Response.json({ mins, used: used + add }); }
   if (!rec) return Response.json({ ok: true });
   if (rec.pause && Date.now() < rec.pause) return Response.json({ ok: false, msg: "Too many tries. Ask your grown-up, then try again in a little while." });
@@ -2503,7 +2508,13 @@ var last=new URLSearchParams(location.search).get('c');if(!last)try{last=localSt
 // First chat with Mav is free. After that, sign in (free) to keep using him.
 async function mavChat(req, env) {
   const em = await member(req, env);
-  if (em && (await hasTier(env, em, "some"))) return mavAnswer(req, env);
+  // As promised on the memberships page: Maverick Lite gets Mav 10 times a day, 110% Maverick unlimited.
+  if (em && (await hasTier(env, em, "some"))) {
+    if (!(await hasTier(env, em, "every"))) { const k = `mavn:${em}:${todayISO()}`, n = +(await env.DATA.get(k)) || 0;
+      if (n >= 10) return Response.json({ reply: "That's your 10 chats with me for today on Maverick Lite. Go 110% Maverick for unlimited Mav, 14 days free with no card: /membership?need=every", actions: [] });
+      await env.DATA.put(k, String(n + 1), { expirationTtl: 2 * 86400 }); }
+    return mavAnswer(req, env);
+  }
   if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code}. It's free, one tap, and unlocks Maverick Lite: your page personalised, and me, any time: /signin`, actions: [], signin: true });
   const r = await mavAnswer(req, env), h = new Headers(r.headers);
   h.append("set-cookie", "mav1=1; Path=/; Max-Age=31536000; Secure; SameSite=Lax");
@@ -2912,7 +2923,7 @@ ${card("every", "110% Maverick", `$${PRICE}`, "a year", "Every current tool, plu
 <p class="mute" id="paymsg" role="status"></p>
 <script>(function(){var M=document.getElementById('paymsg');function go(path,body){M.textContent='Opening secure checkout…';fetch('/api/billing/'+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){if(j.url)location.href=j.url;else if(j.signin)location.href=j.signin;else M.textContent=j.error||'Something went wrong. Try again?'}).catch(function(){M.textContent='Something went wrong. Try again?'})}
 document.querySelectorAll('[data-tier]').forEach(function(b){b.onclick=function(){go('checkout',{tier:b.dataset.tier})}});var m=document.getElementById('manage');if(m)m.onclick=function(e){e.preventDefault();go('portal')};
-var cards=document.querySelectorAll('.mt[data-t]'),panes=document.querySelectorAll('.mpanel');function pick(t,scroll){cards.forEach(function(c){var on=c.dataset.t===t;c.classList.toggle('sel',on);c.setAttribute('aria-expanded',on?'true':'false')});panes.forEach(function(p){p.hidden=p.dataset.p!==t});if(scroll){var d=document.getElementById('mdetail');if(d&&d.getBoundingClientRect().top>innerHeight*.7)d.scrollIntoView({behavior:'smooth',block:'start'})}}cards.forEach(function(c){c.addEventListener('click',function(e){if(e.target.closest('a,button'))return;pick(c.dataset.t,true)});c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(c.dataset.t,true)}})});pick(new URLSearchParams(location.search).get('need')==='every'?'every':'some',false);
+var cards=document.querySelectorAll('.mt[data-t]'),panes=document.querySelectorAll('.mpanel');function pick(t,scroll){cards.forEach(function(c){var on=c.dataset.t===t;c.classList.toggle('sel',on);c.setAttribute('aria-expanded',on?'true':'false')});panes.forEach(function(p){p.hidden=p.dataset.p!==t});if(scroll){var d=document.getElementById('mdetail');if(d&&d.getBoundingClientRect().top>innerHeight*.7)d.scrollIntoView({behavior:'smooth',block:'start'})}}cards.forEach(function(c){c.addEventListener('click',function(e){if(e.target.closest('a,button,input,label,form'))return;pick(c.dataset.t,true)});c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(c.dataset.t,true)}})});pick(new URLSearchParams(location.search).get('need')==='every'?'every':'some',false);
 var buy=new URLSearchParams(location.search).get('buy');if(buy==='every'){var b=document.querySelector('[data-tier="every"]');if(b)b.click()}})();</script>`); }
 
 
@@ -3041,7 +3052,7 @@ async function awardPage(req, env, ctx) {
     }
     return page("Thanks", head);
   }
-  return page(`Mini Maverick Award: ${R.brand}`, head + `<style>.lb{margin:14px 0}.lbby{display:flex;align-items:center;gap:6px;margin:0 0 8px}.lbl{list-style:none;padding:0;margin:0 0 8px}.lbl li{padding:5px 0;border-bottom:1px solid #eee}.lbn{display:inline-block;width:1.6em}</style>${await leaderBlock(env)}<p><a class="btn" href="/kids">Play in Kid Zone</a></p>
+  return page(`Mini Maverick Award: ${R.brand}`, head + `<style>${KID_CSS}.lb{margin:14px 0}.lbby{display:flex;align-items:center;gap:6px;margin:0 0 8px}.lbl{list-style:none;padding:0;margin:0 0 8px}.lbl li{padding:5px 0;border-bottom:1px solid #eee}.lbn{display:inline-block;width:1.6em}</style>${await leaderBlock(env)}<p><a class="btn" href="/kids">Play in Kid Zone</a></p>
 ${await plusList(env)}
 <h2 id="apply">Local businesses: be a place winners spend it</h2>
 <p>Run a local business? Apply to be a place where winners can spend their award, and <b>make it go 10% further</b> for them, with your name on this page.</p>
