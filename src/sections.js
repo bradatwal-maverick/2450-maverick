@@ -18,7 +18,7 @@ export const NAV = [
   ] },
   { slug: "community", icon: "🤝", name: "Community", blurb: "Your town's notice board, family news, what's on and where to meet people.", items: [
     ["#events", "🎪", "Community events", "What's on, local submissions first"],
-    ["/notices", "📌", "Notice board", "Lost pets, volunteers, clubs and classes"],
+    ["/notices", "📌", "Notice board", "Buy, sell & swap, locals' wins, lost pets, volunteers and clubs"],
     ["#bdm", "📰", "Births, Deaths and Marriages", "Family notices in one place"],
     ["/celebrations", "🎉", "Celebrations", "New babies, engagements, weddings"],
     ["/rip", "🕊️", "Death notices", "Remembering locals"],
