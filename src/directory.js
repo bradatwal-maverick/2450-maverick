@@ -29,7 +29,6 @@ export function rentGroups(R) {
       [`Rentals in ${p} on Domain`, `https://www.domain.com.au/rent/${hy(p)}-nsw-${pc}/`, "The other big one."],
       [`Rentals in ${p} on Rent.com.au`, `https://www.rent.com.au/properties/${hy(p)}-nsw-${pc}`, "Rentals only, with a free renter résumé to send agents."],
       [`Rentals in ${p} on Homely`, `https://www.homely.com.au/for-rent/${hy(p)}-nsw-${pc}/real-estate`, "Rentals plus honest local reviews of each street."],
-      [`Rentals on Facebook Marketplace`, "https://www.facebook.com/marketplace/category/propertyrentals", "Private landlords often list here. Never pay a deposit before you've seen the place."],
       [`Rentals on Gumtree`, "https://www.gumtree.com.au/s-property-for-rent/c18364", "Private rentals. Set your location to " + p + "."],
     ]],
     ["🛏️", "Rooms & share houses", "Cheaper than renting a whole place.", [
