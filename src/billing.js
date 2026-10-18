@@ -3,7 +3,6 @@
 //   Free for life     the sourced local information. No sign-in, no email, always free.
 //   Some Cool Things  free with your email (sign in): your page personalised, Mav, a few cool tools
 //   Every Cool Thing  $49 a year: every tool unlocked, now and everything we add later
-//                     (Founding Members lock in $49 a year for life, even when the price goes up)
 // Every Cool Thing: 14 days free with no card, then they choose to pay. 7-day money-back: cancel within 7 days of paying = automatic refund.
 //
 // Secret: STRIPE_SECRET_KEY (account-wide, Secrets Store, see secrets.js). Unset = payments off and nothing is locked.
@@ -20,7 +19,7 @@ const RANK = { free: 0, some: 1, every: 2 };
 const TRIAL_DAYS = 14, REFUND_DAYS = 7;
 export const TIERS = {
   some: { name: "Some Cool Things", price: 0, free: true }, // free with sign-in, no Stripe
-  every: { name: "Every Cool Thing", price: 49, key: "dm_every_year", founding: 49, foundingKey: "dm_every_founding" },
+  every: { name: "Every Cool Thing", price: 49, key: "dm_every_year" },
 };
 
 function form(obj, prefix, out = new URLSearchParams()) {
@@ -55,14 +54,6 @@ export async function tierOf(env, email) {
 // Gate check. With payments off nothing is locked, so the site works exactly as it does today.
 export const hasTier = async (env, email, need) => !paymentsOn(env) || RANK[await tierOf(env, email)] >= RANK[need];
 
-// Founding Members: anyone who signed in before this town reached its target keeps the founding price for life.
-async function isFounder(env, email, deps) {
-  const u = await env.DATA.get(`user:${email}`, "json");
-  let closed = await env.DATA.get("founding:closed");
-  if (!closed && (await deps.localsCount(env)) >= deps.goal) { closed = new Date().toISOString(); await env.DATA.put("founding:closed", closed); }
-  return !closed || (u?.first && u.first < closed);
-}
-
 async function checkout(req, env, url, deps) {
   let b = {}; try { b = await req.json(); } catch (e) {}
   const t = TIERS[b.tier]; if (!t) return J({ error: "bad request" }, 400);
@@ -70,7 +61,7 @@ async function checkout(req, env, url, deps) {
   if (t.free) return J(email ? { url: `${url.origin}/membership?welcome=some` } : { signin: "/signin?next=" + encodeURIComponent("/membership?welcome=some") }, email ? 200 : 401);
   if (!email) return J({ signin: "/signin?next=" + encodeURIComponent("/membership?buy=" + b.tier) }, 401);
   const m = (await env.MEMBERS.get(`m:${email}`, "json")) || {};
-  const key = b.tier === "every" && (await isFounder(env, email, deps)) ? t.foundingKey : t.key;
+  const key = t.key;
   const { data } = await stripe(env, "GET", "prices", { "lookup_keys[]": key, active: "true" });
   if (!data?.[0]) return J({ error: "That membership isn't on sale yet." }, 503);
   if (m.subscription && LIVE.includes(m.status)) {
@@ -104,7 +95,7 @@ async function portal(req, env, url, deps, email) {
   const m = await env.MEMBERS.get(`m:${email}`, "json");
   if (!m?.customer) return J({ error: "No membership yet." }, 404);
   let conf = await env.MEMBERS.get("portal:config");
-  if (!conf) { // our own portal settings in Stripe (no plan switching, so Founding prices stay put), found once by brand
+  if (!conf) { // our own portal settings in Stripe (no plan switching), found once by brand
     const { data } = await stripe(env, "GET", "billing_portal/configurations", { active: "true", limit: 100 });
     conf = data?.find(c => c.metadata?.brand === BRAND)?.id || "";
     if (conf) await env.MEMBERS.put("portal:config", conf, { expirationTtl: 86400 });
@@ -163,7 +154,7 @@ async function webhook(req, env, ctx, deps) {
 export async function billingApi(req, env, ctx, sub, deps) {
   const url = new URL(req.url);
   if (sub === "status") { const email = await deps.member(req, env); const m = email && env.MEMBERS ? await env.MEMBERS.get(`m:${email}`, "json") : null;
-    return J({ on: paymentsOn(env), signedIn: !!email, tier: await tierOf(env, email), status: m?.status || null, trialUsed: !!m?.trialUsed, founder: email && paymentsOn(env) ? await isFounder(env, email, deps) : false }); }
+    return J({ on: paymentsOn(env), signedIn: !!email, tier: await tierOf(env, email), status: m?.status || null, trialUsed: !!m?.trialUsed }); }
   if (!paymentsOn(env)) return J({ error: "Memberships open soon." }, 503);
   if (req.method !== "POST") return J({ error: "method not allowed" }, 405);
   if (sub === "webhook") return webhook(req, env, ctx, deps);

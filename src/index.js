@@ -398,7 +398,7 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const hero = SH ? "" : await S(potdBlock(env, pc)); let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; } let scB = ""; try { scB = scamTeaser(await scamFeeds(env), esc); } catch (e) { scB = ""; }
   let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
   // Section pages are today's paper filtered to that section: the nameplate and front-page extras step aside.
-  const secCss = SH ? `<style>.mast,.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute,#founding{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
+  const secCss = SH ? `<style>.mast,.edition,.gath,.tloc,#lead,.usp,.townh,main>nav.towns,#radiobar,main>.qs,main>.note,main>.alertnote,main>p.mute{display:none!important}#flow>:not(section):not(script){display:none}${SH.ids.includes("news") ? "#lead{display:block!important}" : ""}</style>` : "";
   return page(SH ? SH.title : `The Daily Maverick: ${t.name} ${pc}`, withPics(pics, `${SH ? secCss + SH.head : ""}${isRoot ? `<script>try{var sp=localStorage.getItem('pc');if(sp&&/^\\d{4}$/.test(sp)&&sp!=='${R.code}')location.replace('/'+sp+location.hash)}catch(e){}</script>` : ""}
 <p class="mast">The Daily Maverick</p><p class="edition">${esc(new Date(todayISO() + "T00:00:00").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }))}</p><p class="gath" id="pers">${dailyLine()}</p><p class="tloc"><a href="#" class="useloc" data-on="Reset">Refine your local news</a></p>${hero}${live.newsLead}<details class="usp"><summary id="uspl">📱 Your app saves you ${appsSaved().length} apps</summary>${appChips()}<p class="oeq">= <b>1 Daily Maverick</b></p></details><script>(function(){try{var A=${JSON.stringify(appsSaved().map(x => x[1]))},n=A.filter(function(id){return localStorage.getItem("hide_"+id)!=="1"}).length,l=document.getElementById("uspl");if(l&&n<A.length)l.textContent="📱 Your app saves you "+n+" apps"}catch(e){}})()<\/script><script>try{if(/(?:^|; )m2450n=/.test(document.cookie)){var pn=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"").trim();if(pn&&pn!=="Local")document.getElementById("pers").textContent="✨ "+pn+"\\u2019s personalised local daily news."}}catch(e){}<\/script>
 <h1 class="townh sr">${esc(t.name)} ${esc(pc)}</h1>
@@ -652,8 +652,7 @@ const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goa
 <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${LOCALS_GOAL}" aria-valuenow="${n}" aria-label="Locals signed up"><span style="width:${Math.max(pct, 1).toFixed(1)}%"></span></div>
 <p class="barlab">${n.toLocaleString("en-AU")} of ${goal} locals</p>
 <p>Sign up for one short email a week with what's on, plus a free Maverick Digital guide to using AI in everyday life.</p>${signup(pc)}
-<p class="rallyl"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>
-<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$49 a year, for life</h3><p>The first ${goal} locals to sign in free lock in $49 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a></p></section>`; };
+<p class="rallyl"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip mute" href="#join">Target: ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${n.toLocaleString("en-AU")} so far</a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -2703,9 +2702,8 @@ M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b
 
 // ---- Memberships: honest terms, no tricks. Three choices (see billing.js):
 //   Free for life (no sign-in) · Some Cool Things (free with your email) · Every Cool Thing ($49 a year).
-// Founding Members (the first 15,000 locals to sign in) lock in $49 a year for Every Cool Thing, for life.
-const FOUNDING_PRICE = TIERS.every.founding, PRICE = TIERS.every.price, FOUNDING_SPOTS = LOCALS_GOAL;
-async function membershipPage(env, req, url) { const n = await localsCount(env), left = Math.max(0, FOUNDING_SPOTS - n), on = paymentsOn(env);
+const PRICE = TIERS.every.price;
+async function membershipPage(env, req, url) { const on = paymentsOn(env);
   const em = await member(req, env), tier = em ? await tierOf(env, em) : "free", need = url.searchParams.get("need"), welcome = url.searchParams.get("welcome");
   const mine = t => tier === t || (!on && em && t === "some");
   const tick = `<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -2737,7 +2735,6 @@ async function membershipPage(env, req, url) { const n = await localsCount(env),
 .mtool:hover{border-color:var(--gold,#f2b01e);transform:translateY(-2px)}.mtool b{display:block;margin:0 0 4px}.mtool span{color:#5b6575;font-size:.92rem}
 .mbeer{background:#fff8e6;color:#12233f;border-radius:16px;padding:20px;margin:28px 0;text-align:center}.mbeer h2{margin:0 0 6px}.mbeer p{max-width:52ch;margin:0 auto}
 .mdeal{list-style:none;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.mdeal li{border:1px solid var(--line,#e2e7ef);border-radius:12px;padding:12px 14px;font-size:.93rem}.mdeal b{display:block}
-.mfound{border:2px dashed var(--gold,#f2b01e);border-radius:16px;padding:20px;margin:28px 0}.mfound h2{margin:0 0 6px}.mbar{height:10px;background:var(--line,#e2e7ef);border-radius:99px;overflow:hidden;margin:10px 0 6px}.mbar i{display:block;height:100%;background:var(--gold,#f2b01e)}
 @media(prefers-color-scheme:dark){.mhero p.ml,.mtag,.mprice span,.msmall,.mtool span{color:#a8b3c4}.mbeer{background:#2a2412;color:#f4ead0}}
 </style>
 <p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
@@ -2764,9 +2761,6 @@ ${card("every", "Every Cool Thing", `$${PRICE}`, "a year", "Less than a dollar a
 <li><b>Community services always free</b>Scam watch, digital safety and Kid Zone stay free, whatever you choose.</li>
 <li><b>No lock-in</b>Cancel any time.${tier === "every" ? ` <a href="#" id="manage">Manage my membership</a>` : ""}</li>
 <li><b>Secure payment by Stripe</b>We never see your card.</li></ul>
-<div class="mfound"><h2>Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
-<div class="mbar" role="img" aria-label="${n.toLocaleString("en-AU")} of ${FOUNDING_SPOTS.toLocaleString("en-AU")} founding spots taken"><i style="width:${Math.min(100, Math.max(1, Math.round(n / FOUNDING_SPOTS * 100)))}%"></i></div>
-<p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p>${em ? "" : `<p><a href="/signin?next=/membership"><b>Sign in free to claim yours</b></a></p>`}</div>
 <p class="mute" id="paymsg" role="status"></p>
 <script>(function(){var M=document.getElementById('paymsg');function go(path,body){M.textContent='Opening secure checkout…';fetch('/api/billing/'+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){if(j.url)location.href=j.url;else if(j.signin)location.href=j.signin;else M.textContent=j.error||'Something went wrong. Try again?'}).catch(function(){M.textContent='Something went wrong. Try again?'})}
 document.querySelectorAll('[data-tier]').forEach(function(b){b.onclick=function(){go('checkout',{tier:b.dataset.tier})}});var m=document.getElementById('manage');if(m)m.onclick=function(e){e.preventDefault();go('portal')};
@@ -2783,7 +2777,7 @@ function statusPage(env) {
   done.push(["Fuel", "Nearest servos compared"]);
   done.push(["Roads now", "Crashes, floods, fires and roadwork within 40 km, from Live Traffic NSW"]);
   const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["School bell times", "Your school's own times"],
-    ["Memberships", "Free for life, Some Cool Things free with your email, Every Cool Thing $49 a year: 14 days free, no card, 7-day money-back. Founding Members lock in $49 for life"], ["Saved searches by email", "Your searches, in your weekly email"]];
+    ["Memberships", "Free for life, Some Cool Things free with your email, Every Cool Thing $49 a year: 14 days free, no card, 7-day money-back"], ["Saved searches by email", "Your searches, in your weekly email"]];
   if (!R.fields) todo.push(["Sport & field closures", "Field closures and local fixtures"]);
   const li = (b, cls, txt) => b.map(([n, d]) => `<li><span class="${cls}">${txt}</span> <b>${esc(n)}</b> <span class="mute">${esc(d)}</span></li>`).join("");
   return page(`What's done: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>What's done, what's next</h1>
