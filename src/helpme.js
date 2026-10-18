@@ -43,7 +43,7 @@ export function helpApi({ esc, R, NAV, member, hasTier, todayISO, guard }) {
     IDX = IDX || buildIndex({ R, NAV });
     const hits = search(IDX, q);
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6), day = todayISO();
-    // Steps from Mav: 3 a day for anyone (it's a community helper), 10 a day signed in, unlimited with Every Maverick Thing.
+    // Steps from Mav: 3 a day for anyone (it's a community helper), 10 a day signed in, unlimited with Full Maverick.
     const em = await member(req, env), who = em || (req.headers.get("cf-connecting-ip") || "anon"), ck = `help:n:${who}:${day}`, n = +(await env.DATA.get(ck)) || 0;
     let steps = "", capped = false;
     if (hits.length && env.AI) {
@@ -87,6 +87,6 @@ var SR=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.get
 f.onsubmit=function(ev){ev.preventDefault();var v=q.value.trim();if(!v)return;o.innerHTML='<p class="mute">Looking…</p>';
 fetch('/api/helpme',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:v})}).then(function(r){return r.json()}).then(function(j){if(j.error){o.innerHTML='<p class="note">'+e(j.error)+'</p>';return}
 var h=(j.hits||[]).map(function(x){return '<a class="card" href="'+e(x.href)+'"'+(/^https?:/.test(x.href)?' rel="noopener" target="_blank"':'')+'><b>'+e(x.title)+'</b>'+(x.text?'<br><span class="mute">'+e(x.text)+'</span>':'')+(x.src?'<br><small class="mute">Source: '+e(x.src)+'</small>':'')+'</a>'}).join('');
-o.innerHTML=(j.steps?'<p><b>Mav suggests</b></p><div class="hmsteps">'+e(j.steps)+'</div>':j.capped?'<p class="note">That&rsquo;s today&rsquo;s free suggestions from Mav. Here&rsquo;s everything we found. <a href="/membership">Every Maverick Thing gets Mav unlimited</a>.</p>':'')+(h?'<p><b>What we found</b></p>'+h:'<p class="mute">We couldn&rsquo;t find anything on that yet. <a href="/feedback">Tell us</a> and we&rsquo;ll look into adding it.</p>')
+o.innerHTML=(j.steps?'<p><b>Mav suggests</b></p><div class="hmsteps">'+e(j.steps)+'</div>':j.capped?'<p class="note">That&rsquo;s today&rsquo;s free suggestions from Mav. Here&rsquo;s everything we found. <a href="/membership">Full Maverick gets Mav unlimited</a>.</p>':'')+(h?'<p><b>What we found</b></p>'+h:'<p class="mute">We couldn&rsquo;t find anything on that yet. <a href="/feedback">Tell us</a> and we&rsquo;ll look into adding it.</p>')
 +(j.id?'<p class="hmvote">Was this a little bit helpful? <button type="button" data-v="up">👍</button><button type="button" data-v="down">👎</button></p>':'');
 o.querySelectorAll('.hmvote button').forEach(function(x){x.onclick=function(){fetch('/api/helpme/vote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:j.id,v:x.dataset.v})});x.parentNode.textContent=x.dataset.v==='up'?'Thanks! That helps us get better.':'Thanks for telling us. We read every one and use it to get better.'}})}).catch(function(){o.innerHTML='<p class="note">Something went wrong. Try again.</p>'})}})()<\/script>`;
