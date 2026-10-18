@@ -3436,6 +3436,7 @@ async function refreshFlights(env) {
   } catch (e) {}
 }
 async function flightData(env) {
+  if (R.airport.json) { let d = await env.DATA.get("flights", "json"); if (!d || Date.now() - new Date(d.asof) > 15 * 6e4) { await refreshAirportJson(env); d = await env.DATA.get("flights", "json"); } return d; }
   if (R.airport.feed) { try { return await (await fetch(R.airport.feed)).json(); } catch (e) { return null; } }
   return await env.DATA.get("flights", "json");
 }
@@ -3461,7 +3462,7 @@ say('Setting up alerts…');Promise.all([navigator.serviceWorker.register('/sw.j
 .then(function(j){say(j.msg||j.error);if(j.ok){try{var L=JSON.parse(localStorage.getItem('fl_track')||'[]');if(L.indexOf(no)<0)L.push(no);localStorage.setItem('fl_track',JSON.stringify(L))}catch(_){}f.reset()}})
 .catch(function(){say('Alerts were blocked. Allow notifications for this site, then try again.')})};
 try{(JSON.parse(localStorage.getItem('fl_track')||'[]')).forEach(function(no){document.querySelectorAll('.fls li').forEach(function(li){if(li.textContent.replace(/\\s+/g,'').toUpperCase().indexOf(no)>-1)li.style.fontWeight='bold'})})}catch(_){}})()<\/script>` : ""}
-${board ? "" : `<p class="mute">See everything coming and going at <a href="${A.url}" rel="noopener">${esc(A.name)}</a> (live board on FlightAware).</p>`}
+${board ? "" : `<p class="mute">See everything coming and going at <a href="${A.url}" rel="noopener">${esc(A.name)}</a> (live board).</p>`}
 <script>(function(){var L=${JSON.stringify(up.map(f => ({ no: f.no, t: tm(f.sched), dir: f.dir, other: f.other }))).replace(/</g, "\\u003c")};document.getElementById('flf').onsubmit=function(e){e.preventDefault();var f=this.fn.value.replace(/\\s+/g,'').toUpperCase();if(!f)return;
 var hit=L.filter(function(x){return x.no===f})[0],o=document.getElementById('flo');if(hit){o.innerHTML='<b>'+f+'</b> '+(hit.dir==='dep'?'departs ':'arrives ')+hit.t+'. See its status in the list above.';var li=[].filter.call(document.querySelectorAll('.fls li'),function(x){return x.textContent.indexOf(f)>-1})[0];if(li){li.classList.add('hit');li.scrollIntoView({behavior:'smooth',block:'center'})}}
 else window.open('https://www.google.com/search?q='+encodeURIComponent(f+' flight status'),'_blank','noopener')}})();</script></section>`;
