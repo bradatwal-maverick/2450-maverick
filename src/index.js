@@ -1185,7 +1185,7 @@ async function unlock(req, env) {
 }
 
 // ---- Optional email on a form = a free sign-in plus the community list. Every form says so right beside the box (joinNote).
-const joinNote = () => `<small class="mute jnote">📬 Adding your email signs you in free and adds you to the ${R.brand} community list: &ldquo;This week in ${R.code}&rdquo; (one short email a week) plus free AI tips from Maverick Digital. Unsubscribe any time. <a href="/privacy">Privacy</a></small>`;
+const joinNote = () => `<small class="mute jnote">📬 Adding your email signs you in free and adds you to the ${R.brand.replace(/^The /, "")} community list: &ldquo;This week in ${R.code}&rdquo; (one short email a week) plus free AI tips from Maverick Digital. Unsubscribe any time. <a href="/privacy">Privacy</a></small>`;
 // Signed-in readers don't need the email box: the page swaps it for "Sending as …".
 const JOIN_JS = `(function(){var n=(document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1];if(!n)return;document.querySelectorAll('.optmail').forEach(function(b){b.innerHTML='<small class="mute">Sending as <b>'+decodeURIComponent(n).replace(/[<>&"]/g,'')+'</b> (signed in).</small>'})})();`;
 async function joinQuiet(req, env, email, name, source) { // returns set-cookie values for a brand-new local, [] otherwise
