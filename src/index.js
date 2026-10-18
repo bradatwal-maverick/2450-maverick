@@ -15,7 +15,7 @@ import { edData, edBlock } from "./ed.js";
 import { trafficNear, trafficList } from "./traffic.js";
 import { nswPage, nswCheckApi } from "./nswgov.js";
 import { scamsApi, scamFeeds, scamTeaser } from "./scams.js";
-import { helpApi, HELP_UI, HELP_PANEL } from "./helpme.js";
+import { helpApi, HELP_UI, HELP_PANEL, buildIndex } from "./helpme.js";
 import { areasStrip, areaPages } from "./areas.js";
 import { auHandle, auCovers } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
@@ -197,15 +197,15 @@ function menuDrawer(signin, inst) {
   const G = allGroups().map(([h, L]) => [h, [...L].sort((a, b) => az(a[1]).localeCompare(az(b[1])))]).sort((a, b) => az(a[0]).localeCompare(az(b[0])));
   return `<dialog id="m2nav" class="mdraw" aria-label="Menu"><div class="mtop"><span class="mbrand"><svg viewBox="3 4.5 28 23.5" aria-hidden="true"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>The Daily Maverick <b>${R.code}</b></span><button type="button" class="mx" id="m2x" aria-label="Close menu">✕</button></div>
 <div class="mme"><div class="mrow">${signin}<a id="my2450t" href="/signin?next=/me">Sign in, free</a></div><div class="mrow">${inst}</div><a class="mmem" href="/membership?buy=every"><b>⭐ Go 110% Maverick</b><small>14 days free, no card · $49 a year after</small></a></div>
-<input id="m2q" type="search" placeholder="🔎 Find a page, e.g. fuel, bins, licence" autocomplete="off" aria-label="Find a page">
-<p id="m2none" class="mute" hidden>No page matches. <a href="/all">See everything</a></p>
+<input id="m2q" type="search" placeholder="🔎 Search, e.g. fuel, markets, bike" autocomplete="off" aria-label="Find a page">
+<p id="m2none" class="mute" hidden>No page matches. Press Enter to search news, notices and events too.</p>
 ${G.map(([h, L]) => `<details class="mg"><summary>${esc(h)}</summary><ul>${L.map(([u, n, d]) => `<li><a href="${u}"><b>${esc(n)}</b><small>${esc(d)}</small></a></li>`).join("")}</ul></details>`).join("")}
 <p class="mute mfoot"><a href="/all">Everything on one page →</a></p></dialog>
 <script>(function(){var d=document.getElementById('m2nav'),b=document.getElementById('m2menu'),q=document.getElementById('m2q'),no=document.getElementById('m2none'),G=[].slice.call(d.querySelectorAll('.mg'));if(!d||!b)return;
 b.onclick=function(){d.showModal?d.showModal():d.setAttribute('open','')};document.getElementById('m2x').onclick=function(){d.close?d.close():d.removeAttribute('open')};
 d.addEventListener('click',function(e){if(e.target===d)d.close();if(e.target.closest&&e.target.closest('.mg a,.mmem'))d.close()});
 var ib=document.getElementById('m2inst');if(ib)ib.addEventListener('click',function(){d.close()});
-q.oninput=function(){var v=q.value.trim().toLowerCase(),any=false;G.forEach(function(g){var hit=0;g.querySelectorAll('li').forEach(function(li){var ok=!v||li.textContent.toLowerCase().indexOf(v)>-1;li.hidden=!ok;if(ok)hit++});g.hidden=!!v&&!hit;g.open=!!v&&hit>0;if(hit)any=true});no.hidden=!v||any}})()<\/script>`;
+q.onkeydown=function(e){if(e.key==='Enter'&&q.value.trim())location.href='/search?q='+encodeURIComponent(q.value.trim())};q.oninput=function(){var v=q.value.trim().toLowerCase(),any=false;G.forEach(function(g){var hit=0;g.querySelectorAll('li').forEach(function(li){var ok=!v||li.textContent.toLowerCase().indexOf(v)>-1;li.hidden=!ok;if(ok)hit++});g.hidden=!!v&&!hit;g.open=!!v&&hit>0;if(hit)any=true});no.hidden=!v||any}})()<\/script>`;
 }
 const MENU_CSS = `.mmem{display:block;margin:8px 0 2px;padding:10px 12px;border-radius:12px;background:rgba(242,176,30,.18);border:1px solid #f2b01e;text-decoration:none;color:inherit}.mmem b{display:block}.mmem small{opacity:.8}.menub{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:5px 12px 5px 9px;font:inherit;font-weight:600;font-size:.9rem;cursor:pointer}.menub svg{width:20px;height:20px}
 .mdraw{margin:0 0 0 auto;height:100dvh;max-height:100dvh;width:min(380px,100vw);max-width:100vw;border:0;padding:0 16px 24px;box-sizing:border-box;background:var(--bg);color:var(--fg);overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.3)}.mdraw::backdrop{background:rgba(11,21,38,.55)}
@@ -249,7 +249,17 @@ i.addEventListener("click",go);i.addEventListener("keydown",function(e){if(e.key
 var k=(/(?:^|; )m2450n=/.test(document.cookie)?"in":"out")+(/[?&]welcome=/.test(location.search)?"w":""),c;try{c=(sessionStorage.getItem("dmrank")||"").split(":")}catch(e){c=[]}if(c[0]===k){paint(+c[1]);return}
 fetch("/api/billing/status").then(function(r){return r.json()}).then(function(j){var r=j.tier==="every"?2:j.signedIn?1:0;try{sessionStorage.setItem("dmrank",k+":"+r)}catch(e){}paint(r)}).catch(function(){paint(/(?:^|; )m2450n=/.test(document.cookie)?1:0)})})();<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(backFix(body)), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
-<div id="rate" hidden><p id="rmsg" class="mute" hidden></p></div>
+<div id="rate" hidden><p id="rmsg" class="mute" hidden></p></div><style>.brk{display:block;background:#b42318;color:#fff!important;text-decoration:none;font-weight:700;padding:9px 14px;border-radius:12px;margin:0 0 12px;font-size:.95rem}.brk span{font-weight:400;opacity:.9}.shr{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;font-size:.75rem;padding:2px 9px;margin-left:6px;cursor:pointer;vertical-align:middle}.story .shr{position:absolute;right:8px;bottom:8px}.story{position:relative}</style>
+<script>(function(){/* Breaking-news bar: live fires and warnings, shown on every page for 30 minutes after they're seen */
+var m=document.getElementById('main'),A=document.getElementById('alerts'),now=Date.now(),b=null;
+function cnt(ic){if(!A)return 0;var h=[].filter.call(A.querySelectorAll('h3'),function(x){return x.textContent.indexOf(ic)===0})[0],u=h&&h.nextElementSibling;return u&&u.tagName==='UL'?u.children.length:0}
+if(A){b={f:cnt('🔥'),w:cnt('⚠️'),t:now};try{localStorage.setItem('brk',JSON.stringify(b))}catch(e){}}else{try{b=JSON.parse(localStorage.getItem('brk')||'null')}catch(e){}if(b&&now-b.t>18e5)b=null}
+if(m&&b&&(b.f||b.w)){var a=document.createElement('a');a.className='brk';a.href='/news#alerts';a.innerHTML='🔴 Live: '+[b.f?b.f+' fire'+(b.f>1?'s':'')+' within 100 km':'',b.w?b.w+' weather warning'+(b.w>1?'s':''):''].filter(Boolean).join(' · ')+' <span>See alerts →</span>';m.insertBefore(a,m.firstChild)}
+/* Share: the phone's own share sheet (no Facebook buttons), or copy the link */
+function share(t,u,btn){if(navigator.share){navigator.share({title:t,url:u}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){btn.textContent='Link copied';setTimeout(function(){btn.textContent='Share'},1500)})}}
+function add(el,t,u,inner){var x=document.createElement('button');x.type='button';x.className='shr';x.textContent='Share';x.setAttribute('aria-label','Share: '+t);x.onclick=function(e){e.preventDefault();e.stopPropagation();share(t,u,x)};(inner||el).appendChild(x)}
+document.querySelectorAll('a.story').forEach(function(a){add(a,(a.querySelector('.hl')||a).textContent.trim(),a.href)});
+document.querySelectorAll('ul.heads li, #events li, #nlist li[data-c]').forEach(function(li){var a=li.querySelector('a[href]'),t=(li.querySelector('b')||li).textContent.trim().slice(0,90);add(li,t,a&&location.pathname.indexOf('/notices')!==0?a.href:location.href.split('#')[0])})})();</script>
 <dialog id="xerr" aria-labelledby="xerrh"><form id="rform" method="dialog"><h2 id="xerrh">Spot an error?</h2>
 <p class="mute">Thanks for helping keep ${R.code} right. We'll send this page's link with it, so we can find it.</p>
 <label for="xwhere">Where is it?</label><select id="xwhere"></select>
@@ -402,7 +412,7 @@ const skyNext = () => { const t = todayISO(), y = +t.slice(0, 4);
 const away = d => { const n = Math.round((new Date(d + "T00:00:00Z") - new Date(todayISO() + "T00:00:00Z")) / 864e5); return n < 0 ? "" : ` <span class="away">${n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n.toLocaleString("en-AU")} days`}</span>`; };
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
 const costTag = e => e.cost == null ? "" : ` <span class="tagg">${e.cost === 0 ? "Free" : "$" + e.cost + (e.kids ? " per kid" : "")}</span>`;
-const evItem = e => `<li${e.cost === 0 ? ' data-free="1"' : ""}${e.kids ? ' data-kids="1"' : ""}><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b>${away(e.date)} — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
+const evItem = e => `<li data-d="${esc(e.date || "")}"${e.cost === 0 ? ' data-free="1"' : ""}${e.kids ? ' data-kids="1"' : ""}><b>${esc(fmtDate(e.date))}${e.time ? " " + esc(e.time) : ""}</b>${away(e.date)} — ${e.link ? `<a href="${esc(e.link)}" rel="nofollow noopener">${esc(e.title)}</a>` : esc(e.title)}${e.venue ? `, ${esc(e.venue)}` : ""}${costTag(e)}${e.desc ? `<br><span class="mute">${esc(e.desc)}</span>` : ""}</li>`;
 
 async function town(pc, env, ctx, isRoot = false, secSlug = "") {
   const t = TOWNS[pc];
@@ -413,9 +423,16 @@ ${wip(`This one isn't live yet`)}<p>${R.coverage} Want your town next? Leave you
   const others = Object.entries(TOWNS).filter(([k, v]) => k !== pc && v.live).sort((a, b) => km(t, a[1]) - km(t, b[1]));
   const [local, feed, near] = await Promise.all([listEvents(env, `event:${pc}:`), listEvents(env, `feed:${pc}:`),
     Promise.all(others.map(([k]) => Promise.all([listEvents(env, `event:${k}:`), listEvents(env, `feed:${k}:`)]).then(([a, b]) => [...a, ...b].slice(0, 4))))]);
-  let nearby = ""; others.forEach(([k, v], i) => { const ev = near[i]; if (ev.length) nearby += `<h3>Nearby: ${esc(v.name)} (${k})</h3><ul>${ev.map(evItem).join("")}</ul>`; });
-  const events = ((local.length ? `<h3>From locals</h3><ul>${local.map(evItem).join("")}</ul>` : "")
-    + (feed.length ? `<h3>More around town</h3><ul>${feed.map(evItem).join("")}</ul>` : "")
+  let nearby = ""; const nearT = []; others.forEach(([k, v], i) => { const ev = near[i]; if (ev.length) { nearT.push([k, v.name]); nearby += `<div data-town="${k}"><h3>Nearby: ${esc(v.name)} (${k})</h3><ul>${ev.map(evItem).join("")}</ul></div>`; } });
+  const evBar = `<div class="evf" role="group" aria-label="Filter events"><button type="button" class="on" data-w="">Any time</button><button type="button" data-w="0">Today</button><button type="button" data-w="wk">This weekend</button><button type="button" data-w="7">Next 7 days</button>
+<select aria-label="Which town"><option value="">All towns</option><option value="${pc}">${esc(t.name)} only</option>${nearT.map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join("")}</select></div>
+<style>.evf{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}.evf button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:4px 11px;font-size:.85rem;cursor:pointer}.evf button.on{background:var(--fg);color:var(--bg)}.evf select{border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--bg);color:var(--fg)}</style>
+<script>(function(){var f=document.currentScript.previousElementSibling.previousElementSibling,s=f.querySelector('select'),w='';function d(n){var x=new Date(Date.now()+11*36e5);x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)}
+function go(){var t=d(0),dow=new Date(t+'T00:00:00Z').getUTCDay(),sat=d((6-dow+7)%7),sun=d((7-dow)%7),lo=w==='wk'?(dow===0?t:sat):t,hi=w==='0'?t:w==='wk'?sun:w==='7'?d(7):'9999';var sec=document.getElementById('events');if(!sec)return;
+sec.querySelectorAll('[data-town]').forEach(function(g){g.hidden=s.value&&g.dataset.town!==s.value});sec.querySelectorAll('li[data-d]').forEach(function(li){var x=li.dataset.d;li.hidden=w!==''&&!(x>=lo&&x<=hi)})}
+f.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;w=b.dataset.w;f.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});go()});s.onchange=go})()</script>`;
+  const events = evBar + ((local.length ? `<div data-town="${pc}"><h3>From locals</h3><ul>${local.map(evItem).join("")}</ul></div>` : "")
+    + (feed.length ? `<div data-town="${pc}"><h3>More around town</h3><ul>${feed.map(evItem).join("")}</ul></div>` : "")
     || `<p>Nothing listed in ${esc(pc)} yet. Know something on? <a href="/submit?pc=${pc}">Add it free</a>.</p>`) + nearby;
 
   const cc = clockChange(), ann = await S(annBanner(env)), live = { newsLead: "", news: "", alerts: "", alertNote: "", holidays: "", ...(await S(liveBlocks(env, ctx, { lat: t.lat, lon: t.lon }), {})) };
@@ -923,6 +940,45 @@ const kzHash = async (salt, word) => [...new Uint8Array(await crypto.subtle.dige
 // Daily time limit: 20 minutes unless the grown-up sets another on /kids/parent. Time used is counted on the account
 // (every device) when signed in, and on the device otherwise. When it runs out, Kid Zone locks until tomorrow.
 const KZ_MINS = 20;
+
+// ---- Search: pages, today's news, notices and events on this Daily Maverick, in one box. ----
+async function searchPage(env, ctx, url) {
+  const q = String(url.searchParams.get("q") || "").trim().slice(0, 80), W = q.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+  const hit = (...t) => { const x = t.join(" ").toLowerCase(); return W.length && W.every(w => x.includes(w)); };
+  let out = [];
+  if (W.length) {
+    for (const it of buildIndex({ R, NAV })) if (hit(it.title, it.text)) out.push(["📄 Page", it.title, it.text, it.href]);
+    const news = await getSource(env, ctx, "news").catch(() => ({ items: [] }));
+    for (const n of news.items || []) if (hit(n.title, n.desc || "")) out.push(["📰 News", n.title, n.src ? "Source: " + n.src : "", n.link]);
+    const since = new Date(Date.now() - 30 * 864e5).toISOString();
+    for (const { name } of await klist(env, "notice:")) { const n = await env.DATA.get(name, "json"); if (n && n.at >= since && !NO_FB.test([n.title, n.body, n.reach].join(" ")) && hit(n.title, n.body)) out.push([NCATS[n.cat] || "📌 Notice", n.title, n.body, "/notices"]); }
+    for (const e of [...await listEvents(env, `event:${R.code}:`), ...await listEvents(env, `feed:${R.code}:`)]) if (hit(e.title, e.venue || "", e.desc || "")) out.push(["🎪 Event", e.title, fmtDate(e.date) + (e.venue ? ", " + e.venue : ""), e.link || "/community#events"]);
+  }
+  out = out.slice(0, 40);
+  return page(`Search: ${R.brand} ${R.code}`, `<h1>🔎 Search ${R.code}</h1>
+<form method="get" action="/search" class="row"><input name="q" value="${esc(q)}" placeholder="e.g. markets, bike, pharmacy, council" aria-label="Search" style="flex:1"><button>Search</button></form>
+${!W.length ? `<p class="mute">Search pages, today&rsquo;s news, the notice board and events.</p>` : out.length ? `<ul class="heads">${out.map(([k, h, d, u]) => `<li><span class="mute">${esc(k)}</span> <a href="${esc(u)}"${/^https?:/.test(u) ? ' rel="noopener"' : ""}><b>${esc(h)}</b></a>${d ? `<br><span class="mute">${esc(String(d).slice(0, 160))}</span>` : ""}</li>`).join("")}</ul>` : `<p>Nothing found for &ldquo;${esc(q)}&rdquo;. Try a different word, or ask Mav.</p>`}`);
+}
+// ---- Travelling? Every Daily Maverick at a glance: alerts, the top local story and what's on next. ----
+async function briefApi(env, ctx) {
+  const [news, fires, warn] = await Promise.all(["news", "fires", "warnings"].map(k => getSource(env, ctx, k).catch(() => ({ items: [] }))));
+  const ev = [...await listEvents(env, `event:${R.code}:`), ...await listEvents(env, `feed:${R.code}:`)].sort((a, b) => (a.date || "").localeCompare(b.date || "")).slice(0, 3);
+  const top = (news.items || [])[0];
+  return Response.json({ code: R.code, place: R.place, domain: R.domain, fires: (fires.items || []).length, warnings: (warn.items || []).length,
+    top: top ? { title: top.title, link: top.link, src: top.src || "" } : null, events: ev.map(e => ({ date: e.date, title: e.title })) }, { headers: { "cache-control": "public, max-age=900", "access-control-allow-origin": "*" } });
+}
+async function travelPage(env, ctx) {
+  const regs = abc(Object.values(REGIONS), x => x.code);
+  const briefs = await Promise.all(regs.map(async x => { try { if (x.code === R.code) return await (await briefApi(env, ctx)).json(); const r = await fetch(`https://${x.domain}/api/brief`, { cf: { cacheTtl: 900 }, signal: AbortSignal.timeout(4000) }); return r.ok ? await r.json() : null; } catch (e) { return null; } }));
+  const card = (x, b) => `<div class="tcard${x.code === R.code ? " here" : ""}"><p class="th"><b>${esc(x.code)} ${esc(x.place)}</b>${x.code === R.code ? ` <span class="lbt">you&rsquo;re here</span>` : ""}</p>
+${b ? `<p class="ta">${b.fires || b.warnings ? `🔴 ${[b.fires ? b.fires + " fire" + (b.fires > 1 ? "s" : "") + " within 100 km" : "", b.warnings ? b.warnings + " weather warning" + (b.warnings > 1 ? "s" : "") : ""].filter(Boolean).join(" · ")}` : "✅ No fires or weather warnings"}</p>
+${b.top ? `<p><a href="${esc(b.top.link)}" rel="noopener">${esc(b.top.title)}</a>${b.top.src ? ` <span class="mute">Source: ${esc(b.top.src)}</span>` : ""}</p>` : ""}
+${b.events.length ? `<ul class="te">${b.events.map(e => `<li><b>${esc(fmtDate(e.date))}</b> ${esc(e.title)}</li>`).join("")}</ul>` : ""}` : `<p class="mute">Couldn&rsquo;t reach it just now.</p>`}
+<p><a href="https://${esc(x.domain)}"><b>Open the ${esc(x.code)} Daily Maverick →</b></a></p></div>`;
+  return page(`Travelling? Every region: ${R.brand}`, `<h1>🧭 Travelling?</h1><p>What&rsquo;s happening in every regional Daily Maverick right now: alerts, the top local story and what&rsquo;s on next.</p>
+<style>.tcards{display:grid;gap:12px}.tcard{border:1px solid var(--line);border-radius:14px;padding:12px 14px}.tcard.here{border:2px solid var(--gold)}.tcard p{margin:4px 0}.th{font-size:1.05rem}.ta{font-weight:600}.te{margin:4px 0;padding-left:18px}.lbt{font-size:.75rem;background:var(--soft);border-radius:6px;padding:1px 6px}</style>
+<div class="tcards">${regs.map((x, i) => card(x, briefs[i])).join("")}</div>`);
+}
 // ---- Mini Maverick Award leaderboard, run by Lola (our fun QCO). First name or nickname and points only, never anything else. ----
 const KZ_DAY_PTS = 300; // most points a kid can add in a day
 const prevMonth = m => { const [y, mo] = m.split("-").map(Number); return mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, "0")}`; };
@@ -3366,6 +3422,9 @@ async function route(req, env, ctx) {
     if (p.startsWith("/api/billing/")) return billingApi(req, env, ctx, p.slice(13), { member, localsCount, goal: LOCALS_GOAL, R, acTag });
     if (p === "/") return town(R.code, env, ctx, true);
     if (p === "/towns") return home(env);
+    if (p === "/search") return searchPage(env, ctx, url);
+    if (p === "/api/brief") return briefApi(env, ctx);
+    if (p === "/travelling") return travelPage(env, ctx);
     if (p === "/social" || p === "/social/") return Response.redirect(new URL("/community", url).toString(), 301);
     if (p === "/fun" || p === "/fun/") return Response.redirect(`https://${url.host}/family${url.search}`, 301);
     if (NAV_SLUGS.includes(p.replace(/^\/|\/$/g, ""))) { const q = (url.searchParams.get("pc") || "").replace(/\D/g, ""); return town(TOWNS[q] && TOWNS[q].live ? q : R.code, env, ctx, false, p.replace(/^\/|\/$/g, "")); }

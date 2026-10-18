@@ -9,6 +9,7 @@ export const NAV = [
     ["#numbers", "🔢", "News in numbers", "The day's news, by the numbers"],
     ["#bypass", "🛣️", "Bypass updates", "Progress on the bypass, from the source"],
     ["#aigb", "🤖", "AI for good, AI for bad", "What AI did this week, both sides"],
+    ["/travelling", "🧭", "Travelling? Every region", "Alerts, top story and what's on in every Daily Maverick"],
   ] },
   { slug: "council", icon: "🏛️", name: "Council Watch", blurb: "Your council and government, in one place. We source, you decide.", items: [
     ["#council", "🏛️", "Council watch today", "Next meeting, how to complain, what was promised"],
