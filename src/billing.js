@@ -1,9 +1,9 @@
 // Daily Maverick memberships (every town): Stripe Checkout + Customer Portal. No packages, plain fetch.
 //
 //   Free for life     the sourced local information. No sign-in, no email, always free.
-//   Some Cool Things  free with your email (sign in): your page personalised, Mav, a few cool tools
-//   Every Cool Thing  $49 a year: every tool unlocked, now and everything we add later
-// Every Cool Thing: 14 days free with no card, then they choose to pay. 7-day money-back: cancel within 7 days of paying = automatic refund.
+//   Some Maverick Things  free with your email (sign in): your page personalised, Mav, a few cool tools
+//   Every Maverick Thing  $49 a year: every tool unlocked, now and everything we add later
+// Every Maverick Thing: 14 days free with no card, then they choose to pay. 7-day money-back: cancel within 7 days of paying = automatic refund.
 //
 // Secret: STRIPE_SECRET_KEY (account-wide, Secrets Store, see secrets.js). Unset = payments off and nothing is locked.
 // Storage: MEMBERS KV, shared by every town, so a member is a member on every Daily Maverick.
@@ -18,8 +18,8 @@ const LIVE = ["active", "trialing", "past_due"];
 const RANK = { free: 0, some: 1, every: 2 };
 const TRIAL_DAYS = 14, REFUND_DAYS = 7;
 export const TIERS = {
-  some: { name: "Some Cool Things", price: 0, free: true }, // free with sign-in, no Stripe
-  every: { name: "Every Cool Thing", price: 49, key: "dm_every_year" },
+  some: { name: "Some Maverick Things", price: 0, free: true }, // free with sign-in, no Stripe
+  every: { name: "Every Maverick Thing", price: 49, key: "dm_every_year" },
 };
 
 function form(obj, prefix, out = new URLSearchParams()) {
@@ -48,7 +48,7 @@ export async function tierOf(env, email) {
   const owners = `${env.OWNERS || ""},${env.FEEDBACK_TO || ""}`.toLowerCase().split(",").map(x => x.trim()).filter(Boolean);
   if (owners.includes(String(email).toLowerCase())) return "every";
   const m = await env.MEMBERS.get(`m:${email}`, "json");
-  // Signed in = Some Cool Things, free. Paying (or on the free trial) = Every Cool Thing.
+  // Signed in = Some Maverick Things, free. Paying (or on the free trial) = Every Maverick Thing.
   return m && LIVE.includes(m.status) && m.tier === "every" ? "every" : "some";
 }
 // Gate check. With payments off nothing is locked, so the site works exactly as it does today.

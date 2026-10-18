@@ -211,8 +211,8 @@ function page(title, body, pc = "", opts = {}) {
 <link rel="apple-touch-icon" href="/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="${R.code}"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>${CSS}${MENU_CSS}${NAV_CSS}${SIDE_CSS}${TL_CSS}${BINS_CSS}</style>${SPEC_RULES}<meta name="m2v" content="${BUILD}"></head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a></span><span class="hdr-r"><button type="button" id="m2menu" class="menub" aria-haspopup="dialog" aria-controls="m2nav" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>Menu</span></button></span></header>${menuDrawer(`<a href="/signin?next=/me" id="my2450" class="my signin" aria-label="Sign in" title="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="currentColor"/><path d="M4.5 20.5c.8-4 3.9-6 7.5-6s6.7 2 7.5 6" fill="currentColor"/></svg></a>`, `<button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0l-4.5-4.5M12 14l4.5-4.5M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download the app</span></button>`)}${navBar()}${HELP_UI(R.brand)}${HELP_PANEL()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=(decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name")||"").trim();if(n==="Local")n="";a.href="/me";a.classList.remove("signin");a.classList.add("in");var t=(n?n.split(" ")[0]+"\u2019s ":"My ")+"${R.code}";a.title=t;a.setAttribute("aria-label",t);if(n){a.innerHTML="";a.textContent=n.charAt(0).toUpperCase()}var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];var t2=document.getElementById("my2450t");if(t2){t2.textContent=t;t2.href="/me"}if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onload=function(){a.textContent="";a.appendChild(im)}}}}catch(e){}<\/script>
-<script>/* 🔒 Locks: everyone sees everything; a lock shows on what their plan can't use yet. LOCKS = path -> level needed (some = free with email, every = Every Cool Thing). */
-(function(){var LOCKS={"/fridge":2,"/genalpha":2,"/home":1,"/me":1,"/school":1},T={1:"Free when you sign in with your email",2:"Part of Every Cool Thing"};
+<script>/* 🔒 Locks: everyone sees everything; a lock shows on what their plan can't use yet. LOCKS = path -> level needed (some = free with email, every = Every Maverick Thing). */
+(function(){var LOCKS={"/fridge":2,"/genalpha":2,"/home":1,"/me":1,"/school":1},T={1:"Free when you sign in with your email",2:"Part of Every Maverick Thing"};
 function paint(rank){var st=document.createElement("style");st.textContent=".lk{font-size:.8em;margin-left:2px;padding:4px 6px;opacity:.75;text-decoration:none;white-space:nowrap;cursor:pointer;border-radius:6px}.lk:hover{opacity:1;background:rgba(242,176,30,.25)}";document.head.appendChild(st);
 document.querySelectorAll("a[href]").forEach(function(a){var u;try{u=new URL(a.getAttribute("href"),location.href)}catch(e){return}if(u.origin!==location.origin)return;var need=LOCKS[u.pathname];if(!need||rank>=need||a.querySelector(".lk"))return;
 var i=document.createElement("span");i.className="lk";i.textContent="🔒";i.title=T[need];i.setAttribute("aria-label","Locked: "+T[need]+". Tap to unlock");i.setAttribute("role","button");i.tabIndex=0;
@@ -1296,7 +1296,7 @@ function sessionHeaders(tok, name, next, pic = "") {
 const JOIN_WHY = () => `<ul class="why">
 <li><span class="mavav" aria-hidden="true"></span><b>Mav.</b> Tell him about your day and he sets up your page in seconds. Signed-in members get more; paid members get unlimited Mav.</li>
 <li>📱 <b>Your page on any phone.</b> Your pins, stars, bin night and saved searches follow you (free when you sign in).</li>
-<li>🧊 <b>What's in your fridge?</b> Snap it, get dinner ideas (Every Cool Thing members).</li>
+<li>🧊 <b>What's in your fridge?</b> Snap it, get dinner ideas (Every Maverick Thing members).</li>
 <li>🙌 <b>You count.</b> You're one of the locals helping a brother out.</li></ul>
 <div class="note"><b>🧠 Plus, free tips on using AI in everyday life</b> from our friends at Maverick Digital. The better you get at telling AI what you want, the better your Daily Maverick gets, because Mav works the same way: just tell him.</div>`;
 const signinPage = (env, next = "/", msg = "") => page(`Join ${R.brand}`, `<h1>Join your Daily Maverick</h1>
@@ -1366,7 +1366,7 @@ const FOODS = ["chicken","beef mince","sausages","steak","bacon","ham","fish","p
 
 const unlockPage = (msg = "") => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
 <p>Tell us what you've got, how many you're feeding and what you like. Get dinner ideas in seconds, with links to the recipes.</p>
-<p><b>Part of Every Cool Thing membership.</b> Pop in your email to sign in first (and get the weekly "This week in ${R.code}" email).</p>${msg}
+<p><b>Part of Every Maverick Thing membership.</b> Pop in your email to sign in first (and get the weekly "This week in ${R.code}" email).</p>${msg}
 <form method="post" action="/unlock"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <div class="row"><input name="name" placeholder="First name" maxlength="40"><input type="email" name="email" placeholder="Your email" required></div>
 ${TIPS_PICK}<label class="mute"><input type="checkbox" name="consent" required> Yes, send me the weekly email from ${R.brand} (Maverick Digital). Unsubscribe any time.</label>
@@ -1376,7 +1376,7 @@ ${TIPS_PICK}<label class="mute"><input type="checkbox" name="consent" required> 
 async function fridgePhoto(req, env) {
   const fem = await member(req, env);
   if (!fem) return Response.json({ error: "Sign in to use the fridge." }, { status: 401 });
-  if (!(await hasTier(env, fem, "every"))) return Response.json({ error: "The fridge is part of Every Cool Thing." }, { status: 402 });
+  if (!(await hasTier(env, fem, "every"))) return Response.json({ error: "The fridge is part of Every Maverick Thing." }, { status: 402 });
   const buf = await req.arrayBuffer();
   if (!buf.byteLength || buf.byteLength > 2e6) return Response.json({ error: "That photo's too big. Try again." }, { status: 400 });
   const ask = { messages: [{ role: "user", content: "List the food and drink items you can see in this fridge or pantry photo. Reply with ONLY a comma-separated list of short, simple ingredient names in lowercase (e.g. eggs, milk, cheese, carrots). No other words." }], image: [...new Uint8Array(buf)], max_tokens: 200 };
@@ -2369,7 +2369,7 @@ var last=new URLSearchParams(location.search).get('c');if(!last)try{last=localSt
 async function mavChat(req, env) {
   const em = await member(req, env);
   if (em && (await hasTier(env, em, "some"))) return mavAnswer(req, env);
-  if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code}. It's free, one tap, and unlocks Some Cool Things: your page personalised, and me, any time: /signin`, actions: [], signin: true });
+  if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code}. It's free, one tap, and unlocks Some Maverick Things: your page personalised, and me, any time: /signin`, actions: [], signin: true });
   const r = await mavAnswer(req, env), h = new Headers(r.headers);
   h.append("set-cookie", "mav1=1; Path=/; Max-Age=31536000; Secure; SameSite=Lax");
   return new Response(r.body, { status: r.status, headers: h });
@@ -2701,7 +2701,7 @@ fetch('/api/timesaved',{method:'POST',headers:{'content-type':'application/json'
 M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b> Thanks for telling us. All up, locals have saved '+H(j.total.mins)+' a week.'}).catch(function(){M.textContent='Something went wrong. Try again?'})})})();`;
 
 // ---- Memberships: honest terms, no tricks. Three choices (see billing.js):
-//   Free for life (no sign-in) · Some Cool Things (free with your email) · Every Cool Thing ($49 a year).
+//   Free for life (no sign-in) · Some Maverick Things (free with your email) · Every Maverick Thing ($49 a year).
 const PRICE = TIERS.every.price;
 async function membershipPage(env, req, url) { const on = paymentsOn(env);
   const em = await member(req, env), tier = em ? await tierOf(env, em) : "free", need = url.searchParams.get("need"), welcome = url.searchParams.get("welcome");
@@ -2709,7 +2709,7 @@ async function membershipPage(env, req, url) { const on = paymentsOn(env);
   const tick = `<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const card = (t, title, price, per, tag, items, cta) => `<div class="mt${mine(t) ? " mine" : ""}${t === "some" ? " hot" : ""}">${t === "some" ? `<p class="mbadge">Most popular</p>` : t === "every" ? `<p class="mbadge mbv">Best value</p>` : ""}<h2>${title}</h2><p class="mprice">${price}<span>${per}</span></p><p class="mtag">${tag}</p><ul>${items.map(i => `<li>${tick}<span>${i}</span></li>`).join("")}</ul>${mine(t) ? `<p class="mon">You're on this one</p>` : cta}</div>`;
   const everyBtn = on ? `<button class="btn mgo" data-tier="every">Try 14 days free</button><p class="msmall">No card needed. Cancel any time.</p>` : `<p class="msmall">Opening soon</p>`;
-  // The tools in Every Cool Thing, A to Z. Only what's built and working.
+  // The tools in Every Maverick Thing, A to Z. Only what's built and working.
   const tools = [
     ["Baby name ideas", "Tell Mav the style, heritage or first letter you like and he suggests names, with meanings and how popular they are in NSW.", "/bdm#names"],
     ["Gen Alpha interpreter", "What did your kid just say? Paste the slang and Jimmy Joel explains it, no judgement.", "/genalpha"],
@@ -2738,20 +2738,20 @@ async function membershipPage(env, req, url) { const on = paymentsOn(env);
 @media(prefers-color-scheme:dark){.mhero p.ml,.mtag,.mprice span,.msmall,.mtool span{color:#a8b3c4}.mbeer{background:#2a2412;color:#f4ead0}}
 </style>
 <p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
-${welcome === "some" ? `<p class="found"><b>You're in. Some Cool Things is on.</b> Tell Mav what you care about and he'll set up your page.</p>` : welcome === "every" ? `<p class="found"><b>You're in. Every Cool Thing is on.</b> Thanks for helping a brother out. Go ask Mav something.</p>` : ""}
-${need === "some" ? `<p class="found">That's part of <b>Some Cool Things</b>. It's free: just sign in with your email.</p>` : need === "every" ? `<p class="found">That tool is part of <b>Every Cool Thing</b>. Try it free for 14 days, no card needed.</p>` : ""}
+${welcome === "some" ? `<p class="found"><b>You're in. Some Maverick Things is on.</b> Tell Mav what you care about and he'll set up your page.</p>` : welcome === "every" ? `<p class="found"><b>You're in. Every Maverick Thing is on.</b> Thanks for helping a brother out. Go ask Mav something.</p>` : ""}
+${need === "some" ? `<p class="found">That's part of <b>Some Maverick Things</b>. It's free: just sign in with your email.</p>` : need === "every" ? `<p class="found">That tool is part of <b>Every Maverick Thing</b>. Try it free for 14 days, no card needed.</p>` : ""}
 <div class="mhero"><p class="mk">Memberships</p><h1>Your local news, plus a personal AI helper that knows your town</h1>
-<p class="ml">The local information is free for life. Sign in for a page that's all about you. Go Every Cool Thing and Mav works for you, unlimited.</p></div>
+<p class="ml">The local information is free for life. Sign in for a page that's all about you. Go Every Maverick Thing and Mav works for you, unlimited.</p></div>
 <div class="mtiers">
 ${card("free", "Free for life", "$0", "", "No sign-in, no email", ["Council watch, events, news, tides and weather", "Every bit of local information we source", "Scam watch and Kid Zone, always free"], `<a class="btn ghost" href="/${R.code}">Read today's</a>`)}
-${card("some", "Some Cool Things", "Free", "", "Just your email", ["Everything in Free for life", "Mav helps 10 times a day", "Mav sets up your page: just tell him what you care about", "My home and the school run check", "Your name on the masthead, your setup on every phone"], `<a class="btn" href="/signin?next=${encodeURIComponent("/membership?welcome=some")}">Sign in free</a>`)}
-${card("every", "Every Cool Thing", `$${PRICE}`, "a year", "Less than a dollar a week", ["Everything in Some Cool Things", "<b>Mav, unlimited</b>: your personal AI helper", "Baby name ideas, Gen Alpha interpreter, What's in your fridge?", "Every tool we build next, at no extra cost", "Try new tools first and vote on what's next"], everyBtn)}
+${card("some", "Some Maverick Things", "Free", "", "Just your email", ["Everything in Free for life", "Mav helps 10 times a day", "Mav sets up your page: just tell him what you care about", "My home and the school run check", "Your name on the masthead, your setup on every phone"], `<a class="btn" href="/signin?next=${encodeURIComponent("/membership?welcome=some")}">Sign in free</a>`)}
+${card("every", "Every Maverick Thing", `$${PRICE}`, "a year", "Less than a dollar a week", ["Everything in Some Maverick Things", "<b>Mav, unlimited</b>: your personal AI helper", "Baby name ideas, Gen Alpha interpreter, What's in your fridge?", "Every tool we build next, at no extra cost", "Try new tools first and vote on what's next"], everyBtn)}
 </div>
 <section class="mai"><div><p class="mk">The big one</p><h2>Meet Mav, your ultimate intern</h2>
 <p>Life admin, sorted. Tell Mav what's going on, in your own words, and he pulls together every bit of local help we know about: the right numbers, the right services and a few clear next steps.</p>
-<p>He only uses information on your Daily Maverick, so it's local, sourced and never made up from thin air. With Every Cool Thing, ask as often as you like.</p></div>
+<p>He only uses information on your Daily Maverick, so it's local, sourced and never made up from thin air. With Every Maverick Thing, ask as often as you like.</p></div>
 <div class="mchat" aria-label="Example chat with Mav"><p class="u">Mum's got a specialist appointment in Sydney. How do we pay for the travel?</p><p class="m">Mmmm, let's sort it. NSW Health's travel scheme (IPTAAS) can help with fuel, fares and accommodation. Here's the form, the number to call and what to bring.</p><p class="u">Which chemist is open tonight?</p><p class="m">Here's what's open near you right now, from the NSW Government pharmacy list.</p></div></section>
-<h2>Every tool in Every Cool Thing</h2><p class="mute">Built, working and yours from day one. More on the way, and members choose what comes next.</p>
+<h2>Every tool in Every Maverick Thing</h2><p class="mute">Built, working and yours from day one. More on the way, and members choose what comes next.</p>
 <div class="mtools">${tools.map(t => ex(...t)).join("")}</div>
 <div class="mbeer"><h2>Less than a case of beer. For a whole year.</h2>
 <p>$${PRICE} a year backs a local who sources your news without the noise, keeps council accountable, and builds the tools your community votes for. Give me a chance.</p>${on && !mine("every") ? `<p style="margin-top:14px"><button class="btn mgo" data-tier="every" style="width:auto;padding:12px 26px">Try 14 days free</button></p>` : ""}</div>
@@ -2777,7 +2777,7 @@ function statusPage(env) {
   done.push(["Fuel", "Nearest servos compared"]);
   done.push(["Roads now", "Crashes, floods, fires and roadwork within 40 km, from Live Traffic NSW"]);
   const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["School bell times", "Your school's own times"],
-    ["Memberships", "Free for life, Some Cool Things free with your email, Every Cool Thing $49 a year: 14 days free, no card, 7-day money-back"], ["Saved searches by email", "Your searches, in your weekly email"]];
+    ["Memberships", "Free for life, Some Maverick Things free with your email, Every Maverick Thing $49 a year: 14 days free, no card, 7-day money-back"], ["Saved searches by email", "Your searches, in your weekly email"]];
   if (!R.fields) todo.push(["Sport & field closures", "Field closures and local fixtures"]);
   const li = (b, cls, txt) => b.map(([n, d]) => `<li><span class="${cls}">${txt}</span> <b>${esc(n)}</b> <span class="mute">${esc(d)}</span></li>`).join("");
   return page(`What's done: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>What's done, what's next</h1>
@@ -2923,7 +2923,7 @@ ${await plusList(env)}
 // ---- Everything: every page on the Daily Maverick, in one place, so nothing is hidden ----
 function allGroups() {
   return [["🗞️ Sections", NAV.map(x => [`/${x.slug}`, x.name, x.blurb])], ["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
-    ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free for life, Some Cool Things or Every Cool Thing"]]],
+    ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free for life, Some Maverick Things or Every Maverick Thing"]]],
     ["🧰 Handy tools", [["/nsw", "NSW Government help", "Check a licence live, rebates and services"], ["/numbers", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"], ["/scams", "Scam watch", "What's going around, check before you buy, report a scam"], ["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What are you binging?", "Shows, podcasts and channels locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
@@ -3315,11 +3315,11 @@ async function route(req, env, ctx) {
     if (p === "/api/fuel") return fuelApi(req, env);
     if (p === "/api/nswcheck") return nswCheckApi(req, env, nswApi);
     if (p === "/me") { const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/me" } }); if (!(await hasTier(env, em, "some"))) return new Response(null, { status: 303, headers: { location: "/membership?need=some" } }); const u = await env.DATA.get(`user:${em}`, "json"); return settingsPage((u?.name || "").split(" ")[0]); }
-    if (p === "/api/prefs") { const em = await member(req, env); return !em ? Response.json({ error: "Sign in" }, { status: 401 }) : (await hasTier(env, em, "some")) ? prefsApi(req, env, em) : Response.json({ error: "Part of Some Cool Things", join: "/membership" }, { status: 402 }); }
+    if (p === "/api/prefs") { const em = await member(req, env); return !em ? Response.json({ error: "Sign in" }, { status: 401 }) : (await hasTier(env, em, "some")) ? prefsApi(req, env, em) : Response.json({ error: "Part of Some Maverick Things", join: "/membership" }, { status: 402 }); }
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
     if (p === "/api/mav/email" && req.method === "POST") return mavEmail(req, env, ctx);
-    if (p === "/api/mav/suggest" && req.method === "POST") { const em = await member(req, env); if (!em) return Response.json({ error: "Sign in first, then Mav can help." }); if (!(await hasTier(env, em, "some"))) return Response.json({ error: "Mav filling this in is part of Some Cool Things. It's free: just sign in." }); return mavSuggest(req, env); }
+    if (p === "/api/mav/suggest" && req.method === "POST") { const em = await member(req, env); if (!em) return Response.json({ error: "Sign in first, then Mav can help." }); if (!(await hasTier(env, em, "some"))) return Response.json({ error: "Mav filling this in is part of Some Maverick Things. It's free: just sign in." }); return mavSuggest(req, env); }
     if (p === "/api/flights/track" && req.method === "POST") return flightTrack(req, env);
     if (p === "/api/flights") return Response.json(await env.DATA.get("flights", "json") || { list: null }, { headers: { "access-control-allow-origin": "*", "cache-control": "max-age=300" } });
     if (p === "/api/health") return Response.json({ gazette: R.code, checked: new Date().toISOString(), sources: await health(env) }, { headers: { "access-control-allow-origin": "*" } });
@@ -3333,7 +3333,7 @@ async function route(req, env, ctx) {
     if (p === "/bdm") return bdmPage(env, ctx);
     if (p === "/names") return Response.redirect(`${url.origin}/bdm?t=${encodeURIComponent(url.searchParams.get("t") || "nsw")}#names`, 302);
     if (p === "/api/names/lookup") return namesLookup(url, env);
-    if (p === "/api/names/ideas" && req.method === "POST" && !(await hasTier(env, await member(req, env), "every"))) return Response.json({ error: "Baby name ideas from Mav are part of Every Cool Thing. Try it free for 14 days at /membership" });
+    if (p === "/api/names/ideas" && req.method === "POST" && !(await hasTier(env, await member(req, env), "every"))) return Response.json({ error: "Baby name ideas from Mav are part of Every Maverick Thing. Try it free for 14 days at /membership" });
     if (p === "/api/names/ideas" && req.method === "POST") return namesIdeas(req, env).catch(() => Response.json({ error: "Mav couldn't think just now. Try again soon." }));
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
     if (p === "/genalpha") { if (!paymentsOn(env)) return genAlpha(); const em = await member(req, env); return !em ? new Response(null, { status: 303, headers: { location: "/signin?next=/genalpha" } }) : (await hasTier(env, em, "every")) ? genAlpha() : new Response(null, { status: 303, headers: { location: "/membership?need=every" } }); }
