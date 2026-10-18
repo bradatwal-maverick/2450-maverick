@@ -2727,7 +2727,7 @@ async function membershipPage(env, req, url) { const on = paymentsOn(env);
     ["terry-techy", "Tezza the Techie", "Every tool we build next", "Tezza builds them. You get every new tool the day it lands, at no extra cost. That's the extra 10%.", "/status"],
   ];
   const ex = (k, who, tool, t, u) => `<div class="mtool"><span class="mwho">${face([k, who])}<span><small>${who}'s favourite</small><b>${tool}</b></span></span><span>${t}</span></div>`;
-  return page(`Memberships: ${R.brand}`, `<style>
+  return page(`Daily Maverick memberships: ${R.code}`, `<style>
 .mhero{text-align:center;padding:18px 0 6px}.mhero .mk{font:700 .78rem/1 inherit;letter-spacing:.12em;text-transform:uppercase;color:var(--acc,#12233f);margin:0 0 8px}
 .mhero h1{font-size:clamp(1.6rem,4.5vw,2.3rem);line-height:1.15;margin:0 auto 10px;max-width:22ch}.mhero p.ml{max-width:46ch;margin:0 auto;color:#5b6575;font-size:1.05rem}
 .mtiers{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin:26px 0;align-items:stretch}
@@ -2754,7 +2754,7 @@ async function membershipPage(env, req, url) { const on = paymentsOn(env);
 </style>
 ${welcome === "some" ? `<p class="found"><b>You're in. Maverick Lite is on.</b> Tell Mav what you care about and he'll set up your page.</p>` : welcome === "every" ? `<p class="found"><b>You're in. 110% Maverick is on.</b> Thanks for helping a brother out. Go ask Mav something.</p>` : ""}
 ${need === "some" ? `<p class="found">That's part of <b>Maverick Lite</b>. It's free: just sign in with your email.</p>` : need === "every" ? `<p class="found">That tool is part of <b>110% Maverick</b>. Try it free for 14 days, no card needed.</p>` : ""}
-<div class="mhero"><p class="mk">Memberships</p><h1>Your Daily Maverick, plus a personal AI helper</h1>
+<div class="mhero"><p class="mk">Daily Maverick memberships</p><h1>Your Daily Maverick, plus a personal AI helper</h1>
 <p class="ml">Local information is sourced free for life by Team Smarketing.</p></div>
 <div class="mtiers">
 ${card("free", "Free for life", "$0", "", "No sign-in, no email", ["Council watch, events, news, tides and weather", "Every bit of local information we source", "Scam watch and Kid Zone, always free"], `<p class="mon">Already yours</p>`)}
