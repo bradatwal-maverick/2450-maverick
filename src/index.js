@@ -17,7 +17,7 @@ import { nswPage, nswCheckApi } from "./nswgov.js";
 import { scamsApi, scamFeeds, scamTeaser } from "./scams.js";
 import { helpApi, HELP_UI, HELP_PANEL, buildIndex } from "./helpme.js";
 import { areasStrip, areaPages } from "./areas.js";
-import { auHandle, auCovers } from "./au.js";
+import { auHandle, auCovers, localities } from "./au.js";
 import { GENERAL, MEDIUM, HARD, LEVELS, buildCrossword } from "./crossword.js";
 import { QUOTES } from "./quotes.js";
 import { TEAM } from "./team.js";
@@ -2272,7 +2272,10 @@ async function fuelApi(req, env) {
   const u = new URL(req.url);
   const d = await fuelNear(env, +u.searchParams.get("lat") || HOME.lat, +u.searchParams.get("lon") || HOME.lon);
   if (!d) return Response.json({ error: "unreachable" });
-  const rows = d.stations.map(s => ({ name: s.name, brand: s.brand, address: s.address, km: s.km, p: Object.fromEntries(d.prices.filter(x => x.code === s.code).map(x => [x.type, x.price])) }))
+  // Drop the town and postcode (we know where we are); link the servo to Google Maps.
+  const tidy = (txt, locs) => { let t = String(txt || "").replace(/,?\s*NSW\s*\d{4}\s*$/i, ""); for (const l of locs) t = t.replace(new RegExp(`(,\\s*|\\s+)${l.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "ig"), ""); return t.replace(/\s{2,}/g, " ").replace(/[,\s]+$/, "").trim(); };
+  const rows = d.stations.map(s => { const pc = (String(s.address || "").match(/(\d{4})\s*$/) || [])[1], locs = [...new Set([...(pc ? localities(pc) : []), ...Object.values(TOWNS).map(x => x.name)])].sort((a, b) => b.length - a.length);
+    return { name: tidy(s.name, locs) || s.name, map: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(`${s.name} ${s.address || ""}`), brand: s.brand, address: tidy(s.address, locs), km: s.km, p: Object.fromEntries(d.prices.filter(x => x.code === s.code).map(x => [x.type, x.price])) }; })
     .filter(r => Object.keys(r.p).length).sort((a, b) => a.km - b.km).slice(0, 4);
   const best = Object.fromEntries(FUEL_COLS.map(([t]) => [t, Math.min(...rows.map(r => r.p[t] ?? Infinity))]));
   return Response.json({ cols: FUEL_COLS, rows, best, asof: d.asof });
@@ -2286,7 +2289,7 @@ function load(){var q='/api/fuel?'+(pos?'lat='+pos[0]+'&lon='+pos[1]:'lat=${t.la
 fetch(q).then(function(r){return r.json()}).then(function(j){if(j.error||!j.rows){fo.textContent='Couldn’t reach FuelCheck just now. Try again soon.';return}
 if(!j.rows.length){fo.textContent='No servos found within 15 km.';return}
 var hi={};j.cols.forEach(function(k){var L=j.rows.map(function(r){return r.p[k[0]]}).filter(function(x){return x!=null});hi[k[0]]=L.length?Math.max.apply(null,L):null});function tl(v,t){if(v==null||j.best[t]===hi[t])return '';return v===j.best[t]?'cheap':v===hi[t]?'dear':'mid'}
-fo.className='';fo.innerHTML='<div class="ftw"><table class="ftab"><thead><tr><th>Nearest servos</th>'+j.cols.map(function(k){return '<th>'+k[1]+'</th>'}).join('')+'</tr></thead><tbody>'+j.rows.map(function(s){return '<tr><td><b>'+s.name+'</b><br><span class="mute">'+(s.km!=null?(+s.km).toFixed(1)+' km · ':'')+(s.address||'')+'</span></td>'+j.cols.map(function(k){var v=s.p[k[0]];return '<td class="'+tl(v,k[0])+'">'+c(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>${TL_KEY.replace(/'/g, "\\'")}<p class="mute fnote">Closest first. Price a litre.</p>';
+fo.className='';fo.innerHTML='<div class="ftw"><table class="ftab"><thead><tr><th>Nearest servos</th>'+j.cols.map(function(k){return '<th>'+k[1]+'</th>'}).join('')+'</tr></thead><tbody>'+j.rows.map(function(s){return '<tr><td><a href="'+(s.map||'#')+'" rel="noopener" target="_blank"><b>'+s.name+'</b></a><br><span class="mute">'+(s.km!=null?(+s.km).toFixed(1)+' km · ':'')+(s.address||'')+'</span></td>'+j.cols.map(function(k){var v=s.p[k[0]];return '<td class="'+tl(v,k[0])+'">'+c(v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>${TL_KEY.replace(/'/g, "\\'")}<p class="mute fnote">Closest first. Price a litre.</p>';
 document.getElementById('fsrc').innerHTML='<span class="srcw">Source:</span> <a href="https://www.fuelcheck.nsw.gov.au" rel="noopener">NSW FuelCheck</a>, the NSW Government fuel price site. Updated '+new Date(j.asof).toLocaleString('en-AU',{hour:'numeric',minute:'2-digit',weekday:'short'})+'.';}).catch(function(){fo.textContent='Couldn’t reach FuelCheck just now. Try again soon.'})}
 nb.onclick=function(){if(!navigator.geolocation)return;nb.textContent='📍 Finding you…';
 navigator.geolocation.getCurrentPosition(function(p){pos=[+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)];try{localStorage.setItem('loc',JSON.stringify(pos))}catch(e){}nb.textContent='📍 Near you';load()},function(){nb.textContent='📍 Near me'})};load()})();</script></section>`;

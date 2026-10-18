@@ -26,6 +26,8 @@ export function auHandle(p, url, h) {
   if (m && AU.councils[m[1]]) return councilPage(m[1], url.searchParams.get("pc"), h);
   return null;
 }
+// Locality names for a postcode (e.g. "2450" -> Coffs Harbour, Boambee, ...), used to tidy addresses.
+export const localities = pc => { for (const st of Object.values(AU.pcs || {})) if (st[pc]) return st[pc].loc || []; return []; };
 export const auCovers = pc => findPc(pc).length > 0;
 
 function finder(h, state = "") {
