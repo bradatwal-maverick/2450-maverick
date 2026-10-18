@@ -1,9 +1,10 @@
 // Daily Maverick memberships (every town): Stripe Checkout + Customer Portal. No packages, plain fetch.
 //
-//   Free             the sourced local information. Always free, for everyone.
-//   Some Cool Things  $49 a year: your page personalised by Mav
-//   Every Cool Thing  $99 a year ($50 a year for life for Founding Members): personalisation + every tool
-// 14 days free with no card, then they choose to pay. 7-day money-back: cancel within 7 days of paying = automatic refund.
+//   Free for life     the sourced local information. No sign-in, no email, always free.
+//   Some Cool Things  free with your email (sign in): your page personalised, Mav, a few cool tools
+//   Every Cool Thing  $49 a year: every tool unlocked, now and everything we add later
+//                     (Founding Members lock in $49 a year for life, even when the price goes up)
+// Every Cool Thing: 14 days free with no card, then they choose to pay. 7-day money-back: cancel within 7 days of paying = automatic refund.
 //
 // Secret: STRIPE_SECRET_KEY (account-wide, Secrets Store, see secrets.js). Unset = payments off and nothing is locked.
 // Storage: MEMBERS KV, shared by every town, so a member is a member on every Daily Maverick.
@@ -18,8 +19,8 @@ const LIVE = ["active", "trialing", "past_due"];
 const RANK = { free: 0, some: 1, every: 2 };
 const TRIAL_DAYS = 14, REFUND_DAYS = 7;
 export const TIERS = {
-  some: { name: "Some Cool Things", price: 49, key: "dm_some_year" },
-  every: { name: "Every Cool Thing", price: 99, key: "dm_every_year", founding: 50, foundingKey: "dm_every_founding" },
+  some: { name: "Some Cool Things", price: 0, free: true }, // free with sign-in, no Stripe
+  every: { name: "Every Cool Thing", price: 49, key: "dm_every_year", founding: 49, foundingKey: "dm_every_founding" },
 };
 
 function form(obj, prefix, out = new URLSearchParams()) {
@@ -48,7 +49,8 @@ export async function tierOf(env, email) {
   const owners = `${env.OWNERS || ""},${env.FEEDBACK_TO || ""}`.toLowerCase().split(",").map(x => x.trim()).filter(Boolean);
   if (owners.includes(String(email).toLowerCase())) return "every";
   const m = await env.MEMBERS.get(`m:${email}`, "json");
-  return m && LIVE.includes(m.status) && RANK[m.tier] ? m.tier : "free";
+  // Signed in = Some Cool Things, free. Paying (or on the free trial) = Every Cool Thing.
+  return m && LIVE.includes(m.status) && m.tier === "every" ? "every" : "some";
 }
 // Gate check. With payments off nothing is locked, so the site works exactly as it does today.
 export const hasTier = async (env, email, need) => !paymentsOn(env) || RANK[await tierOf(env, email)] >= RANK[need];
@@ -65,6 +67,7 @@ async function checkout(req, env, url, deps) {
   let b = {}; try { b = await req.json(); } catch (e) {}
   const t = TIERS[b.tier]; if (!t) return J({ error: "bad request" }, 400);
   const email = await deps.member(req, env);
+  if (t.free) return J(email ? { url: `${url.origin}/membership?welcome=some` } : { signin: "/signin?next=" + encodeURIComponent("/membership?welcome=some") }, email ? 200 : 401);
   if (!email) return J({ signin: "/signin?next=" + encodeURIComponent("/membership?buy=" + b.tier) }, 401);
   const m = (await env.MEMBERS.get(`m:${email}`, "json")) || {};
   const key = b.tier === "every" && (await isFounder(env, email, deps)) ? t.foundingKey : t.key;

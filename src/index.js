@@ -619,7 +619,7 @@ const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goa
 <p class="barlab">${n.toLocaleString("en-AU")} of ${goal} locals</p>
 <p>Sign up for one short email a week with what's on, plus a free Maverick Digital guide to using AI in everyday life.</p>${signup(pc)}
 <p class="rallyl"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>
-<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$50 a year, for life</h3><p>The first ${goal} locals to sign in free lock in $50 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a></p></section>`; };
+<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$49 a year, for life</h3><p>The first ${goal} locals to sign in free lock in $49 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a></p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip mute" href="#join">Target: ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${n.toLocaleString("en-AU")} so far</a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1262,7 +1262,7 @@ function sessionHeaders(tok, name, next, pic = "") {
 }
 const JOIN_WHY = () => `<ul class="why">
 <li><span class="mavav" aria-hidden="true"></span><b>Mav.</b> Tell him about your day and he sets up your page in seconds. Signed-in members get more; paid members get unlimited Mav.</li>
-<li>📱 <b>Your page on any phone.</b> Your pins, stars, bin night and saved searches follow you (Some Cool Things members).</li>
+<li>📱 <b>Your page on any phone.</b> Your pins, stars, bin night and saved searches follow you (free when you sign in).</li>
 <li>🧊 <b>What's in your fridge?</b> Snap it, get dinner ideas (Every Cool Thing members).</li>
 <li>🙌 <b>You count.</b> You're one of the locals helping a brother out.</li></ul>
 <div class="note"><b>🧠 Plus, free tips on using AI in everyday life</b> from our friends at Maverick Digital. The better you get at telling AI what you want, the better your Daily Maverick gets, because Mav works the same way: just tell him.</div>`;
@@ -2336,8 +2336,7 @@ var last=new URLSearchParams(location.search).get('c');if(!last)try{last=localSt
 async function mavChat(req, env) {
   const em = await member(req, env);
   if (em && (await hasTier(env, em, "some"))) return mavAnswer(req, env);
-  if (em) return Response.json({ reply: cookie(req, "mav1") ? `Loved helping! Setting up your page with me is part of Some Cool Things. Try it free for 14 days, no card needed: /membership` : `G'day! Setting up your page with me is part of Some Cool Things. Try it free for 14 days, no card needed: /membership`, actions: [], member: true });
-  if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code} (free, one tap), then Some Cool Things members get unlimited Mav. Try it free for 14 days: /signin`, actions: [], signin: true });
+  if (cookie(req, "mav1")) return Response.json({ reply: `Loved helping! To keep chatting with me, sign in to My ${R.code}. It's free, one tap, and unlocks Some Cool Things: your page personalised, and me, any time: /signin`, actions: [], signin: true });
   const r = await mavAnswer(req, env), h = new Headers(r.headers);
   h.append("set-cookie", "mav1=1; Path=/; Max-Age=31536000; Secure; SameSite=Lax");
   return new Response(r.body, { status: r.status, headers: h });
@@ -2668,34 +2667,38 @@ d.querySelector('form').addEventListener('submit',function(e){e.preventDefault()
 fetch('/api/timesaved',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tool:k,before:b,after:a,freq:+F.f.value})}).then(function(r){return r.json()}).then(function(j){if(!j.ok){M.textContent=j.error||'Something went wrong.';return}
 M.innerHTML='<b>You save '+H(j.week)+' a week, about '+H(j.week*52)+' a year.</b> Thanks for telling us. All up, locals have saved '+H(j.total.mins)+' a week.'}).catch(function(){M.textContent='Something went wrong. Try again?'})})})();`;
 
-// ---- Memberships: honest terms, no tricks. Free = the sourced local info, always. Two paid levels (see billing.js).
-// Founding Members (the first 15,000 locals) pay $50 a year for Every Cool Thing, for life.
+// ---- Memberships: honest terms, no tricks. Three choices (see billing.js):
+//   Free for life (no sign-in) · Some Cool Things (free with your email) · Every Cool Thing ($49 a year).
+// Founding Members (the first 15,000 locals to sign in) lock in $49 a year for Every Cool Thing, for life.
 const FOUNDING_PRICE = TIERS.every.founding, PRICE = TIERS.every.price, FOUNDING_SPOTS = LOCALS_GOAL;
 async function membershipPage(env, req, url) { const n = await localsCount(env), left = Math.max(0, FOUNDING_SPOTS - n), on = paymentsOn(env);
-  const em = await member(req, env), tier = await tierOf(env, em), need = url.searchParams.get("need"), welcome = url.searchParams.get("welcome");
-  const btn = (t, label) => on ? `<button class="btn" data-tier="${t}">${label}</button>` : `<p class="mute">Opening soon.</p>`;
-  const card = (t, title, price, items, cta) => `<div class="tier${tier === t ? " mine" : ""}"><h2>${title}</h2><p class="tprice">${price}</p><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>${tier === t ? `<p><b>✅ You're on this one.</b></p>` : cta}</div>`;
-  return page(`Memberships: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>Memberships</h1>
-${welcome && TIERS[welcome] ? `<p class="found"><b>You're in. ${TIERS[welcome].name} is on.</b> Thanks for helping a brother out. Enjoy your Daily Maverick.</p>` : ""}
-${need === "some" ? `<p class="found">Setting up your page with Mav is part of <b>Some Cool Things</b>. Try it free for 14 days, no card needed.</p>` : need === "every" ? `<p class="found">That tool is part of <b>Every Cool Thing</b>. Try it free for 14 days, no card needed.</p>` : ""}
-<p><b>The local information is free, for everyone, forever.</b> Nobody pays to be listed, and nobody pays to read. The paid levels are for locals who want their Daily Maverick made just for them.</p>
-<style>.tiers{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:16px 0}.tier{border:1px solid #d9dee6;border-radius:12px;padding:14px}.tier.mine{border-color:#12233f;border-width:2px}.tier h2{margin:0 0 4px;font-size:1.15rem}.tprice{font-weight:700;margin:0 0 8px}.tier ul{padding-left:18px;margin:0 0 12px}.tier .btn{width:100%}</style>
+  const em = await member(req, env), tier = em ? await tierOf(env, em) : "free", need = url.searchParams.get("need"), welcome = url.searchParams.get("welcome");
+  const mine = t => tier === t || (!on && em && t === "some");
+  const card = (t, title, price, tag, items, cta) => `<div class="tier${mine(t) ? " mine" : ""}${t === "every" ? " hot" : ""}"><h2>${title}</h2><p class="tprice">${price}</p><p class="ttag">${tag}</p><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>${mine(t) ? `<p><b>✅ You're on this one.</b></p>` : cta}</div>`;
+  const everyBtn = on ? `<button class="btn" data-tier="every">Try 14 days free</button><p class="mute small">No card needed</p>` : `<p class="mute">Opening soon.</p>`;
+  return page(`Memberships: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>Pick how you want your Daily Maverick</h1>
+${welcome === "some" ? `<p class="found"><b>You're in. Some Cool Things is on.</b> Tell Mav what you care about and he'll set up your page.</p>` : welcome === "every" ? `<p class="found"><b>You're in. Every Cool Thing is on.</b> Thanks for helping a brother out. Enjoy your Daily Maverick.</p>` : ""}
+${need === "some" ? `<p class="found">That's part of <b>Some Cool Things</b>. It's free: just sign in with your email.</p>` : need === "every" ? `<p class="found">That tool is part of <b>Every Cool Thing</b>. Try it free for 14 days, no card needed.</p>` : ""}
+<style>.tiers{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:16px 0}.tier{border:1px solid #d9dee6;border-radius:12px;padding:14px;display:flex;flex-direction:column}.tier.hot{border-color:#f2b01e;border-width:2px}.tier.mine{border-color:#12233f;border-width:2px}.tier h2{margin:0 0 4px;font-size:1.15rem}.tprice{font-weight:700;font-size:1.3rem;margin:0}.ttag{margin:2px 0 10px;color:#5b6575}.tier ul{padding-left:18px;margin:0 0 12px;flex:1}.tier .btn{width:100%}.small{font-size:.85rem;margin:6px 0 0;text-align:center}.beer{background:#fff8e6;border-radius:12px;padding:14px;margin:18px 0}.beer h2{margin:0 0 6px}</style>
 <div class="tiers">
-${card("free", "Free", "$0, always", ["Every bit of local information we source", "News, weather, tides, events, council watch and more", "No login needed"], `<p><a href="/${R.code}">Read today's →</a></p>`)}
-${card("some", "Some Cool Things", `$${TIERS.some.price} a year`, ["Everything in Free", "Your page, personalised", "Mav sets it up: just tell him what you care about", "Your setup on every phone you sign in on"], btn("some", "Try 14 days free"))}
-${card("every", "Every Cool Thing", `$${PRICE} a year <span class="mute">(Founding Members $${FOUNDING_PRICE}, for life)</span>`, ["Everything in Some Cool Things", "Every tool Maverick Digital adds, like What's in your fridge", "Try new tools while we build them", "Nominate and vote on what comes next"], btn("every", "Try 14 days free"))}
+${card("free", "Free for life", "$0", "No sign-in, no email", ["Every bit of local information we source", "News, weather, tides, events, Council watch and more", "Anything you can find, we find. We just get it to you quicker"], `<a class="btn ghost" href="/${R.code}">Read today's</a>`)}
+${card("some", "Some Cool Things", "Free", "Just your email", ["Everything in Free for life", "Your page, personalised: your name on the masthead", "Mav sets it up. Just tell him what you care about", "A few cool tools, worth an email", "Your setup on every phone you sign in on"], `<a class="btn" href="/signin?next=${encodeURIComponent("/membership?welcome=some")}">Sign in free</a>`)}
+${card("every", "Every Cool Thing", `$${PRICE} a year`, "Less than a dollar a week", ["Everything in Some Cool Things", "Every tool unlocked, like What's in your fridge", "Everything we build next, you get too. No extra cost", "Try new tools while we build them", "Nominate and vote on what comes next"], everyBtn)}
 </div>
+<div class="beer"><h2>🍺 Less than a case of beer. For a whole year.</h2>
+<p>Most of us spend that on a weekend without thinking. $${PRICE} a year backs a local who sources your news without the noise, keeps council accountable, and builds the tools your community votes for. Give me a chance.</p></div>
 <h2>The deal</h2><ul class="rules">
 <li>🆓 <b>14 days free, no credit card.</b> Like it? Then you pay. Don't? Do nothing and it simply ends</li>
 <li>↩️ <b>7-day money-back.</b> Cancel within 7 days of paying and your money comes straight back. No forms, no questions</li>
-<li>🔓 <b>No lock-in.</b> Cancel or switch any time${tier !== "free" ? ` · <a href="#" id="manage">Manage my membership</a>` : ""}</li>
-<li>🔒 Secure payment by Stripe. We never see your card</li></ul>
-<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in free are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
+<li>🔓 <b>No lock-in.</b> Cancel any time${tier === "every" ? ` · <a href="#" id="manage">Manage my membership</a>` : ""}</li>
+<li>🔒 Secure payment by Stripe. We never see your card</li>
+<li>🛡️ Community services (Scam watch, digital safety, Kid Zone) are always free, whatever you choose</li></ul>
+<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
 <p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p>${em ? "" : `<p><a href="/signin?next=/membership"><b>Sign in free to claim yours</b></a></p>`}</div>
 <p class="mute" id="paymsg" role="status"></p>
 <script>(function(){var M=document.getElementById('paymsg');function go(path,body){M.textContent='Opening secure checkout…';fetch('/api/billing/'+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){if(j.url)location.href=j.url;else if(j.signin)location.href=j.signin;else M.textContent=j.error||'Something went wrong. Try again?'}).catch(function(){M.textContent='Something went wrong. Try again?'})}
 document.querySelectorAll('[data-tier]').forEach(function(b){b.onclick=function(){go('checkout',{tier:b.dataset.tier})}});var m=document.getElementById('manage');if(m)m.onclick=function(e){e.preventDefault();go('portal')};
-var buy=new URLSearchParams(location.search).get('buy');if(buy==='some'||buy==='every'){var b=document.querySelector('[data-tier="'+buy+'"]');if(b)b.click()}})();</script>`); }
+var buy=new URLSearchParams(location.search).get('buy');if(buy==='every'){var b=document.querySelector('[data-tier="every"]');if(b)b.click()}})();</script>`); }
 
 
 // ---- What's done and what's in the works, in one honest list ----
@@ -2708,7 +2711,7 @@ function statusPage(env) {
   done.push(["Fuel", "Nearest servos compared"]);
   done.push(["Roads now", "Crashes, floods, fires and roadwork within 40 km, from Live Traffic NSW"]);
   const todo = [["Coles prices", "Coles blocks our checks. We're finding another way"], ["School bell times", "Your school's own times"],
-    ["Memberships", "Some Cool Things $49 and Every Cool Thing $99 a year, 14 days free, no card, 7-day money-back. Founding Members pay $50 for life"], ["Saved searches by email", "Your searches, in your weekly email"]];
+    ["Memberships", "Free for life, Some Cool Things free with your email, Every Cool Thing $49 a year: 14 days free, no card, 7-day money-back. Founding Members lock in $49 for life"], ["Saved searches by email", "Your searches, in your weekly email"]];
   if (!R.fields) todo.push(["Sport & field closures", "Field closures and local fixtures"]);
   const li = (b, cls, txt) => b.map(([n, d]) => `<li><span class="${cls}">${txt}</span> <b>${esc(n)}</b> <span class="mute">${esc(d)}</span></li>`).join("");
   return page(`What's done: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>What's done, what's next</h1>
@@ -2854,7 +2857,7 @@ ${await plusList(env)}
 // ---- Everything: every page on the Daily Maverick, in one place, so nothing is hidden ----
 function allPage() {
   const G = [["🗞️ Sections", NAV.map(x => [`/${x.slug}`, x.name, x.blurb])], ["📰 Your daily paper", [[`/${R.code}`, `${R.place} ${R.code}`, "Your daily page"], ...Object.entries(TOWNS).filter(([k, v]) => v.live && k !== R.code).map(([k, v]) => [`/${k}`, `${v.name} ${k}`, "Daily page"]), ["/towns", "All our towns", "Every Daily Maverick"], ["/au", "Who represents you", "Regional Australia: council, MPs and senators"]]],
-    ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free, Some Cool Things or Every Cool Thing"]]],
+    ["👪 Your people", [["/mums", "Mums", "School run, countdowns, kids and your village"], ["/dads", "Dads", "School run, countdowns, kids and your village"], ["/kids", "Kid Zone", "Safe games for 12 and under"], ["/singles", "Singles", "Meet people in real life"], ["/lgbtqia", "LGBTQIA+", "Your town, for everyone"], ["/membership", "Memberships", "Free for life, Some Cool Things or Every Cool Thing"]]],
     ["🧰 Handy tools", [["/numbers", "Hard-to-find numbers", "Banks, airlines, telcos and government, one tap to call"], ["/scams", "Scam watch", "What's going around, check before you buy, report a scam"], ["/photo", "Share a photo", "Get your shot of your place in front of every local"], ["/photos", "Locals' photos", "Your place, through locals' eyes"], ["/open", "What's open", "Pharmacies, servos, cafés, dog beaches and more"], ["/rent", "Renting", "Every rental site, your rights, bond help"], ["/jobs", "Jobs", "Every job site in one place"], ["/school", "School run check", "Weather and traffic for drop-off"], ["/home", "My home", "Bin night reminders, house-sitter sheet"], ["/fridge", "What's in your fridge?", "Dinner ideas"], ["/birthday", "Birthday deals", "Local places that look after you"], ["/watch", "What are you binging?", "Shows, podcasts and channels locals rate"], ["/genalpha", "Gen Alpha interpreter", "What did your kid just say?"], [`/${R.why.slug}`, R.why.title, "Fun facts, every one sourced"]]],
     ["🤝 Community", [["/notices", "Community notice board", "Lost pets, volunteers, clubs"], ["/bdm", "Births, Deaths and Marriages", "Family notices"], ["/rip", "Death notices", "In memory"], ["/celebrations", "Celebrations", "Births, engagements, milestones"], ["/award", "Mini Maverick Encouragement Award", "Nominate a local kid, or apply as a club"], ["/submit", "Add an event", "Free, always"], ["/feedback", "Ideas and feedback", "Suggest and vote; 30 votes gets it built"], ["/suggest", "Want one for your town?", "Ask for your postcode"]]],
     ["🧒 Kid Zone", [["/kids", "Kid Zone", "Games for kids 12 and under"], ["/kids/parent", "Grown-ups: Kid Zone settings", "Set the secret word"], ["/crossword", "Daily crossword", "Easy, medium and hard"]]],
@@ -3246,7 +3249,7 @@ async function route(req, env, ctx) {
     if (p === "/mav" && req.method === "POST") return mav(req, env);
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
     if (p === "/api/mav/email" && req.method === "POST") return mavEmail(req, env, ctx);
-    if (p === "/api/mav/suggest" && req.method === "POST") { const em = await member(req, env); if (!em) return Response.json({ error: "Sign in first, then Mav can help." }); if (!(await hasTier(env, em, "some"))) return Response.json({ error: "Mav filling this in is part of Some Cool Things. Try it free for 14 days: /membership" }); return mavSuggest(req, env); }
+    if (p === "/api/mav/suggest" && req.method === "POST") { const em = await member(req, env); if (!em) return Response.json({ error: "Sign in first, then Mav can help." }); if (!(await hasTier(env, em, "some"))) return Response.json({ error: "Mav filling this in is part of Some Cool Things. It's free: just sign in." }); return mavSuggest(req, env); }
     if (p === "/api/flights/track" && req.method === "POST") return flightTrack(req, env);
     if (p === "/api/flights") return Response.json(await env.DATA.get("flights", "json") || { list: null }, { headers: { "access-control-allow-origin": "*", "cache-control": "max-age=300" } });
     if (p === "/api/health") return Response.json({ gazette: R.code, checked: new Date().toISOString(), sources: await health(env) }, { headers: { "access-control-allow-origin": "*" } });
