@@ -471,7 +471,7 @@ f.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)re
     location: { "@type": "Place", name: e.venue || nm, address: { "@type": "PostalAddress", addressLocality: nm, postalCode: pc, addressRegion: R.state || "NSW", addressCountry: "AU" } },
     ...(e.desc ? { description: e.desc } : {}), ...(e.link ? { url: e.link } : {}),
     ...(e.cost != null ? { isAccessibleForFree: e.cost === 0, offers: { "@type": "Offer", price: e.cost, priceCurrency: "AUD", ...(e.link ? { url: e.link } : {}) } } : {}) }));
-  const orgLd = SH ? [] : [{ "@type": "NewsMediaOrganization", "@id": base + "/#org", name: `${R.brand} ${R.code}`, alternateName: `${R.brand} ${R.place}`, url: base + "/", logo: base + "/icon-512.png",
+  const orgLd = SH ? [] : [{ "@type": "Organization", "@id": base + "/#org", name: `${R.brand} ${R.code}`, alternateName: `${R.brand} ${R.place}`, url: base + "/", logo: base + "/icon-512.png",
       areaServed: { "@type": "Place", name: R.place }, publishingPrinciples: base + "/charter", parentOrganization: { "@type": "Organization", name: "Maverick Digital", url: "https://maverickdigital.com.ai" } },
     { "@type": "WebSite", "@id": base + "/#site", name: R.brand, url: base + "/", inLanguage: "en-AU", publisher: { "@id": base + "/#org" },
       potentialAction: { "@type": "SearchAction", target: `${base}/search?q={search_term_string}`, "query-input": "required name=search_term_string" } },
@@ -947,7 +947,7 @@ const about = async env => { const n = await localsCount(env), locals = n >= 10 
 
 const ICON = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">${R.code}</text></svg>`;
 const MANIFEST = (first = "") => JSON.stringify({ id: "/", name: first ? `${first}'s Daily Maverick` : `${R.brand} ${R.short}`, short_name: first && first.length <= 7 ? `${first}'s Mav` : first ? "My Maverick" : R.code, description: `Your personalised local daily page for ${R.place}. Free.`, lang: "en-AU",
-  start_url: "/?src=app", scope: "/", display: "standalone", background_color: "#0B1526", theme_color: "#0B1526", categories: ["news", "lifestyle"],
+  start_url: "/?src=app", scope: "/", display: "standalone", background_color: "#0B1526", theme_color: "#0B1526", categories: ["lifestyle", "utilities"],
   icons: [...(ICONS[R.code] ? [{ src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }] : []),
     { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }] });
 const AREA = () => areaPages({ esc, page, wip, R, TOWNS, SCHOOL_HOLS, todayISO });
