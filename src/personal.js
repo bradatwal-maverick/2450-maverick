@@ -213,7 +213,7 @@ document.getElementById('setreset').onclick=function(ev){ev.preventDefault();if(
 document.getElementById('setall').onclick=function(ev){ev.preventDefault();q('[name=sec]').forEach(function(c){c.checked=true});mark()};
 addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});load()})();`;
 
-// "For you": one spot at the top of their own paper (bookmark /#foryou). Mav picks what he thinks they'll want to know today,
+// "For you": one small spot at the bottom of their own paper (bookmark /#foryou). Mav picks what he thinks they'll want to know today,
 // from what they've told him and what they read. It's taken from today's paper, so it's always sourced; nothing new to host.
 export const FORYOU_JS = String.raw`(function(){var f=document.getElementById('flow'),M=window.M2;if(!f||!M||document.getElementById('foryou'))return;var g=M.g,p=M.p,j=M.j,esc=M.esc;
 // What they read: count opens of each section, quietly, on this phone (and their account when signed in).
@@ -238,8 +238,8 @@ j('todo',[]).map(function(x){var d=new Date(x.d+'T00:00:00');return [Math.round(
 var h=HELP.filter(function(g){return g[0].test(r[1].t)}).slice(0,2),when=r[0]===0?'Today':r[0]===1?'Tomorrow':DN2[r[2].getDay()]+' '+r[2].getDate();
 cards.unshift('<div class="fyc fybd"><b>📅 '+when+': '+esc(r[1].t)+'</b>'+(h.length?'<ul>'+h.map(function(g){return '<li><a href="'+g[2]+'">'+g[1]+'</a></li>'}).join('')+'</ul>':'')+'</div>')});
 var box=document.createElement('section');box.id='foryou';box.className='foryou';
-box.innerHTML='<h2><span class="mavav" aria-hidden="true"></span>'+(nm?esc(nm)+', here’s':'Here’s')+' what Mav thinks you’ll want to know</h2>'+(cards.length?cards.join(''):'<p>Tell Mav what you’re into, or fill in <a href="/me" class="mavall">About you</a>, and this spot fills up each morning with what matters to you.</p>')+'<p class="mute fynote">Picked from today’s paper, based on what you’ve told Mav and what you read. Bookmark this spot. <a href="/me" class="mavall">Change</a></p>';
-var td=document.getElementById('today');if(td&&td.parentNode===f)f.insertBefore(box,td.nextSibling);else f.insertBefore(box,f.firstChild);
+box.innerHTML='<h2><span class="mavav" aria-hidden="true"></span>Suggestions tailored for '+(nm?esc(nm):'you')+', from Mav</h2>'+(cards.length?cards.join(''):'<p>Tell Mav what you’re into, or fill in <a href="/me" class="mavall">About you</a>, and this spot fills up each morning with what matters to you.</p>')+'<p class="mute fynote">Picked from today’s paper, based on what you’ve told Mav and what you read. Bookmark this spot. <a href="/me" class="mavall">Change</a></p>';
+f.appendChild(box);
 if(location.hash=='#foryou')setTimeout(function(){box.scrollIntoView({block:'start'})},80);
 // Phone app: opening the home-screen app goes straight to their own Daily Maverick card (weather, bins, birthdays, Mav's picks).
 // One tap opens the full paper; the ☀️ button brings the card back. Desktop keeps the spot inline. /#mine opens it anywhere.
