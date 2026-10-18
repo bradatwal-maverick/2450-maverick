@@ -52,7 +52,7 @@ function dailyLine() {
     "Sourced, never spun. You make up your own mind.",
     "Tell Mav what you like and he sets up your page.",
     "Local first. Nobody pays to be here.",
-    `Born and built, ${R.code}, raised by the world.`,
+    `Built in regional Australia, raised by the world.`,
   ];
   const d = new Date(todayISO() + "T00:00:00Z");
   const day = Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 0)) / 864e5);
@@ -549,7 +549,7 @@ const rally = (n, pc) => { const pct = Math.min(100, n / LOCALS_GOAL * 100), goa
 <p class="barlab">${n.toLocaleString("en-AU")} of ${goal} locals</p>
 <p>Sign up for one short email a week with what's on, plus a free Maverick Digital guide to using AI in everyday life.</p>${signup(pc)}
 <p class="rallyl"><a href="#" onclick="event.preventDefault();var u=location.origin+'/${esc(pc)}';if(navigator.share)navigator.share({title:'${R.brand}',text:'Everything on in ${R.short}, in one place. Free.',url:u});else{navigator.clipboard&&navigator.clipboard.writeText(u);this.textContent='Link copied'}">Share ${R.code}</a> · <a href="/about">How ${R.code} stays free</a></p></section>
-<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$50 a year, for life</h3><p>The first ${goal} locals to sign in free lock in $50 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a>${R.code === "2450" ? ` · <a href="/localsforlife">Born at the old Coffs hospital?</a>` : ""}</p></section>`; };
+<section id="founding" class="spot"><p class="spotk">Founding Members</p><h3>$50 a year, for life</h3><p>The first ${goal} locals to sign in free lock in $50 a year, for life, if they ever choose Every Cool Thing. No obligation, ever.</p><p><a href="/membership"><b>How it works →</b></a></p></section>`; };
 const rallyStrip = (n) => `<a class="rallystrip mute" href="#join">Target: ${LOCALS_GOAL.toLocaleString("en-AU")} locals · ${n.toLocaleString("en-AU")} so far</a>`;
 const signup = pc => `<form method="post" action="/subscribe" class="row"><input type="hidden" name="pc" value="${esc(pc)}">
 <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -704,7 +704,7 @@ const about = async env => { const n = await localsCount(env), locals = n >= 10 
 <p>When we get there, local businesses will be able to reach that audience through a few ads in our <b>email</b>, and only there. <b>This site stays ad-free.</b> The ads will be <b>selective</b> (local and relevant to you), <b>fairly priced</b> and <b>clearly labelled</b>. Advertisers never get your name or email address, and we never sell your details.</p>
 <p>We're not here to build an empire off our community. Just to make a fair living doing something genuinely useful for it.</p>
 <p><i>Global vision, local thinking.</i> ${R.code} Maverick is <a href="https://maverickdigital.com.ai">Maverick Digital</a>'s motto in action.</p>
-<p>Big tech divided us. ${R.code} Maverick brings communities back together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>${R.sign}</i></p>
+<p>Your local information, all in one place, bringing regional communities together.</p><p>A free gift to the community from <a href="https://maverickdigital.com.ai">Maverick Digital</a>.<br><i>${R.sign}</i></p>
 <h2>Your privacy</h2><p>Most of your settings live on your own phone, not with us. Read the <a href="/privacy">privacy policy</a>, in plain English.</p>`); };
 
 const ICON = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0B1526"/><text x="256" y="300" font-family="Arial,sans-serif" font-size="150" font-weight="bold" fill="#fff" text-anchor="middle">${R.code}</text></svg>`;
@@ -2227,44 +2227,11 @@ ${card("every", "Every Cool Thing", `$${PRICE} a year <span class="mute">(Foundi
 <li>🔒 Secure payment by Stripe. We never see your card</li></ul>
 <div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in free are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
 <p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p>${em ? "" : `<p><a href="/signin?next=/membership"><b>Sign in free to claim yours</b></a></p>`}</div>
-${R.code === "2450" ? `<p><a class="card" href="/localsforlife">🏥 <b>Born at the old Coffs hospital?</b> Locals for Life: Every Cool Thing free for life, for the first 50 →</a></p>` : ""}
 <p class="mute" id="paymsg" role="status"></p>
 <script>(function(){var M=document.getElementById('paymsg');function go(path,body){M.textContent='Opening secure checkout…';fetch('/api/billing/'+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){if(j.url)location.href=j.url;else if(j.signin)location.href=j.signin;else M.textContent=j.error||'Something went wrong. Try again?'}).catch(function(){M.textContent='Something went wrong. Try again?'})}
 document.querySelectorAll('[data-tier]').forEach(function(b){b.onclick=function(){go('checkout',{tier:b.dataset.tier})}});var m=document.getElementById('manage');if(m)m.onclick=function(e){e.preventDefault();go('portal')};
 var buy=new URLSearchParams(location.search).get('buy');if(buy==='some'||buy==='every'){var b=document.querySelector('[data-tier="'+buy+'"]');if(b)b.click()}})();</script>`); }
 
-// ---- Locals for Life (Coffs only): born at the old Coffs Harbour hospital (births up to about 1985) and still living here?
-// Every Cool Thing free for life, first 50 only, plus a free shout-out for your business. Proof (birth certificate,
-// showing just the place and date) is checked once, when memberships open.
-const LFL_SPOTS = 50;
-async function lflPage(req, env, note = "") {
-  if (R.code !== "2450") return Response.redirect(new URL("/membership", req.url).toString(), 302);
-  const list = (await env.DATA.get("lfl:list", "json")) || [], left = Math.max(0, LFL_SPOTS - list.length), em = await member(req, env), mine = em && list.includes(em);
-  return page("Locals for Life", `<p class="mute"><a href="/2450">‹ 2450 Coffs Harbour</a></p><h1>🏥 Locals for Life</h1>
-<p>Born at the old Coffs Harbour hospital and still here? You're a local for life, and your Daily Maverick knows it.</p>
-<ul class="rules"><li>⭐ <b>Every Cool Thing, free, for life</b></li><li>📣 A free shout-out for your business, club or cause on the Daily Maverick</li><li>🏅 Only <b>${LFL_SPOTS}</b> spots, ever. <b>${left} left</b></li></ul>
-<p class="mute">Who's in: born at the old Coffs Harbour hospital (the one before today's, so births up to about 1985), and you still live in the Coffs Harbour area. "Locals for life" means you're still here. When memberships open we'll ask to see your birth certificate once (just the hospital and date, cover everything else).</p>
-${note ? `<p class="note">${note}</p>` : ""}
-${mine ? `<p class="note">🎉 You're in. Welcome, local for life.</p>` : !left ? `<p class="note">All ${LFL_SPOTS} spots are taken. Thanks, Coffs!</p>` : !em ? `<p><a href="/signin?next=/localsforlife"><b>Sign in free to claim your spot</b></a></p>` : `<form method="post" class="me">
-<label>Your full name<input name="name" maxlength="80" required></label>
-<label>Year you were born<input name="year" type="number" min="1900" max="1990" required></label>
-<label>Where you live now<select name="pc">${Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => `<option value="${k}">${k} ${esc(v.name)}</option>`).join("")}</select></label>
-<label>Your business, club or cause for a shout-out (optional)<input name="biz" maxlength="80"></label>
-<label class="chk"><input type="checkbox" name="ok" value="yes" required> I was born at the old Coffs Harbour hospital, I still live here, and I'll show my birth certificate when asked.</label>
-<button>Claim my spot</button></form>`}`); }
-async function lflApply(req, env) {
-  if (R.code !== "2450") return new Response("Not found", { status: 404 });
-  const em = await member(req, env); if (!em) return Response.redirect(new URL("/signin?next=/localsforlife", req.url).toString(), 303);
-  const f = await req.formData(), list = (await env.DATA.get("lfl:list", "json")) || [];
-  const year = +f.get("year"), name = String(f.get("name") || "").replace(/[<>]/g, "").trim().slice(0, 80), pc = String(f.get("pc") || ""), biz = String(f.get("biz") || "").replace(/[<>]/g, "").trim().slice(0, 80);
-  if (list.includes(em)) return lflPage(req, env);
-  if (list.length >= LFL_SPOTS) return lflPage(req, env, "Sorry, all the spots have just gone.");
-  if (!name || f.get("ok") !== "yes" || !TOWNS[pc]?.live) return lflPage(req, env, "Please fill in your name, where you live and tick the box.");
-  if (!(year >= 1900 && year <= 1985)) return lflPage(req, env, "Locals for Life is for people born at the old hospital, which closed in the mid-1980s. Thanks for being a local!");
-  await env.DATA.put(`lfl:${em}`, JSON.stringify({ email: em, name, year, pc, biz: biz && (await cleanText(env, biz)) ? biz : "", at: new Date().toISOString(), proof: "pending" }));
-  await env.DATA.put("lfl:list", JSON.stringify([...list, em]));
-  return lflPage(req, env, `🎉 Spot ${list.length + 1} of ${LFL_SPOTS} is yours, ${esc(name.split(" ")[0])}. Welcome, local for life.`);
-}
 
 // ---- What's done and what's in the works, in one honest list ----
 function statusPage(env) {
@@ -2796,7 +2763,7 @@ async function route(req, env, ctx) {
     if (p === "/singles") return AREA().singles(url);
     if (p === "/lgbtqia" || p === "/lgbtq") return AREA().lgbtqia(url);
     if (p === "/membership") return membershipPage(env, req, url);
-    if (p === "/localsforlife") return req.method === "POST" ? lflApply(req, env) : lflPage(req, env);
+    if (p === "/localsforlife") return Response.redirect(`https://${url.host}/membership`, 301);
     if (p === "/photo") return PHOTOS().formPage(req, env, url);
     if (p === "/photos") return PHOTOS().gallery(env, url);
     if (p === "/credits") return creditsPage(env, url);
@@ -3405,8 +3372,6 @@ const NUMBERS = [
     src: [["Roy Morgan", "https://www.roymorgan.com/findings/10248-artificial-intelligence-ai-tools-usage-march-2026"], ["eSafety Commissioner, via Associated Press", "https://www.waff.com/2026/01/16/heres-how-many-social-media-accounts-platforms-removed-after-australia-banned-them-children"]] },
   { d: "2026-06-30", g: "Big tech watch", a: ["Meta's revenue", "US$60.8 billion", "April to June 2026"], b: ["Meta's profit", "US$15.85 billion", "April to June 2026"],
     src: [["Meta second quarter 2026 results", "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Second-Quarter-2026-Results/"]] },
-  { d: "2023-12-31", g: "Life and death", a: ["Australians killed by animals", "34", "a year on average (2001 to 2021), all animals, horses to sharks"], b: ["Americans killed by guns", "46,728", "in 2023 (about 128 a day)"],
-    src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"], ["US Centers for Disease Control and Prevention (CDC) data, via Johns Hopkins Bloomberg School of Public Health", "https://publichealth.jhu.edu/2025/new-report-highlights-us-2023-gun-deaths-suicide-by-firearm-at-record-levels-for-third-straight-year"]] },
   { d: "2021-12-31", g: "Life and death", a: ["Australians killed by horses", "222", "2001 to 2021"], b: ["Australians killed by sharks", "39", "2001 to 2021"],
     src: [["National Coronial Information System, via ScienceAlert", "https://www.sciencealert.com/deadliest-animal-in-australia-revealed-and-its-a-big-surprise"]] },
   { d: "2021-12-31", g: "Life and death", a: ["Australians killed by spiders", "0", "2001 to 2021"], b: ["Australians killed by bees", "45", "2001 to 2021, all from allergic reactions"],

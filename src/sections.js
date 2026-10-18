@@ -10,7 +10,7 @@ export const NAV = [
     ["#bypass", "🛣️", "Bypass updates", "Progress on the bypass, from the source"],
     ["#aigb", "🤖", "AI for good, AI for bad", "What AI did this week, both sides"],
   ] },
-  { slug: "council", icon: "🏛️", name: "Council Watch", blurb: "Holding the decision-makers to account. We source, you decide.", items: [
+  { slug: "council", icon: "🏛️", name: "Council Watch", blurb: "Your council and government, in one place. We source, you decide.", items: [
     ["#council", "🏛️", "Council watch today", "Next meeting, how to complain, what was promised"],
     ["#know", "📍", "Know your area", "Mayor, councillors, bins and council contacts"],
     ["/au", "🗳️", "Who represents you", "Your council, MPs and senators, fact-checked"],
