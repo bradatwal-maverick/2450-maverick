@@ -474,7 +474,8 @@ f.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)re
   const W = Object.fromEntries(await Promise.all(Object.keys(WATCH).map(async id => [id, await S(env.DATA.get(`srcw:${id}`, "json"), null)])));
   const soon = (id, title, what, link, linkText) => `<section id="${id}"><h2>${title}</h2>${wip(what.replace(/,? coming soon\.?/i, "."), link, linkText)}</section>`;
   const SH = secSlug ? sectionHead(secSlug, { esc, R, pc }) : null;
-  const hero = ""; // No photo of the day on the front page: the lead story brings its own image, and the page loads faster. The photo still decorates other pages (membership, photos). let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; } let scB = ""; try { scB = scamTeaser(await scamFeeds(env), esc); } catch (e) { scB = ""; }
+  // No photo of the day on the front page: the lead story brings its own image, and the page loads faster. The photo still decorates other pages (membership, photos).
+  const hero = ""; let edB = ""; try { edB = edBlock(await edData(env, R.code), esc); } catch (e) { edB = ""; } let scB = ""; try { scB = scamTeaser(await scamFeeds(env), esc); } catch (e) { scB = ""; }
   let pics = {}; try { pics = await sidePics(env, pc, t, todayISO(), UA); } catch (e) { pics = {}; }
   let wx = await S(env.DATA.get("wx:" + pc, "json"), null); if (wx && !(Date.now() - new Date(wx.asof) < 2 * 36e5)) wx = null;
   const wxV = wxTiles(wx);
