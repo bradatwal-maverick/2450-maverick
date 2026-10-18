@@ -910,19 +910,27 @@ const KZ_MINS = 20;
 const KZ_DAY_PTS = 300; // most points a kid can add in a day
 const prevMonth = m => { const [y, mo] = m.split("-").map(Number); return mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, "0")}`; };
 const monthName = m => new Date(m + "-01T00:00:00Z").toLocaleString("en-AU", { month: "long", year: "numeric", timeZone: "UTC" });
-async function kzBoard(env, m) { const B = (await env.DATA.get(`kzlb:${m}:${R.code}`, "json")) || {}; return Object.entries(B).map(([em, x]) => ({ em, nick: x.nick, pts: x.pts })).sort((a, b) => b.pts - a.pts); }
+// One board for every Daily Maverick (shared storage), so kids compare with their own town and every other region.
+async function kzBoard(env, m, town) { const B = (await (env.MEMBERS || env.DATA).get(`kzlb:${m}`, "json")) || {}; return Object.entries(B).map(([em, x]) => ({ em, nick: x.nick, pts: x.pts, town: x.town })).filter(x => !town || x.town === town).sort((a, b) => b.pts - a.pts); }
 async function leaderBlock(env) {
-  const m = todayISO().slice(0, 7), L = (await kzBoard(env, m)).slice(0, 10), W = (await kzBoard(env, prevMonth(m))).slice(0, 3), medal = ["🥇", "🥈", "🥉"];
-  const row = (x, i) => `<li><span class="lbn">${medal[i] || i + 1}</span> <b>${esc(x.nick)}</b> <span class="mute">${x.pts.toLocaleString("en-AU")} pts</span></li>`;
+  const m = todayISO().slice(0, 7), ALL = await kzBoard(env, m), MINE = ALL.filter(x => x.town === R.code), W = (await kzBoard(env, prevMonth(m), R.code)).slice(0, 3), medal = ["🥇", "🥈", "🥉"];
+  const row = (x, i, showTown) => `<li><span class="lbn">${medal[i] || i + 1}</span> <b>${esc(x.nick)}</b>${showTown ? ` <span class="lbt">${esc(x.town)}</span>` : ""} <span class="mute">${x.pts.toLocaleString("en-AU")} pts</span></li>`;
+  const T = {}; for (const x of ALL) T[x.town] = (T[x.town] || 0) + x.pts;
+  const towns = Object.entries(T).sort((a, b) => b[1] - a[1]);
+  const list = (L, showTown) => L.length ? `<ol class="lbl">${L.slice(0, 10).map((x, i) => row(x, i, showTown)).join("")}</ol>` : `<p>No one on the board yet this month. Be the first!</p>`;
   return `<div class="card2 lb"><p class="lbby"><img class="tav" src="/team/lola.svg" alt="" width="28" height="28"> <b>Lola&rsquo;s leaderboard</b> · ${esc(monthName(m))}</p>
-${L.length ? `<ol class="lbl">${L.map(row).join("")}</ol>` : `<p>No one on the board yet this month. Be the first!</p>`}
-<p class="mute2">Top 3 on the 1st of next month win the Mini Maverick Award: 🥇 $25 · 🥈 $15 · 🥉 $10. A grown-up enters you on the <a href="/kids/parent#award">grown-ups page</a>.</p>
-${W.length ? `<p class="mute2"><b>${esc(monthName(prevMonth(m)))} winners:</b> ${W.map((x, i) => `${medal[i]} ${esc(x.nick)}`).join(" · ")}</p>` : ""}</div>`;
+<div class="lbtabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-lb="mine">${R.code}</button><button type="button" role="tab" aria-selected="false" data-lb="all">All regions</button><button type="button" role="tab" aria-selected="false" data-lb="towns">Region vs region</button></div>
+<div data-lbp="mine">${list(MINE, false)}</div><div data-lbp="all" hidden>${list(ALL, true)}</div>
+<div data-lbp="towns" hidden>${towns.length ? `<ol class="lbl">${towns.map(([t, p], i) => `<li><span class="lbn">${medal[i] || i + 1}</span> <b>${esc(t)}</b>${t === R.code ? " <span class=\"lbt\">you</span>" : ""} <span class="mute">${p.toLocaleString("en-AU")} pts</span></li>`).join("")}</ol>` : `<p>No regions on the board yet this month.</p>`}</div>
+<p class="mute2">The top 3 in ${R.code} on the 1st of next month win the Mini Maverick Award: 🥇 $25 · 🥈 $15 · 🥉 $10. A grown-up enters you on the <a href="/kids/parent#award">grown-ups page</a>.</p>
+${W.length ? `<p class="mute2"><b>${esc(monthName(prevMonth(m)))} winners in ${R.code}:</b> ${W.map((x, i) => `${medal[i]} ${esc(x.nick)}`).join(" · ")}</p>` : ""}</div>
+<style>.lbtabs{display:flex;gap:6px;margin:0 0 8px;flex-wrap:wrap}.lbtabs button{background:#eef2f7;color:#12233f;border:0;border-radius:999px;padding:5px 12px;font-weight:700;cursor:pointer}.lbtabs button[aria-selected=true]{background:#f2b01e}.lbt{font-size:.75rem;background:#eef2f7;color:#12233f;border-radius:6px;padding:1px 6px}</style>
+<script>(function(){var b=document.querySelectorAll('[data-lb]');b.forEach(function(x){x.onclick=function(){b.forEach(function(y){y.setAttribute('aria-selected',y===x?'true':'false')});document.querySelectorAll('[data-lbp]').forEach(function(p){p.hidden=p.dataset.lbp!==x.dataset.lb})}})})()<\/script>`;
 }
 // On the 1st, Lola sends Brad last month's top 3 with each parent's email, once.
 async function awardWinners(env, ctx) {
   const m = prevMonth(todayISO().slice(0, 7)), flag = `kzlb:sent:${m}:${R.code}`; if (await env.DATA.get(flag)) return;
-  const W = (await kzBoard(env, m)).slice(0, 3); await env.DATA.put(flag, "1", { expirationTtl: 400 * 86400 }); if (!W.length) return;
+  const W = (await kzBoard(env, m, R.code)).slice(0, 3); await env.DATA.put(flag, "1", { expirationTtl: 400 * 86400 }); if (!W.length) return;
   mailUs(env, ctx, `Mini Maverick Award winners, ${monthName(m)} (${R.code})`, W.map((x, i) => `${["1st, $25", "2nd, $15", "3rd, $10"][i]}: ${x.nick}, ${x.pts} pts. Parent: ${x.em}`).join("\n") + `\n\nSpend at a local business, never fast food. Ask each parent before showing a first name anywhere else.`);
 }
 async function kzApi(req, env) {
@@ -936,8 +944,8 @@ async function kzApi(req, env) {
     const n = Math.max(0, Math.min(100, Math.round(+body.pts || 0))), dk = `kzlp:${em}:${day}`, today = +(await env.DATA.get(dk)) || 0, add = Math.min(n, Math.max(0, KZ_DAY_PTS - today));
     if (!add) return Response.json({ ok: true, capped: true });
     await env.DATA.put(dk, String(today + add), { expirationTtl: 2 * 86400 });
-    const k = `kzlb:${day.slice(0, 7)}:${R.code}`, B = (await env.DATA.get(k, "json")) || {}; B[em] = { nick: e.nick, pts: (B[em]?.pts || 0) + add };
-    await env.DATA.put(k, JSON.stringify(B), { expirationTtl: 120 * 86400 }); return Response.json({ ok: true, added: add }); }
+    const LB = env.MEMBERS || env.DATA, k = `kzlb:${day.slice(0, 7)}`, B = (await LB.get(k, "json")) || {}; B[em] = { nick: e.nick, pts: (B[em]?.pts || 0) + add, town: R.code };
+    await LB.put(k, JSON.stringify(B), { expirationTtl: 120 * 86400 }); return Response.json({ ok: true, added: add }); }
   if (body.tick) { const add = Math.max(0, Math.min(60, +body.tick || 0)); if (em) await env.DATA.put(uk, String(used + add), { expirationTtl: 2 * 86400 }); return Response.json({ mins, used: used + add }); }
   if (!rec) return Response.json({ ok: true });
   if (rec.pause && Date.now() < rec.pause) return Response.json({ ok: false, msg: "Too many tries. Ask your grown-up, then try again in a little while." });
