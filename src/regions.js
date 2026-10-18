@@ -83,7 +83,7 @@ export const REGIONS = {
     fields: { url: "https://coffsharbour.nsw.gov.au/Community-and-recreation/Community-venues-and-facilities/Sports-facilities/Sports-grounds/Sports-field-closure-arrangements", info: `<h3>Who decides and when</h3><ul><li><b>Weekday training:</b> council decides by 3pm</li><li><b>C.ex Coffs International Stadium:</b> by 3pm Friday</li>
 <li><b>AFL:</b> by 5pm the day before</li><li><b>Baseball:</b> 6–7am Saturday</li><li><b>Cricket:</b> Saturday morning (juniors on 105.5 Star FM just before 7am)</li><li><b>Soccer and hockey:</b> check your association's website</li></ul>`, name: "City of Coffs Harbour, Sports field closure arrangements" },
     watch: {
-  councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page (not yet updated by council: Cr Amos resignation confirmed in local news, Oct 2026)", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
+  councillors: { owner: "Council", name: "City of Coffs Harbour, Councillors page (not yet updated by council: Cr Amos resignation confirmed by local outlets, Oct 2026)", url: "https://www.coffsharbour.nsw.gov.au/Your-Council/About-Council/Councillors" },
   bulky: { owner: "Council", name: "Council bulky goods FAQ", url: "https://haveyoursay.coffsharbour.nsw.gov.au/bulky-goods-waste-service/faqs", stated: "2018-03" },
   wasteapp: { owner: "News Of The Area", name: "News Of The Area (waste app)", url: "https://coffscoast.newsofthearea.com.au/app-solves-the-challenge-of-which-bin-this-week", stated: "2025-05" },
   envreport: { owner: "Council", name: "City of Coffs Harbour, Report an environmental issue", url: "https://www.coffsharbour.nsw.gov.au/Environment/Compliance-and-reporting/Report-an-environmental-issue" },
@@ -108,9 +108,9 @@ export const REGIONS = {
     mavKB: `Site: 2450 Maverick, a free local info site for the Coffs Harbour council area (2450 Coffs Harbour, 2452 Sawtell & Toormina, 2456 Woolgoolga). Never charges. A gift from Maverick Digital.
 Pages: /2450 /2452 /2456 area pages; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
 /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
-Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; fuel=cheapest fuel near you;
+Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=Local stories (headlines from local outlets); fuel=cheapest fuel near you;
 sea=tides & fishing; know=Know your area (mayor Cr Nikki Williams, deputy Cr George Cecato, council 02 6648 4000 incl. 24/7 urgent water/sewer/pollution/animal attacks, bins via Coffs Coast Waste Services app, bulky goods 1800 265 495, tip at Englands Road, council request form, NSW Ombudsman);
-council=council news; kids=Get outside this weekend (outdoor things for kids and families, free or under $50; we don't list arcades, bowling or cinemas); sport=Sport & field closures with phone alerts; holidays=public holidays; beaches=beaches.
+council=Council watch (council updates); kids=Get outside this weekend (outdoor things for kids and families, free or under $50; we don't list arcades, bowling or cinemas); sport=Sport & field closures with phone alerts; holidays=public holidays; beaches=beaches.
 Every piece of information has an ⓘ Source button showing where it comes from and how current it is.
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
@@ -187,7 +187,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       note: "Byron Bay, Broken Head and the creeks beside Brunswick Heads have sanctuary zones where you can't fish at all. Check the map before you cast." },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "Byron Shire Council, Leadership page (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.byron.nsw.gov.au/Council/Leadership" },
+      leadership: { owner: "Council", name: "Byron Shire Council, Leadership page (not yet updated by council: changes since confirmed by local outlets, Oct 2026)", url: "https://www.byron.nsw.gov.au/Council/Leadership" },
       waste: { owner: "Council", name: "Byron Shire Council, Waste guide for new residents", url: "https://www.byron.nsw.gov.au/Residential-Services/Waste-Recycling/Waste-guide-for-new-tenants-and-residents" },
       report: { owner: "Council", name: "Byron Shire Council, Report requests and feedback", url: "https://www.byron.nsw.gov.au/Council/Report-Requests-Feedback" },
       contact: { owner: "Council", name: "Byron Shire Council, Contact us", url: "https://www.byron.nsw.gov.au/Council/Report-Requests-Feedback/Contact-Byron-Shire-Council" },
@@ -206,9 +206,9 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     mavKB: `Site: 2481 Maverick, a free local info site for the Byron Shire (2481 Byron Bay & Suffolk Park, 2479 Bangalow, 2480 Federal, 2482 Mullumbimby, 2483 Brunswick Heads & Ocean Shores). Never charges. A gift from Maverick Digital.
 Pages: /2481 /2479 /2480 /2482 /2483 area pages; /open what's open now (pharmacies, doctors, mechanics, servos, supermarkets, bottle shops, pubs, cafes, takeaway, vets, hardware); /fridge dinner ideas from your fridge (free email unlock);
 /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter with Jimmy Joel; /rip death notices; /crossword daily crossword; /submit add an event free; /feedback suggest and vote on ideas (30 votes gets it built); /new what's new; /privacy; /charter.
-Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=local headlines; memory=In memory (death notices); fuel=cheapest fuel near you;
+Area page sections (ids): today=At a glance tiles (weather, rain, wind, sunrise, tides, swell, moon, clock change); tools=Handy tools; alerts=fires within 100 km and weather warnings; events=What's on; news=Local stories (headlines from local outlets); memory=In memory (death notices); fuel=cheapest fuel near you;
 sea=tides & fishing; know=Know your area (mayor Cr Sarah Ndiaye, deputy Cr Elia Hauge, Byron Shire Council 02 6626 7000, after hours emergencies 02 6622 7022, bins via the Recycle Coach app, annual free drop-off at the Byron Resource Recovery Centre, missed bins 1300 652 625, NSW Ombudsman);
-council=council news; kids=Get outside this weekend (outdoor things for kids and families, free or under $50; we don't list arcades, bowling or cinemas); holidays=public and school holidays; puzzles=daily crossword; beaches=beaches.
+council=Council watch (council updates); kids=Get outside this weekend (outdoor things for kids and families, free or under $50; we don't list arcades, bowling or cinemas); holidays=public and school holidays; puzzles=daily crossword; beaches=beaches.
 Every piece of information has an ⓘ Where from? button showing where it comes from and how current it is.
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
@@ -292,7 +292,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["🌏", "Gumbaynggirr Country", "The Bellingen Shire is on Gumbaynggirr Country.", "https://en.wikipedia.org/wiki/Gumbaynggirr", "Wikipedia"]],
     mavKB: `Site: 2454 Maverick, a free local info site for the Bellingen Shire (2453 Dorrigo, 2454 Bellingen, 2455 Urunga). Never charges. A gift from Maverick Digital.
 Pages: /2453 /2454 /2455 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
-Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Steve Allan, deputy Cr Graeme Shephard, council 02 6655 7300, bins via Coffs Coast Waste Services app or 1800 265 495, tip at Raleigh); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
+Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=Local stories (headlines from local outlets); memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Steve Allan, deputy Cr Graeme Shephard, council 02 6655 7300, bins via Coffs Coast Waste Services app or 1800 265 495, tip at Raleigh); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2485": {
@@ -369,7 +369,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["Tweed River", "River", "bream, mulloway, luderick, flathead, mangrove jack", "Bull sharks can be about. Bass and estuary perch: catch and release only, May to August"]] },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "Tweed Shire Council, Mayor and Councillors (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.tweed.nsw.gov.au/council/councillors-meetings/mayor-councillors" },
+      leadership: { owner: "Council", name: "Tweed Shire Council, Mayor and Councillors (not yet updated by council: changes since confirmed by local outlets, Oct 2026)", url: "https://www.tweed.nsw.gov.au/council/councillors-meetings/mayor-councillors" },
       waste: { owner: "Council", name: "Tweed Shire Council, tip and resource recovery", url: "https://www.tweed.nsw.gov.au/property-rates/waste-recycling/tip-resource-recovery" },
       contact: { owner: "Council", name: "Tweed Shire Council, Contact us", url: "https://www.tweed.nsw.gov.au/contact-us" },
     },
@@ -386,7 +386,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["🌏", "Bundjalung Country", "The Tweed Shire is on the Country of the Ngandowal and Minyungbal speaking people of the Bundjalung nation.", "https://www.tweed.nsw.gov.au/community/community-support/people-communities/aboriginal-torres-strait-islander", "Tweed Shire Council"]],
     mavKB: `Site: 2485 Maverick, a free local info site for the Tweed Shire (2484 Murwillumbah, 2485 Tweed Heads, 2486 Banora Point and Tweed Heads South, 2487 Kingscliff). Never charges. A gift from Maverick Digital.
 Pages: /2484 /2485 /2486 /2487 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
-Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Reece Byrnes, deputy Cr Meredith Dennis OAM, council 02 6670 2400, bins via bin collection day calendar on the council website or 02 6670 2400, tip at Stotts Creek); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
+Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=Local stories (headlines from local outlets); memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Reece Byrnes, deputy Cr Meredith Dennis OAM, council 02 6670 2400, bins via bin collection day calendar on the council website or 02 6670 2400, tip at Stotts Creek); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
 Emergencies: 000. Tides are estimates, not for navigation. NSW and Queensland clocks differ by an hour in daylight saving time.`,
   },
   "2430": {
@@ -452,7 +452,7 @@ Emergencies: 000. Tides are estimates, not for navigation. NSW and Queensland cl
       ["Lansdowne River", "River", "flathead, mud crabs", ""]] },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "MidCoast Council, Mayor and Councillors (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.midcoast.nsw.gov.au/Your-Council/Mayor-Councillors" },
+      leadership: { owner: "Council", name: "MidCoast Council, Mayor and Councillors (not yet updated by council: changes since confirmed by local outlets, Oct 2026)", url: "https://www.midcoast.nsw.gov.au/Your-Council/Mayor-Councillors" },
       waste: { owner: "Council", name: "MidCoast Council, Taree Waste Management Centre", url: "https://www.midcoast.nsw.gov.au/Services/Facilities-and-venues/Find-a-Facility/Outdoor-Facilities/Taree-Waste-Management-Centre" },
       contact: { owner: "Council", name: "MidCoast Council website", url: "https://www.midcoast.nsw.gov.au/Contact" },
     },
@@ -469,7 +469,7 @@ Emergencies: 000. Tides are estimates, not for navigation. NSW and Queensland cl
       ["🌏", "Biripi Country", "Taree is on Biripi Country.", "https://en.wikipedia.org/wiki/Biripi", "Wikipedia"]],
     mavKB: `Site: 2430 Maverick, a free local info site for the Manning Valley (2427 Harrington & Crowdy Head, 2429 Wingham, 2430 Taree). Never charges. A gift from Maverick Digital.
 Pages: /2427 /2429 /2430 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
-Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Alan Tickle, deputy Cr Jeremy Miller, MidCoast Council 02 7955 7777, water and sewer faults 1300 133 455, bins via council's bin page, tip at Taree Waste Management Centre, Tinonee); kids=Weekend for kids; flights=flight status (Port Macquarie Airport, Taree has no scheduled flights); holidays; puzzles=crossword; beaches (beach, surf and surf cams).
+Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=Local stories (headlines from local outlets); memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Alan Tickle, deputy Cr Jeremy Miller, MidCoast Council 02 7955 7777, water and sewer faults 1300 133 455, bins via council's bin page, tip at Taree Waste Management Centre, Tinonee); kids=Weekend for kids; flights=flight status (Port Macquarie Airport, Taree has no scheduled flights); holidays; puzzles=crossword; beaches (beach, surf and surf cams).
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
   "2350": {
@@ -552,7 +552,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       ["🌏", "Anaiwan Country", "The Armidale region is on Anaiwan Country.", "https://en.wikipedia.org/wiki/Anaiwan", "Wikipedia"]],
     mavKB: `Site: 2350 Maverick, a free local info site for the Armidale region (2350 Armidale, 2351 University of New England, 2365 Guyra). Never charges. A gift from Maverick Digital.
 Pages: /2350 /2351 /2365 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
-Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; know=Know your area (mayor Cr Sam Coupland, deputy Cr Todd Redwood, council 1300 136 833, bins via council's collection calendar or Waste Services Hotline 1300 136 322, tip at 108 Long Swamp Road, Armidale); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword.
+Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=Local stories (headlines from local outlets); memory=In memory; fuel=cheapest fuel; know=Know your area (mayor Cr Sam Coupland, deputy Cr Todd Redwood, council 1300 136 833, bins via council's collection calendar or Waste Services Hotline 1300 136 322, tip at 108 Long Swamp Road, Armidale); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword.
 Inland region: no beaches, surf or tides. Trout streams close over winter (9 June to 3 October in 2026); trout dams stay open. NSW recreational fishing fee required.
 Emergencies: 000.`,
   },
@@ -629,7 +629,7 @@ Emergencies: 000.`,
       ["Hastings River (upper reaches)", "River", "Aussie bass", "Bass and estuary perch: catch and release only, May to August"]] },
     fields: null,
     watch: {
-      leadership: { owner: "Council", name: "Port Macquarie-Hastings Council, Mayor and Councillors (not yet updated by council: changes since confirmed in local news, Oct 2026)", url: "https://www.pmhc.nsw.gov.au/Your-Council/Mayor-and-Councillors" },
+      leadership: { owner: "Council", name: "Port Macquarie-Hastings Council, Mayor and Councillors (not yet updated by council: changes since confirmed by local outlets, Oct 2026)", url: "https://www.pmhc.nsw.gov.au/Your-Council/Mayor-and-Councillors" },
       waste: { owner: "Council", name: "Port Macquarie-Hastings Council, waste facility locations", url: "https://www.pmhc.nsw.gov.au/Residents/Waste-recycling/Waste-facility-locations" },
       contact: { owner: "Council", name: "Port Macquarie-Hastings Council, Contact us", url: "https://www.pmhc.nsw.gov.au/Your-Council/About-us/Contact-us" },
     },
@@ -644,7 +644,7 @@ Emergencies: 000.`,
       ["🎭", "Wauchope timber in the Opera House", "Timber from the Yarras Plywood Sawmill near Wauchope was used in building the Sydney Opera House.", "https://en.wikipedia.org/wiki/Wauchope,_New_South_Wales", "Wikipedia"]],
     mavKB: `Site: 2444 Maverick, a free local info site for the Port Macquarie-Hastings (2443 Laurieton, 2444 Port Macquarie, 2445 Lake Cathie, 2446 Wauchope). Never charges. A gift from Maverick Digital.
 Pages: /2443 /2444 /2445 /2446 area pages; /open what's open now; /fridge dinner ideas from your fridge (free email unlock, or snap a photo); /school school run check; /birthday local birthday deals (say "Maverick"); /genalpha Gen Alpha slang interpreter; /rip death notices; /crossword daily crossword; /submit add an event free (\$50 or less per person); /feedback; /new; /privacy; /charter.
-Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=local headlines; memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Adam Roberts, no deputy mayor for the rest of the term, council 02 6581 8111, bins via the WasteInfo app or 02 6581 8111, tip at 70 Kingfisher Road Port Macquarie or Cairncross at Pembrooke); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
+Area page sections (ids): today=At a glance; tools=Handy tools; alerts=fires and weather warnings; events=What's on; news=Local stories (headlines from local outlets); memory=In memory; fuel=cheapest fuel; sea=tides; know=Know your area (mayor Cr Adam Roberts, no deputy mayor for the rest of the term, council 02 6581 8111, bins via the WasteInfo app or 02 6581 8111, tip at 70 Kingfisher Road Port Macquarie or Cairncross at Pembrooke); kids=Weekend for kids; flights=flight status; holidays; puzzles=crossword; beaches (beach, surf and surf cams).
 Emergencies: 000. Tides are estimates, not for navigation.`,
   },
 };

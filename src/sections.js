@@ -2,11 +2,11 @@
 // that lists every subcategory. One source of truth for the header, the parent pages and the sitemap.
 // href starting "#" = a section on today's paper (linked as "/#id"). soon: true = Team Smarketing is on it.
 export const NAV = [
-  { slug: "news", icon: "📰", name: "News", blurb: "Local news, alerts and who's making the calls. Sourced, never written by us.", items: [
-    ["#news", "📰", "Local news", "Today's local headlines, each with its source"],
+  { slug: "news", icon: "📰", name: "Local stories", blurb: "Local stories, alerts and who's making the calls. Sourced from local outlets, never written by us.", items: [
+    ["#news", "📰", "Local stories", "Today's local headlines, each with its source"],
     ["#alerts", "🚨", "Alerts", "Fires, floods, storms and road closures"],
     ["#scams", "🛡️", "Scam watch", "What's going around and how to check before you buy"],
-    ["#numbers", "🔢", "News in numbers", "The day's news, by the numbers"],
+    ["#numbers", "🔢", "Today in numbers", "The day's facts, by the numbers"],
     ["#bypass", "🛣️", "Bypass updates", "Progress on the bypass, from the source"],
     ["#aigb", "🤖", "AI for good, AI for bad", "What AI did this week, both sides"],
     ["/travelling", "🧭", "Travelling? Every region", "Alerts, top story and what's on in every Daily Maverick"],
@@ -84,9 +84,9 @@ export const NAV_SLUGS = NAV.map(s => s.slug);
 // ---- Search: every section page leads with what locals actually type into Google, with the place in it.
 // p = the place name (the town, or the sub-postcode's name). Titles end " | The Daily Maverick".
 export const SEO = {
-  news: { h1: p => `${p} local news today`, title: p => `${p} news today: local headlines, alerts and scams` },
+  news: { h1: p => `${p} local stories today`, title: p => `${p} today: local stories, alerts and scams` },
   council: { h1: p => `${p} Council watch`, title: p => `${p} council news, meetings and who represents you` },
-  community: { h1: p => `${p} community: what's on, notices and family news`, title: p => `${p} community news, events and notices` },
+  community: { h1: p => `${p} community: what's on, notices and family news`, title: p => `${p} community events, notices and what's on` },
   outside: { h1: p => `${p} outdoors: weather, beaches and tides`, title: p => `${p} weather, beaches, tides and trails` },
   health: { h1: p => `Health help in ${p}`, title: p => `${p} pharmacies, doctors and emergency wait times` },
   money: { h1: p => `${p} money: fuel, prices, jobs and rentals`, title: p => `${p} fuel prices, jobs, rentals and supermarket watch` },

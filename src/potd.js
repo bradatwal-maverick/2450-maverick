@@ -15,7 +15,7 @@ const hits = (re, s) => (s.match(re) || []).length;
 export function score(p) { const i = p.imageinfo?.[0] || {}, s = tidyTitle(p.title) + " " + strip(i.extmetadata?.ObjectName?.value);
   return (p.categories?.length ? 4 : 0) + Math.min(3, hits(WOW, s)) * 3 - hits(DULL, s) * 4 + (i.width >= 3000 ? 1 : 0); }
 
-const RATE = `You're the photo editor of a good-news local paper. Would this NATURE photo make locals proud of where they live, like a postcard? Score it 1 to 10.
+const RATE = `You're the photo editor of a feel-good local community hub. Would this NATURE photo make locals proud of where they live, like a postcard? Score it 1 to 10.
 10 = stunning nature: a beach, sunrise or sunset, ocean, a view from a lookout, a waterfall, rainforest, wildlife, mountains, dramatic sky.
 Score 1 if ANY person is visible, even small or far away.
 Score 1 if buildings, roads, concrete, car parks, walls or other man-made things cover more than 30% of the photo.

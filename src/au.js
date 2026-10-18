@@ -88,7 +88,7 @@ function councilPage(key, pc, h) {
 ${mine ? `<p><b>${esc(pc)}</b>: ${esc(mine.loc.slice(0, 12).join(", "))}${mine.loc.length > 12 ? ` and ${mine.loc.length - 12} more` : ""}</p>
 ${mine.also.length ? `<p class="mute">Part of ${esc(pc)} is in ${mine.also.map(k => `<a href="/au/${k}?pc=${pc}">${esc(AU.councils[k].name)}</a>`).join(", ")}.</p>` : ""}`
       : `<p class="mute">Pick your postcode above to see exactly who represents you.</p>`}
-${live ? `<p class="card"><a href="${esc(live.url)}"><b>${esc(live.name)}</b></a> covers this area: what's on, news, tides, fuel and more.</p>` : ""}
+${live ? `<p class="card"><a href="${esc(live.url)}"><b>${esc(live.name)}</b></a> covers this area: what's on, local stories, tides, fuel and more.</p>` : ""}
 
 <h2>Your council</h2>
 ${c.uninc ? `<p>There's no local council here. The state government looks after local services.</p>` : `<ul><li><b>${esc(c.name)}</b>${c.web ? ` · <a href="${esc(c.web)}" rel="noopener">Website</a>` : ""}</li>

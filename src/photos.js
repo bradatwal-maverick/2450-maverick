@@ -7,7 +7,7 @@ const DAY = 864e5;
 const addDays = (iso, n) => new Date(Date.parse(iso + "T00:00:00Z") + n * DAY).toISOString().slice(0, 10);
 const nice = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
 
-const CHECK = `You screen photos for a family-friendly local community news site. Look at this photo and reply with ONLY this JSON, no other words:
+const CHECK = `You screen photos for a family-friendly local community information site. Look at this photo and reply with ONLY this JSON, no other words:
 {"place": true or false, "faces": true or false, "unsafe": true or false, "what": "a few words"}
 place = true if it shows a real place: beach, landscape, nature, sky, sunrise or sunset, street, town, building, park, river, wildlife or a community event seen from a distance.
 faces = true if any person's face is close enough to recognise them.
@@ -25,7 +25,7 @@ async function screen(env, buf) {
   return { ok: true, what: String(j.what || "").slice(0, 60) };
 }
 
-const WHY = { unsafe: "This one can't go on a family news site. Try another shot of your place.",
+const WHY = { unsafe: "This one can't go on a family community site. Try another shot of your place.",
   faces: "We spotted a face up close. To keep everyone's privacy, share a shot of the place itself, or with people far off in the distance.",
   place: "We're after photos of the place itself: beaches, streets, views, sunsets, wildlife. Try another one.",
   check: "Our photo check is taking a breather. Try again in a few minutes." };
