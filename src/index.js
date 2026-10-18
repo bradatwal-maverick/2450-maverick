@@ -13,7 +13,7 @@ import { sidePics, withPics, SIDE_CSS, THEMES } from "./sidepics.js";
 import { numbersApi } from "./numbers.js";
 import { edData, edBlock } from "./ed.js";
 import { trafficNear, trafficList } from "./traffic.js";
-import { nswPage } from "./nswgov.js";
+import { nswPage, nswCheckApi } from "./nswgov.js";
 import { scamsApi, scamFeeds, scamTeaser } from "./scams.js";
 import { helpApi, HELP_UI, HELP_PANEL } from "./helpme.js";
 import { areasStrip, areaPages } from "./areas.js";
@@ -3253,6 +3253,7 @@ async function route(req, env, ctx) {
     if (p === "/notices") return req.method === "POST" ? lodgeNotice(req, env) : noticesPage(env);
     if (p === "/about") return about(env);
     if (p === "/api/fuel") return fuelApi(req, env);
+    if (p === "/api/nswcheck") return nswCheckApi(req, env, nswApi);
     if (p === "/me") { const em = await member(req, env); if (!em) return new Response(null, { status: 303, headers: { location: "/signin?next=/me" } }); if (!(await hasTier(env, em, "some"))) return new Response(null, { status: 303, headers: { location: "/membership?need=some" } }); const u = await env.DATA.get(`user:${em}`, "json"); return settingsPage((u?.name || "").split(" ")[0]); }
     if (p === "/api/prefs") { const em = await member(req, env); return !em ? Response.json({ error: "Sign in" }, { status: 401 }) : (await hasTier(env, em, "some")) ? prefsApi(req, env, em) : Response.json({ error: "Part of Some Cool Things", join: "/membership" }, { status: 402 }); }
     if (p === "/mav" && req.method === "POST") return mav(req, env);

@@ -14,7 +14,7 @@ export const NAV = [
     ["#council", "🏛️", "Council watch today", "Next meeting, how to complain, what was promised"],
     ["#know", "📍", "Know your area", "Mayor, councillors, bins and council contacts"],
     ["/au", "🗳️", "Who represents you", "Your council, MPs and senators, fact-checked"],
-    ["/nsw", "🏛️", "NSW Government help", "Rebates, travel help, vouchers and services you might not know about"],
+    ["/nsw", "🏛️", "NSW Government help", "Check a licence live, plus rebates, travel help and services you might not know about"],
   ] },
   { slug: "community", icon: "🤝", name: "Community", blurb: "Your town's notice board, family news, what's on and where to meet people.", items: [
     ["#events", "🎪", "Community events", "What's on, local submissions first"],
