@@ -38,6 +38,7 @@ export const NAV = [
   ] },
   { slug: "outside", icon: "🌳", name: "Outside", blurb: "Beaches, tides, trails and things to do in the fresh air.", items: [
     ["#today", "⛅", "Weather today", "Temperature, rain, wind, sunrise and moon"],
+    ["#trails", "🚴", "Trails, World Heritage and only here", "Cycle trails, World Heritage parks and what you can only do here"],
     ["#beaches", "🏖️", "Beaches", "Patrolled beaches and conditions"],
     ["#sea", "🌊", "Tides & fishing", "Tides, swell and fishing"],
     ["#kids", "🧒", "Get outside this weekend", "Free or under $50 a kid, outdoors"],

@@ -64,6 +64,8 @@ export function helpApi({ esc, R, NAV, member, hasTier, todayISO, guard }) {
     rec.vote = v; if (b.note) rec.note = String(b.note).slice(0, 300);
     await env.DATA.put(k, JSON.stringify(rec), { expirationTtl: 400 * 86400 });
     const sk = `help:votes:${day}`, s = (await env.DATA.get(sk, "json")) || { up: 0, down: 0 }; s[v]++; await env.DATA.put(sk, JSON.stringify(s), { expirationTtl: 400 * 86400 });
+    const pc = ((req.headers.get("cookie") || "").match(/(?:^|;\s*)mpc=(\d{4})/) || [])[1]; // the reader's own postcode, for "What [postcode] told us"
+    if (pc) { const pk = `help:votes:${day}:${pc}`, ps = (await env.DATA.get(pk, "json")) || { up: 0, down: 0 }; ps[v]++; await env.DATA.put(pk, JSON.stringify(ps), { expirationTtl: 400 * 86400 }); }
     return Response.json({ ok: true });
   };
   return { ask, vote };

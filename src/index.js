@@ -39,7 +39,7 @@ function initRegion(env) {
 
 
 let R, TOWNS, HOME, WATCH, FAVES, FACTS, SCHOOLS, MAV_KB, UA;
-const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["love", "Why you'll love it"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["alcohol", "Grog watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
+const SECTIONS = [["today", "At a glance"], ["oneapp", "One app instead of many"], ["tools", "Handy tools"], ["dogs", "Dog friendly"], ["lgbtq", "LGBTQ+ friendly"], ["alerts", "Alerts"], ["events", "Community events"], ["news", "News"], ["love", "Why you'll love it"], ["bdm", "Births, Deaths and Marriages"], ["numbers", "News in numbers"], ["aigb", "AI for good, AI for bad"], ["alcohol", "Grog watch"], ["rates", "Banks and the RBA"], ["bypass", "Bypass updates"], ["fuel", "Fuel"], ["sea", "Tides & fishing"], ["know", "Know your area"], ["rent", "Renting"], ["jobs", "Jobs"], ["radio", "Local radio"], ["council", "Council watch"], ["award", "Mini Maverick Encouragement Award"], ["kids", "Get outside"], ["trails", "Trails & World Heritage"], ["sport", "Sport & field closures"], ["tonight", "What's on"], ["flights", "Flights"], ["holidays", "Holidays"], ["puzzles", "Crossword"], ["stars", "Horoscopes"], ["beaches", "Beaches"]];
 
 const esc = (s = "") => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const todayISO = () => new Date(Date.now() + 11 * 3600e3).toISOString().slice(0, 10); // Sydney (AEDT)
@@ -210,7 +210,7 @@ document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classLis
 var rw=document.getElementById('rwrong');if(rw)rw.onclick=function(e){e.preventDefault();m2err()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote'),em=document.getElementById('remail');if(!n.value.trim()){n.focus();return}
 send({note:n.value.trim(),email:em?em.value.trim():'',sec:w.value}).then(function(r){return r&&r.json()}).then(function(j){if(j&&j.joined)document.getElementById('xjoin').textContent=' You’re signed in and on the community list. Welcome, local!'}).catch(function(){});n.value='';f.hidden=true;document.getElementById('xdone').hidden=false;document.getElementById('xclose').focus()}})();${JOIN_JS}</script>
-<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/results", "What locals told us"], ["/credits", "Photo credits"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
+<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/results" + (pc ? "?pc=" + pc : ""), pc ? `What ${pc} told us` : "What locals told us"], ["/regional", "What regional Australia told us"], ["/credits", "Photo credits"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Supporting regional Australia: ${abc(Object.values(REGIONS), x => x.code).map(x => x.code === R.code ? `<b title="${esc(x.place)}">${x.code}</b>` : `<a href="https://${x.domain}" title="${esc(x.place)}">${x.code}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
@@ -454,6 +454,7 @@ ${radioSection(R, esc)}
 ${await S(councilBlock(env))}
 ${awardBlock()}
 ${await S(kidsBlock(local, feed, pc))}
+${outdoorBlock()}
 ${R.fields ? `<section id="sport"><h2>Sport &amp; field closures</h2>
 <div class="note">🔔 <b>Get field closure alerts</b> on your phone the moment we know. <button type="button" class="pushbtn" data-topic="fields">Turn on alerts</button><br><small class="mute pushmsg"></small></div>
 ${await S(fieldsBlock(env, ctx))}
@@ -817,6 +818,8 @@ e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open('v1').then
 
 
 // ---- What's in your fridge? (members only: unlock with email) ----
+// The reader's own postcode (their chosen part of the shire), only if it's one of this paper's live postcodes.
+const okTown = x => { x = String(x || "").replace(/\D/g, ""); return x && TOWNS[x] && TOWNS[x].live ? x : ""; };
 const cookie = (req, k) => (req.headers.get("cookie") || "").split(/;\s*/).map(c => c.split("=")).find(([n]) => n === k)?.[1];
 async function member(req, env) { const t = cookie(req, "m2450"); return t ? await env.DATA.get(`sess:${t}`) : null; }
 
@@ -970,56 +973,147 @@ const POLL_AIMS = { "saving-time": "You keep us accountable. If it isn't saving 
 async function pollApi(req, env) {
   let b = {}; try { b = await req.json(); } catch {}
   if (!POLLS[b.q] || (b.v !== "up" && b.v !== "down")) return Response.json({ ok: false }, { status: 400 });
-  const mon = todayISO().slice(0, 7);
+  const mon = todayISO().slice(0, 7), pc = okTown(cookie(req, "mpc"));
   if (b.why) { const k = `pollwhy:${b.q}:${mon}`, L = (await env.DATA.get(k, "json")) || []; // the reasons behind the thumbs; never shown with who said them
     const t = String(b.why).replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 200); let ok = false; try { ok = await cleanText(env, t); } catch (e) {}
-    L.unshift({ v: b.v, t, ok, at: new Date().toISOString() }); await env.DATA.put(k, JSON.stringify(L.slice(0, 500))); return Response.json({ ok: true }); }
-  for (const k of [`poll:${b.q}`, `poll:${b.q}:${mon}`]) { const c = (await env.DATA.get(k, "json")) || { up: 0, down: 0 }; c[b.v]++; await env.DATA.put(k, JSON.stringify(c)); }
+    L.unshift({ v: b.v, t, ok, pc, at: new Date().toISOString() }); await env.DATA.put(k, JSON.stringify(L.slice(0, 500))); return Response.json({ ok: true }); }
+  for (const k of [`poll:${b.q}`, `poll:${b.q}:${mon}`, ...(pc ? [`pollpc:${b.q}:${pc}`, `pollpc:${b.q}:${mon}:${pc}`] : [])]) { const c = (await env.DATA.get(k, "json")) || { up: 0, down: 0 }; c[b.v]++; await env.DATA.put(k, JSON.stringify(c)); }
   return Response.json({ ok: true });
 }
 
 // ---- What locals told us: every vote and question on the Daily Maverick, out in the open (counts only, never who said what),
 // each with what the vote is for. It starts with how we're doing: the community keeps us accountable too.
-async function resultsPage(env) {
+async function resultsPage(env, req) {
+  // Whose results: ?pc=2452 for one postcode, ?pc=all for the whole shire, otherwise the reader's own postcode (if they've picked one).
+  const qp = new URL(req.url).searchParams.get("pc") || "", pc = qp === "all" ? "" : okTown(qp) || (qp ? "" : okTown(cookie(req, "mpc")));
+  const shireOnly = pc ? ` <span class="shtag">Whole shire</span>` : "";
   const mon = todayISO().slice(0, 7), lastMon = new Date(Date.UTC(+mon.slice(0, 4), +mon.slice(5) - 2, 1)).toISOString().slice(0, 7);
   const monName = m => new Date(m + "-15").toLocaleDateString("en-AU", { month: "long", year: "numeric" });
   const bar = (c, upL = "Yes", downL = "No") => { const n = (c?.up || 0) + (c?.down || 0); if (!n) return `<p class="mute">No answers yet. Check back soon.</p>`; const pu = Math.round(c.up / n * 100);
     return `<div class="pbar" role="img" aria-label="${pu}% ${upL}, ${100 - pu}% ${downL}"><span style="width:${pu}%"></span></div><p><b>👍 ${pu}% ${upL}</b> · 👎 ${100 - pu}% ${downL} <span class="mute">(${n.toLocaleString("en-AU")} ${n === 1 ? "answer" : "answers"})</span></p>`; };
   const aim = t => `<p class="aim"><b>What this vote is for:</b> ${t}</p>`;
-  const why = async q => { const L = ((await env.DATA.get(`pollwhy:${q}:${mon}`, "json")) || []).concat((await env.DATA.get(`pollwhy:${q}:${lastMon}`, "json")) || []).filter(x => x.ok);
+  const why = async q => { const L = ((await env.DATA.get(`pollwhy:${q}:${mon}`, "json")) || []).concat((await env.DATA.get(`pollwhy:${q}:${lastMon}`, "json")) || []).filter(x => x.ok && (!pc || x.pc === pc));
     const li = v => L.filter(x => x.v === v).slice(0, 5).map(x => `<li>“${esc(x.t)}”</li>`).join("");
-    return L.length ? `<div class="whyc"><div><h3>👍 What locals like</h3>${li("up") ? `<ul>${li("up")}</ul>` : `<p class="mute">Nothing yet.</p>`}</div><div><h3>👎 What locals don't like</h3>${li("down") ? `<ul>${li("down")}</ul>` : `<p class="mute">Nothing yet.</p>`}</div></div><p class="mute">The latest reasons, in locals' own words (checked for anything rude first). Never shown with a name.</p>` : ""; };
+    return L.length ? `<div class="whyc"><div><h3>👍 What locals like</h3>${li("up") ? `<ul>${li("up")}</ul>` : `<p class="mute">Nothing yet.</p>`}</div><div><h3>👎 What locals don't like</h3>${li("down") ? `<ul>${li("down")}</ul>` : `<p class="mute">Nothing yet.</p>`}</div></div><p class="mute">The latest reasons${pc ? ` from ${pc}` : ""}, in locals' own words (checked for anything rude first). Never shown with a name.</p>` : ""; };
   const [st, stMon, cNow, cLast, ts, nLoc, ideaL, watchL] = await Promise.all([env.DATA.get("poll:saving-time", "json"), env.DATA.get(`poll:saving-time:${mon}`, "json"), env.DATA.get(`poll:council:${mon}`, "json"), env.DATA.get(`poll:council:${lastMon}`, "json"),
     env.DATA.get("ts:total", "json").then(v => v || { mins: 0 }), localsCount(env), ideas(env), watchList(env).catch(() => [])]);
+  const [stP, stMonP, cNowP, cLastP, rP] = pc ? await Promise.all([`pollpc:saving-time:${pc}`, `pollpc:saving-time:${mon}:${pc}`, `pollpc:council:${mon}:${pc}`, `pollpc:council:${lastMon}:${pc}`, `ratepc:${pc}`].map(k => env.DATA.get(k, "json"))) : [];
+  // Two bars when a postcode is picked: that postcode first, then the whole shire to compare against.
+  const two = (whole, mine, upL, downL) => pc ? `<div class="two"><div><p class="who">📍 ${pc} <span class="mute">${esc(TOWNS[pc].name)}</span></p>${bar(mine, upL, downL)}</div><div><p class="who">🗺️ Whole shire</p>${bar(whole, upL, downL)}</div></div>` : bar(whole, upL, downL);
   const rates = (await Promise.all((await klist(env, "rate:")).map(async k => [k.name.slice(5), await env.DATA.get(k.name, "json")]))).filter(x => x[1]);
   const rTot = rates.reduce((a, [, c]) => ({ up: a.up + (c.up || 0), down: a.down + (c.down || 0) }), { up: 0, down: 0 });
   const rTop = rates.filter(x => x[1].up + x[1].down >= 3).sort((a, b) => (b[1].up + b[1].down) - (a[1].up + a[1].down)).slice(0, 10);
-  const days30 = [...Array(30)].map((_, k) => new Date(Date.now() - k * 864e5).toISOString().slice(0, 10)), mavV = (await Promise.all(days30.map(d => env.DATA.get(`help:votes:${d}`, "json")))).reduce((a, c) => ({ up: a.up + (c?.up || 0), down: a.down + (c?.down || 0) }), { up: 0, down: 0 });
+  const days30 = [...Array(30)].map((_, k) => new Date(Date.now() - k * 864e5).toISOString().slice(0, 10)), sumV = L => L.reduce((a, c) => ({ up: a.up + (c?.up || 0), down: a.down + (c?.down || 0) }), { up: 0, down: 0 }),
+    mavV = sumV(await Promise.all(days30.map(d => env.DATA.get(`help:votes:${d}`, "json")))), mavP = pc ? sumV(await Promise.all(days30.map(d => env.DATA.get(`help:votes:${d}:${pc}`, "json")))) : null;
   const top = ideaL.filter(i => i.status !== "done").sort((a, b) => b.votes - a.votes).slice(0, 5);
-  const picks = {}; for (const { name } of await klist(env, "sub:")) { const v = await env.DATA.get(name, "json"); if (v?.tips) picks[v.tips] = (picks[v.tips] || 0) + 1; }
+  const picks = {}, joinPc = {}; for (const { name } of await klist(env, "sub:")) { const v = await env.DATA.get(name, "json"); if (v?.tips) picks[v.tips] = (picks[v.tips] || 0) + 1; if (v?.pc) joinPc[v.pc] = (joinPc[v.pc] || 0) + 1; }
   const noms = async k => Object.values(k === "alcohol" ? await alcNoms(env) : await wnoms(env, k)).sort((a, b) => !!a.live - !!b.live || b.voters.length - a.voters.length).slice(0, 5);
   const [nShop, nGrog] = await Promise.all([noms("shop"), noms("alcohol")]);
   const nomList = L => L.length ? `<ul>${L.map(n => `<li>${esc(n.text)} <span class="mute">👍 ${n.voters.length}${n.live ? " · ✅ now watched" : ` of ${WATCH_GOAL}`}</span></li>`).join("")}</ul>` : `<p class="mute">No ideas yet.</p>`;
   const tv = watchL.sort((a, b) => b.ups.length - a.ups.length).slice(0, 5);
   const S = [
-    ["council", "🏛️ How's council doing?", `${aim(POLL_AIMS.council)}<h3>${monName(mon)}</h3>${bar(cNow, "doing well", "could do better")}<h3>${monName(lastMon)}</h3>${bar(cLast, "doing well", "could do better")}${await why("council")}<p><a href="/council">Have your say in Council watch →</a></p>`],
-    ["ideas", "💡 What locals want built next", `${aim("You decide what we build. Ideas that reach 30 votes get built, in the order locals choose, not the order we'd pick.")}${top.length ? `<ol>${top.map(i => `<li>${esc(i.text)} <span class="mute">👍 ${i.votes}</span></li>`).join("")}</ol>` : `<p class="mute">No ideas yet.</p>`}<p><a href="/feedback">Suggest or vote →</a></p>`],
-    ["locals", "🙌 Locals signed up", `${aim("Help a brother out: once we reach the goal, a few clearly labelled local ads cover the costs and it stays free for everyone, forever.")}<p><b>${nLoc.toLocaleString("en-AU")}</b> of our ${LOCALS_GOAL.toLocaleString("en-AU")} goal.</p>`],
-    ["useful", "⭐ Most-rated pages", `${aim("The 👍 and 👎 at the bottom of every page tell us what's useful and what to fix or drop.")}${rTop.length ? `<ul>${rTop.map(([p, c]) => `<li><a href="${esc(p)}">${esc(p)}</a>: 👍 ${c.up} · 👎 ${c.down}</li>`).join("")}</ul>` : `<p class="mute">Not enough ratings yet.</p>`}`],
-    ["saved", "⏱️ Time saved", `${aim("So we can show, honestly, whether one Daily Maverick really beats checking lots of apps and sites.")}${ts.mins > 0 ? `<p>Locals say our tools save them <b>${tsH(ts.mins)} a week</b> all up, about <b>${tsH(ts.mins * 52)} a year</b>.</p>` : `<p class="mute">No time-saved reports yet.</p>`}`],
-    ["tips", "🧑‍🏫 Who locals want their AI tips from", `${aim("Your pick decides which Team Smarketing persona sends your free everyday-AI tips, so they suit you.")}${Object.keys(picks).length ? `<ul>${TIPPERS.map(([k, n]) => `<li>${n}: <b>${picks[k] || 0}</b></li>`).join("")}</ul>` : `<p class="mute">No picks yet.</p>`}`],
-    ["tv", "🍿 What locals are binging", `${aim("Less time scrolling, more time watching: locals vote for what's worth it, and say why.")}${tv.length ? `<ul>${tv.map(x => `<li>${esc(x.title)} <span class="mute">${esc(x.tag)} · 👍 ${x.ups.length}</span></li>`).join("")}</ul>` : `<p class="mute">Nothing shared yet.</p>`}<p><a href="/watch">Share yours →</a></p>`],
-    ["watch", "🗳️ What locals want us to watch", `${aim(`Locals choose what we track, not us. ${WATCH_GOAL} votes and an item goes up for everyone, all by itself.`)}<h3>🍻 Grog watch</h3>${nomList(nGrog)}<h3>🛒 Supermarket watch</h3>${nomList(nShop)}`],
+    ["council", "🏛️ How's council doing?", `${aim(POLL_AIMS.council)}<h3>${monName(mon)}</h3>${two(cNow, cNowP, "doing well", "could do better")}<h3>${monName(lastMon)}</h3>${two(cLast, cLastP, "doing well", "could do better")}${await why("council")}<p><a href="/council">Have your say in Council watch →</a></p>`],
+    ["ideas", "💡 What locals want built next", `${shireOnly}${aim("You decide what we build. Ideas that reach 30 votes get built, in the order locals choose, not the order we'd pick.")}${top.length ? `<ol>${top.map(i => `<li>${esc(i.text)} <span class="mute">👍 ${i.votes}</span></li>`).join("")}</ol>` : `<p class="mute">No ideas yet.</p>`}<p><a href="/feedback">Suggest or vote →</a></p>`],
+    ["locals", "🙌 Locals signed up", `${aim("Help a brother out: once we reach the goal, a few clearly labelled local ads cover the costs and it stays free for everyone, forever.")}<p><b>${nLoc.toLocaleString("en-AU")}</b> of our ${LOCALS_GOAL.toLocaleString("en-AU")} goal, across the whole shire.</p>${Object.keys(joinPc).length ? `<ul>${Object.keys(TOWNS).filter(k => TOWNS[k].live).sort().map(k => `<li${k === pc ? ' class="me"' : ""}><b>${k}</b> ${esc(TOWNS[k].name)}: ${(joinPc[k] || 0).toLocaleString("en-AU")} on the weekly email</li>`).join("")}</ul>` : ""}`],
+    ["useful", "⭐ Most-rated pages", `${shireOnly}${aim("The 👍 and 👎 at the bottom of every page tell us what's useful and what to fix or drop.")}${rTop.length ? `<ul>${rTop.map(([p, c]) => `<li><a href="${esc(p)}">${esc(p)}</a>: 👍 ${c.up} · 👎 ${c.down}</li>`).join("")}</ul>` : `<p class="mute">Not enough ratings yet.</p>`}`],
+    ["saved", "⏱️ Time saved", `${shireOnly}${aim("So we can show, honestly, whether one Daily Maverick really beats checking lots of apps and sites.")}${ts.mins > 0 ? `<p>Locals say our tools save them <b>${tsH(ts.mins)} a week</b> all up, about <b>${tsH(ts.mins * 52)} a year</b>.</p>` : `<p class="mute">No time-saved reports yet.</p>`}`],
+    ["tips", "🧑‍🏫 Who locals want their AI tips from", `${shireOnly}${aim("Your pick decides which Team Smarketing persona sends your free everyday-AI tips, so they suit you.")}${Object.keys(picks).length ? `<ul>${TIPPERS.map(([k, n]) => `<li>${n}: <b>${picks[k] || 0}</b></li>`).join("")}</ul>` : `<p class="mute">No picks yet.</p>`}`],
+    ["tv", "🍿 What locals are binging", `${shireOnly}${aim("Less time scrolling, more time watching: locals vote for what's worth it, and say why.")}${tv.length ? `<ul>${tv.map(x => `<li>${esc(x.title)} <span class="mute">${esc(x.tag)} · 👍 ${x.ups.length}</span></li>`).join("")}</ul>` : `<p class="mute">Nothing shared yet.</p>`}<p><a href="/watch">Share yours →</a></p>`],
+    ["watch", "🗳️ What locals want us to watch", `${shireOnly}${aim(`Locals choose what we track, not us. ${WATCH_GOAL} votes and an item goes up for everyone, all by itself.`)}<h3>🍻 Grog watch</h3>${nomList(nGrog)}<h3>🛒 Supermarket watch</h3>${nomList(nShop)}`],
     ["numbers", "📞 Hard-to-find numbers", `${aim("Locals vote on whether a number worked, so the ones that don't drop off by themselves.")}<p><a href="/numbers">See the numbers and vote →</a></p>`],
   ].sort((a, b) => a[1].replace(/^\P{L}+/u, "").localeCompare(b[1].replace(/^\P{L}+/u, "")));
-  return page("What locals told us", `<h1>What locals told us</h1>
+  const who = pc ? pc : "the shire", liveP = Object.keys(TOWNS).filter(k => TOWNS[k].live).sort();
+  return page(`What ${who} told us`, `<h1>What ${who} told us</h1>
+<nav class="towns" aria-label="Pick a postcode">${pc ? `<a class="pc" href="/results?pc=all">Whole shire</a>` : `<span class="pc on">Whole shire</span>`}${liveP.map(k => k === pc ? `<span class="pc on">${k}</span>` : `<a class="pc" href="/results?pc=${k}" title="${esc(TOWNS[k].name)}">${k}</a>`).join("")}</nav>
+<p>${pc ? `Your part of the shire, <b>${pc}</b> (${esc(TOWNS[pc].name)}), next to the whole shire. Ideas, watch lists and a few others are shire-wide, and say so.` : `All of ${R.council.name}'s area together. Pick a postcode above to see just your part.`}</p>
 <p>Every vote and question on ${R.brand} ${R.code}, out in the open, with what each one is for. Counts only: we never show who said what. <span class="mute">Unofficial and from readers, so it's not a scientific survey.</span></p>
 <section id="poll-saving-time" class="us"><h2>🪞 How we're doing</h2><p>We keep council and everyone else accountable, so you keep us accountable too. This is how locals rate the Daily Maverick.</p>
-${aim(POLL_AIMS["saving-time"])}<h3>Is your Daily Maverick saving you time?</h3><p class="mute">All time</p>${bar(st)}<p class="mute">${monName(mon)}</p>${bar(stMon)}${await why("saving-time")}
-<h3>Pages: useful or not?</h3>${bar(rTot, "useful", "not useful")}<h3>Mav's answers: helpful or not? <span class="mute">(last 30 days)</span></h3>${bar(mavV, "helpful", "not helpful")}</section>
+${aim(POLL_AIMS["saving-time"])}<h3>Is your Daily Maverick saving you time?</h3><p class="mute">All time</p>${two(st, stP)}<p class="mute">${monName(mon)}</p>${two(stMon, stMonP)}${await why("saving-time")}
+<h3>Pages: useful or not?</h3>${two(rTot, rP, "useful", "not useful")}<h3>Mav's answers: helpful or not? <span class="mute">(last 30 days)</span></h3>${two(mavV, mavP, "helpful", "not helpful")}</section>
+<p class="mute">Want the bigger picture? <a href="/regional">See what regional Australia told us →</a></p>
 <nav class="alcp" aria-label="Jump to">${S.map(([id, t]) => `<a class="tagg" href="#${id === "council" ? "poll-council" : id}">${t.replace(/^\P{L}+/u, "")}</a>`).join(" ")}</nav>
 ${S.map(([id, t, b]) => `<section id="${id === "council" ? "poll-council" : id}"><h2>${t}</h2>${b}</section>`).join("")}
-<style>.aim{background:var(--soft);border-left:4px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:.9rem}.whyc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.us{border:2px solid var(--gold);border-radius:14px;padding:4px 16px 12px}</style>`);
+<style>.aim{background:var(--soft);border-left:4px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:.9rem}.whyc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.us{border:2px solid var(--gold);border-radius:14px;padding:4px 16px 12px}.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 16px}.who{margin:6px 0 2px;font-weight:600}.shtag{display:inline-block;font-size:.75rem;background:var(--soft);border-radius:99px;padding:1px 8px;margin-bottom:6px}li.me{font-weight:600}</style>`, pc);
+}
+
+// ---- What regional Australia told us: every Daily Maverick shares its public counts at /api/results.json
+// (counts and already-public, checked comments only, never who said what). /regional pulls them all together.
+async function regionStats(env) {
+  const hit = await env.DATA.get("rstats", "json"); if (hit && Date.now() - hit.t < 600e3) return hit.d;
+  const mon = todayISO().slice(0, 7), lastMon = new Date(Date.UTC(+mon.slice(0, 4), +mon.slice(5) - 2, 1)).toISOString().slice(0, 7);
+  const get = k => env.DATA.get(k, "json");
+  const [cNow, cLast, st, stMon, ts, nLoc, ideaL, wNow, wLast] = await Promise.all([get(`poll:council:${mon}`), get(`poll:council:${lastMon}`), get("poll:saving-time"), get(`poll:saving-time:${mon}`),
+    get("ts:total"), localsCount(env), ideas(env), get(`pollwhy:council:${mon}`), get(`pollwhy:council:${lastMon}`)]);
+  const why = [...(wNow || []), ...(wLast || [])].filter(x => x.ok);
+  const rates = (await Promise.all((await klist(env, "rate:")).map(async k => [k.name.slice(5), await get(k.name)]))).filter(x => x[1]);
+  const joinPc = {}; for (const { name } of await klist(env, "sub:")) { const v = await get(name); if (v?.pc) joinPc[v.pc] = (joinPc[v.pc] || 0) + 1; }
+  const noms = async k => Object.values(k === "alcohol" ? await alcNoms(env) : await wnoms(env, k)).map(n => ({ text: n.text, votes: n.voters.length, live: !!n.live })).sort((a, b) => b.votes - a.votes).slice(0, 8);
+  const d = { code: R.code, place: R.place, council: R.council.name, domain: R.domain, at: new Date().toISOString(), mon, lastMon,
+    locals: nLoc, goal: LOCALS_GOAL, tsMins: ts?.mins || 0, councilNow: cNow, councilLast: cLast, saving: st, savingMon: stMon,
+    rate: rates.reduce((a, [, c]) => ({ up: a.up + (c.up || 0), down: a.down + (c.down || 0) }), { up: 0, down: 0 }),
+    pages: rates.map(([p, c]) => ({ p, up: c.up || 0, down: c.down || 0 })).sort((a, b) => (b.up + b.down) - (a.up + a.down)).slice(0, 12),
+    ideas: ideaL.filter(i => i.status !== "done").slice(0, 10).map(i => ({ text: i.text, votes: i.votes })),
+    worries: why.filter(x => x.v === "down").slice(0, 10).map(x => ({ t: x.t, pc: x.pc || "" })), likes: why.filter(x => x.v === "up").slice(0, 6).map(x => ({ t: x.t, pc: x.pc || "" })),
+    shop: await noms("shop"), grog: await noms("alcohol"), joinPc };
+  await env.DATA.put("rstats", JSON.stringify({ t: Date.now(), d })).catch(() => {});
+  return d;
+}
+async function allRegions(env) {
+  const hit = await env.DATA.get("regional:all", "json"); if (hit && Date.now() - hit.t < 900e3) return hit.L;
+  const L = (await Promise.all(Object.values(REGIONS).map(async r => {
+    if (r.code === R.code) return regionStats(env).catch(() => null);
+    try { const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 6000); const res = await fetch(`https://${r.domain}/api/results.json`, { signal: ac.signal, headers: UA }); clearTimeout(tm); return res.ok ? await res.json() : null; } catch (e) { return null; }
+  }))).filter(Boolean);
+  await env.DATA.put("regional:all", JSON.stringify({ t: Date.now(), L })).catch(() => {});
+  return L;
+}
+// One short, neutral read of what's worrying people, from locals' own checked comments. Rebuilt at most once a day.
+async function worryThemes(env, L) {
+  const day = todayISO(), hit = await env.DATA.get("regional:themes", "json"); if (hit && hit.day === day) return hit.themes;
+  const lines = L.flatMap(r => [...r.worries.map(w => `[${r.place}] worry: ${w.t}`), ...r.ideas.slice(0, 5).map(i => `[${r.place}] wants: ${i.text}`)]).slice(0, 120);
+  let themes = [];
+  if (lines.length >= 5) try {
+    const ask = { messages: [{ role: "system", content: "You group comments from regional Australians into themes. No opinions, no judgement, plain English. Output ONLY JSON." },
+      { role: "user", content: `Group these comments into at most 5 themes, biggest first. For each give "theme" (3-6 words), "towns" (the place names in brackets that raised it) and "count". Return {"themes":[...]}.\n\n${lines.join("\n")}` }] };
+    let out; try { out = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", ask); } catch (e) { out = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", ask); }
+    const raw = typeof out?.response === "string" ? out.response : JSON.stringify(out?.response || {});
+    themes = (JSON.parse(raw.match(/\{[\s\S]*\}/)[0]).themes || []).slice(0, 5).map(x => ({ theme: String(x.theme || "").slice(0, 60), towns: [].concat(x.towns || []).map(String).slice(0, 8), count: +x.count || 0 })).filter(x => x.theme);
+  } catch (e) { themes = []; }
+  await env.DATA.put("regional:themes", JSON.stringify({ day, themes })).catch(() => {});
+  return themes;
+}
+async function regionalPage(env) {
+  const L = abc(await allRegions(env), r => r.place), n = c => (c?.up || 0) + (c?.down || 0), pct = c => n(c) ? Math.round(c.up / n(c) * 100) : null;
+  const sum = k => L.reduce((a, r) => ({ up: a.up + (r[k]?.up || 0), down: a.down + (r[k]?.down || 0) }), { up: 0, down: 0 });
+  const num = x => Number(x || 0).toLocaleString("en-AU");
+  const row = (r, c, lab) => { const p = pct(c); return `<li${r.code === R.code ? ' class="me"' : ""}><a href="https://${esc(r.domain)}/results">${esc(r.place)} <span class="mute">${esc(r.code)}</span></a>${p == null ? `<span class="mute">No answers yet</span>` : `<span class="rbar" role="img" aria-label="${p}% ${lab}"><span style="width:${p}%"></span></span><span><b>${p}%</b> <span class="mute">(${num(n(c))})</span></span>`}</li>`; };
+  const cmp = (k, lab) => `<ul class="cmp">${L.map(r => row(r, r[k], lab)).join("")}</ul>`;
+  const totLocals = L.reduce((a, r) => a + (r.locals || 0), 0), totMins = L.reduce((a, r) => a + (r.tsMins || 0), 0), cAll = sum("councilNow"), sAll = sum("saving");
+  // Ideas and watch votes merged across every paper by the same wording, with the towns that asked.
+  const merge = (k, f = x => x.votes) => { const m = {}; for (const r of L) for (const i of r[k] || []) { const key = i.text.toLowerCase().replace(/\W+/g, " ").trim(); (m[key] ||= { text: i.text, votes: 0, towns: [] }); m[key].votes += f(i); if (!m[key].towns.includes(r.place)) m[key].towns.push(r.place); } return Object.values(m).sort((a, b) => b.votes - a.votes).slice(0, 10); };
+  const mlist = (k, empty) => { const M = merge(k); return M.length ? `<ol>${M.map(i => `<li>${esc(i.text)} <span class="mute">👍 ${num(i.votes)} · ${i.towns.map(esc).join(", ")}</span></li>`).join("")}</ol>` : `<p class="mute">${empty}</p>`; };
+  const pages = {}; for (const r of L) for (const p of r.pages || []) { (pages[p.p] ||= { up: 0, down: 0 }); pages[p.p].up += p.up; pages[p.p].down += p.down; }
+  const topPages = Object.entries(pages).filter(([, c]) => n(c) >= 3).sort((a, b) => b[1].up - a[1].up).slice(0, 10);
+  const themes = await worryThemes(env, L).catch(() => []);
+  const worries = L.flatMap(r => r.worries.map(w => ({ ...w, place: r.place }))).slice(0, 12);
+  const mon = L[0]?.mon ? new Date(L[0].mon + "-15").toLocaleDateString("en-AU", { month: "long", year: "numeric" }) : "this month";
+  const S = [
+    ["council", "🏛️ How's council doing?", `<p class="aim"><b>Compare councils:</b> the share of locals giving their council a thumbs up in ${esc(mon)}. Every council, side by side, in locals' words, not ours.</p>${cmp("councilNow", "doing well")}<p class="mute">All of regional Australia: ${pct(cAll) == null ? "no answers yet" : `<b>${pct(cAll)}%</b> thumbs up from ${num(n(cAll))} answers`}.</p>`],
+    ["worried", "😟 What's on regional Australia's mind", `${themes.length ? `<ul class="themes">${themes.map(t => `<li><b>${esc(t.theme)}</b> <span class="mute">${t.towns.map(esc).join(", ")}</span></li>`).join("")}</ul><p class="mute">Grouped by Team Smarketing from locals' own checked comments and ideas. Sorting only, no opinion added.</p>` : ""}${worries.length ? `<h3>In locals' own words</h3><ul>${worries.map(w => `<li>“${esc(w.t)}” <span class="mute">${esc(w.place)}${w.pc ? " " + esc(w.pc) : ""}</span></li>`).join("")}</ul>` : `<p class="mute">Not enough comments yet. Have your say in Council watch on your Daily Maverick.</p>`}`],
+    ["ideas", "💡 What regional Australia wants built", `<p class="aim">The same idea from different towns is counted together, so you can see what's wanted everywhere, not just at home.</p>${mlist("ideas", "No ideas yet.")}`],
+    ["saving", "🪞 Is the Daily Maverick saving people time?", `${cmp("saving", "yes")}<p class="mute">All papers: ${pct(sAll) == null ? "no answers yet" : `<b>${pct(sAll)}%</b> say yes`}. Locals say our tools save them <b>${tsH(totMins)} a week</b> all up.</p>`],
+    ["watch", "🗳️ What locals want watched", `<h3>🛒 Supermarket watch</h3>${mlist("shop", "No ideas yet.")}<h3>🍻 Grog watch</h3>${mlist("grog", "No ideas yet.")}`],
+    ["useful", "⭐ Most useful across regional Australia", topPages.length ? `<ul>${topPages.map(([p, c]) => `<li>${esc(p)}: 👍 ${num(c.up)} · 👎 ${num(c.down)}</li>`).join("")}</ul>` : `<p class="mute">Not enough ratings yet.</p>`],
+    ["locals", "🙌 Locals signed up, town by town", `<ul class="cmp">${L.map(r => { const p = Math.min(100, Math.round((r.locals || 0) / (r.goal || LOCALS_GOAL) * 100)); return `<li${r.code === R.code ? ' class="me"' : ""}><a href="https://${esc(r.domain)}/">${esc(r.place)} <span class="mute">${esc(r.code)}</span></a><span class="rbar"><span style="width:${Math.max(p, 1)}%"></span></span><span><b>${num(r.locals)}</b> <span class="mute">of ${num(r.goal || LOCALS_GOAL)}</span></span></li>`; }).join("")}</ul>`],
+  ].sort((a, b) => a[1].replace(/^\P{L}+/u, "").localeCompare(b[1].replace(/^\P{L}+/u, "")));
+  return page("What regional Australia told us", `<h1>What regional Australia told us</h1>
+<p>Every Daily Maverick, together: what regional communities are thinking, worried about and asking for, and how towns compare. Counts and checked comments only, never who said what. <span class="mute">Unofficial and from readers, so it's not a scientific survey.</span></p>
+<div class="rtot"><div><b>${L.length}</b><span>Daily Mavericks</span></div><div><b>${num(totLocals)}</b><span>locals signed up</span></div><div><b>${num(n(cAll) + n(sAll))}</b><span>answers given</span></div><div><b>${tsH(totMins)}</b><span>saved a week</span></div></div>
+<nav class="alcp" aria-label="Jump to">${S.map(([id, t]) => `<a class="tagg" href="#${id}">${t.replace(/^\P{L}+/u, "")}</a>`).join(" ")}</nav>
+${S.map(([id, t, b]) => `<section id="${id}"><h2>${t}</h2>${b}</section>`).join("")}
+<p>Town not here yet? <a href="/suggest">Ask for a Daily Maverick for your town →</a> · <a href="/results">What ${R.code} told us →</a></p>
+<p class="mute">Updated every 15 minutes. Each paper's own numbers are on its What locals told us page.</p>
+<style>.aim{background:var(--soft);border-left:4px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:.9rem}.cmp{list-style:none;padding:0;margin:8px 0}.cmp li{display:grid;grid-template-columns:minmax(120px,1.2fr) 2fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}.cmp li.me{font-weight:600}.cmp a{color:var(--fg)}.rbar{display:block;height:10px;border-radius:99px;background:var(--soft);overflow:hidden}.rbar>span{display:block;height:100%;background:var(--gold)}.rtot{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}.rtot div{border:2px solid var(--gold);border-radius:12px;padding:10px;text-align:center;display:flex;flex-direction:column}.rtot b{font-family:Georgia,serif;font-size:1.6rem}.rtot span{font-size:.85rem;color:var(--mute)}.themes li{padding:4px 0}@media(max-width:480px){.cmp li{grid-template-columns:1fr auto}.cmp .rbar{grid-column:1/-1;order:3}}</style>`, "", { desc: "What regional Australia is thinking, worried about and asking for, from every Daily Maverick, with town-by-town comparisons." });
 }
 
 // ---- Tracked links to Maverick Digital (key conversion events). Counts clicks per day, then adds UTM tags
@@ -2021,6 +2115,16 @@ document.getElementById('fsrc').innerHTML='<span class="srcw">Source:</span> <a 
 nb.onclick=function(){if(!navigator.geolocation)return;nb.textContent='📍 Finding you…';
 navigator.geolocation.getCurrentPosition(function(p){pos=[+p.coords.latitude.toFixed(2),+p.coords.longitude.toFixed(2)];try{localStorage.setItem('loc',JSON.stringify(pos))}catch(e){}nb.textContent='📍 Near you';load()},function(){nb.textContent='📍 Near me'})};load()})();</script></section>`;
 
+// ---- Outside highlights: cycle trails, World Heritage and what you can only do here. Every line sourced (regions.js outdoor).
+function outdoorBlock() {
+  const o = R.outdoor; if (!o) return "";
+  const src = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } };
+  const card = ([h, t, u]) => `<li><b>${esc(h)}</b><br>${esc(t)} <span class="src">Source: <a href="${esc(u)}" rel="noopener">${esc(src(u))}</a></span></li>`;
+  const grp = (ico, title, L) => L && L.length ? `<div class="ogrp"><h3>${ico} ${title}</h3><ul class="olist">${L.map(card).join("")}</ul></div>` : "";
+  return `<section id="trails"><h2>🚴 Trails, World Heritage and only here</h2><p class="mute">The big outdoor reasons to live in, or visit, ${esc(R.place)} and the shire.</p>
+${grp("✨", `Only here`, o.only)}${grp("🌏", "World Heritage", o.heritage)}${grp("🚴", "Cycle and mountain bike trails", o.trails)}
+<style>.olist{list-style:none;padding:0;margin:0 0 8px}.olist li{padding:8px 0;border-bottom:1px solid var(--line)}.olist .src{display:block;margin:2px 0 0}</style></section>`;
+}
 // ---- Get outside this weekend: outdoor, free or under $50 a kid. Locals' events tagged "good for kids" + local favourites ----
 function weekendDates() { const t = new Date(todayISO() + "T00:00:00Z"), d = t.getUTCDay(), sat = new Date(t); sat.setUTCDate(t.getUTCDate() + (d === 0 ? -1 : 6 - d));
   const sun = new Date(sat); sun.setUTCDate(sat.getUTCDate() + 1); return [sat.toISOString().slice(0, 10), sun.toISOString().slice(0, 10)]; }
@@ -3093,7 +3197,9 @@ async function route(req, env, ctx) {
     if (p === "/new") return newPage(env);
     if (p === "/api/rate" && req.method === "POST") return rate(req, env, ctx);
     if (p === "/api/poll" && req.method === "POST") return pollApi(req, env);
-    if (p === "/results") return resultsPage(env);
+    if (p === "/results") return resultsPage(env, req);
+    if (p === "/api/results.json") return Response.json(await regionStats(env), { headers: { "access-control-allow-origin": "*", "cache-control": "public, max-age=600" } });
+    if (p === "/regional") return regionalPage(env);
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/open") return openPage();
     if (p === "/whatsopen" || p === "/visiting") return Response.redirect(new URL("/open", url).toString(), 302);
@@ -3285,7 +3391,8 @@ sel.onchange=function(){var i=+sel.value;p('z_'+k,i);if(k==='w'&&g('z_v')===null
 async function rate(req, env, ctx) {
   let b = {}; try { b = await req.json(); } catch (e) {}
   const p = String(b.p || "/").slice(0, 80).replace(/[^\w\/-]/g, "") || "/";
-  if (b.v === "up" || b.v === "down") { const k = "rate:" + p, c = (await env.DATA.get(k, "json")) || { up: 0, down: 0 }; c[b.v]++; await env.DATA.put(k, JSON.stringify(c)); }
+  if (b.v === "up" || b.v === "down") { const k = "rate:" + p, c = (await env.DATA.get(k, "json")) || { up: 0, down: 0 }; c[b.v]++; await env.DATA.put(k, JSON.stringify(c));
+    const pc = okTown(cookie(req, "mpc")); if (pc) { const kp = "ratepc:" + pc, cp = (await env.DATA.get(kp, "json")) || { up: 0, down: 0 }; cp[b.v]++; await env.DATA.put(kp, JSON.stringify(cp)); } }
   const note = String(b.note || "").trim().slice(0, 800), email = String(b.email || "").trim().slice(0, 120);
   if (note) {
     const sec = String(b.sec || "").trim().slice(0, 80);
