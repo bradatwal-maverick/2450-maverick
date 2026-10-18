@@ -26,7 +26,7 @@ function g(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function p(k,v){try{v===null||v===undefined?localStorage.removeItem(k):localStorage.setItem(k,String(v))}catch(e){}}
 function j(k,d){try{var v=JSON.parse(g(k));return v==null?d:v}catch(e){return d}}
 var signed=/(?:^|; )m2450n=/.test(document.cookie);
-var SYNC=/^(order|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|profile|reads|hide_[a-z]+)$/;
+var SYNC=/^(order|tileorder|name|fuel|pc|z_w|z_v|z_e|z_tab|saved_q|bin_bday|bin_bweekly|bin_balt1|bin_balt2|bin_anchor|pin|ev_like|profile|reads|hide_[a-z]+)$/;
 function snap(){var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(SYNC.test(k))o[k]=localStorage.getItem(k)}}catch(e){}return o}
 function hash(o){return JSON.stringify(Object.keys(o).sort().map(function(k){return [k,o[k]]}))}
 function up(){if(!signed)return;var s=snap(),h=hash(s);if(h===g('prefs_h'))return;var at=Date.now();p('prefs_h',h);p('prefs_at',at);
