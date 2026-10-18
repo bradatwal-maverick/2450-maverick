@@ -2123,7 +2123,7 @@ function outdoorBlock() {
   const card = ([h, t, u]) => `<li><b>${esc(h)}</b><br>${esc(t)} <span class="src">Source: <a href="${esc(u)}" rel="noopener">${esc(src(u))}</a></span></li>`;
   const grp = (ico, title, L) => L && L.length ? `<div class="ogrp"><h3>${ico} ${title}</h3><ul class="olist">${L.map(card).join("")}</ul></div>` : "";
   return `<section id="trails"><h2>🚴 Trails, World Heritage and only here</h2><p class="mute">The big outdoor reasons to live in, or visit, ${esc(R.place)} and the shire.</p>
-${grp("✨", `Only here`, o.only)}${grp("🌏", "World Heritage", o.heritage)}${grp("🚴", "Cycle and mountain bike trails", o.trails)}
+${grp("🚴", "Cycle and mountain bike trails", o.trails)}${grp("✨", "Only here", o.only)}${grp("🌏", "World Heritage", o.heritage)}
 <style>.olist{list-style:none;padding:0;margin:0 0 8px}.olist li{padding:8px 0;border-bottom:1px solid var(--line)}.olist .src{display:block;margin:2px 0 0}</style></section>`;
 }
 // ---- Get outside this weekend: outdoor, free or under $50 a kid. Locals' events tagged "good for kids" + local favourites ----
