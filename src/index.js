@@ -1173,6 +1173,8 @@ async function unlock(req, env) {
   const f = await req.formData(), email = String(f.get("email") || "").trim().toLowerCase();
   if (f.get("website")) return unlockPage();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !f.get("consent")) return unlockPage(`<p class="note">Please add your email and tick the box.</p>`);
+  // Already have an account? Prove it's you: we email a one-tap sign-in link (no passwords, ever).
+  if ((await env.DATA.get(`user:${email}`)) && env.MAILER) return sendSignInLink(req, env, email, f.get("next") ? safeNext(String(f.get("next"))) : "/");
   const g = await gravatar(env, email);
   const name = String(f.get("name") || g?.first || "").slice(0, 40), tok = crypto.randomUUID();
   const cx = joinCtx(req, f.get("pc")), nx = f.get("next") ? safeNext(String(f.get("next"))) : "";
@@ -1203,6 +1205,32 @@ async function joinQuiet(req, env, email, name, source) { // returns set-cookie 
 }
 const withCookies = (res, cookies) => { if (!cookies.length) return res; const r = new Response(res.body, res); cookies.forEach(c => r.headers.append("set-cookie", c)); return r; };
 const joinedMsg = cookies => cookies.length ? ` You're signed in and on the ${R.code} community list. Welcome, local!` : "";
+
+// ---- One-tap email sign-in link: valid 15 minutes, works once. Max 5 a day per email. ----
+async function sendSignInLink(req, env, email, next) {
+  const k = `maglim:${email}:${todayISO()}`, n = +(await env.DATA.get(k) || 0);
+  const done = (m) => page("Check your email", `<h1>📬 Check your email</h1>${m}<p><a href="/">Back to ${esc(R.code)}</a></p>`);
+  if (n >= 5) return done(`<p>We've sent a few links today already. Use the latest one in your inbox, or sign in with Google.</p>`);
+  const tok = crypto.randomUUID().replace(/-/g, ""), origin = new URL(req.url).origin;
+  await env.DATA.put(`magic:${tok}`, JSON.stringify({ email, next }), { expirationTtl: 900 });
+  await env.DATA.put(k, String(n + 1), { expirationTtl: 172800 });
+  try {
+    const { EmailMessage } = await import("cloudflare:email"), from = `hello@${R.domain}`, link = `${origin}/auth/link?t=${tok}`;
+    const body = `G'day,\n\nTap this link to sign in to ${R.brand}:\n\n${link}\n\nIt works once and runs out in 15 minutes. No password needed, ever.\n\nDidn't ask for this? Just ignore it. Nobody can sign in without this link.\n\n${R.brand}, powered by Maverick Digital`;
+    const raw = [`From: ${R.brand} <${from}>`, `To: ${email}`, `Subject: Your sign-in link for ${R.brand}`, `Message-ID: <${crypto.randomUUID()}@${R.domain}>`, `Date: ${new Date().toUTCString()}`, "MIME-Version: 1.0", "Content-Type: text/plain; charset=utf-8", "", body].join("\r\n");
+    await env.MAILER.send(new EmailMessage(from, email, raw));
+  } catch (e) { console.log("sign-in link", e); return done(`<p>We couldn't send the email just now. Please try again in a minute, or sign in with Google.</p>`); }
+  return done(`<p>We've sent a sign-in link to <b>${esc(email)}</b>. Tap it on this phone or computer and you're in.</p><p class="mute">It runs out in 15 minutes. Not there? Check your junk folder.</p>`);
+}
+async function signInFromLink(url, env) {
+  const tok = String(url.searchParams.get("t") || "").replace(/[^a-f0-9]/g, ""), m = tok && await env.DATA.get(`magic:${tok}`, "json");
+  if (!m) return page("Link expired", `<h1>That link has run out</h1><p>Sign-in links work once and last 15 minutes. <a href="/signin">Get a new one</a>.</p>`);
+  await env.DATA.delete(`magic:${tok}`);
+  const prev = await env.DATA.get(`user:${m.email}`, "json"), now = new Date().toISOString(), s = crypto.randomUUID();
+  await env.DATA.put(`user:${m.email}`, JSON.stringify({ ...(prev || {}), email: m.email, last: now, visits: (prev?.visits || 0) + 1, first: prev?.first || now, via: prev?.via || "email" }));
+  await env.DATA.put(`sess:${s}`, m.email, { expirationTtl: 31536000 });
+  return new Response(null, { status: 303, headers: sessionHeaders(s, prev?.name || "", safeNext(m.next || "/"), prev?.picture) });
+}
 
 const fridgePage = () => page("What's in your fridge?", `<h1>🧊 What's in your fridge?</h1>
 <div class="note">📸 <b>Snap your fridge</b> and we&rsquo;ll tick what we can see. <label class="snap"><input type="file" id="snap" accept="image/*" capture="environment" hidden><span>Take a photo</span></label><br><small class="mute" id="snapmsg">Your photo is only used to spot the food, then thrown away. We never keep it.</small></div>
@@ -2977,6 +3005,7 @@ async function route(req, env, ctx) {
     if (p === "/school") return schoolPage(env);
     if (p === "/fridge") { const em = await member(req, env); return !em ? unlockPage() : (await hasTier(env, em, "every")) ? fridgePage() : new Response(null, { status: 303, headers: { location: "/membership?need=every" } }); }
     if (p === "/unlock" && req.method === "POST") return unlock(req, env);
+    if (p === "/auth/link") return signInFromLink(url, env);
     if (p === "/api/hello" && req.method === "POST") return helloApi(req, env);
     if (p.startsWith("/go/")) return goLink(p.slice(4), env);
     if (p === "/api/fridge-photo" && req.method === "POST") return fridgePhoto(req, env).catch(() => Response.json({ error: "Couldn’t read that one. Tick what you’ve got below." }));
