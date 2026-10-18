@@ -2709,7 +2709,7 @@ async function membershipPage(env, req, url) { const n = await localsCount(env),
   const em = await member(req, env), tier = em ? await tierOf(env, em) : "free", need = url.searchParams.get("need"), welcome = url.searchParams.get("welcome");
   const mine = t => tier === t || (!on && em && t === "some");
   const tick = `<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const card = (t, title, price, per, tag, items, cta) => `<div class="mt${mine(t) ? " mine" : ""}${t === "every" ? " hot" : ""}">${t === "every" ? `<p class="mbadge">Best value</p>` : ""}<h2>${title}</h2><p class="mprice">${price}<span>${per}</span></p><p class="mtag">${tag}</p><ul>${items.map(i => `<li>${tick}<span>${i}</span></li>`).join("")}</ul>${mine(t) ? `<p class="mon">You're on this one</p>` : cta}</div>`;
+  const card = (t, title, price, per, tag, items, cta) => `<div class="mt${mine(t) ? " mine" : ""}${t === "some" ? " hot" : ""}">${t === "some" ? `<p class="mbadge">Most popular</p>` : t === "every" ? `<p class="mbadge mbv">Best value</p>` : ""}<h2>${title}</h2><p class="mprice">${price}<span>${per}</span></p><p class="mtag">${tag}</p><ul>${items.map(i => `<li>${tick}<span>${i}</span></li>`).join("")}</ul>${mine(t) ? `<p class="mon">You're on this one</p>` : cta}</div>`;
   const everyBtn = on ? `<button class="btn mgo" data-tier="every">Try 14 days free</button><p class="msmall">No card needed. Cancel any time.</p>` : `<p class="msmall">Opening soon</p>`;
   // The tools in Every Cool Thing, A to Z. Only what's built and working.
   const tools = [
@@ -2727,7 +2727,7 @@ async function membershipPage(env, req, url) { const n = await localsCount(env),
 .mt{position:relative;border:1px solid var(--line,#e2e7ef);border-radius:16px;padding:22px 18px 18px;display:flex;flex-direction:column;background:var(--bg,#fff)}
 .mt.hot{border:2px solid var(--gold,#f2b01e);box-shadow:0 10px 30px -14px rgba(242,176,30,.55)}.mt.mine{border:2px solid var(--fg,#12233f)}
 .mbadge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);margin:0;background:var(--gold,#f2b01e);color:#12233f;font-weight:700;font-size:.75rem;padding:3px 12px;border-radius:999px;white-space:nowrap}
-.mt h2{margin:0 0 6px;font-size:1.1rem}.mprice{font-size:2rem;font-weight:800;margin:0;line-height:1}.mprice span{font-size:.9rem;font-weight:500;color:#5b6575;margin-left:4px}
+.mbv{background:#12233f;color:#fff}.mt h2{margin:0 0 6px;font-size:1.1rem}.mprice{font-size:2rem;font-weight:800;margin:0;line-height:1}.mprice span{font-size:.9rem;font-weight:500;color:#5b6575;margin-left:4px}
 .mtag{margin:6px 0 14px;color:#5b6575;font-size:.92rem}.mt ul{list-style:none;padding:0;margin:0 0 16px;flex:1}.mt li{display:flex;gap:8px;align-items:flex-start;margin:0 0 8px;font-size:.95rem;line-height:1.35}
 .mt li svg{flex:none;margin-top:3px;color:#15803d}.mt .btn{width:100%;text-align:center}.mgo{font-size:1rem;padding:12px}.msmall{font-size:.82rem;color:#5b6575;margin:8px 0 0;text-align:center}.mon{font-weight:700;text-align:center;margin:0}
 .mai{display:grid;gap:18px;grid-template-columns:1fr;background:#12233f;color:#fff;border-radius:18px;padding:24px;margin:30px 0}@media(min-width:720px){.mai{grid-template-columns:1.1fr 1fr;align-items:center}}
