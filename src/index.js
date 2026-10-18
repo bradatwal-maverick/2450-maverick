@@ -749,7 +749,7 @@ const PHOTOS = () => photosApi({ esc, page, member, cleanText, todayISO, TOWNS, 
 // Home-screen PNG icons (baked in by tools/build-icons.py). Falls back to the SVG for a brand-new town until the script is re-run.
 function iconPng(size) { const b = ICONS[R.code]?.[size]; if (!b) return Response.redirect("/icon.svg", 302);
   return new Response(Uint8Array.from(atob(b), c => c.charCodeAt(0)), { headers: { "content-type": "image/png", "cache-control": "public, max-age=604800" } }); }
-const SW = () => `self.addEventListener('push',e=>{e.waitUntil(fetch('/api/alert').then(r=>r.json()).then(a=>self.registration.showNotification(a.title,{body:a.body,icon:'/icon.svg',data:a.url||'/${R.code}'})))});
+const SW = () => `self.addEventListener('push',e=>{e.waitUntil(self.registration.pushManager.getSubscription().then(s=>fetch('/api/alert',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({e:s&&s.endpoint})})).then(r=>r.json()).then(a=>self.registration.showNotification(a.title,{body:a.body,icon:'/icon.svg',data:a.url||'/${R.code}'})))});
 self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow(e.notification.data||'/${R.code}'))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
 e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open('v1').then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request)))})`;
@@ -1901,7 +1901,11 @@ async function pushBatch(env) {
 }
 async function pushApi(req, env, p) {
   if (p === "/api/push/key") return Response.json({ key: (await vapid(env)).pub });
-  if (p === "/api/alert") return Response.json(await env.DATA.get("alert:latest", "json") || { title: R.brand, body: `Something new in ${R.code}.`, url: `/${R.code}` });
+  if (p === "/api/alert") {
+    if (req.method === "POST") { let j = {}; try { j = await req.json(); } catch (e) {}
+      if (j.e) { const id = b64u(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(j.e)))).slice(0, 22), pa = await env.DATA.get("palert:" + id, "json");
+        if (pa) { await env.DATA.delete("palert:" + id); return Response.json(pa); } } }
+    return Response.json(await env.DATA.get("alert:latest", "json") || { title: R.brand, body: `Something new in ${R.code}.`, url: `/${R.code}` }); }
   if (p === "/api/push/sub" && req.method === "POST") {
     let j = {}; try { j = await req.json(); } catch (e) {}
     if (!j.sub?.endpoint || !/^https:\/\//.test(j.sub.endpoint)) return Response.json({ ok: false }, { status: 400 });
@@ -2799,6 +2803,7 @@ async function route(req, env, ctx) {
     if (p === "/api/mav" && req.method === "POST") return mavChat(req, env);
     if (p === "/api/mav/email" && req.method === "POST") return mavEmail(req, env, ctx);
     if (p === "/api/mav/suggest" && req.method === "POST") { const em = await member(req, env); if (!em) return Response.json({ error: "Sign in first, then Mav can help." }); if (!(await hasTier(env, em, "some"))) return Response.json({ error: "Mav filling this in is part of Some Cool Things. Try it free for 14 days: /membership" }); return mavSuggest(req, env); }
+    if (p === "/api/flights/track" && req.method === "POST") return flightTrack(req, env);
     if (p === "/api/flights") return Response.json(await env.DATA.get("flights", "json") || { list: null }, { headers: { "access-control-allow-origin": "*", "cache-control": "max-age=300" } });
     if (p === "/api/health") return Response.json({ gazette: R.code, checked: new Date().toISOString(), sources: await health(env) }, { headers: { "access-control-allow-origin": "*" } });
     if (p === "/ai-log") return aiLogPage(env);
@@ -3376,7 +3381,47 @@ async function projectBlock(env) {
 }
 
 // ---- Flights: today's arrivals and departures with live status, from AeroDataBox (needs a FLIGHT_KEY secret) ----
+// Coffs Harbour Airport publishes its own live board as JSON (the one on its arrivals and departures page).
+const ddmm = s => { const m = String(s || "").match(/(\d\d)\/(\d\d)\/(\d{4}) (\d\d:\d\d)/); return m ? `${m[3]}-${m[2]}-${m[1]} ${m[4]}` : ""; };
+async function refreshAirportJson(env) {
+  const old = await env.DATA.get("flights", "json"); if (old && Date.now() - new Date(old.asof) < 9 * 6e4) return;
+  try {
+    const j = await (await fetch(R.airport.json, { headers: { ...UA, accept: "application/json" } })).json();
+    const list = (j?.flight_set?.flights?.flight || []).map(f => ({ dir: f.leg === "D" ? "dep" : "arr", no: String(f.flight_number || "").replace(/\s+/g, ""), airline: f.airline || "", other: (f.locations || []).join(", "),
+      sched: ddmm(f.scheduled_time), rev: ddmm(f.actual_time || f.estimated_time), status: f.primary_remark || f.alternate_remark_one || "", gate: f.gate || "", belt: f.carousel || "" })).filter(f => f.no && f.sched).sort((a, b) => a.sched.localeCompare(b.sched));
+    if (list.length || !old) await env.DATA.put("flights", JSON.stringify({ asof: new Date().toISOString(), list, src: "airport" }));
+    await flightAlerts(env, list);
+  } catch (e) {}
+}
+// Friends' flights: people track a flight number; when its status changes we send that phone a personal alert.
+const flStatus = f => { const t = s => s ? s.slice(11, 16) : ""; if (/cancel/i.test(f.status)) return "Cancelled";
+  const late = f.rev && f.sched && f.rev !== f.sched ? Math.round((new Date(f.rev.replace(" ", "T")) - new Date(f.sched.replace(" ", "T"))) / 6e4) : 0;
+  if (/landed|arrived/i.test(f.status)) return `Landed ${t(f.rev)}`; if (/departed/i.test(f.status)) return `Departed ${t(f.rev)}`; if (/boarding/i.test(f.status)) return "Boarding";
+  return late >= 10 ? `Delayed ${late} min, now ${t(f.rev)}` : `On time, ${t(f.sched)}`; };
+async function flightAlerts(env, list) {
+  const tr = (await env.DATA.get("ftrack", "json")) || []; if (!tr.length) return;
+  let changed = false;
+  for (const t of tr) { const f = list.find(x => x.no === t.no); if (!f) continue; const st = flStatus(f); if (st === t.last) continue;
+    t.last = st; changed = true; const s = await env.DATA.get("psub:" + t.id, "json"); if (!s) continue;
+    await env.DATA.put("palert:" + t.id, JSON.stringify({ title: `✈️ ${f.no} ${f.dir === "dep" ? "to" : "from"} ${f.other}`, body: st + (f.belt && /landed/i.test(st) ? ` · bags on carousel ${f.belt}` : ""), url: `/${R.code}#flights` }), { expirationTtl: 86400 });
+    try { await pushOne(env, s.sub); } catch (e) {} }
+  if (changed) await env.DATA.put("ftrack", JSON.stringify(tr.filter(t => Date.now() - new Date(t.at) < 3 * 86400e3)));
+}
+async function flightTrack(req, env) {
+  let j = {}; try { j = await req.json(); } catch (e) {}
+  const no = String(j.no || "").replace(/\s+/g, "").toUpperCase().slice(0, 10); if (!/^[A-Z0-9]{2}\d{1,5}$/.test(no)) return Response.json({ error: "That doesn't look like a flight number. Try something like QF2134." });
+  if (!j.endpoint || !/^https:\/\//.test(j.endpoint)) return Response.json({ error: "Turn on alerts first." });
+  const id = b64u(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(j.endpoint))).slice(0, 22);
+  if (!(await env.DATA.get("psub:" + id))) return Response.json({ error: "Turn on alerts first." });
+  const tr = ((await env.DATA.get("ftrack", "json")) || []).filter(t => !(t.id === id && t.no === no) && Date.now() - new Date(t.at) < 3 * 86400e3);
+  if (tr.filter(t => t.id === id).length >= 5) return Response.json({ error: "You're tracking 5 flights already." });
+  const d = await env.DATA.get("flights", "json"), f = (d?.list || []).find(x => x.no === no);
+  tr.push({ id, no, at: new Date().toISOString(), last: f ? flStatus(f) : "" });
+  await env.DATA.put("ftrack", JSON.stringify(tr));
+  return Response.json({ ok: true, msg: f ? `Tracking ${no}: ${flStatus(f)}. We'll alert this phone if anything changes.` : `Tracking ${no}. It's not on today's board yet: we'll alert this phone when it shows up and if anything changes.` });
+}
 async function refreshFlights(env) {
+  if (R.airport?.json) return refreshAirportJson(env);
   if (!env.FLIGHT_KEY || !R.airport.iata || R.airport.feed) return;
   const old = await env.DATA.get("flights", "json"), h = +new Date().toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", hour12: false });
   if (h < 5 || h > 21) return;
@@ -3401,11 +3446,23 @@ async function flightsBlock(env) {
     if (/arrived|landed/i.test(s)) return `<span class="fl ok">Landed${f.rev ? " " + tm(f.rev) : ""}</span>`; if (/departed/i.test(s)) return `<span class="fl ok">Departed</span>`; if (/boarding/i.test(s)) return `<span class="fl ok">Boarding</span>`; return `<span class="fl ok">On time</span>`; };
   const now = new Date().toLocaleString("sv-SE", { timeZone: "Australia/Sydney" }).slice(0, 16), up = d && d.list ? d.list.filter(f => (f.rev || f.sched).slice(0, 16) >= now.replace("T", " ").slice(0, 16) || /delay/i.test(f.status)) : [];
   const tbl = (dir, h) => { const l = up.filter(f => f.dir === dir).slice(0, 8); return l.length ? `<h3>${h}</h3><ul class="fls">${l.map(f => `<li><b>${tm(f.sched)}</b> ${esc(f.no)} ${dir === "dep" ? "to" : "from"} ${esc(f.other)} ${st(f)}</li>`).join("")}</ul>` : ""; };
-  const board = d && d.list ? (tbl("arr", "Arriving") + tbl("dep", "Departing") || `<p class="mute">No more flights listed today.</p>`) + `<p class="src">${fresh(d.asof)}Live flight data from AeroDataBox, updated ${esc(asOf(d.asof))}. Check with your airline before you head out.</p>` : "";
+  const board = d && d.list ? (tbl("arr", "Arriving") + tbl("dep", "Departing") || `<p class="mute">No more flights listed today.</p>`) + `<p class="src">${fresh(d.asof)}${d.src === "airport" ? `<span class="srcw">Source:</span> <a href="${esc(A.url)}" rel="noopener">${esc(A.name)}</a> live board` : "Live flight data from AeroDataBox"}, updated ${esc(asOf(d.asof))}. Check with your airline before you head out.</p>` : "";
   return `<section id="flights"><h2>✈️ Flights at ${esc(A.name)}</h2>${board}
 <form class="row" id="flf"><input name="fn" placeholder="Your flight number, e.g. QF2134" autocapitalize="characters" maxlength="10" aria-label="Flight number"><button>Check</button></form><p id="flo"></p>
+${d && d.list ? `<h3>👋 Someone flying in?</h3><p class="mute">Pop in their flight number and we'll send an alert to this phone if it's delayed, when it lands and which carousel the bags are on.</p>
+<form class="row" id="flt"><input name="fn" placeholder="Their flight number, e.g. QF2134" autocapitalize="characters" maxlength="10" aria-label="Flight to track"><button>Track it</button></form><p id="fltm" class="note" hidden></p>
+<script>(function(){var f=document.getElementById('flt'),m=document.getElementById('fltm');function u8(b){var p='='.repeat((4-b.length%4)%4),s=atob((b+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(s,function(c){return c.charCodeAt(0)})}
+function say(t){m.textContent=t;m.hidden=false}
+f.onsubmit=function(e){e.preventDefault();var no=f.fn.value.replace(/\\s+/g,'').toUpperCase();if(!no)return;if(!('serviceWorker'in navigator)||!('PushManager'in window))return say('This browser cannot do alerts. On iPhone, add the site to your home screen first.');
+say('Setting up alerts…');Promise.all([navigator.serviceWorker.register('/sw.js').then(function(){return navigator.serviceWorker.ready}),fetch('/api/push/key').then(function(r){return r.json()})])
+.then(function(x){return x[0].pushManager.getSubscription().then(function(s){return s||x[0].pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(x[1].key)})})})
+.then(function(sub){return fetch('/api/push/sub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({sub:sub,topics:['alerts']})}).then(function(){return sub})})
+.then(function(sub){return fetch('/api/flights/track',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({no:no,endpoint:sub.endpoint})})}).then(function(r){return r.json()})
+.then(function(j){say(j.msg||j.error);if(j.ok){try{var L=JSON.parse(localStorage.getItem('fl_track')||'[]');if(L.indexOf(no)<0)L.push(no);localStorage.setItem('fl_track',JSON.stringify(L))}catch(_){}f.reset()}})
+.catch(function(){say('Alerts were blocked. Allow notifications for this site, then try again.')})};
+try{(JSON.parse(localStorage.getItem('fl_track')||'[]')).forEach(function(no){document.querySelectorAll('.fls li').forEach(function(li){if(li.textContent.replace(/\\s+/g,'').toUpperCase().indexOf(no)>-1)li.style.fontWeight='bold'})})}catch(_){}})()<\/script>` : ""}
 ${board ? "" : `<p class="mute">See everything coming and going at <a href="${A.url}" rel="noopener">${esc(A.name)}</a> (live board on FlightAware).</p>`}
-<script>(function(){var L=${JSON.stringify(up.map(f => ({ no: f.no, t: tm(f.sched), dir: f.dir, other: f.other }))).replace(/</g, "\\u003c")};document.getElementById('flf').onsubmit=function(e){e.preventDefault();var f=this.fn.value.replace(/\s+/g,'').toUpperCase();if(!f)return;
+<script>(function(){var L=${JSON.stringify(up.map(f => ({ no: f.no, t: tm(f.sched), dir: f.dir, other: f.other }))).replace(/</g, "\\u003c")};document.getElementById('flf').onsubmit=function(e){e.preventDefault();var f=this.fn.value.replace(/\\s+/g,'').toUpperCase();if(!f)return;
 var hit=L.filter(function(x){return x.no===f})[0],o=document.getElementById('flo');if(hit){o.innerHTML='<b>'+f+'</b> '+(hit.dir==='dep'?'departs ':'arrives ')+hit.t+'. See its status in the list above.';var li=[].filter.call(document.querySelectorAll('.fls li'),function(x){return x.textContent.indexOf(f)>-1})[0];if(li){li.classList.add('hit');li.scrollIntoView({behavior:'smooth',block:'center'})}}
 else window.open('https://www.google.com/search?q='+encodeURIComponent(f+' flight status'),'_blank','noopener')}})();</script></section>`;
 }
