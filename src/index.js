@@ -212,7 +212,7 @@ function page(title, body, pc = "", opts = {}) {
 <style>${CSS}${MENU_CSS}${NAV_CSS}${SIDE_CSS}${TL_CSS}${BINS_CSS}</style>${SPEC_RULES}<meta name="m2v" content="${BUILD}"></head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a></span><span class="hdr-r"><button type="button" id="m2menu" class="menub" aria-haspopup="dialog" aria-controls="m2nav" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>Menu</span></button></span></header>${menuDrawer(`<a href="/signin?next=/me" id="my2450" class="my signin" aria-label="Sign in" title="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="currentColor"/><path d="M4.5 20.5c.8-4 3.9-6 7.5-6s6.7 2 7.5 6" fill="currentColor"/></svg></a>`, `<button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0l-4.5-4.5M12 14l4.5-4.5M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download the app</span></button>`)}${navBar()}${HELP_UI(R.brand)}${HELP_PANEL()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=(decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name")||"").trim();if(n==="Local")n="";a.href="/me";a.classList.remove("signin");a.classList.add("in");var t=(n?n.split(" ")[0]+"\u2019s ":"My ")+"${R.code}";a.title=t;a.setAttribute("aria-label",t);if(n){a.innerHTML="";a.textContent=n.charAt(0).toUpperCase()}var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];var t2=document.getElementById("my2450t");if(t2){t2.textContent=t;t2.href="/me"}if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onload=function(){a.textContent="";a.appendChild(im)}}}}catch(e){}<\/script>
 <script>/* 🔒 Locks: everyone sees everything; a lock shows on what their plan can't use yet. LOCKS = path -> level needed (some = free with email, every = Every Cool Thing). */
-(function(){var LOCKS={"/fridge":2,"/genalpha":1,"/home":1,"/me":1,"/school":1},T={1:"Free when you sign in with your email",2:"Part of Every Cool Thing"};
+(function(){var LOCKS={"/fridge":2,"/genalpha":2,"/home":1,"/me":1,"/school":1},T={1:"Free when you sign in with your email",2:"Part of Every Cool Thing"};
 function paint(rank){var st=document.createElement("style");st.textContent=".lk{font-size:.8em;margin-left:2px;padding:4px 6px;opacity:.75;text-decoration:none;white-space:nowrap;cursor:pointer;border-radius:6px}.lk:hover{opacity:1;background:rgba(242,176,30,.25)}";document.head.appendChild(st);
 document.querySelectorAll("a[href]").forEach(function(a){var u;try{u=new URL(a.getAttribute("href"),location.href)}catch(e){return}if(u.origin!==location.origin)return;var need=LOCKS[u.pathname];if(!need||rank>=need||a.querySelector(".lk"))return;
 var i=document.createElement("span");i.className="lk";i.textContent="🔒";i.title=T[need];i.setAttribute("aria-label","Locked: "+T[need]+". Tap to unlock");i.setAttribute("role","button");i.tabIndex=0;
@@ -2708,26 +2708,64 @@ const FOUNDING_PRICE = TIERS.every.founding, PRICE = TIERS.every.price, FOUNDING
 async function membershipPage(env, req, url) { const n = await localsCount(env), left = Math.max(0, FOUNDING_SPOTS - n), on = paymentsOn(env);
   const em = await member(req, env), tier = em ? await tierOf(env, em) : "free", need = url.searchParams.get("need"), welcome = url.searchParams.get("welcome");
   const mine = t => tier === t || (!on && em && t === "some");
-  const card = (t, title, price, tag, items, cta) => `<div class="tier${mine(t) ? " mine" : ""}${t === "every" ? " hot" : ""}"><h2>${title}</h2><p class="tprice">${price}</p><p class="ttag">${tag}</p><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>${mine(t) ? `<p><b>✅ You're on this one.</b></p>` : cta}</div>`;
-  const everyBtn = on ? `<button class="btn" data-tier="every">Try 14 days free</button><p class="mute small">No card needed</p>` : `<p class="mute">Opening soon.</p>`;
-  return page(`Memberships: ${R.brand}`, `<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p><h1>Pick how you want your Daily Maverick</h1>
-${welcome === "some" ? `<p class="found"><b>You're in. Some Cool Things is on.</b> Tell Mav what you care about and he'll set up your page.</p>` : welcome === "every" ? `<p class="found"><b>You're in. Every Cool Thing is on.</b> Thanks for helping a brother out. Enjoy your Daily Maverick.</p>` : ""}
+  const tick = `<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const card = (t, title, price, per, tag, items, cta) => `<div class="mt${mine(t) ? " mine" : ""}${t === "every" ? " hot" : ""}">${t === "every" ? `<p class="mbadge">Best value</p>` : ""}<h2>${title}</h2><p class="mprice">${price}<span>${per}</span></p><p class="mtag">${tag}</p><ul>${items.map(i => `<li>${tick}<span>${i}</span></li>`).join("")}</ul>${mine(t) ? `<p class="mon">You're on this one</p>` : cta}</div>`;
+  const everyBtn = on ? `<button class="btn mgo" data-tier="every">Try 14 days free</button><p class="msmall">No card needed. Cancel any time.</p>` : `<p class="msmall">Opening soon</p>`;
+  // The tools in Every Cool Thing, A to Z. Only what's built and working.
+  const tools = [
+    ["Baby name ideas", "Tell Mav the style, heritage or first letter you like and he suggests names, with meanings and how popular they are in NSW.", "/bdm#names"],
+    ["Gen Alpha interpreter", "What did your kid just say? Paste the slang and Jimmy Joel explains it, no judgement.", "/genalpha"],
+    ["Mav, unlimited", "Your personal AI helper. Tell him what's going on in your life and he finds every bit of local help, numbers and next steps. As often as you like.", "/"],
+    ["Tools before anyone else", "Try what we're building first, tell us what works, and vote on what comes next.", "/vote"],
+    ["What's in your fridge?", "Snap your fridge or type what's in it. Mav gives you dinner ideas from what you've already got.", "/fridge"],
+  ];
+  const ex = (h, t, u) => `<a class="mtool" href="${u}"><b>${h}</b><span>${t}</span></a>`;
+  return page(`Memberships: ${R.brand}`, `<style>
+.mhero{text-align:center;padding:18px 0 6px}.mhero .mk{font:700 .78rem/1 inherit;letter-spacing:.12em;text-transform:uppercase;color:var(--acc,#12233f);margin:0 0 8px}
+.mhero h1{font-size:clamp(1.6rem,4.5vw,2.3rem);line-height:1.15;margin:0 auto 10px;max-width:22ch}.mhero p.ml{max-width:46ch;margin:0 auto;color:#5b6575;font-size:1.05rem}
+.mtiers{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin:26px 0;align-items:stretch}
+.mt{position:relative;border:1px solid var(--line,#e2e7ef);border-radius:16px;padding:22px 18px 18px;display:flex;flex-direction:column;background:var(--bg,#fff)}
+.mt.hot{border:2px solid var(--gold,#f2b01e);box-shadow:0 10px 30px -14px rgba(242,176,30,.55)}.mt.mine{border:2px solid var(--fg,#12233f)}
+.mbadge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);margin:0;background:var(--gold,#f2b01e);color:#12233f;font-weight:700;font-size:.75rem;padding:3px 12px;border-radius:999px;white-space:nowrap}
+.mt h2{margin:0 0 6px;font-size:1.1rem}.mprice{font-size:2rem;font-weight:800;margin:0;line-height:1}.mprice span{font-size:.9rem;font-weight:500;color:#5b6575;margin-left:4px}
+.mtag{margin:6px 0 14px;color:#5b6575;font-size:.92rem}.mt ul{list-style:none;padding:0;margin:0 0 16px;flex:1}.mt li{display:flex;gap:8px;align-items:flex-start;margin:0 0 8px;font-size:.95rem;line-height:1.35}
+.mt li svg{flex:none;margin-top:3px;color:#15803d}.mt .btn{width:100%;text-align:center}.mgo{font-size:1rem;padding:12px}.msmall{font-size:.82rem;color:#5b6575;margin:8px 0 0;text-align:center}.mon{font-weight:700;text-align:center;margin:0}
+.mai{display:grid;gap:18px;grid-template-columns:1fr;background:#12233f;color:#fff;border-radius:18px;padding:24px;margin:30px 0}@media(min-width:720px){.mai{grid-template-columns:1.1fr 1fr;align-items:center}}
+.mai h2{color:#fff;margin:0 0 8px;font-size:1.5rem}.mai p{color:#d6dde8;margin:0 0 10px}.mai .mk{color:var(--gold,#f2b01e);font-weight:700;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px}
+.mchat{background:#1b3156;border-radius:14px;padding:14px;font-size:.92rem}.mchat p{margin:0 0 10px;padding:9px 12px;border-radius:12px;max-width:90%;line-height:1.35}.mchat .u{background:#fff;color:#12233f;margin-left:auto}.mchat .m{background:#2b4a7a;color:#fff}
+.mtools{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:14px 0 8px}.mtool{display:block;border:1px solid var(--line,#e2e7ef);border-radius:14px;padding:16px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+.mtool:hover{border-color:var(--gold,#f2b01e);transform:translateY(-2px)}.mtool b{display:block;margin:0 0 4px}.mtool span{color:#5b6575;font-size:.92rem}
+.mbeer{background:#fff8e6;color:#12233f;border-radius:16px;padding:20px;margin:28px 0;text-align:center}.mbeer h2{margin:0 0 6px}.mbeer p{max-width:52ch;margin:0 auto}
+.mdeal{list-style:none;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.mdeal li{border:1px solid var(--line,#e2e7ef);border-radius:12px;padding:12px 14px;font-size:.93rem}.mdeal b{display:block}
+.mfound{border:2px dashed var(--gold,#f2b01e);border-radius:16px;padding:20px;margin:28px 0}.mfound h2{margin:0 0 6px}.mbar{height:10px;background:var(--line,#e2e7ef);border-radius:99px;overflow:hidden;margin:10px 0 6px}.mbar i{display:block;height:100%;background:var(--gold,#f2b01e)}
+@media(prefers-color-scheme:dark){.mhero p.ml,.mtag,.mprice span,.msmall,.mtool span{color:#a8b3c4}.mbeer{background:#2a2412;color:#f4ead0}}
+</style>
+<p class="mute"><a href="/${R.code}">‹ ${R.code} ${R.place}</a></p>
+${welcome === "some" ? `<p class="found"><b>You're in. Some Cool Things is on.</b> Tell Mav what you care about and he'll set up your page.</p>` : welcome === "every" ? `<p class="found"><b>You're in. Every Cool Thing is on.</b> Thanks for helping a brother out. Go ask Mav something.</p>` : ""}
 ${need === "some" ? `<p class="found">That's part of <b>Some Cool Things</b>. It's free: just sign in with your email.</p>` : need === "every" ? `<p class="found">That tool is part of <b>Every Cool Thing</b>. Try it free for 14 days, no card needed.</p>` : ""}
-<style>.tiers{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:16px 0}.tier{border:1px solid #d9dee6;border-radius:12px;padding:14px;display:flex;flex-direction:column}.tier.hot{border-color:#f2b01e;border-width:2px}.tier.mine{border-color:#12233f;border-width:2px}.tier h2{margin:0 0 4px;font-size:1.15rem}.tprice{font-weight:700;font-size:1.3rem;margin:0}.ttag{margin:2px 0 10px;color:#5b6575}.tier ul{padding-left:18px;margin:0 0 12px;flex:1}.tier .btn{width:100%}.small{font-size:.85rem;margin:6px 0 0;text-align:center}.beer{background:#fff8e6;border-radius:12px;padding:14px;margin:18px 0}.beer h2{margin:0 0 6px}</style>
-<div class="tiers">
-${card("free", "Free for life", "$0", "No sign-in, no email", ["Every bit of local information we source", "News, weather, tides, events, Council watch and more", "Anything you can find, we find. We just get it to you quicker"], `<a class="btn ghost" href="/${R.code}">Read today's</a>`)}
-${card("some", "Some Cool Things", "Free", "Just your email", ["Everything in Free for life", "Your page, personalised: your name on the masthead", "Mav sets it up. Just tell him what you care about", "A few cool tools, worth an email", "Your setup on every phone you sign in on"], `<a class="btn" href="/signin?next=${encodeURIComponent("/membership?welcome=some")}">Sign in free</a>`)}
-${card("every", "Every Cool Thing", `$${PRICE} a year`, "Less than a dollar a week", ["Everything in Some Cool Things", "Every tool unlocked, like What's in your fridge", "Everything we build next, you get too. No extra cost", "Try new tools while we build them", "Nominate and vote on what comes next"], everyBtn)}
+<div class="mhero"><p class="mk">Memberships</p><h1>Your local news, plus a personal AI helper that knows your town</h1>
+<p class="ml">The local information is free for life. Sign in for a page that's all about you. Go Every Cool Thing and Mav works for you, unlimited.</p></div>
+<div class="mtiers">
+${card("free", "Free for life", "$0", "", "No sign-in, no email", ["Council watch, events, news, tides and weather", "Every bit of local information we source", "Scam watch and Kid Zone, always free"], `<a class="btn ghost" href="/${R.code}">Read today's</a>`)}
+${card("some", "Some Cool Things", "Free", "", "Just your email", ["Everything in Free for life", "Mav helps 10 times a day", "Mav sets up your page: just tell him what you care about", "My home and the school run check", "Your name on the masthead, your setup on every phone"], `<a class="btn" href="/signin?next=${encodeURIComponent("/membership?welcome=some")}">Sign in free</a>`)}
+${card("every", "Every Cool Thing", `$${PRICE}`, "a year", "Less than a dollar a week", ["Everything in Some Cool Things", "<b>Mav, unlimited</b>: your personal AI helper", "Baby name ideas, Gen Alpha interpreter, What's in your fridge?", "Every tool we build next, at no extra cost", "Try new tools first and vote on what's next"], everyBtn)}
 </div>
-<div class="beer"><h2>🍺 Less than a case of beer. For a whole year.</h2>
-<p>Most of us spend that on a weekend without thinking. $${PRICE} a year backs a local who sources your news without the noise, keeps council accountable, and builds the tools your community votes for. Give me a chance.</p></div>
-<h2>The deal</h2><ul class="rules">
-<li>🆓 <b>14 days free, no credit card.</b> Like it? Then you pay. Don't? Do nothing and it simply ends</li>
-<li>↩️ <b>7-day money-back.</b> Cancel within 7 days of paying and your money comes straight back. No forms, no questions</li>
-<li>🔓 <b>No lock-in.</b> Cancel any time${tier === "every" ? ` · <a href="#" id="manage">Manage my membership</a>` : ""}</li>
-<li>🔒 Secure payment by Stripe. We never see your card</li>
-<li>🛡️ Community services (Scam watch, digital safety, Kid Zone) are always free, whatever you choose</li></ul>
-<div class="found"><h2>🏅 Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
+<section class="mai"><div><p class="mk">The big one</p><h2>Meet Mav, your ultimate intern</h2>
+<p>Life admin, sorted. Tell Mav what's going on, in your own words, and he pulls together every bit of local help we know about: the right numbers, the right services and a few clear next steps.</p>
+<p>He only uses information on your Daily Maverick, so it's local, sourced and never made up from thin air. With Every Cool Thing, ask as often as you like.</p></div>
+<div class="mchat" aria-label="Example chat with Mav"><p class="u">Mum's got a specialist appointment in Sydney. How do we pay for the travel?</p><p class="m">Mmmm, let's sort it. NSW Health's travel scheme (IPTAAS) can help with fuel, fares and accommodation. Here's the form, the number to call and what to bring.</p><p class="u">Which chemist is open tonight?</p><p class="m">Here's what's open near you right now, from the NSW Government pharmacy list.</p></div></section>
+<h2>Every tool in Every Cool Thing</h2><p class="mute">Built, working and yours from day one. More on the way, and members choose what comes next.</p>
+<div class="mtools">${tools.map(t => ex(...t)).join("")}</div>
+<div class="mbeer"><h2>Less than a case of beer. For a whole year.</h2>
+<p>$${PRICE} a year backs a local who sources your news without the noise, keeps council accountable, and builds the tools your community votes for. Give me a chance.</p>${on && !mine("every") ? `<p style="margin-top:14px"><button class="btn mgo" data-tier="every" style="width:auto;padding:12px 26px">Try 14 days free</button></p>` : ""}</div>
+<h2>The deal</h2><ul class="mdeal">
+<li><b>14 days free, no credit card</b>Like it? Then you pay. Don't? Do nothing and it simply ends.</li>
+<li><b>7-day money-back</b>Cancel within 7 days of paying and your money comes straight back. No forms, no questions.</li>
+<li><b>Community services always free</b>Scam watch, digital safety and Kid Zone stay free, whatever you choose.</li>
+<li><b>No lock-in</b>Cancel any time.${tier === "every" ? ` <a href="#" id="manage">Manage my membership</a>` : ""}</li>
+<li><b>Secure payment by Stripe</b>We never see your card.</li></ul>
+<div class="mfound"><h2>Founding Members: $${FOUNDING_PRICE} a year, for life</h2><p>The first ${FOUNDING_SPOTS.toLocaleString("en-AU")} locals to sign in are Founding Members. You never have to pay a cent. But if you ever choose Every Cool Thing, you pay <b>$${FOUNDING_PRICE} a year, forever</b>, even when the price goes up for everyone else.</p>
+<div class="mbar" role="img" aria-label="${n.toLocaleString("en-AU")} of ${FOUNDING_SPOTS.toLocaleString("en-AU")} founding spots taken"><i style="width:${Math.min(100, Math.max(1, Math.round(n / FOUNDING_SPOTS * 100)))}%"></i></div>
 <p><b>${left.toLocaleString("en-AU")} founding spots left.</b> ${n ? `${n.toLocaleString("en-AU")} locals already in.` : ""}</p>${em ? "" : `<p><a href="/signin?next=/membership"><b>Sign in free to claim yours</b></a></p>`}</div>
 <p class="mute" id="paymsg" role="status"></p>
 <script>(function(){var M=document.getElementById('paymsg');function go(path,body){M.textContent='Opening secure checkout…';fetch('/api/billing/'+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){if(j.url)location.href=j.url;else if(j.signin)location.href=j.signin;else M.textContent=j.error||'Something went wrong. Try again?'}).catch(function(){M.textContent='Something went wrong. Try again?'})}
@@ -3301,9 +3339,10 @@ async function route(req, env, ctx) {
     if (p === "/bdm") return bdmPage(env, ctx);
     if (p === "/names") return Response.redirect(`${url.origin}/bdm?t=${encodeURIComponent(url.searchParams.get("t") || "nsw")}#names`, 302);
     if (p === "/api/names/lookup") return namesLookup(url, env);
+    if (p === "/api/names/ideas" && req.method === "POST" && !(await hasTier(env, await member(req, env), "every"))) return Response.json({ error: "Baby name ideas from Mav are part of Every Cool Thing. Try it free for 14 days at /membership" });
     if (p === "/api/names/ideas" && req.method === "POST") return namesIdeas(req, env).catch(() => Response.json({ error: "Mav couldn't think just now. Try again soon." }));
     if (p === "/rip") return req.method === "POST" ? lodgeRip(req, env) : ripPage(env);
-    if (p === "/genalpha") return genAlpha();
+    if (p === "/genalpha") { if (!paymentsOn(env)) return genAlpha(); const em = await member(req, env); return !em ? new Response(null, { status: 303, headers: { location: "/signin?next=/genalpha" } }) : (await hasTier(env, em, "every")) ? genAlpha() : new Response(null, { status: 303, headers: { location: "/membership?need=every" } }); }
     if (p === "/charter") return charter();
     if (p === "/privacy") return privacy();
     if (p === "/birthday") return req.method === "POST" ? lodgeOffer(req, env) : birthdayPage(env);
