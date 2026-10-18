@@ -117,6 +117,8 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
     code: "2481", brand: "The Daily Maverick", place: "Byron Bay", short: "Byron", domain: "2481-maverick.live",
     venues: [
       { name: "Beach Hotel Byron Bay", url: "https://www.beachhotel.com.au/whats-on", venue: "Beach Hotel" },
+      { name: "Hotel Brunswick (what's on)", url: "https://hotelbrunswick.com.au/whats-on/", venue: "Hotel Brunswick" },
+      { name: "Byron & Bangalow Farmers Markets", url: "https://byronfarmersmarket.com.au/", market: true },
     ],
     towns: {
       "2481": { name: "Byron Bay & Suffolk Park", lat: -28.6474, lon: 153.6020, mlat: -28.64, mlon: 153.64, live: true },
@@ -214,7 +216,7 @@ Emergencies: 000. Tides are estimates, not for navigation.`,
       { name: "C.ex Urunga (weekly activities)", url: "https://cex.com.au/whats-on/weekly-activities/", only: ["C.ex Urunga"] },
       { name: "Bellingen Growers Market", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-growers-market", venue: "Bellingen Growers Market", market: true },
       { name: "C.ex Urunga (club page)", url: "https://cex.com.au/venues/cex-urunga/", venue: "C.ex Urunga" },
-      { name: "Bellingen Community Markets", url: "https://www.nsw.gov.au/visiting-and-exploring-nsw/nsw-events/bellingen-community-markets", venue: "Bellingen Community Markets", market: true },
+      { name: "Bellingen Community Markets", url: "https://www.bellingenmarkets.com.au/market-dates/", venue: "Bellingen Community Markets", market: true },
     ],
     towns: {
       "2453": { name: "Dorrigo", lat: -30.3410, lon: 152.7130, mlat: -30.50, mlon: 153.05, live: true },
