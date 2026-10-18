@@ -126,7 +126,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;padding
 /* UX rules: keyboard focus you can see, a skip link, calmer motion, live-data timestamps, fix-it links */
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}.skip{position:absolute;left:-9999px;top:8px}.skip:focus{left:12px;z-index:100;background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-.tile[hidden],.tiles[hidden]{display:none!important}.upd{font-size:.75rem;color:var(--mute);margin:-6px 0 10px}.upd:empty{display:none}.fix{font-size:.78rem;color:var(--mute);margin:4px 0 0}#xerr{border:0;border-radius:14px;padding:20px;width:min(440px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25);background:var(--bg);color:var(--fg)}#xerr::backdrop{background:rgba(11,21,38,.55)}#xerr h2{margin:0 0 6px;font-size:1.15rem}#xerr label{display:block;margin:12px 0 4px;font-weight:600}#xerr select,#xerr textarea,#xerr input{width:100%;box-sizing:border-box;font:inherit}.xbtns{margin-top:14px;display:flex;gap:8px}.xno{background:none;border:1px solid currentColor;opacity:.75}
+.tile[hidden],.tiles[hidden]{display:none!important}.upd{font-size:.75rem;color:var(--mute);margin:-6px 0 10px}.upd:empty{display:none}.fix{font-size:.78rem;color:var(--mute);margin:4px 0 0}.xh{display:flex;align-items:center;gap:8px}.xh .xoff{margin-left:auto}.xw{position:relative}.xw .xoff{position:absolute;top:2px;right:2px;width:22px;height:22px;font-size:.7rem}.xoff{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:50%;width:28px;height:28px;padding:0;cursor:pointer;font-size:.85rem;line-height:1;flex:none;opacity:.8}.xoff:hover,.xoff:focus-visible{opacity:1;background:var(--soft)}.hidbar{font-size:.8rem;margin:6px 0 0}.hidtoast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0B1526;color:#fff;padding:10px 16px;border-radius:10px;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.3)}.hidtoast a{color:#f2b01e;font-weight:600}.mavask{position:fixed;left:16px;right:16px;bottom:16px;max-width:380px;margin:0 auto;display:flex;gap:10px;align-items:flex-start;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:12px 40px 12px 12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:55}.mavask .xoff{position:absolute;top:8px;right:8px;width:24px;height:24px}.mavface{font-size:1.6rem}.mavbtns{display:flex;gap:8px;margin-top:8px}.mavbtns button{font-size:1.2rem;padding:4px 14px;border-radius:999px;border:1px solid var(--line);background:var(--soft);cursor:pointer}.foldh{cursor:pointer;position:relative;padding-right:28px}.foldh::after{content:"▾";position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:.9em;color:var(--mute);transition:transform .2s}.folded .foldh::after{transform:translateY(-50%) rotate(-90deg)}.folded .foldh{margin-bottom:6px}.foldall{font-size:.8rem;text-align:right;margin:0 0 6px}.pbar{height:14px;background:var(--soft);border-radius:7px;overflow:hidden;margin:8px 0 4px}.pbar span{display:block;height:100%;background:var(--acc,#f2b01e)}#xerr{border:0;border-radius:14px;padding:20px;width:min(440px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25);background:var(--bg);color:var(--fg)}#xerr::backdrop{background:rgba(11,21,38,.55)}#xerr h2{margin:0 0 6px;font-size:1.15rem}#xerr label{display:block;margin:12px 0 4px;font-weight:600}#xerr select,#xerr textarea,#xerr input{width:100%;box-sizing:border-box;font:inherit}.xbtns{margin-top:14px;display:flex;gap:8px}.xno{background:none;border:1px solid currentColor;opacity:.75}
 `;
 
 // Formal look: emojis come off headings, buttons, cards and notes across the site (about 10% left).
@@ -173,9 +173,7 @@ function page(title, body, pc = "", opts = {}) {
 <style>${CSS}${NAV_CSS}${SIDE_CSS}</style></head><body><a class="skip" href="#main">Skip to content</a><header class="top"><span class="hdr"><a class="brand" href="/" aria-label="${R.brand} home"><span class="badge">${R.code}</span><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg></a><button type="button" id="m2inst" class="inst" hidden aria-haspopup="dialog" aria-label="Download the app" title="Download the app">📲</button></span><a href="/signin?next=/me" id="my2450" class="my signin">👤 My ${R.code}</a></header>${navBar()}${HELP_UI(R.brand)}${HELP_PANEL()}
 <script>try{var a=document.getElementById("my2450");if(/(?:^|; )m2450n=/.test(document.cookie)){var n=decodeURIComponent((document.cookie.match(/(?:^|; )m2450n=([^;]*)/)||[])[1]||"")||localStorage.getItem("name");a.href="/me";a.classList.remove("signin");a.textContent="💬 "+(n?n+"\\u2019s ":"My ")+"${R.code}";var pp=(document.cookie.match(/(?:^|; )m2450p=([^;]*)/)||[])[1];if(pp){var im=new Image();im.src=decodeURIComponent(pp);im.alt="";im.className="av";im.onerror=function(){im.remove()};a.textContent=a.textContent.replace("💬 ","");a.prepend(im)}}}catch(e){}<\/script>
 <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path fill="currentColor" d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0Z"/></svg><main id="main" tabindex="-1">${fixSecLinks(formal(body), R.code).replace(/class="ico"/g, 'class="ico" aria-hidden="true"')}</main>
-<div class="rate" id="rate"><span>Was this page useful?</span> <button type="button" data-v="up" aria-label="Yes, useful">👍</button> <button type="button" data-v="down" aria-label="No, not useful">👎</button>
-<span class="mute">Did we mess up? <a href="#" id="rwrong">Tell us and we'll fix it</a>.</span>
-<p id="rmsg" class="mute" hidden></p></div>
+<div id="rate" hidden><p id="rmsg" class="mute" hidden></p></div>
 <dialog id="xerr" aria-labelledby="xerrh"><form id="rform" method="dialog"><h2 id="xerrh">Spot an error?</h2>
 <p class="mute">Thanks for helping keep ${R.code} right. We'll send this page's link with it, so we can find it.</p>
 <label for="xwhere">Where is it?</label><select id="xwhere"></select>
@@ -194,12 +192,12 @@ function shut(){if(d.close)d.close();else d.removeAttribute('open')}
 document.getElementById('xcancel').onclick=shut;document.getElementById('xclose').onclick=shut;
 d.addEventListener('click',function(e){if(e.target===d)shut()});
 var done=null;try{done=localStorage.getItem(K)}catch(e){}
-document.querySelectorAll('#rate button[data-v]').forEach(function(b){if(done===b.dataset.v)b.classList.add('on');b.onclick=function(){var v=b.dataset.v;if(done!==v){send({v:v});try{localStorage.setItem(K,v)}catch(e){}done=v}
+[].forEach.call(document.querySelectorAll('#rate button[data-v]'),function(b){if(done===b.dataset.v)b.classList.add('on');b.onclick=function(){var v=b.dataset.v;if(done!==v){send({v:v});try{localStorage.setItem(K,v)}catch(e){}done=v}
 document.querySelectorAll('#rate button[data-v]').forEach(function(x){x.classList.toggle('on',x===b)});if(v==='down')m2err();else say('Thanks! Glad it helped.')}});
-document.getElementById('rwrong').onclick=function(e){e.preventDefault();m2err()};
+var rw=document.getElementById('rwrong');if(rw)rw.onclick=function(e){e.preventDefault();m2err()};
 f.onsubmit=function(e){e.preventDefault();var n=document.getElementById('rnote'),em=document.getElementById('remail');if(!n.value.trim()){n.focus();return}
 send({note:n.value.trim(),email:em.value.trim(),sec:w.value});n.value='';f.hidden=true;document.getElementById('xdone').hidden=false;document.getElementById('xclose').focus()}})();</script>
-<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/timesaved", "Time saved"], ["/credits", "Photo credits"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
+<footer><p>${abc([["/about", "Nobody pays to be here"], ["/feedback", `Make ${R.code} better`], ["/charter", "Charter"], ["/privacy", "Privacy"], ["/faq", "FAQ"], ["/all", "Everything"], ["/results", "What locals told us"], ["/credits", "Photo credits"], ["/status", "What's done"], ...(pc ? [[`/submit?pc=${pc}`, "Add an event"]] : [])], x => x[1]).map(([u, t]) => `<a href="${u}">${t}</a>`).join(" · ")}</p>
 <p class="legend"><span class="fresh g"></span> updated in the last week · <span class="fresh a"></span> in the last 3 months · <span class="fresh r"></span> older than 3 months</p>
 <p>${R.footer}</p>
 <p class="gaz">Supporting regional Australia: ${abc(Object.values(REGIONS), x => x.code).map(x => x.code === R.code ? `<b title="${esc(x.place)}">${x.code}</b>` : `<a href="https://${x.domain}" title="${esc(x.place)}">${x.code}</a>`).join(" · ")} · <a href="/suggest">Want one for your town?</a> · <a href="https://2450-maverick.live/au">Regional Australia: who represents you?</a></p>
@@ -207,7 +205,7 @@ send({note:n.value.trim(),email:em.value.trim(),sec:w.value});n.value='';f.hidde
 <p class="pow"><span>Powered by</span> <a class="md" href="https://maverickdigital.com.ai" aria-label="Maverick Digital"><svg viewBox="3 4.5 28 23.5" aria-hidden="true" class="mark"><path d="M5 26 L12 11 L17.5 20 L23 8 L29 26" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="23" cy="8" r="2.6" fill="currentColor"/></svg>MAVERICK DIGITAL</a></p></footer>
 <script>window.M2C=${JSON.stringify({ code: R.code, secs: SECTIONS, towns: Object.fromEntries(Object.entries(TOWNS).filter(([, v]) => v.live).map(([k, v]) => [k, [v.name, v.lat, v.lon]])) }).replace(/</g, "\\u003c")}<\/script><script>${PERSONAL_JS}<\/script>
 ${MAV_WIDGET()}
-<script>${TS_JS}<\/script>
+<script>${MAV_ASK_JS}<\/script><script>${HIDE_JS}<\/script><script>${FOLD_JS}<\/script>
 <script>/* ActiveCampaign context: remember the reader's chosen postcode and the page they're on, so sign-ups record both */
 try{var _pc=localStorage.getItem("pc");if(/^\\d{4}$/.test(_pc||""))document.cookie="mpc="+_pc+"; Path=/; Max-Age=31536000; Secure; SameSite=Lax";if(!/(^|; )mutm=/.test(document.cookie)){var _q=new URLSearchParams(location.search),_u={};["source","medium","campaign","content","term"].forEach(function(k){var v=_q.get("utm_"+k);if(v)_u[k]=v.slice(0,100)});var _r="";try{_r=document.referrer?new URL(document.referrer).hostname:""}catch(_){}if(_r&&_r!==location.hostname)_u.ref=_r;_u.land=location.pathname.slice(0,100);if(_u.source||_u.ref||_q.has("gclid")||_q.has("fbclid")){if(!_u.source&&_q.has("gclid"))_u.source="google",_u.medium="cpc";if(!_u.source&&_q.has("fbclid"))_u.source="facebook",_u.medium="social"}document.cookie="mutm="+encodeURIComponent(JSON.stringify(_u))+"; Path=/; Max-Age=7776000; Secure; SameSite=Lax"}if(!/^\\/(signin|welcome|unlock|optin|auth|subscribe|api)/.test(location.pathname))document.cookie="mpg="+encodeURIComponent(location.pathname)+"; Path=/; Max-Age=86400; Secure; SameSite=Lax"}catch(_){}<\/script>
 <script>/* External links: open in a new tab and tell the site the visit came from this Daily Maverick (UTM tags), so their analytics credit us. */
@@ -221,7 +219,7 @@ function live(){return[].some.call(c.querySelectorAll('.tile b'),function(b){ret
 new MutationObserver(function(){if(live())st.textContent='Live data · updated '+hm()}).observe(c,{subtree:true,characterData:true,childList:true});
 setTimeout(function(){var all=[].slice.call(c.querySelectorAll('.tile')),dead=all.filter(function(t){var b=t.querySelector('b');return b&&b.textContent.trim()==='–'});if(!dead.length)return;dead.forEach(function(t){t.hidden=true});if(dead.length===all.length){c.hidden=true;st.textContent='Live data is taking a short break. Check back soon.'}},12000)});
 setTimeout(function(){document.querySelectorAll('main p,main span,main div').forEach(function(e){if(!e.children.length&&/^(Loading…|checking…)$/.test(e.textContent.trim()))e.textContent='Couldn’t load just now. Check back soon.'})},15000);
-var f=document.getElementById('rform');document.querySelectorAll('#flow>section').forEach(function(sc){var ps=sc.querySelectorAll('p.src');if(!ps.length||sc.querySelector('.fix'))return;var h=sc.querySelector('h2'),nm=h?h.textContent.trim():'this section',p=document.createElement('p');p.className='fix';p.innerHTML='<a href="#rate">Spot an error, or want to add something?</a>';
+var f=document.getElementById('rform');document.querySelectorAll('#flow>section,main section').forEach(function(sc){var ps=sc.querySelectorAll('p.src');if(!ps.length||sc.querySelector('.fix'))return;var h=sc.querySelector('h2'),nm=h?h.textContent.trim():'this section',p=document.createElement('p');p.className='fix';p.innerHTML='<a href="#rate">Spot an error, or want to add something?</a>';
 p.querySelector('a').onclick=function(e){if(!window.m2err)return;e.preventDefault();window.m2err(nm)};var last=ps[ps.length-1];last.parentNode.insertBefore(p,last.nextSibling)})})();</script>
 <script>(function(){var first=null,seen=false;try{seen=!!localStorage.getItem('src_hint')}catch(e){}
 document.querySelectorAll('p.src').forEach(function(p){p.hidden=true;var b=document.createElement('button');b.type='button';b.className='srcbtn';b.innerHTML='ⓘ <span>Where from?</span>';
@@ -867,6 +865,80 @@ ${rec ? `<form method="post"><input type="hidden" name="act" value="off"><button
 <p><b>What helps most:</b> use the controls built into the device as well as ours (Apple Screen Time, Google Family Link, or your internet router's settings), keep devices in shared spaces, and talk about it: kids who know why the rules exist are less likely to dodge them.</p>
 <p><a href="https://www.esafety.gov.au/parents" rel="noopener"><b>eSafety Commissioner: advice for parents and carers →</b></a> · <a href="https://www.apple.com/au/families/" rel="noopener">Apple: Screen Time and Family Sharing</a> · <a href="https://families.google/familylink/" rel="noopener">Google Family Link</a></p>
 <p class="mute">We only keep a scrambled version of the word, never the word itself, so even we can't read it. Forgot it? Just set a new one here. <a href="/kids">Back to Kid Zone</a></p>`);
+}
+
+// ---- Mav asks once (within a reader's first 3 days): "Is your Daily Maverick saving you time?" Thumbs up or down.
+// Asked on their second day back, or after a few pages on day one. Never asked twice. Results show on /results.
+const MAV_ASK_JS = String.raw`(function(){function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function s(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+if(g('mav_tsq'))return;var now=Date.now(),day=new Date().toDateString(),fs=+g('mav_fs')||0;if(!fs){fs=now;s('mav_fs',String(fs))}
+var days=[];try{days=JSON.parse(g('mav_days')||'[]')}catch(e){}if(days.indexOf(day)<0){days.push(day);s('mav_days',JSON.stringify(days.slice(-5)))}
+var pv=(+g('mav_pv')||0)+1;s('mav_pv',String(pv));var age=(now-fs)/864e5;
+if(!(days.length>=2||pv>=6||age>=3))return;if(/^\/(signin|welcome|unlock|optin|kids)/.test(location.pathname))return;
+setTimeout(function(){var b=document.createElement('div');b.className='mavask';b.setAttribute('role','dialog');b.setAttribute('aria-label','Quick question from Mav');
+b.innerHTML='<span class="mavface" aria-hidden="true">🎧</span><div><b>Mav here. Quick one:</b><br>Is your Daily Maverick saving you time?<div class="mavbtns"><button type="button" data-v="up" aria-label="Yes">👍</button><button type="button" data-v="down" aria-label="No">👎</button></div></div><button type="button" class="xoff" aria-label="Close">✕</button>';
+document.body.appendChild(b);b.addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;s('mav_tsq','1');
+if(t.dataset.v){fetch('/api/poll',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:'saving-time',v:t.dataset.v})}).catch(function(){});
+b.querySelector('div').innerHTML='<b>Thanks!</b> '+(t.dataset.v==='up'?'Glad to hear it.':'Tell me what would help and I&rsquo;ll pass it on.')+' <a href="/results">See what locals said</a>';setTimeout(function(){b.remove()},6000)}else b.remove()})},2500)})();`;
+
+// ---- Turn off anything on the home page: every section and tile gets a clear ✕. Hidden items can be brought back in one tap.
+const HIDE_JS = String.raw`(function(){var f=document.getElementById('flow');if(!f)return;function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function s(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+var items=[];[].forEach.call(f.children,function(el){var h=el.querySelector&&el.querySelector('h2');if(el.tagName==='SECTION'&&el.id&&h&&el.id!=='today')items.push([el,el.id,h.textContent.trim(),h])});
+[].forEach.call(document.querySelectorAll('#today .tile'),function(t,i){var b=t.querySelector('b[id]'),k='tile'+((b&&b.id)||('n'+i)).replace(/[^a-z]/gi,'').toLowerCase(),nm=(t.querySelector('small')||{}).textContent||'this';items.push([t,k,nm.trim(),null])});
+var fr=document.getElementById('frs');if(fr)items.push([fr,'frs',"Friends' clocks",null]);
+function count(){return items.filter(function(x){return g('hide_'+x[1])}).length}
+var bar=document.createElement('p');bar.className='hidbar mute';var td=document.getElementById('today');if(td)td.appendChild(bar);
+function drawBar(){var n=count();bar.hidden=!n;bar.innerHTML=n?n+' thing'+(n>1?'s':'')+' hidden · <a href="#" id="unhide">Show '+(n>1?'them':'it')+' again</a>':''}
+function toast(nm,k){var t=document.getElementById('hidtoast');if(t)t.remove();t=document.createElement('div');t.id='hidtoast';t.className='hidtoast';t.setAttribute('role','status');
+t.innerHTML='Hidden '+nm.replace(/</g,'')+'. <a href="#">Undo</a>';t.querySelector('a').onclick=function(e){e.preventDefault();s('hide_'+k,null);location.reload()};document.body.appendChild(t);setTimeout(function(){t.remove()},6000)}
+items.forEach(function(x){var el=x[0],k=x[1],nm=x[2];if(g('hide_'+k)){el.hidden=true;el.classList.add('xhid')}
+var b=document.createElement('button');b.type='button';b.className='xoff';b.textContent='✕';b.title='Hide this';b.setAttribute('aria-label','Hide '+nm);
+b.onclick=function(e){e.preventDefault();e.stopPropagation();s('hide_'+k,'1');el.hidden=true;el.classList.add('xhid');var pb=document.querySelector('.pills button[data-id="'+k+'"]');if(pb)pb.hidden=true;drawBar();toast(nm,k);if(window.m2up)window.m2up()};
+if(x[3]){x[3].classList.add('xh');x[3].appendChild(b)}else{el.classList.add('xw');el.appendChild(b)}});
+document.addEventListener('click',function(e){if(e.target.id!=='unhide')return;e.preventDefault();items.forEach(function(x){s('hide_'+x[1],null)});location.reload()});drawBar()})();`;
+
+// ---- Inner pages stay tidy: every section is folded to its heading unless the reader opens it (remembered), it's linked to,
+// or it's the page's first section. Home keeps its own layout. Sections with maps or live widgets stay open.
+const FOLD_JS = String.raw`(function(){if(document.getElementById('flow'))return;var m=document.getElementById('main');if(!m)return;
+var secs=[].filter.call(m.querySelectorAll('section'),function(sc){return sc.querySelector(':scope>h2')&&!sc.closest('dialog')&&!sc.parentNode.closest('section')});if(secs.length<3)return;
+function g(k){try{return localStorage.getItem(k)}catch(e){return null}}function s(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+var P=location.pathname,hash=decodeURIComponent(location.hash.slice(1));
+secs.forEach(function(sc,i){var h=sc.querySelector(':scope>h2'),key='fold:'+P+':'+(sc.id||i);if(sc.querySelector('.leaflet-container,#map,iframe,canvas,form'))return;
+var body=document.createElement('div');body.className='foldb';var n=h.nextSibling;while(n){var nx=n.nextSibling;body.appendChild(n);n=nx}sc.appendChild(body);
+var open=i===0||g(key)==='1'||(hash&&(sc.id===hash||sc.querySelector('[id="'+hash.replace(/"/g,'')+'"]')));
+h.classList.add('foldh');h.setAttribute('role','button');h.tabIndex=0;function set(o){body.hidden=!o;h.setAttribute('aria-expanded',String(o));sc.classList.toggle('folded',!o)}set(!!open);
+function tog(){var o=body.hidden;set(o);s(key,o?'1':null)}h.addEventListener('click',function(e){if(e.target.closest('a,button'))return;tog()});h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();tog()}})});
+var bar=document.createElement('p');bar.className='foldall mute';bar.innerHTML='<a href="#" data-a="1">Open all</a> · <a href="#" data-a="0">Close all</a>';secs[0].parentNode.insertBefore(bar,secs[0]);
+bar.onclick=function(e){var a=e.target.dataset&&e.target.dataset.a;if(a==null)return;e.preventDefault();[].forEach.call(m.querySelectorAll('.foldh'),function(h){var b=h.parentNode.querySelector(':scope>.foldb');if(b){b.hidden=a!=='1';h.setAttribute('aria-expanded',String(a==='1'));h.parentNode.classList.toggle('folded',a!=='1')}})}})();`;
+
+// ---- One-off reader polls (thumbs up/down). Counts only, no personal details. Shown on /results.
+const POLLS = { "saving-time": "Is your Daily Maverick saving you time?" };
+async function pollApi(req, env) {
+  let b = {}; try { b = await req.json(); } catch {}
+  if (!POLLS[b.q] || (b.v !== "up" && b.v !== "down")) return Response.json({ ok: false }, { status: 400 });
+  const mon = new Date().toISOString().slice(0, 7);
+  for (const k of [`poll:${b.q}`, `poll:${b.q}:${mon}`]) { const c = (await env.DATA.get(k, "json")) || { up: 0, down: 0 }; c[b.v]++; await env.DATA.put(k, JSON.stringify(c)); }
+  return Response.json({ ok: true });
+}
+
+// ---- What locals told us: everything we collect from readers, out in the open (counts only, never who said what).
+async function resultsPage(env) {
+  const bar = (c, upL = "Yes", downL = "No") => { const n = (c?.up || 0) + (c?.down || 0); if (!n) return `<p class="mute">No answers yet. Check back soon.</p>`; const pu = Math.round(c.up / n * 100);
+    return `<div class="pbar" role="img" aria-label="${pu}% ${upL}, ${100 - pu}% ${downL}"><span style="width:${pu}%"></span></div><p><b>👍 ${pu}% ${upL}</b> · 👎 ${100 - pu}% ${downL} <span class="mute">(${n.toLocaleString("en-AU")} ${n === 1 ? "answer" : "answers"})</span></p>`; };
+  const polls = await Promise.all(Object.entries(POLLS).map(async ([q, t]) => `<section id="poll-${q}"><h2>${esc(t)}</h2>${bar(await env.DATA.get(`poll:${q}`, "json"))}<p class="mute">Mav asks each reader once, in their first few days.</p></section>`));
+  const ts = (await env.DATA.get("ts:total", "json")) || { mins: 0 };
+  const rates = (await Promise.all((await klist(env, "rate:")).map(async k => [k.name.slice(5), await env.DATA.get(k.name, "json")]))).filter(x => x[1] && x[1].up + x[1].down >= 3)
+    .sort((a, b) => (b[1].up + b[1].down) - (a[1].up + a[1].down)).slice(0, 10);
+  const top = (await ideas(env)).filter(i => i.status !== "done").sort((a, b) => b.votes - a.votes).slice(0, 5);
+  const picks = {}; for (const { name } of await klist(env, "sub:")) { const v = await env.DATA.get(name, "json"); if (v?.tips) picks[v.tips] = (picks[v.tips] || 0) + 1; }
+  const nLoc = await localsCount(env);
+  return page("What locals told us", `<h1>What locals told us</h1>
+<p>Everything we ask readers, out in the open. Counts only: we never show who said what. <span class="mute">Unofficial and from readers of ${R.brand} ${R.code}, so it's not a scientific survey.</span></p>
+${polls.join("")}
+<section id="locals"><h2>Locals signed up</h2><p><b>${nLoc.toLocaleString("en-AU")}</b> of our ${LOCALS_GOAL.toLocaleString("en-AU")} goal.</p></section>
+<section id="saved"><h2>Time saved</h2>${ts.mins > 0 ? `<p>Locals say our tools save them <b>${tsH(ts.mins)} a week</b> all up, about <b>${tsH(ts.mins * 52)} a year</b>.</p>` : `<p class="mute">No time-saved reports yet.</p>`}</section>
+<section id="ideas"><h2>What locals want built next</h2>${top.length ? `<ol>${top.map(i => `<li>${esc(i.text)} <span class="mute">👍 ${i.votes}</span></li>`).join("")}</ol>` : `<p class="mute">No ideas yet.</p>`}<p><a href="/feedback">Suggest or vote →</a></p></section>
+<section id="tips"><h2>Who locals want their AI tips from</h2>${Object.keys(picks).length ? `<ul>${TIPPERS.map(([k, n]) => `<li>${n}: <b>${picks[k] || 0}</b></li>`).join("")}</ul>` : `<p class="mute">No picks yet.</p>`}</section>
+${rates.length ? `<section id="useful"><h2>Most-rated pages</h2><ul>${rates.map(([p, c]) => `<li><a href="${esc(p)}">${esc(p)}</a>: 👍 ${c.up} · 👎 ${c.down}</li>`).join("")}</ul></section>` : ""}`);
 }
 
 // ---- Tracked links to Maverick Digital (key conversion events). Counts clicks per day, then adds UTM tags
@@ -2785,6 +2857,8 @@ async function route(req, env, ctx) {
     if (p === "/signout") return signout(req, env);
     if (p === "/new") return newPage(env);
     if (p === "/api/rate" && req.method === "POST") return rate(req, env, ctx);
+    if (p === "/api/poll" && req.method === "POST") return pollApi(req, env);
+    if (p === "/results") return resultsPage(env);
     if (p.startsWith("/api/push/") || p === "/api/alert") { const r = await pushApi(req, env, p); if (r) return r; }
     if (p === "/open") return openPage();
     if (p === "/whatsopen" || p === "/visiting") return Response.redirect(new URL("/open", url).toString(), 302);
