@@ -1,0 +1,31 @@
+name: Checks
+
+# Runs on every pull request and every branch push.
+# Green tick = safe to merge. Red cross = fix first, do not merge.
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secret scan
+        run: |
+          # Lists file names only, so a leaked key is never printed into the log.
+          if grep -rlIE --exclude-dir=.git --exclude-dir=.github '(sk_live_|sk_test_|rk_live_|whsec_|ghp_|github_pat_|AKIA[0-9A-Z]{12}|xox[bp]-|sk-ant-|-----BEGIN [A-Z ]*PRIVATE KEY-----)' . ; then
+            echo "Possible secret in the files listed above."
+            echo "Get a fresh key, cancel the old one, remove it from the repo, then re-push."
+            exit 1
+          fi
+          echo "No secrets found."
+
+      - name: Required files
+        run: |
+          for f in wrangler.jsonc src/index.js; do
+            test -f "$f" || { echo "Missing required file: $f"; exit 1; }
+          done
+          echo "Required files present."

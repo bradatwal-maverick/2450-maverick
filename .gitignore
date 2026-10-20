@@ -1,0 +1,15 @@
+# Secrets: never commit these. Real keys live in Cloudflare Variables and Secrets.
+.env
+.env.*
+.dev.vars
+*.pem
+*.key
+APE KEY SECRETS.txt
+*secrets*.txt
+
+# Local junk
+.wrangler/
+node_modules/
+*.zip
+.DS_Store
+Thumbs.db
